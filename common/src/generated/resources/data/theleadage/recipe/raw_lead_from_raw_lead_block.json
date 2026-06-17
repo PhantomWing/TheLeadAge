@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "theleadage:raw_lead_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "theleadage:raw_lead"
+  }
+}

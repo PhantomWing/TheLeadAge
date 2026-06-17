@@ -1,0 +1,54 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "theleadage:config_boolean",
+          "settingId": "enable_recipe_overrides"
+        },
+        {
+          "type": "theleadage:config_boolean",
+          "settingId": "override_fishing_rod_recipe"
+        }
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "theleadage:config_boolean",
+          "settingId": "enable_recipe_overrides"
+        },
+        {
+          "condition": "theleadage:config_boolean",
+          "settingId": "override_fishing_rod_recipe"
+        }
+      ]
+    }
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:stick"
+    },
+    "N": {
+      "item": "theleadage:lead_nugget"
+    },
+    "X": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    "  #",
+    " #X",
+    "# N"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:fishing_rod"
+  }
+}

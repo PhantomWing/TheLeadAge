@@ -1,0 +1,29 @@
+{
+  "item_group.theleadage": "The Lead Age",
+
+  "block.theleadage.lead_ore": "Lead Ore",
+  "block.theleadage.deepslate_lead_ore": "Deepslate Lead Ore",
+  "block.theleadage.raw_lead_block": "Block of Raw Lead",
+  "block.theleadage.lead_block": "Block of Lead",
+
+  "item.theleadage.raw_lead": "Raw Lead",
+  "item.theleadage.lead_ingot": "Lead Ingot",
+  "item.theleadage.lead_nugget": "Lead Nugget",
+  "item.theleadage.lead_sword": "Lead Sword",
+  "item.theleadage.lead_pickaxe": "Lead Pickaxe",
+  "item.theleadage.lead_axe": "Lead Axe",
+  "item.theleadage.lead_shovel": "Lead Shovel",
+  "item.theleadage.lead_hoe": "Lead Hoe",
+  "item.theleadage.lead_helmet": "Lead Helmet",
+  "item.theleadage.lead_chestplate": "Lead Chestplate",
+  "item.theleadage.lead_leggings": "Lead Leggings",
+  "item.theleadage.lead_boots": "Lead Boots",
+  "attribute.name.theleadage.heaviness": "Heaviness",
+
+  "text.autoconfig.theleadage.title": "The Lead Age",
+  "text.autoconfig.theleadage.option.generate_lead_ore": "Generate Lead Ore",
+  "text.autoconfig.theleadage.option.enable_lead_ore_nausea": "Lead Ore Nausea",
+  "text.autoconfig.theleadage.option.enable_recipe_overrides": "Override Vanilla Recipes",
+  "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Fishing Rod Recipe",
+  "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Heavy Core Recipe"
+}

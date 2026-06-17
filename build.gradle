@@ -1,0 +1,153 @@
+plugins {
+    id 'architectury-plugin' version "${architectury_plugin_version}"
+    id 'dev.architectury.loom' version "${architectury_loom_version}" apply false
+    id 'me.modmuss50.mod-publish-plugin' version '0.8.4'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+architectury {
+    minecraft = rootProject.minecraft_version
+}
+
+subprojects {
+    apply plugin: 'dev.architectury.loom'
+
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        // Mojang official mappings, layered with Parchment.
+        mappings loom.layered {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_mappings_version}@zip")
+        }
+    }
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'architectury-plugin'
+    apply plugin: 'maven-publish'
+
+    base {
+        archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+    }
+
+    version = mod_version
+    group = mod_group_id
+
+    repositories {
+        mavenLocal()
+
+        maven { url = 'https://maven.neoforged.net/releases' }
+        maven { url = 'https://maven.parchmentmc.org' }
+
+        // AppleSkin (dev-runtime only)
+        maven {
+            url = "https://maven.ryanliptak.com/"
+        }
+
+        // JEI (dev-runtime only)
+        maven {
+            name = "Jared's maven"
+            url = "https://maven.blamejared.com/"
+        }
+        maven {
+            name = "ModMaven"
+            url = "https://modmaven.dev"
+        }
+
+        // Cloth Config — a real (shipped) Fabric dependency backing the Fabric
+        // AutoConfig config screen. Scoped to the Cloth Config group so this
+        // maven does not broaden resolution for anything else.
+        maven {
+            name = "shedaniel"
+            url = "https://maven.shedaniel.me/"
+            content { includeGroup "me.shedaniel.cloth" }
+        }
+
+        // CurseForge mods (dev-runtime only — e.g. The Silver Age for side-by-side
+        // comparison). Scoped to the curse.maven group so it doesn't broaden
+        // resolution for anything else.
+        maven {
+            name = "CurseMaven"
+            url = "https://cursemaven.com"
+            content { includeGroup "curse.maven" }
+        }
+    }
+
+    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 21
+    }
+
+    java {
+        withSourcesJar()
+    }
+
+    idea {
+        module {
+            downloadSources = true
+            downloadJavadoc = true
+        }
+    }
+}
+
+// ---- Automatic deployment (Modrinth + CurseForge) ----
+//
+// Driven by the manual `.github/workflows/release.yml` (workflow_dispatch). Each
+// release publishes ONE version per platform containing both loader jars.
+//
+// BEFORE the first publish you must:
+//   1. Create the Modrinth + CurseForge projects.
+//   2. Fill modrinth_project_id / curseforge_project_id in gradle.properties.
+//   3. Set TWO repo secrets: MODRINTH_TOKEN, CURSEFORGE_TOKEN (account-wide tokens,
+//      reusable across all your projects).
+// Until a token is present `publishMods` runs in dry-run mode, so it never uploads
+// or fails CI accidentally.
+def fabricRemap = project(":fabric").tasks.named("remapJar")
+def neoforgeRemap = project(":neoforge").tasks.named("remapJar")
+
+publishMods {
+    type = STABLE
+    version = mod_version
+    changelog = providers.environmentVariable("CHANGELOG").orElse("See the GitHub release notes.")
+    dryRun = !providers.environmentVariable("MODRINTH_TOKEN").isPresent() &&
+            !providers.environmentVariable("CURSEFORGE_TOKEN").isPresent()
+
+    modrinth {
+        projectId = providers.gradleProperty("modrinth_project_id")
+                .orElse(providers.environmentVariable("MODRINTH_PROJECT_ID")).orElse("PLACEHOLDER")
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN").orElse("")
+        displayName = "The Lead Age ${mod_version} (MC ${minecraft_version})"
+        minecraftVersions.add(minecraft_version)
+        modLoaders.add("fabric")
+        modLoaders.add("neoforge")
+        file.set(fabricRemap.flatMap { it.archiveFile })
+        additionalFiles.from(neoforgeRemap.flatMap { it.archiveFile })
+        requires { slug = "architectury-api" }
+        optional { slug = "fabric-api" }
+    }
+
+    curseforge {
+        projectId = providers.gradleProperty("curseforge_project_id")
+                .orElse(providers.environmentVariable("CURSEFORGE_PROJECT_ID")).orElse("PLACEHOLDER")
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse("")
+        displayName = "The Lead Age ${mod_version} (MC ${minecraft_version})"
+        minecraftVersions.add(minecraft_version)
+        modLoaders.add("fabric")
+        modLoaders.add("neoforge")
+        file.set(fabricRemap.flatMap { it.archiveFile })
+        additionalFiles.from(neoforgeRemap.flatMap { it.archiveFile })
+        requires { slug = "architectury-api" }
+        optional { slug = "fabric-api" }
+    }
+}

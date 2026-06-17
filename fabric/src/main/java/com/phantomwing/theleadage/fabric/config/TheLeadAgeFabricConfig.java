@@ -1,0 +1,52 @@
+package com.phantomwing.theleadage.fabric.config;
+
+import com.phantomwing.theleadage.TheLeadAge;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.ConfigData;
+import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+
+/**
+ * Fabric config, backed by Cloth Config's AutoConfig. Persists to
+ * {@code config/theleadage.json}. Option ids and {@code true} defaults are kept
+ * 1:1 with the NeoForge {@code Configuration}. Cross-loader code reaches these
+ * gates through the {@code @ExpectPlatform CommonConfig} bridge.
+ */
+@Config(name = TheLeadAge.MOD_ID)
+public class TheLeadAgeFabricConfig implements ConfigData {
+    public static final String GENERATE_LEAD_ORE_ID = "generate_lead_ore";
+    public boolean generate_lead_ore = true;
+
+    public static final String ENABLE_LEAD_ORE_NAUSEA_ID = "enable_lead_ore_nausea";
+    public boolean enable_lead_ore_nausea = true;
+
+    public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
+    public boolean enable_recipe_overrides = true;
+
+    public static final String OVERRIDE_FISHING_ROD_RECIPE_ID = "override_fishing_rod_recipe";
+    public boolean override_fishing_rod_recipe = true;
+
+    public static final String OVERRIDE_HEAVY_CORE_RECIPE_ID = "override_heavy_core_recipe";
+    public boolean override_heavy_core_recipe = true;
+
+    public static TheLeadAgeFabricConfig get() {
+        return AutoConfig.getConfigHolder(TheLeadAgeFabricConfig.class).getConfig();
+    }
+
+    /** Registers the config holder + serializer. MUST be called before the first {@link #get()}. */
+    public static void register() {
+        AutoConfig.register(TheLeadAgeFabricConfig.class, GsonConfigSerializer::new);
+    }
+
+    public static boolean getBooleanConfigurationValue(String id) {
+        TheLeadAgeFabricConfig config = get();
+        return switch (id) {
+            case GENERATE_LEAD_ORE_ID -> config.generate_lead_ore;
+            case ENABLE_LEAD_ORE_NAUSEA_ID -> config.enable_lead_ore_nausea;
+            case ENABLE_RECIPE_OVERRIDES_ID -> config.enable_recipe_overrides;
+            case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;
+            case OVERRIDE_HEAVY_CORE_RECIPE_ID -> config.override_heavy_core_recipe;
+            default -> throw new Error("Invalid setting ID: " + id);
+        };
+    }
+}

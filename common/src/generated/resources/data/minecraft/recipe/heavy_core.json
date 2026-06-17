@@ -1,0 +1,51 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "theleadage:config_boolean",
+          "settingId": "enable_recipe_overrides"
+        },
+        {
+          "type": "theleadage:config_boolean",
+          "settingId": "override_heavy_core_recipe"
+        }
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "theleadage:config_boolean",
+          "settingId": "enable_recipe_overrides"
+        },
+        {
+          "condition": "theleadage:config_boolean",
+          "settingId": "override_heavy_core_recipe"
+        }
+      ]
+    }
+  ],
+  "key": {
+    "L": {
+      "item": "theleadage:lead_block"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    }
+  },
+  "pattern": [
+    "LLL",
+    "LNL",
+    "LLL"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:heavy_core"
+  }
+}

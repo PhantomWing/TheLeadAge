@@ -1,0 +1,61 @@
+name: Release
+
+# Manual-dispatch only: trigger from the Actions tab. Builds both loaders and
+# publishes one version per platform to Modrinth + CurseForge.
+#
+# Requires just TWO repository secrets (Settings → Secrets and variables → Actions):
+#   MODRINTH_TOKEN, CURSEFORGE_TOKEN  (account-wide tokens — reuse the same values
+#   you use for your other mods; paste them into this repo's secrets).
+# Project IDs live in gradle.properties (public, not secret). Until a token is set,
+# the publish step runs in dry-run mode (see build.gradle).
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Mod version (overrides gradle.properties mod_version, e.g. 1.0.0)"
+        required: false
+        type: string
+      changelog:
+        description: "Changelog for this release"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # The committed gradle.properties pins a local Windows JDK path; override it
+      # on the Linux runner via the JAVA_HOME provisioned by setup-java.
+      - name: Build
+        run: >
+          ./gradlew build
+          -Dorg.gradle.java.home="$JAVA_HOME"
+          ${{ inputs.version && format('-Pmod_version={0}', inputs.version) || '' }}
+
+      - name: Publish to Modrinth + CurseForge
+        run: >
+          ./gradlew publishMods
+          -Dorg.gradle.java.home="$JAVA_HOME"
+          ${{ inputs.version && format('-Pmod_version={0}', inputs.version) || '' }}
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          CHANGELOG: ${{ inputs.changelog }}

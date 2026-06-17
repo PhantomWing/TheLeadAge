@@ -1,0 +1,62 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "theleadage:config_boolean",
+          "settingId": "enable_recipe_overrides"
+        },
+        {
+          "type": "theleadage:config_boolean",
+          "settingId": "override_heavy_core_recipe"
+        }
+      ]
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_heavy_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:heavy_core"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:heavy_core"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:and",
+      "values": [
+        {
+          "condition": "theleadage:config_boolean",
+          "settingId": "enable_recipe_overrides"
+        },
+        {
+          "condition": "theleadage:config_boolean",
+          "settingId": "override_heavy_core_recipe"
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_heavy_core"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:heavy_core"
+    ]
+  }
+}

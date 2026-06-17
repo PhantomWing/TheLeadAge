@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "theleadage",
+  "version": "${version}",
+  "name": "The Lead Age",
+  "description": "A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod to The Silver Age.",
+  "authors": [
+    "PhantomWing"
+  ],
+  "contact": {
+    "homepage": "https://github.com/PhantomWing/TheLeadAge",
+    "sources": "https://github.com/PhantomWing/TheLeadAge",
+    "issues": "https://github.com/PhantomWing/TheLeadAge/issues"
+  },
+  "license": "MIT License",
+  "icon": "assets/theleadage/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.phantomwing.theleadage.fabric.TheLeadAgeFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": "*",
+    "minecraft": ">=1.21.1 <1.21.2",
+    "architectury": ">=13.0.8",
+    "cloth-config": "*"
+  }
+}

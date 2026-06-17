@@ -1,0 +1,36 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+issueTrackerURL = "https://github.com/PhantomWing/TheLeadAge/issues"
+license = "MIT License"
+
+[[mods]]
+modId = "theleadage"
+version = "${version}"
+displayName = "The Lead Age"
+displayURL = "https://github.com/PhantomWing/TheLeadAge"
+logoFile = "icon.png"
+authors = "PhantomWing"
+description = '''
+A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod to The Silver Age.
+'''
+
+[[dependencies.theleadage]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.218,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.theleadage]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.theleadage]]
+modId = "architectury"
+type = "required"
+versionRange = "[13.0.8,)"
+ordering = "AFTER"
+side = "BOTH"
