@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_black_leaded_glass": {
+      "conditions": {
+        "items": [
+          {
+            "items": "theleadage:black_leaded_glass"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "theleadage:black_leaded_glass_pane"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_black_leaded_glass"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "theleadage:black_leaded_glass_pane"
+    ]
+  }
+}

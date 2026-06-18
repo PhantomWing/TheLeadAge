@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
 import dev.architectury.registry.registries.RegistrySupplier;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
@@ -40,6 +41,15 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         add(ModBlocks.LEAD_BRICK_SLAB.get(), this::createSlabItemTable);
         add(ModBlocks.CUT_LEAD_SLAB.get(), this::createSlabItemTable);
         add(ModBlocks.LEAD_DOOR.get(), this::createDoorTable);
+
+        // Drops itself only when mined with the correct tool (a pickaxe); the engine
+        // suppresses the drop otherwise via requiresCorrectToolForDrops.
+        dropSelf(ModBlocks.LEADED_GLASS.get());
+        dropSelf(ModBlocks.LEADED_GLASS_PANE.get());
+        for (DyeColor color : DyeColor.values()) {
+            dropSelf(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
+            dropSelf(ModBlocks.STAINED_LEADED_GLASS_PANE.get(color).get());
+        }
     }
 
     @Override

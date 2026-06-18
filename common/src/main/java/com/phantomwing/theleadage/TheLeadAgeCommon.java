@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage;
 
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
+import com.phantomwing.theleadage.armor.MonsterArmorHandler;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
@@ -28,5 +29,8 @@ public final class TheLeadAgeCommon {
         ModArmorMaterials.register();
         ModItems.register();
         ModCreativeModeTab.register();
+
+        // Swap naturally-spawned iron armor on certain mobs for lead armor (low chance).
+        MonsterArmorHandler.register();
     }
 }

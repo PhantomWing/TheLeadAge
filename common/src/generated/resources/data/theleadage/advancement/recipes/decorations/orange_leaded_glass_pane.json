@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_orange_leaded_glass": {
+      "conditions": {
+        "items": [
+          {
+            "items": "theleadage:orange_leaded_glass"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "theleadage:orange_leaded_glass_pane"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_orange_leaded_glass"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "theleadage:orange_leaded_glass_pane"
+    ]
+  }
+}

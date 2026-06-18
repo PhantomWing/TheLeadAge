@@ -7,8 +7,10 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
@@ -39,9 +41,28 @@ public class ModBlockStateProvider extends BlockStateProvider {
         stairs(ModBlocks.CUT_LEAD_STAIRS, ModBlocks.CUT_LEAD);
         chiseled(ModBlocks.CHISELED_LEAD);
         pillar(ModBlocks.LEAD_PILLAR);
-        grate(ModBlocks.LEAD_GRATE);
+        cutoutCube(ModBlocks.LEAD_GRATE);
         trapdoor(ModBlocks.LEAD_TRAPDOOR);
         door(ModBlocks.LEAD_DOOR);
+
+        // Leaded glass + panes. Plain = cutout (like vanilla glass), dyed = translucent
+        // (like vanilla stained glass). All panes share the gray lead-came edge texture.
+        cutoutCube(ModBlocks.LEADED_GLASS);
+        glassPane(ModBlocks.LEADED_GLASS_PANE, "leaded_glass", RenderType.cutout().name);
+        for (DyeColor color : DyeColor.values()) {
+            translucentCube(ModBlocks.STAINED_LEADED_GLASS.get(color));
+            glassPane(ModBlocks.STAINED_LEADED_GLASS_PANE.get(color), color.getName() + "_leaded_glass", RenderType.translucent().name);
+        }
+    }
+
+    private void translucentCube(RegistrySupplier<Block> block) {
+        ModelFile model = models().cubeAll(blockName(block), blockTexture(block.get())).renderType(RenderType.translucent().name);
+        getVariantBuilder(block.get()).partialState().setModels(new ConfiguredModel(model));
+    }
+
+    private void glassPane(RegistrySupplier<Block> block, String bodyTexture, String renderType) {
+        paneBlockWithRenderType((IronBarsBlock) block.get(),
+                modLoc("block/" + bodyTexture), modLoc("block/leaded_glass_pane_top"), renderType);
     }
 
     private void slab(RegistrySupplier<SlabBlock> slab, RegistrySupplier<Block> parentBlock) {
@@ -62,8 +83,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
         axisBlock(block.get(), modLoc("block/" + name), modLoc("block/" + name + "_top"));
     }
 
-    private void grate(RegistrySupplier<Block> block) {
-        // Cutout cube; the waterlogged state doesn't change the model.
+    private void cutoutCube(RegistrySupplier<Block> block) {
+        // Cube rendered with the cutout render type (transparent like glass / the grate).
         ModelFile model = models().cubeAll(blockName(block), blockTexture(block.get())).renderType(RenderType.cutout().name);
         getVariantBuilder(block.get()).partialState().setModels(new ConfiguredModel(model));
     }

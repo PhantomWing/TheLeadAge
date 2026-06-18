@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "G": {
+      "item": "minecraft:lime_stained_glass"
+    },
+    "N": {
+      "item": "theleadage:lead_nugget"
+    }
+  },
+  "pattern": [
+    "NNN",
+    "NGN",
+    "NNN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "theleadage:lime_leaded_glass"
+  }
+}

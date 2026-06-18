@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.neoforge.condition.ConfigBooleanCondition;
@@ -14,6 +15,9 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -95,6 +99,15 @@ public class ModRecipeProvider extends RecipeProvider {
         door(output, ModItems.LEAD_DOOR.get(), ingot);
         trapdoor(output, ModItems.LEAD_TRAPDOOR.get(), ingot);
 
+        // Leaded glass: a glass block reinforced with 8 lead nuggets around it.
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.LEADED_GLASS.get())
+                .pattern("NNN").pattern("NGN").pattern("NNN")
+                .define('N', ModItems.LEAD_NUGGET.get())
+                .define('G', Items.GLASS)
+                .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
+                .save(output);
+        leadedGlassFamily(output);
+
         // Conditional recipe overrides. Each is gated on the master toggle AND its
         // own per-recipe toggle, so either switch turns it off.
         ICondition master = new ConfigBooleanCondition(Configuration.ENABLE_RECIPE_OVERRIDES_ID);
@@ -139,6 +152,56 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('N', Items.NETHERITE_INGOT)
                 .unlockedBy(getHasName(Items.HEAVY_CORE), has(Items.HEAVY_CORE))
                 .save(heavyCoreOutput);
+    }
+
+    /** Leaded glass pane + the 16 dyed leaded glass blocks & panes, with their recipes. */
+    private void leadedGlassFamily(RecipeOutput output) {
+        // Plain leaded glass pane: 6 leaded glass -> 16 panes (vanilla glass-pane ratio).
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEADED_GLASS_PANE.get(), 16)
+                .pattern("###").pattern("###")
+                .define('#', ModItems.LEADED_GLASS.get())
+                .unlockedBy(getHasName(ModItems.LEADED_GLASS.get()), has(ModItems.LEADED_GLASS.get()))
+                .save(output);
+
+        for (DyeColor color : DyeColor.values()) {
+            ItemLike dye = DyeItem.byColor(color);
+            ItemLike stainedGlass = vanillaItem(color.getName() + "_stained_glass");
+            ItemLike leaded = ModBlocks.STAINED_LEADED_GLASS.get(color).get();
+            ItemLike leadedPane = ModBlocks.STAINED_LEADED_GLASS_PANE.get(color).get();
+
+            // Dye plain leaded glass: 8 leaded glass + 1 dye -> 8 dyed (vanilla stained-glass ratio).
+            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
+                    .pattern("###").pattern("#D#").pattern("###")
+                    .define('#', ModItems.LEADED_GLASS.get())
+                    .define('D', dye)
+                    .unlockedBy(getHasName(ModItems.LEADED_GLASS.get()), has(ModItems.LEADED_GLASS.get()))
+                    .save(output);
+            // "Lead" a vanilla stained glass: surround it with 8 lead nuggets -> 1.
+            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded)
+                    .pattern("NNN").pattern("NGN").pattern("NNN")
+                    .define('N', ModItems.LEAD_NUGGET.get())
+                    .define('G', stainedGlass)
+                    .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
+                    .save(output, id(name(leaded) + "_from_" + name(stainedGlass)));
+
+            // Dyed pane from dyed block: 6 -> 16.
+            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, leadedPane, 16)
+                    .pattern("###").pattern("###")
+                    .define('#', leaded)
+                    .unlockedBy(getHasName(leaded), has(leaded))
+                    .save(output);
+            // Dye plain leaded glass panes: 8 panes + 1 dye -> 8 dyed panes.
+            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, leadedPane, 8)
+                    .pattern("###").pattern("#D#").pattern("###")
+                    .define('#', ModItems.LEADED_GLASS_PANE.get())
+                    .define('D', dye)
+                    .unlockedBy(getHasName(ModItems.LEADED_GLASS_PANE.get()), has(ModItems.LEADED_GLASS_PANE.get()))
+                    .save(output, id(name(leadedPane) + "_from_" + name(ModItems.LEADED_GLASS_PANE.get())));
+        }
+    }
+
+    private static ItemLike vanillaItem(String path) {
+        return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(path));
     }
 
     private static String name(ItemLike item) {

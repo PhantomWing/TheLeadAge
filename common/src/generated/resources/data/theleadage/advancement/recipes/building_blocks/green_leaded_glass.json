@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_leaded_glass": {
+      "conditions": {
+        "items": [
+          {
+            "items": "theleadage:leaded_glass"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "theleadage:green_leaded_glass"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_leaded_glass"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "theleadage:green_leaded_glass"
+    ]
+  }
+}

@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
@@ -48,6 +49,18 @@ public class ModItemModelProvider extends ItemModelProvider {
         withExistingParent("lead_trapdoor", modLoc("block/lead_trapdoor_bottom"));
         // Door is a flat (generated) item sprite, not the 3D block model.
         basicItem(ModItems.LEAD_DOOR.get());
+
+        blockItem("leaded_glass");
+        paneItem("leaded_glass_pane", "leaded_glass");
+        for (DyeColor color : DyeColor.values()) {
+            blockItem(color.getName() + "_leaded_glass");
+            paneItem(color.getName() + "_leaded_glass_pane", color.getName() + "_leaded_glass");
+        }
+    }
+
+    // Panes use a flat (generated) item sprite of the glass body texture, like vanilla.
+    private void paneItem(String name, String bodyTexture) {
+        withExistingParent(name, mcLoc("item/generated")).texture("layer0", modLoc("block/" + bodyTexture));
     }
 
     private void handheldItem(String name) {

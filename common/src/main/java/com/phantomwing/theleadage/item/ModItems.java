@@ -12,6 +12,7 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.AnimalArmorItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.AxeItem;
@@ -74,6 +75,22 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_GRATE = registerBlock("lead_grate", ModBlocks.LEAD_GRATE);
     public static final RegistrySupplier<Item> LEAD_TRAPDOOR = registerBlock("lead_trapdoor", ModBlocks.LEAD_TRAPDOOR);
     public static final RegistrySupplier<Item> LEAD_DOOR = registerBlock("lead_door", ModBlocks.LEAD_DOOR);
+
+    // Leaded glass: glass reinforced with lead nuggets (drops itself when mined with a pickaxe).
+    public static final RegistrySupplier<Item> LEADED_GLASS = registerBlock("leaded_glass", ModBlocks.LEADED_GLASS);
+    // 16 dyed leaded glass blocks (creative-tab order: all glass blocks together).
+    static {
+        for (DyeColor color : DyeColor.values()) {
+            registerBlock(color.getName() + "_leaded_glass", ModBlocks.STAINED_LEADED_GLASS.get(color));
+        }
+    }
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE = registerBlock("leaded_glass_pane", ModBlocks.LEADED_GLASS_PANE);
+    // 16 dyed leaded glass panes (after the panes' plain variant).
+    static {
+        for (DyeColor color : DyeColor.values()) {
+            registerBlock(color.getName() + "_leaded_glass_pane", ModBlocks.STAINED_LEADED_GLASS_PANE.get(color));
+        }
+    }
 
     public static Item.Properties baseItem() {
         return new Item.Properties();

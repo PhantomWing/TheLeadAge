@@ -7,18 +7,25 @@ import com.phantomwing.theleadage.sound.ModSoundTypes;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.WaterloggedTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class ModBlocks {
@@ -48,6 +55,26 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEAD_GRATE = registerLeadGrate("lead_grate");
     public static final RegistrySupplier<TrapDoorBlock> LEAD_TRAPDOOR = registerLeadTrapdoor("lead_trapdoor");
     public static final RegistrySupplier<DoorBlock> LEAD_DOOR = registerLeadDoor("lead_door");
+
+    // Leaded glass: renders/behaves exactly like glass, but requires a pickaxe to
+    // drop itself (requiresCorrectToolForDrops + the mineable/pickaxe tag); broken
+    // by hand it still shatters, just without a drop. Keeps the glass sound.
+    public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
+            new TransparentBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE = register("leaded_glass_pane", () ->
+            new IronBarsBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS_PANE).requiresCorrectToolForDrops()));
+
+    // 16 dyed leaded glass blocks + panes. StainedGlass(Pane)Block carries the DyeColor
+    // (beacon-beam tint); same pickaxe-drop rule as plain leaded glass. Keyed by colour
+    // so the datagen providers can iterate them.
+    public static final Map<DyeColor, RegistrySupplier<Block>> STAINED_LEADED_GLASS = new EnumMap<>(DyeColor.class);
+    public static final Map<DyeColor, RegistrySupplier<Block>> STAINED_LEADED_GLASS_PANE = new EnumMap<>(DyeColor.class);
+    static {
+        for (DyeColor color : DyeColor.values()) {
+            STAINED_LEADED_GLASS.put(color, registerStainedLeadedGlass(color));
+            STAINED_LEADED_GLASS_PANE.put(color, registerStainedLeadedGlassPane(color));
+        }
+    }
 
     // ---- Lead block factories (mirroring The Silver Age, without oxidation) ----
 
@@ -84,6 +111,18 @@ public class ModBlocks {
     private static RegistrySupplier<DoorBlock> registerLeadDoor(String name) {
         return register(name, () -> new DoorBlock(ModBlockSetTypes.LEAD,
                 leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR))));
+    }
+
+    private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
+        return register(color.getName() + "_leaded_glass", () ->
+                new StainedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
+                        .mapColor(color.getMapColor()).requiresCorrectToolForDrops()));
+    }
+
+    private static RegistrySupplier<Block> registerStainedLeadedGlassPane(DyeColor color) {
+        return register(color.getName() + "_leaded_glass_pane", () ->
+                new StainedGlassPaneBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS_PANE)
+                        .mapColor(color.getMapColor()).requiresCorrectToolForDrops()));
     }
 
     private static BlockBehaviour.Properties leadProps() {
