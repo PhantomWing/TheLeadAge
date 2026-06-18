@@ -17,4 +17,8 @@ public final class CommonConfigImpl {
     public static boolean leadOreNausea() {
         return Configuration.ENABLE_LEAD_ORE_NAUSEA.get();
     }
+
+    public static boolean enableStructureLoot() {
+        return Configuration.ENABLE_STRUCTURE_LOOT.get();
+    }
 }

@@ -22,22 +22,29 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Lead armor: heavy plate. Keeps the material's (very high) protection and adds a
- * single visible "Heaviness" stat in the tooltip. The actual weigh-down effects —
- * slower movement, increased gravity (faster falls / lower jumps) and a faster sink
- * in water — are applied to the wearer and scale with the total Heaviness of the
- * lead armor worn, so they don't clutter the tooltip with raw numbers.
+ * single visible "Heaviness" stat in the tooltip. The actual effects — slower
+ * movement, increased gravity (faster falls / lower jumps), a faster sink in water
+ * and some knockback resistance — are applied to the wearer and scale with the
+ * total Heaviness of the lead armor worn, so they don't clutter the tooltip with
+ * raw numbers.
  */
 public class LeadArmorItem extends ArmorItem {
     /** Heaviness granted by each lead armor piece (shown as "+N Heaviness"). */
     private static final double HEAVINESS_PER_PIECE = 1.0;
 
     // Penalties per point of Heaviness worn.
-    private static final double SPEED_PENALTY_PER_HEAVINESS = -0.02;   // -2% base speed (-8% full set)
-    private static final double GRAVITY_BONUS_PER_HEAVINESS = 0.075;   // +7.5% gravity (+30% full set)
-    private static final double WATER_SINK_PER_HEAVINESS = 0.01;       // extra downward velocity/tick while submerged
+    // Package-private so LeadHorseArmorItem can reuse them at a full-set weight.
+    static final double SPEED_PENALTY_PER_HEAVINESS = -0.025;               // -2.5% base speed (-10% full set)
+    static final double GRAVITY_BONUS_PER_HEAVINESS = 0.05;                 // +5% gravity (+20% full set)
+    static final double KNOCKBACK_RESISTANCE_PER_HEAVINESS = 0.025;         // +2.5% knockback resistance (+10% full set)
+    private static final double WATER_SINK_PER_HEAVINESS = 0.01;            // extra downward velocity/tick while submerged
+
+    /** Heaviness of a full set of lead armor (4 pieces). */
+    static final double FULL_SET_HEAVINESS = 4.0;
 
     private static final ResourceLocation SPEED_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_slowness");
     private static final ResourceLocation GRAVITY_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_gravity");
+    private static final ResourceLocation KNOCKBACK_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_knockback_resistance");
     private static final EquipmentSlot[] ARMOR_SLOTS =
             {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
@@ -73,9 +80,11 @@ public class LeadArmorItem extends ArmorItem {
         // clears the effect once no lead armor is worn.
         double heaviness = wornHeaviness(living);
         updateModifier(living, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_ID,
-                heaviness * SPEED_PENALTY_PER_HEAVINESS);
+                heaviness * SPEED_PENALTY_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         updateModifier(living, Attributes.GRAVITY, GRAVITY_MODIFIER_ID,
-                heaviness * GRAVITY_BONUS_PER_HEAVINESS);
+                heaviness * GRAVITY_BONUS_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+        updateModifier(living, Attributes.KNOCKBACK_RESISTANCE, KNOCKBACK_MODIFIER_ID,
+                heaviness * KNOCKBACK_RESISTANCE_PER_HEAVINESS, AttributeModifier.Operation.ADD_VALUE);
 
         // Faster sink while submerged — applied per worn piece. Skipped entirely
         // while the wearer is actively swimming up (holding jump), so swimming is
@@ -102,7 +111,8 @@ public class LeadArmorItem extends ArmorItem {
         return heaviness;
     }
 
-    private static void updateModifier(LivingEntity living, Holder<Attribute> attribute, ResourceLocation id, double amount) {
+    private static void updateModifier(LivingEntity living, Holder<Attribute> attribute, ResourceLocation id,
+                                       double amount, AttributeModifier.Operation operation) {
         AttributeInstance instance = living.getAttribute(attribute);
         if (instance == null) {
             return;
@@ -110,8 +120,7 @@ public class LeadArmorItem extends ArmorItem {
         if (amount == 0.0) {
             instance.removeModifier(id);
         } else {
-            instance.addOrUpdateTransientModifier(
-                    new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            instance.addOrUpdateTransientModifier(new AttributeModifier(id, amount, operation));
         }
     }
 }

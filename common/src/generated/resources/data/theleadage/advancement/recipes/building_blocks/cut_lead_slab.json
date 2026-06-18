@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_cut_lead": {
+      "conditions": {
+        "items": [
+          {
+            "items": "theleadage:cut_lead"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "theleadage:cut_lead_slab"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_cut_lead"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "theleadage:cut_lead_slab"
+    ]
+  }
+}

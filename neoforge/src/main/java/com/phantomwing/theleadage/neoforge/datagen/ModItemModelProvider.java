@@ -28,12 +28,26 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.LEAD_CHESTPLATE.get());
         basicItem(ModItems.LEAD_LEGGINGS.get());
         basicItem(ModItems.LEAD_BOOTS.get());
+        basicItem(ModItems.LEAD_HORSE_ARMOR.get());
 
         // Block items reuse the block's cube model (created by the BlockStateProvider).
         blockItem("lead_ore");
         blockItem("deepslate_lead_ore");
         blockItem("raw_lead_block");
         blockItem("lead_block");
+
+        // Cut Lead + Lead Bricks get their item models from simpleBlockWithItem.
+        // The rest need an explicit item model pointing at the right block model.
+        blockItem("lead_brick_slab");
+        blockItem("lead_brick_stairs");
+        blockItem("cut_lead_slab");
+        blockItem("cut_lead_stairs");
+        blockItem("chiseled_lead");
+        blockItem("lead_pillar");
+        blockItem("lead_grate");
+        withExistingParent("lead_trapdoor", modLoc("block/lead_trapdoor_bottom"));
+        // Door is a flat (generated) item sprite, not the 3D block model.
+        basicItem(ModItems.LEAD_DOOR.get());
     }
 
     private void handheldItem(String name) {

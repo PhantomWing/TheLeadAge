@@ -18,8 +18,14 @@
   "entrypoints": {
     "main": [
       "com.phantomwing.theleadage.fabric.TheLeadAgeFabric"
+    ],
+    "client": [
+      "com.phantomwing.theleadage.fabric.client.TheLeadAgeFabricClient"
     ]
   },
+  "mixins": [
+    "theleadage.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.16.14",
     "fabric-api": "*",

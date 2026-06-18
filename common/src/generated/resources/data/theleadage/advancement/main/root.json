@@ -1,0 +1,28 @@
+{
+  "criteria": {
+    "root": {
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "theleadage:textures/block/cut_lead.png",
+    "description": {
+      "translate": "theleadage.advancement.root.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "theleadage:raw_lead"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "theleadage.advancement.root"
+    }
+  },
+  "requirements": [
+    [
+      "root"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

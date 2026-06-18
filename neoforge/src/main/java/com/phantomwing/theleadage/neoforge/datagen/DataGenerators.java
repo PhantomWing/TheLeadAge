@@ -8,6 +8,7 @@ import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.AdvancementProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
@@ -37,6 +38,9 @@ public class DataGenerators {
         generator.addProvider(event.includeServer(),
                 new ModBiomeTagsProvider(output, lookupProvider, existingFileHelper));
         generator.addProvider(event.includeServer(), new ModDatapackProvider(output, lookupProvider));
+        generator.addProvider(event.includeServer(), new ModGlobalLootModifierProvider(output, lookupProvider));
+        generator.addProvider(event.includeServer(), new AdvancementProvider(output, lookupProvider, existingFileHelper,
+                List.of(new ModAdvancementProvider())));
 
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, existingFileHelper));
         generator.addProvider(event.includeClient(), new ModItemModelProvider(output, existingFileHelper));

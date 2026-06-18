@@ -3,6 +3,17 @@
     "theleadage:lead_ore",
     "theleadage:deepslate_lead_ore",
     "theleadage:raw_lead_block",
-    "theleadage:lead_block"
+    "theleadage:lead_block",
+    "theleadage:cut_lead",
+    "theleadage:lead_bricks",
+    "theleadage:lead_brick_slab",
+    "theleadage:lead_brick_stairs",
+    "theleadage:cut_lead_slab",
+    "theleadage:cut_lead_stairs",
+    "theleadage:chiseled_lead",
+    "theleadage:lead_pillar",
+    "theleadage:lead_grate",
+    "theleadage:lead_trapdoor",
+    "theleadage:lead_door"
   ]
 }

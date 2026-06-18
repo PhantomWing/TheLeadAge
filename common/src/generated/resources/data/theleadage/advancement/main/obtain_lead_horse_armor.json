@@ -1,0 +1,33 @@
+{
+  "parent": "theleadage:main/obtain_lead_ingot",
+  "criteria": {
+    "lead_horse_armor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "theleadage:lead_horse_armor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "theleadage.advancement.obtain_lead_horse_armor.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "theleadage:lead_horse_armor"
+    },
+    "title": {
+      "translate": "theleadage.advancement.obtain_lead_horse_armor"
+    }
+  },
+  "requirements": [
+    [
+      "lead_horse_armor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

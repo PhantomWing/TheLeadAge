@@ -19,4 +19,9 @@ public final class CommonConfigImpl {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_LEAD_ORE_NAUSEA_ID);
     }
+
+    public static boolean enableStructureLoot() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.ENABLE_STRUCTURE_LOOT_ID);
+    }
 }

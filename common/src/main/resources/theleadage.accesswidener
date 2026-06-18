@@ -1,2 +1,9 @@
 accessWidener	v2	named
+
+# LivingEntity.jumping (protected): LeadArmorItem reads it so the water-sink only
+# applies when the wearer is NOT actively swimming up.
 accessible	field	net/minecraft/world/entity/LivingEntity	jumping	Z
+
+# BlockSetType.register (private): the lead door / trapdoor need it to register the
+# lead BlockSetType (sounds).
+accessible	method	net/minecraft/world/level/block/state/properties/BlockSetType	register	(Lnet/minecraft/world/level/block/state/properties/BlockSetType;)Lnet/minecraft/world/level/block/state/properties/BlockSetType;

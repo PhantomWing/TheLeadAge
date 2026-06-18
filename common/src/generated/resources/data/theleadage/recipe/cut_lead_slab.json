@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "cut_lead",
+  "key": {
+    "#": {
+      "item": "theleadage:cut_lead"
+    }
+  },
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "count": 6,
+    "id": "theleadage:cut_lead_slab"
+  }
+}

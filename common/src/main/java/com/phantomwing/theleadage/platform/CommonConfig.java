@@ -25,6 +25,16 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
+    /**
+     * Gate for structure/chest loot injection (lead horse armor replacing iron
+     * horse armor). Read at loot-roll time by the NeoForge Global Loot Modifiers
+     * and the Fabric loot mixin.
+     */
+    @ExpectPlatform
+    public static boolean enableStructureLoot() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
     // Recipe-override toggles are read at datapack-load time directly by the
     // conditional recipes (NeoForge ConfigBooleanCondition / Fabric config_boolean
     // resource condition), so they don't need a CommonConfig bridge here.

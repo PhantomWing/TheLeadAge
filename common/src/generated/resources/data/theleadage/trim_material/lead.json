@@ -1,0 +1,12 @@
+{
+  "asset_name": "lead",
+  "description": {
+    "color": "#6E737D",
+    "translate": "trim_material.theleadage.lead"
+  },
+  "ingredient": "theleadage:lead_ingot",
+  "item_model_index": 0.0019604,
+  "override_armor_materials": {
+    "theleadage:lead": "lead_darker"
+  }
+}

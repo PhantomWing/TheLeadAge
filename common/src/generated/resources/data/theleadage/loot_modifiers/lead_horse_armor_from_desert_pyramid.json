@@ -1,0 +1,19 @@
+{
+  "type": "theleadage:replace_item",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/desert_pyramid"
+    },
+    {
+      "chance": 0.1,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "in_stacks": 1,
+  "item": "theleadage:lead_horse_armor",
+  "max_stacks": 1,
+  "removed_item": [
+    "minecraft:iron_horse_armor"
+  ]
+}

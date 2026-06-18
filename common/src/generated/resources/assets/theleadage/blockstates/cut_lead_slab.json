@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "theleadage:block/cut_lead_slab"
+    },
+    "type=double": {
+      "model": "theleadage:block/cut_lead"
+    },
+    "type=top": {
+      "model": "theleadage:block/cut_lead_slab_top"
+    }
+  }
+}

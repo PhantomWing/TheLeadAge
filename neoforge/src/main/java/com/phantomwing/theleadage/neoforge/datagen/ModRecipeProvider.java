@@ -13,6 +13,7 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -57,6 +58,42 @@ public class ModRecipeProvider extends RecipeProvider {
         chestplate(output, ModItems.LEAD_CHESTPLATE.get(), ingot);
         leggings(output, ModItems.LEAD_LEGGINGS.get(), ingot);
         boots(output, ModItems.LEAD_BOOTS.get(), ingot);
+
+        // Decorative lead blocks (crafting + stonecutter paths, mirroring The
+        // Silver Age and vanilla copper/stone-brick families).
+        ItemLike block = ModItems.LEAD_BLOCK.get();
+        ItemLike cut = ModItems.CUT_LEAD.get();
+        ItemLike bricks = ModItems.LEAD_BRICKS.get();
+
+        twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, cut, block, 4);
+        stoneCutting(output, cut, block, 4);
+
+        twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, bricks, ingot, 4);
+        stoneCutting(output, bricks, block, 4);
+
+        stairsWithCutting(output, ModItems.LEAD_BRICK_STAIRS.get(), bricks);
+        stoneCutting(output, ModItems.LEAD_BRICK_STAIRS.get(), block, 4);
+        slabWithCutting(output, ModItems.LEAD_BRICK_SLAB.get(), bricks);
+        stoneCutting(output, ModItems.LEAD_BRICK_SLAB.get(), block, 8);
+
+        stairsWithCutting(output, ModItems.CUT_LEAD_STAIRS.get(), cut);
+        stoneCutting(output, ModItems.CUT_LEAD_STAIRS.get(), block, 4);
+        slabWithCutting(output, ModItems.CUT_LEAD_SLAB.get(), cut);
+        stoneCutting(output, ModItems.CUT_LEAD_SLAB.get(), block, 8);
+
+        // Chiseled: 2 cut lead slabs -> 1 (vanilla chiseled-stone-bricks ratio).
+        oneBytwo(output, RecipeCategory.BUILDING_BLOCKS, ModItems.CHISELED_LEAD.get(), ModItems.CUT_LEAD_SLAB.get(), 1);
+        stoneCutting(output, ModItems.CHISELED_LEAD.get(), cut, 1);
+        stoneCutting(output, ModItems.CHISELED_LEAD.get(), block, 4);
+
+        // Pillar: 2 lead blocks -> 2 (vanilla quartz-pillar ratio), or stonecut 1 -> 1.
+        oneBytwo(output, RecipeCategory.BUILDING_BLOCKS, ModItems.LEAD_PILLAR.get(), block, 2);
+        stoneCutting(output, ModItems.LEAD_PILLAR.get(), block, 1);
+
+        grateWithCutting(output, ModItems.LEAD_GRATE.get(), block);
+
+        door(output, ModItems.LEAD_DOOR.get(), ingot);
+        trapdoor(output, ModItems.LEAD_TRAPDOOR.get(), ingot);
 
         // Conditional recipe overrides. Each is gated on the master toggle AND its
         // own per-recipe toggle, so either switch turns it off.
@@ -195,6 +232,67 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('M', material)
                 .unlockedBy(getHasName(material), has(material))
                 .save(output);
+    }
+
+    private void twoBytwo(RecipeOutput output, RecipeCategory category, ItemLike result, ItemLike material, int count) {
+        ShapedRecipeBuilder.shaped(category, result, count)
+                .pattern("##").pattern("##")
+                .define('#', material)
+                .unlockedBy(getHasName(material), has(material))
+                .save(output, id(name(result) + "_from_" + name(material)));
+    }
+
+    private void oneBytwo(RecipeOutput output, RecipeCategory category, ItemLike result, ItemLike material, int count) {
+        ShapedRecipeBuilder.shaped(category, result, count)
+                .pattern("#").pattern("#")
+                .define('#', material)
+                .unlockedBy(getHasName(material), has(material))
+                .save(output, id(name(result) + "_from_" + name(material)));
+    }
+
+    private void stairsWithCutting(RecipeOutput output, ItemLike result, ItemLike material) {
+        stoneCutting(output, result, material, 1);
+        stairBuilder(result, Ingredient.of(material))
+                .group(name(material))
+                .unlockedBy(getHasName(material), has(material))
+                .save(output);
+    }
+
+    private void slabWithCutting(RecipeOutput output, ItemLike result, ItemLike material) {
+        stoneCutting(output, result, material, 2);
+        slabBuilder(RecipeCategory.BUILDING_BLOCKS, result, Ingredient.of(material))
+                .group(name(material))
+                .unlockedBy(getHasName(material), has(material))
+                .save(output);
+    }
+
+    private void grateWithCutting(RecipeOutput output, ItemLike result, ItemLike material) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, result, 4)
+                .pattern(" # ").pattern("# #").pattern(" # ")
+                .define('#', material)
+                .unlockedBy(getHasName(material), has(material))
+                .save(output, id(name(result) + "_from_" + name(material)));
+        stoneCutting(output, result, material, 4);
+    }
+
+    private void door(RecipeOutput output, ItemLike result, ItemLike material) {
+        doorBuilder(result, Ingredient.of(material))
+                .group(name(material))
+                .unlockedBy(getHasName(material), has(material))
+                .save(output);
+    }
+
+    private void trapdoor(RecipeOutput output, ItemLike result, ItemLike material) {
+        trapdoorBuilder(result, Ingredient.of(material))
+                .group(name(material))
+                .unlockedBy(getHasName(material), has(material))
+                .save(output);
+    }
+
+    private void stoneCutting(RecipeOutput output, ItemLike result, ItemLike material, int count) {
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(material), RecipeCategory.BUILDING_BLOCKS, result, count)
+                .unlockedBy(getHasName(material), has(material))
+                .save(output, id(name(result) + "_from_" + name(material) + "_stonecutting"));
     }
 
     private void storage(RecipeOutput output, ItemLike item, ItemLike block, RecipeCategory packedCategory) {

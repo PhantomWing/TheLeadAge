@@ -14,10 +14,11 @@ def datagenModId = rootProject.property('mod_id').toString()
 def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
 def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
 
-// Client HUD niceties (JEI, AppleSkin) are useless in the headless game-test
-// server and AppleSkin even crashes it (it tries to send a per-player payload to
-// the test's mock player). Skip them when running game tests.
+// Client HUD niceties (JEI, AppleSkin) + the side-by-side comparison mod (The
+// Silver Age) are useless — and can hang/crash — in the headless game-test and
+// data-generation runs. Only load them for runClient/runServer.
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
+def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -85,7 +86,7 @@ dependencies {
 
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
     //      never shipped, never a hard dependency). Skipped for the game-test run. ----
-    if (!runningGameTest) {
+    if (!runningGameTest && !runningDataGen) {
         modLocalRuntime("mezz.jei:jei-1.21.1-neoforge:${rootProject.jei_version}")
         modLocalRuntime("squeek.appleskin:appleskin-neoforge:mc1.21-${rootProject.appleskin_version}")
         // The Silver Age (sibling mod) from CurseForge, for side-by-side comparison.

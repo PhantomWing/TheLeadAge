@@ -58,6 +58,14 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.TRIMMABLE_ARMOR).add(
                 ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
                 ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get());
+        // Lets the smithing table accept a lead ingot as a trim material.
+        tag(ItemTags.TRIM_MATERIALS).add(ModItems.LEAD_INGOT.get());
+
+        // Decorative block items.
+        tag(ItemTags.SLABS).add(ModItems.LEAD_BRICK_SLAB.get(), ModItems.CUT_LEAD_SLAB.get());
+        tag(ItemTags.STAIRS).add(ModItems.LEAD_BRICK_STAIRS.get(), ModItems.CUT_LEAD_STAIRS.get());
+        tag(ItemTags.DOORS).add(ModItems.LEAD_DOOR.get());
+        tag(ItemTags.TRAPDOORS).add(ModItems.LEAD_TRAPDOOR.get());
     }
 
     private static TagKey<Item> c(String path) {

@@ -1,0 +1,11 @@
+{
+  "entries": [
+    "theleadage:lead_horse_armor_from_desert_pyramid",
+    "theleadage:lead_horse_armor_from_jungle_temple",
+    "theleadage:lead_horse_armor_from_simple_dungeon",
+    "theleadage:lead_horse_armor_from_stronghold_corridor",
+    "theleadage:lead_horse_armor_from_village_weaponsmith",
+    "theleadage:lead_horse_armor_from_end_city"
+  ],
+  "replace": false
+}

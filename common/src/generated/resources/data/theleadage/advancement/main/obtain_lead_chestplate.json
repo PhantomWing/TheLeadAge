@@ -1,0 +1,33 @@
+{
+  "parent": "theleadage:main/obtain_lead_ingot",
+  "criteria": {
+    "lead_chestplate": {
+      "conditions": {
+        "items": [
+          {
+            "items": "theleadage:lead_chestplate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "theleadage.advancement.obtain_lead_chestplate.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "theleadage:lead_chestplate"
+    },
+    "title": {
+      "translate": "theleadage.advancement.obtain_lead_chestplate"
+    }
+  },
+  "requirements": [
+    [
+      "lead_chestplate"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

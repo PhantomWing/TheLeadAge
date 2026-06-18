@@ -25,6 +25,15 @@ public class Configuration {
     public static final String OVERRIDE_HEAVY_CORE_RECIPE_ID = "override_heavy_core_recipe";
     public static final ModConfigSpec.BooleanValue OVERRIDE_HEAVY_CORE_RECIPE;
 
+    public static final String ENABLE_STRUCTURE_LOOT_ID = "enable_structure_loot";
+    public static final ModConfigSpec.BooleanValue ENABLE_STRUCTURE_LOOT;
+
+    public static final String ENABLE_VILLAGER_TRADES_ID = "enable_villager_trades";
+    public static final ModConfigSpec.BooleanValue ENABLE_VILLAGER_TRADES;
+
+    public static final String ENABLE_WANDERING_TRADER_TRADES_ID = "enable_wandering_trader_trades";
+    public static final ModConfigSpec.BooleanValue ENABLE_WANDERING_TRADER_TRADES;
+
     public static boolean getBooleanConfigurationValue(String id) {
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> GENERATE_LEAD_ORE.get();
@@ -32,6 +41,9 @@ public class Configuration {
             case ENABLE_RECIPE_OVERRIDES_ID -> ENABLE_RECIPE_OVERRIDES.get();
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
+            case ENABLE_STRUCTURE_LOOT_ID -> ENABLE_STRUCTURE_LOOT.get();
+            case ENABLE_VILLAGER_TRADES_ID -> ENABLE_VILLAGER_TRADES.get();
+            case ENABLE_WANDERING_TRADER_TRADES_ID -> ENABLE_WANDERING_TRADER_TRADES.get();
             default -> throw new Error("Invalid setting ID: " + id);
         };
     }
@@ -59,6 +71,18 @@ public class Configuration {
                 .comment("Allow crafting the otherwise-uncraftable Heavy Core from lead blocks + a netherite ingot. Requires the master toggle.")
                 .translation("text.autoconfig.theleadage.option.override_heavy_core_recipe")
                 .define(OVERRIDE_HEAVY_CORE_RECIPE_ID, true);
+        ENABLE_STRUCTURE_LOOT = builder
+                .comment("Should lead items appear in structure/chest loot? (Lead horse armor occasionally replaces iron horse armor.)")
+                .translation("text.autoconfig.theleadage.option.enable_structure_loot")
+                .define(ENABLE_STRUCTURE_LOOT_ID, true);
+        ENABLE_VILLAGER_TRADES = builder
+                .comment("Should villagers offer lead trades?")
+                .translation("text.autoconfig.theleadage.option.enable_villager_trades")
+                .define(ENABLE_VILLAGER_TRADES_ID, true);
+        ENABLE_WANDERING_TRADER_TRADES = builder
+                .comment("Should the wandering trader offer lead trades?")
+                .translation("text.autoconfig.theleadage.option.enable_wandering_trader_trades")
+                .define(ENABLE_WANDERING_TRADER_TRADES_ID, true);
 
         COMMON_CONFIG = builder.build();
     }

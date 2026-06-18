@@ -29,6 +29,15 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String OVERRIDE_HEAVY_CORE_RECIPE_ID = "override_heavy_core_recipe";
     public boolean override_heavy_core_recipe = true;
 
+    public static final String ENABLE_STRUCTURE_LOOT_ID = "enable_structure_loot";
+    public boolean enable_structure_loot = true;
+
+    public static final String ENABLE_VILLAGER_TRADES_ID = "enable_villager_trades";
+    public boolean enable_villager_trades = true;
+
+    public static final String ENABLE_WANDERING_TRADER_TRADES_ID = "enable_wandering_trader_trades";
+    public boolean enable_wandering_trader_trades = true;
+
     public static TheLeadAgeFabricConfig get() {
         return AutoConfig.getConfigHolder(TheLeadAgeFabricConfig.class).getConfig();
     }
@@ -46,6 +55,9 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case ENABLE_RECIPE_OVERRIDES_ID -> config.enable_recipe_overrides;
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> config.override_heavy_core_recipe;
+            case ENABLE_STRUCTURE_LOOT_ID -> config.enable_structure_loot;
+            case ENABLE_VILLAGER_TRADES_ID -> config.enable_villager_trades;
+            case ENABLE_WANDERING_TRADER_TRADES_ID -> config.enable_wandering_trader_trades;
             default -> throw new Error("Invalid setting ID: " + id);
         };
     }

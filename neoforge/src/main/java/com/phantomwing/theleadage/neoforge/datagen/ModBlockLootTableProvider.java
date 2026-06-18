@@ -26,6 +26,20 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
         dropSelf(ModBlocks.RAW_LEAD_BLOCK.get());
         dropSelf(ModBlocks.LEAD_BLOCK.get());
+
+        // Decorative blocks.
+        dropSelf(ModBlocks.CUT_LEAD.get());
+        dropSelf(ModBlocks.LEAD_BRICKS.get());
+        dropSelf(ModBlocks.LEAD_BRICK_STAIRS.get());
+        dropSelf(ModBlocks.CUT_LEAD_STAIRS.get());
+        dropSelf(ModBlocks.CHISELED_LEAD.get());
+        dropSelf(ModBlocks.LEAD_PILLAR.get());
+        dropSelf(ModBlocks.LEAD_GRATE.get());
+        dropSelf(ModBlocks.LEAD_TRAPDOOR.get());
+        // Slabs drop two when double; doors only drop once (from the lower half).
+        add(ModBlocks.LEAD_BRICK_SLAB.get(), this::createSlabItemTable);
+        add(ModBlocks.CUT_LEAD_SLAB.get(), this::createSlabItemTable);
+        add(ModBlocks.LEAD_DOOR.get(), this::createDoorTable);
     }
 
     @Override

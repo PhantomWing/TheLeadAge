@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge;
 import com.phantomwing.theleadage.TheLeadAgeCommon;
 import com.phantomwing.theleadage.neoforge.client.TheLeadAgeNeoForgeClient;
 import com.phantomwing.theleadage.neoforge.condition.ModConditions;
+import com.phantomwing.theleadage.neoforge.loot.ModLootModifiers;
 import com.phantomwing.theleadage.neoforge.world.ModBiomeModifiers;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -25,6 +26,9 @@ public final class TheLeadAgeNeoForge {
 
         // Recipe-override condition codec ({@code theleadage:config_boolean}).
         ModConditions.register(modEventBus);
+
+        // Global Loot Modifiers (lead horse armor replacing iron horse armor in loot).
+        ModLootModifiers.register(modEventBus);
 
         container.registerConfig(ModConfig.Type.COMMON, Configuration.COMMON_CONFIG);
 
