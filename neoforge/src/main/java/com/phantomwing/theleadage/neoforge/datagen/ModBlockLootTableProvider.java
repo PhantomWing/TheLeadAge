@@ -46,6 +46,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         // suppresses the drop otherwise via requiresCorrectToolForDrops.
         dropSelf(ModBlocks.LEADED_GLASS.get());
         dropSelf(ModBlocks.LEADED_GLASS_PANE.get());
+        dropSelf(ModBlocks.HEAVY_ORB.get());
         for (DyeColor color : DyeColor.values()) {
             dropSelf(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
             dropSelf(ModBlocks.STAINED_LEADED_GLASS_PANE.get(color).get());

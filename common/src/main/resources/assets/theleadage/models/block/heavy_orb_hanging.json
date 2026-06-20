@@ -1,0 +1,44 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "particle": "theleadage:block/lead_block",
+    "lead": "theleadage:block/lead_block",
+    "chain": "theleadage:block/lead_chain"
+  },
+  "elements": [
+    {
+      "__comment": "12x12x12 lead ball, bottom-centered.",
+      "from": [2, 0, 2],
+      "to": [14, 12, 14],
+      "faces": {
+        "north": {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "east":  {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "south": {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "west":  {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "up":    {"uv": [2, 2, 14, 14], "texture": "#lead"},
+        "down":  {"uv": [2, 2, 14, 14], "texture": "#lead", "cullface": "down"}
+      }
+    },
+    {
+      "__comment": "Chain from orb top (y12) to the block above (y16): two crossed planes.",
+      "from": [6.5, 12, 8],
+      "to": [9.5, 16, 8],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45},
+      "shade": false,
+      "faces": {
+        "north": {"uv": [0, 0, 3, 4], "texture": "#chain"},
+        "south": {"uv": [3, 0, 6, 4], "texture": "#chain"}
+      }
+    },
+    {
+      "from": [8, 12, 6.5],
+      "to": [8, 16, 9.5],
+      "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45},
+      "shade": false,
+      "faces": {
+        "east": {"uv": [0, 0, 3, 4], "texture": "#chain"},
+        "west": {"uv": [3, 0, 6, 4], "texture": "#chain"}
+      }
+    }
+  ]
+}

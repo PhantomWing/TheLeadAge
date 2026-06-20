@@ -7,3 +7,8 @@ accessible	field	net/minecraft/world/entity/LivingEntity	jumping	Z
 # BlockSetType.register (private): the lead door / trapdoor need it to register the
 # lead BlockSetType (sounds).
 accessible	method	net/minecraft/world/level/block/state/properties/BlockSetType	register	(Lnet/minecraft/world/level/block/state/properties/BlockSetType;)Lnet/minecraft/world/level/block/state/properties/BlockSetType;
+
+# FallingBlockEntity.blockState (private): HeavyOrbEntity subclasses FallingBlockEntity
+# and sets the carried block state in its spawn factory (the vanilla position
+# constructor that does this is private and hardcodes EntityType.FALLING_BLOCK).
+accessible	field	net/minecraft/world/entity/item/FallingBlockEntity	blockState	Lnet/minecraft/world/level/block/state/BlockState;

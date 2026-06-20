@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.item.ModItems;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
@@ -51,16 +52,22 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.LEAD_DOOR.get());
 
         blockItem("leaded_glass");
-        paneItem("leaded_glass_pane", "leaded_glass");
+        // Heavy Orb: 3D item from its hand-authored block model.
+        blockItem("heavy_orb");
+        paneItem("leaded_glass_pane", "leaded_glass", RenderType.cutout().name);
         for (DyeColor color : DyeColor.values()) {
             blockItem(color.getName() + "_leaded_glass");
-            paneItem(color.getName() + "_leaded_glass_pane", color.getName() + "_leaded_glass");
+            paneItem(color.getName() + "_leaded_glass_pane", color.getName() + "_leaded_glass", RenderType.translucent().name);
         }
     }
 
     // Panes use a flat (generated) item sprite of the glass body texture, like vanilla.
-    private void paneItem(String name, String bodyTexture) {
-        withExistingParent(name, mcLoc("item/generated")).texture("layer0", modLoc("block/" + bodyTexture));
+    // The render type is set explicitly so the alpha shows in the inventory (matching the
+    // block items): plain = cutout (binary alpha), dyed = translucent (semi-transparent tint).
+    private void paneItem(String name, String bodyTexture, String renderType) {
+        withExistingParent(name, mcLoc("item/generated"))
+                .texture("layer0", modLoc("block/" + bodyTexture))
+                .renderType(renderType);
     }
 
     private void handheldItem(String name) {

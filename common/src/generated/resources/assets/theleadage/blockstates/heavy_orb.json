@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "theleadage:block/heavy_orb"
+    },
+    "hanging=true": {
+      "model": "theleadage:block/heavy_orb_hanging"
+    }
+  }
+}

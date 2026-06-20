@@ -38,6 +38,9 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String ENABLE_WANDERING_TRADER_TRADES_ID = "enable_wandering_trader_trades";
     public boolean enable_wandering_trader_trades = true;
 
+    public static final String ENABLE_HEAVY_ORB_DAMAGE_ID = "enable_heavy_orb_damage";
+    public boolean enable_heavy_orb_damage = true;
+
     public static TheLeadAgeFabricConfig get() {
         return AutoConfig.getConfigHolder(TheLeadAgeFabricConfig.class).getConfig();
     }
@@ -58,6 +61,7 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case ENABLE_STRUCTURE_LOOT_ID -> config.enable_structure_loot;
             case ENABLE_VILLAGER_TRADES_ID -> config.enable_villager_trades;
             case ENABLE_WANDERING_TRADER_TRADES_ID -> config.enable_wandering_trader_trades;
+            case ENABLE_HEAVY_ORB_DAMAGE_ID -> config.enable_heavy_orb_damage;
             default -> throw new Error("Invalid setting ID: " + id);
         };
     }

@@ -34,6 +34,9 @@ public class Configuration {
     public static final String ENABLE_WANDERING_TRADER_TRADES_ID = "enable_wandering_trader_trades";
     public static final ModConfigSpec.BooleanValue ENABLE_WANDERING_TRADER_TRADES;
 
+    public static final String ENABLE_HEAVY_ORB_DAMAGE_ID = "enable_heavy_orb_damage";
+    public static final ModConfigSpec.BooleanValue ENABLE_HEAVY_ORB_DAMAGE;
+
     public static boolean getBooleanConfigurationValue(String id) {
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> GENERATE_LEAD_ORE.get();
@@ -44,6 +47,7 @@ public class Configuration {
             case ENABLE_STRUCTURE_LOOT_ID -> ENABLE_STRUCTURE_LOOT.get();
             case ENABLE_VILLAGER_TRADES_ID -> ENABLE_VILLAGER_TRADES.get();
             case ENABLE_WANDERING_TRADER_TRADES_ID -> ENABLE_WANDERING_TRADER_TRADES.get();
+            case ENABLE_HEAVY_ORB_DAMAGE_ID -> ENABLE_HEAVY_ORB_DAMAGE.get();
             default -> throw new Error("Invalid setting ID: " + id);
         };
     }
@@ -83,6 +87,10 @@ public class Configuration {
                 .comment("Should the wandering trader offer lead trades?")
                 .translation("text.autoconfig.theleadage.option.enable_wandering_trader_trades")
                 .define(ENABLE_WANDERING_TRADER_TRADES_ID, true);
+        ENABLE_HEAVY_ORB_DAMAGE = builder
+                .comment("Should a falling Heavy Orb crush and knock back the entities it hits?")
+                .translation("text.autoconfig.theleadage.option.enable_heavy_orb_damage")
+                .define(ENABLE_HEAVY_ORB_DAMAGE_ID, true);
 
         COMMON_CONFIG = builder.build();
     }

@@ -108,6 +108,14 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
         leadedGlassFamily(output);
 
+        // Heavy Orb: 8 lead ingots around a lead block.
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.HEAVY_ORB.get())
+                .pattern("III").pattern("ILI").pattern("III")
+                .define('I', ModItems.LEAD_INGOT.get())
+                .define('L', ModItems.LEAD_BLOCK.get())
+                .unlockedBy(getHasName(ModItems.LEAD_BLOCK.get()), has(ModItems.LEAD_BLOCK.get()))
+                .save(output);
+
         // Conditional recipe overrides. Each is gated on the master toggle AND its
         // own per-recipe toggle, so either switch turns it off.
         ICondition master = new ConfigBooleanCondition(Configuration.ENABLE_RECIPE_OVERRIDES_ID);

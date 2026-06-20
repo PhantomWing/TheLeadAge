@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.block.custom.HeavyOrbBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.client.renderer.RenderType;
@@ -45,6 +46,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
         trapdoor(ModBlocks.LEAD_TRAPDOOR);
         door(ModBlocks.LEAD_DOOR);
 
+        heavyOrb();
+
         // Leaded glass + panes. Plain = cutout (like vanilla glass), dyed = translucent
         // (like vanilla stained glass). All panes share the gray lead-came edge texture.
         cutoutCube(ModBlocks.LEADED_GLASS);
@@ -53,6 +56,16 @@ public class ModBlockStateProvider extends BlockStateProvider {
             translucentCube(ModBlocks.STAINED_LEADED_GLASS.get(color));
             glassPane(ModBlocks.STAINED_LEADED_GLASS_PANE.get(color), color.getName() + "_leaded_glass", RenderType.translucent().name);
         }
+    }
+
+    private void heavyOrb() {
+        // Both models are hand-authored (custom UV element + chain); HANGING picks the
+        // chained variant placed under a block.
+        ModelFile orb = models().getExistingFile(modLoc("block/heavy_orb"));
+        ModelFile hanging = models().getExistingFile(modLoc("block/heavy_orb_hanging"));
+        getVariantBuilder(ModBlocks.HEAVY_ORB.get())
+                .partialState().with(HeavyOrbBlock.HANGING, false).setModels(new ConfiguredModel(orb))
+                .partialState().with(HeavyOrbBlock.HANGING, true).setModels(new ConfiguredModel(hanging));
     }
 
     private void translucentCube(RegistrySupplier<Block> block) {

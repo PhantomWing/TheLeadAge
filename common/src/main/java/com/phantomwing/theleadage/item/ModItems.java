@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.item.custom.HeavyOrbItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.item.custom.LeadHorseArmorItem;
 import com.phantomwing.theleadage.tool.ModTiers;
@@ -91,6 +92,11 @@ public class ModItems {
             registerBlock(color.getName() + "_leaded_glass_pane", ModBlocks.STAINED_LEADED_GLASS_PANE.get(color));
         }
     }
+
+    // Heavy Orb — custom item: places normally (decorative / hangs), or air-drops as a
+    // falling weapon when aimed at open space.
+    public static final RegistrySupplier<Item> HEAVY_ORB = register("heavy_orb",
+            (props) -> new HeavyOrbItem(ModBlocks.HEAVY_ORB.get(), props), baseItem());
 
     public static Item.Properties baseItem() {
         return new Item.Properties();

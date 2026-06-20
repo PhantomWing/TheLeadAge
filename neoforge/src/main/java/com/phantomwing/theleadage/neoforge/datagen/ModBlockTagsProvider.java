@@ -28,7 +28,8 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.CUT_LEAD_SLAB.get(), ModBlocks.CUT_LEAD_STAIRS.get(),
                 ModBlocks.CHISELED_LEAD.get(), ModBlocks.LEAD_PILLAR.get(),
                 ModBlocks.LEAD_GRATE.get(),
-                ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get()};
+                ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get(),
+                ModBlocks.HEAVY_ORB.get()};
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(mineable);
         tag(BlockTags.NEEDS_STONE_TOOL).add(mineable);
 

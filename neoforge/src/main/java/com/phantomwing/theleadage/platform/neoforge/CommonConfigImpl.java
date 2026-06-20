@@ -21,4 +21,8 @@ public final class CommonConfigImpl {
     public static boolean enableStructureLoot() {
         return Configuration.ENABLE_STRUCTURE_LOOT.get();
     }
+
+    public static boolean heavyOrbDamage() {
+        return Configuration.ENABLE_HEAVY_ORB_DAMAGE.get();
+    }
 }

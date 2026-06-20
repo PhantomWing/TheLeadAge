@@ -1,0 +1,22 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "particle": "theleadage:block/lead_block",
+    "lead": "theleadage:block/lead_block"
+  },
+  "elements": [
+    {
+      "__comment": "12x12x12 lead ball, bottom-centered. UVs map 12 texels -> 12px (1:1).",
+      "from": [2, 0, 2],
+      "to": [14, 12, 14],
+      "faces": {
+        "north": {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "east":  {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "south": {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "west":  {"uv": [2, 4, 14, 16], "texture": "#lead"},
+        "up":    {"uv": [2, 2, 14, 14], "texture": "#lead"},
+        "down":  {"uv": [2, 2, 14, 14], "texture": "#lead", "cullface": "down"}
+      }
+    }
+  ]
+}
