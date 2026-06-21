@@ -27,6 +27,10 @@ public final class ModRenderLayers {
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(),
                 ModBlocks.LEAD_DOOR.get(),
                 ModBlocks.LEAD_TRAPDOOR.get(),
-                ModBlocks.LEAD_GRATE.get());
+                ModBlocks.LEAD_GRATE.get(),
+                ModBlocks.LEAD_CHAIN.get(),
+                ModBlocks.LEAD_BARS.get());
+        // The configurable panel's glass is translucent (tinted), not cutout.
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(), ModBlocks.LEADED_GLASS_PANEL.get());
     }
 }

@@ -15,6 +15,8 @@
     "theleadage:lead_grate",
     "theleadage:lead_trapdoor",
     "theleadage:lead_door",
+    "theleadage:lead_chain",
+    "theleadage:lead_bars",
     "theleadage:heavy_orb"
   ]
 }

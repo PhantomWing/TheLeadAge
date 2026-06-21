@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:item/generated",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "layer0": "theleadage:item/leaded_glass_pane_clear",
+    "layer1": "theleadage:item/leaded_glass_pane_frame"
+  }
+}

@@ -6,6 +6,7 @@ import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.custom.HeavyOrbItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
+import com.phantomwing.theleadage.item.custom.LeadedGlassPanelItem;
 import com.phantomwing.theleadage.item.custom.LeadHorseArmorItem;
 import com.phantomwing.theleadage.tool.ModTiers;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -76,6 +77,8 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_GRATE = registerBlock("lead_grate", ModBlocks.LEAD_GRATE);
     public static final RegistrySupplier<Item> LEAD_TRAPDOOR = registerBlock("lead_trapdoor", ModBlocks.LEAD_TRAPDOOR);
     public static final RegistrySupplier<Item> LEAD_DOOR = registerBlock("lead_door", ModBlocks.LEAD_DOOR);
+    public static final RegistrySupplier<Item> LEAD_CHAIN = registerBlock("lead_chain", ModBlocks.LEAD_CHAIN);
+    public static final RegistrySupplier<Item> LEAD_BARS = registerBlock("lead_bars", ModBlocks.LEAD_BARS);
 
     // Leaded glass: glass reinforced with lead nuggets (drops itself when mined with a pickaxe).
     public static final RegistrySupplier<Item> LEADED_GLASS = registerBlock("leaded_glass", ModBlocks.LEADED_GLASS);
@@ -85,18 +88,15 @@ public class ModItems {
             registerBlock(color.getName() + "_leaded_glass", ModBlocks.STAINED_LEADED_GLASS.get(color));
         }
     }
-    public static final RegistrySupplier<Item> LEADED_GLASS_PANE = registerBlock("leaded_glass_pane", ModBlocks.LEADED_GLASS_PANE);
-    // 16 dyed leaded glass panes (after the panes' plain variant).
-    static {
-        for (DyeColor color : DyeColor.values()) {
-            registerBlock(color.getName() + "_leaded_glass_pane", ModBlocks.STAINED_LEADED_GLASS_PANE.get(color));
-        }
-    }
-
     // Heavy Orb — custom item: places normally (decorative / hangs), or air-drops as a
     // falling weapon when aimed at open space.
     public static final RegistrySupplier<Item> HEAVY_ORB = register("heavy_orb",
             (props) -> new HeavyOrbItem(ModBlocks.HEAVY_ORB.get(), props), baseItem());
+
+    // The configurable leaded glass pane (design carried in the leaded_glass_config component).
+    // Single-colour presets are added to the creative tab by ModCreativeModeTab.
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANEL = register("leaded_glass_pane",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANEL.get(), props), baseItem());
 
     public static Item.Properties baseItem() {
         return new Item.Properties();

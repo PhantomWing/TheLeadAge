@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.block;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.custom.HeavyOrbBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassPanelBlock;
 import com.phantomwing.theleadage.block.custom.LeadOreBlock;
 import com.phantomwing.theleadage.sound.ModSoundTypes;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -11,12 +12,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChainBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
-import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.TransparentBlock;
@@ -56,29 +57,32 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEAD_GRATE = registerLeadGrate("lead_grate");
     public static final RegistrySupplier<TrapDoorBlock> LEAD_TRAPDOOR = registerLeadTrapdoor("lead_trapdoor");
     public static final RegistrySupplier<DoorBlock> LEAD_DOOR = registerLeadDoor("lead_door");
+    public static final RegistrySupplier<RotatedPillarBlock> LEAD_CHAIN = registerLeadChain("lead_chain");
+    public static final RegistrySupplier<IronBarsBlock> LEAD_BARS = registerLeadBars("lead_bars");
 
     // Leaded glass: renders/behaves exactly like glass, but requires a pickaxe to
     // drop itself (requiresCorrectToolForDrops + the mineable/pickaxe tag); broken
     // by hand it still shatters, just without a drop. Keeps the glass sound.
     public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
             new TransparentBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()));
-    public static final RegistrySupplier<Block> LEADED_GLASS_PANE = register("leaded_glass_pane", () ->
-            new IronBarsBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS_PANE).requiresCorrectToolForDrops()));
+
+    // The leaded glass pane: a thin framed pane whose came (frame) is a blockstate and whose
+    // per-region colours live on its block entity (tinted). Single-colour panes are the
+    // frame=plain preset; splits are crafted by combining two panes. See LeadedGlassPanelBlock.
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANEL = register("leaded_glass_pane", () ->
+            new LeadedGlassPanelBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops().noOcclusion()));
 
     // Heavy Orb: a 12³ lead ball that falls like an anvil and crushes entities (combat
     // logic in HeavyOrbEntity). Hangs from a chain when placed under a block.
     public static final RegistrySupplier<Block> HEAVY_ORB = register("heavy_orb", () ->
-            new HeavyOrbBlock(leadProps().noOcclusion()));
+            new HeavyOrbBlock(leadProps().noOcclusion().sound(ModSoundTypes.HEAVY_ORB)));
 
-    // 16 dyed leaded glass blocks + panes. StainedGlass(Pane)Block carries the DyeColor
-    // (beacon-beam tint); same pickaxe-drop rule as plain leaded glass. Keyed by colour
-    // so the datagen providers can iterate them.
+    // 16 dyed leaded glass blocks (the colour palette for crafting panes). StainedGlassBlock
+    // carries the DyeColor (beacon-beam tint); same pickaxe-drop rule as plain leaded glass.
     public static final Map<DyeColor, RegistrySupplier<Block>> STAINED_LEADED_GLASS = new EnumMap<>(DyeColor.class);
-    public static final Map<DyeColor, RegistrySupplier<Block>> STAINED_LEADED_GLASS_PANE = new EnumMap<>(DyeColor.class);
     static {
         for (DyeColor color : DyeColor.values()) {
             STAINED_LEADED_GLASS.put(color, registerStainedLeadedGlass(color));
-            STAINED_LEADED_GLASS_PANE.put(color, registerStainedLeadedGlassPane(color));
         }
     }
 
@@ -94,6 +98,14 @@ public class ModBlocks {
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadPillar(String name) {
         return register(name, () -> new RotatedPillarBlock(leadProps()));
+    }
+
+    private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
+        return register(name, () -> new ChainBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN))));
+    }
+
+    private static RegistrySupplier<IronBarsBlock> registerLeadBars(String name) {
+        return register(name, () -> new IronBarsBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BARS))));
     }
 
     private static RegistrySupplier<SlabBlock> registerLeadSlab(String name) {
@@ -122,12 +134,6 @@ public class ModBlocks {
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
         return register(color.getName() + "_leaded_glass", () ->
                 new StainedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
-                        .mapColor(color.getMapColor()).requiresCorrectToolForDrops()));
-    }
-
-    private static RegistrySupplier<Block> registerStainedLeadedGlassPane(DyeColor color) {
-        return register(color.getName() + "_leaded_glass_pane", () ->
-                new StainedGlassPaneBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS_PANE)
                         .mapColor(color.getMapColor()).requiresCorrectToolForDrops()));
     }
 

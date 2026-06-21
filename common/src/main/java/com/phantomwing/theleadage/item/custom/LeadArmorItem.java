@@ -75,10 +75,15 @@ public class LeadArmorItem extends ArmorItem {
             return;
         }
 
+        // Heaviness is suspended while the wearer is flying (creative / spectator) so the
+        // penalties don't fight free-flight — treated as if no lead armor were worn, which
+        // clears the modifiers below.
+        boolean flying = living instanceof Player player && player.getAbilities().flying;
+
         // Slow + gravity scale with total worn Heaviness. Idempotent, so it's fine
         // that this runs once per worn (or carried) lead piece each tick; it also
-        // clears the effect once no lead armor is worn.
-        double heaviness = wornHeaviness(living);
+        // clears the effect once no lead armor is worn (or the wearer is flying).
+        double heaviness = flying ? 0.0 : wornHeaviness(living);
         updateModifier(living, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_ID,
                 heaviness * SPEED_PENALTY_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         updateModifier(living, Attributes.GRAVITY, GRAVITY_MODIFIER_ID,
@@ -91,7 +96,8 @@ public class LeadArmorItem extends ArmorItem {
         // unaffected; they just sink fast the rest of the time. Applied on the side
         // that owns the entity's movement (client for players, server for mobs) so
         // the local player's swim input is read correctly and there's no desync.
-        if (living.getItemBySlot(getEquipmentSlot()) == stack
+        if (!flying
+                && living.getItemBySlot(getEquipmentSlot()) == stack
                 && living.isInWater()
                 && !living.jumping
                 && (living instanceof Player) == level.isClientSide()) {

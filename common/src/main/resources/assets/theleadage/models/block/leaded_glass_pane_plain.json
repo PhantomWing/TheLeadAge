@@ -1,0 +1,41 @@
+{
+  "parent": "block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "glass": "theleadage:block/white_leaded_glass",
+    "came": "theleadage:block/leaded_glass_came",
+    "particle": "theleadage:block/leaded_glass_came"
+  },
+  "elements": [
+    { "__comment": "glass (tintindex 0) — flat sheet, south u-flipped so it reads the same from behind",
+      "from": [1, 1, 7], "to": [15, 15, 9],
+      "faces": {
+        "north": { "uv": [1, 1, 15, 15], "texture": "#glass", "tintindex": 0 },
+        "south": { "uv": [15, 1, 1, 15], "texture": "#glass", "tintindex": 0 }
+      }
+    },
+    { "__comment": "came left (full height — clean side edge)", "from": [0, 0, 7], "to": [1, 16, 9],
+      "faces": {
+        "north": {"uv":[0,0,1,16],"texture":"#came"}, "south": {"uv":[1,0,0,16],"texture":"#came"},
+        "west": {"uv":[7,0,9,16],"texture":"#came"}, "up": {"uv":[0,7,1,9],"texture":"#came"}, "down": {"uv":[0,7,1,9],"texture":"#came"}
+      }
+    },
+    { "__comment": "came right (full height — clean side edge)", "from": [15, 0, 7], "to": [16, 16, 9],
+      "faces": {
+        "north": {"uv":[15,0,16,16],"texture":"#came"}, "south": {"uv":[16,0,15,16],"texture":"#came"},
+        "east": {"uv":[7,0,9,16],"texture":"#came"}, "up": {"uv":[15,7,16,9],"texture":"#came"}, "down": {"uv":[15,7,16,9],"texture":"#came"}
+      }
+    },
+    { "__comment": "came bottom (inner width)", "from": [1, 0, 7], "to": [15, 1, 9],
+      "faces": {
+        "north": {"uv":[1,15,15,16],"texture":"#came"}, "south": {"uv":[15,15,1,16],"texture":"#came"}, "down": {"uv":[1,7,15,9],"texture":"#came"}
+      }
+    },
+    { "__comment": "came top (inner width)", "from": [1, 15, 7], "to": [15, 16, 9],
+      "faces": {
+        "north": {"uv":[1,0,15,1],"texture":"#came"}, "south": {"uv":[15,0,1,1],"texture":"#came"}, "up": {"uv":[1,7,15,9],"texture":"#came"}
+      }
+    }
+  ]
+}

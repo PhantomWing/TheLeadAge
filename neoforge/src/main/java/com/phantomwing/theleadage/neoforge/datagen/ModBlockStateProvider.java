@@ -48,13 +48,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         heavyOrb();
 
-        // Leaded glass + panes. Plain = cutout (like vanilla glass), dyed = translucent
-        // (like vanilla stained glass). All panes share the gray lead-came edge texture.
+        // Leaded glass blocks. Plain = cutout (like vanilla glass), dyed = translucent
+        // (like vanilla stained glass). The leaded_glass_pane blockstate is hand-authored.
         cutoutCube(ModBlocks.LEADED_GLASS);
-        glassPane(ModBlocks.LEADED_GLASS_PANE, "leaded_glass", RenderType.cutout().name);
         for (DyeColor color : DyeColor.values()) {
             translucentCube(ModBlocks.STAINED_LEADED_GLASS.get(color));
-            glassPane(ModBlocks.STAINED_LEADED_GLASS_PANE.get(color), color.getName() + "_leaded_glass", RenderType.translucent().name);
         }
     }
 

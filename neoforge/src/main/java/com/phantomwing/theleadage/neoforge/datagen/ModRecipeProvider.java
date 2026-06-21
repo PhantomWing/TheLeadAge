@@ -13,6 +13,8 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import com.phantomwing.theleadage.recipe.LeadedGlassCombineRecipe;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -116,6 +118,23 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(ModItems.LEAD_BLOCK.get()), has(ModItems.LEAD_BLOCK.get()))
                 .save(output);
 
+        // Lead Chain: nugget / ingot / nugget (vanilla chain ratio).
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_CHAIN.get())
+                .pattern("N").pattern("I").pattern("N")
+                .define('N', ModItems.LEAD_NUGGET.get())
+                .define('I', ModItems.LEAD_INGOT.get())
+                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                .save(output);
+        // Lead Bars: 6 lead ingots -> 16 (vanilla iron-bars ratio).
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_BARS.get(), 16)
+                .pattern("III").pattern("III")
+                .define('I', ModItems.LEAD_INGOT.get())
+                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                .save(output);
+
+        // Configurable leaded glass panel: code-matched (reads the grid arrangement → frame + colours).
+        SpecialRecipeBuilder.special(LeadedGlassCombineRecipe::new).save(output, id("leaded_glass_combine"));
+
         // Conditional recipe overrides. Each is gated on the master toggle AND its
         // own per-recipe toggle, so either switch turns it off.
         ICondition master = new ConfigBooleanCondition(Configuration.ENABLE_RECIPE_OVERRIDES_ID);
@@ -162,20 +181,13 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(heavyCoreOutput);
     }
 
-    /** Leaded glass pane + the 16 dyed leaded glass blocks & panes, with their recipes. */
+    /** The 16 dyed leaded glass blocks (the colour palette). Panes are built from these
+     *  via the code-matched leaded_glass_pane recipes, not shaped recipes. */
     private void leadedGlassFamily(RecipeOutput output) {
-        // Plain leaded glass pane: 6 leaded glass -> 16 panes (vanilla glass-pane ratio).
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEADED_GLASS_PANE.get(), 16)
-                .pattern("###").pattern("###")
-                .define('#', ModItems.LEADED_GLASS.get())
-                .unlockedBy(getHasName(ModItems.LEADED_GLASS.get()), has(ModItems.LEADED_GLASS.get()))
-                .save(output);
-
         for (DyeColor color : DyeColor.values()) {
             ItemLike dye = DyeItem.byColor(color);
             ItemLike stainedGlass = vanillaItem(color.getName() + "_stained_glass");
             ItemLike leaded = ModBlocks.STAINED_LEADED_GLASS.get(color).get();
-            ItemLike leadedPane = ModBlocks.STAINED_LEADED_GLASS_PANE.get(color).get();
 
             // Dye plain leaded glass: 8 leaded glass + 1 dye -> 8 dyed (vanilla stained-glass ratio).
             ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
@@ -191,20 +203,6 @@ public class ModRecipeProvider extends RecipeProvider {
                     .define('G', stainedGlass)
                     .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
                     .save(output, id(name(leaded) + "_from_" + name(stainedGlass)));
-
-            // Dyed pane from dyed block: 6 -> 16.
-            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, leadedPane, 16)
-                    .pattern("###").pattern("###")
-                    .define('#', leaded)
-                    .unlockedBy(getHasName(leaded), has(leaded))
-                    .save(output);
-            // Dye plain leaded glass panes: 8 panes + 1 dye -> 8 dyed panes.
-            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, leadedPane, 8)
-                    .pattern("###").pattern("#D#").pattern("###")
-                    .define('#', ModItems.LEADED_GLASS_PANE.get())
-                    .define('D', dye)
-                    .unlockedBy(getHasName(ModItems.LEADED_GLASS_PANE.get()), has(ModItems.LEADED_GLASS_PANE.get()))
-                    .save(output, id(name(leadedPane) + "_from_" + name(ModItems.LEADED_GLASS_PANE.get())));
         }
     }
 

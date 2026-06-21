@@ -37,6 +37,8 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.LEAD_PILLAR.get());
         dropSelf(ModBlocks.LEAD_GRATE.get());
         dropSelf(ModBlocks.LEAD_TRAPDOOR.get());
+        dropSelf(ModBlocks.LEAD_CHAIN.get());
+        dropSelf(ModBlocks.LEAD_BARS.get());
         // Slabs drop two when double; doors only drop once (from the lower half).
         add(ModBlocks.LEAD_BRICK_SLAB.get(), this::createSlabItemTable);
         add(ModBlocks.CUT_LEAD_SLAB.get(), this::createSlabItemTable);
@@ -45,11 +47,12 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         // Drops itself only when mined with the correct tool (a pickaxe); the engine
         // suppresses the drop otherwise via requiresCorrectToolForDrops.
         dropSelf(ModBlocks.LEADED_GLASS.get());
-        dropSelf(ModBlocks.LEADED_GLASS_PANE.get());
+        // The pane's real drop (with its design component) is in LeadedGlassPanelBlock#getDrops;
+        // this dropSelf table just satisfies the loot validator.
+        dropSelf(ModBlocks.LEADED_GLASS_PANEL.get());
         dropSelf(ModBlocks.HEAVY_ORB.get());
         for (DyeColor color : DyeColor.values()) {
             dropSelf(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
-            dropSelf(ModBlocks.STAINED_LEADED_GLASS_PANE.get(color).get());
         }
     }
 

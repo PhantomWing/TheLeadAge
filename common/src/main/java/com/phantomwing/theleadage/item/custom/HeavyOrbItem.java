@@ -3,30 +3,31 @@ package com.phantomwing.theleadage.item.custom;
 import com.phantomwing.theleadage.entity.custom.HeavyOrbEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * Block item for the Heavy Orb. {@code useOn} keeps the normal block placement (so
  * you can set it on the ground for decoration, or hang it under a block). Aiming at
- * open air instead drops it in front of you as a falling {@link HeavyOrbEntity} with
- * you as the owner — the intentional weapon throw, which carries kill credit.
+ * open air instead drops it as a falling {@link HeavyOrbEntity} with you as the owner
+ * (the weapon throw, which carries kill credit), placed one block away:
+ *
+ * <ul>
+ *   <li>looking roughly level → one block in front;</li>
+ *   <li>looking down → the block directly below you;</li>
+ *   <li>looking (steeply) up → refused, so you can't drop it on your own head.</li>
+ * </ul>
  */
 public class HeavyOrbItem extends BlockItem {
-    private static final double AIR_DROP_REACH = 4.0;   // how far ahead we look for a drop spot
-    private static final int AIR_DROP_COOLDOWN = 10;    // ticks between throws
+    private static final double UP_THRESHOLD = 0.7;     // view.y above this = "looking up" → refuse
+    private static final double DOWN_THRESHOLD = -0.7;  // view.y below this = "looking down" → drop below
+    private static final int DROP_COOLDOWN = 10;        // ticks between throws
 
     public HeavyOrbItem(Block block, Properties properties) {
         super(block, properties);
@@ -35,18 +36,18 @@ public class HeavyOrbItem extends BlockItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        double lookY = player.getViewVector(1.0f).y;
 
-        Vec3 eye = player.getEyePosition();
-        Vec3 look = player.getViewVector(1.0f);
-        Vec3 end = eye.add(look.scale(AIR_DROP_REACH));
-        BlockHitResult clip = level.clip(new ClipContext(eye, end,
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-        // Back off from a hit surface so the orb spawns in open space, not inside it.
-        Vec3 spot = clip.getType() == HitResult.Type.BLOCK
-                ? clip.getLocation().subtract(look.scale(0.51))
-                : end;
+        BlockPos pos;
+        if (lookY > UP_THRESHOLD) {
+            // Looking up — refuse, so a dropped orb can't fall back onto the player.
+            return InteractionResultHolder.pass(stack);
+        } else if (lookY < DOWN_THRESHOLD) {
+            pos = player.blockPosition().below();
+        } else {
+            pos = player.blockPosition().relative(player.getDirection());
+        }
 
-        BlockPos pos = BlockPos.containing(spot);
         if (!level.getBlockState(pos).canBeReplaced()) {
             return InteractionResultHolder.pass(stack);
         }
@@ -56,12 +57,12 @@ public class HeavyOrbItem extends BlockItem {
             HeavyOrbEntity.inAir(serverLevel, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, state, player);
         }
 
-        level.playSound(null, player.blockPosition(), SoundEvents.ANVIL_PLACE, SoundSource.BLOCKS, 0.6f, 0.8f);
+        // No throw sound here: the spawned orb already plays its "starting to fall" whoosh.
         player.swing(hand, true);
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }
-        player.getCooldowns().addCooldown(this, AIR_DROP_COOLDOWN);
+        player.getCooldowns().addCooldown(this, DROP_COOLDOWN);
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 }

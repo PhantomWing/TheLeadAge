@@ -29,6 +29,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.CHISELED_LEAD.get(), ModBlocks.LEAD_PILLAR.get(),
                 ModBlocks.LEAD_GRATE.get(),
                 ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get(),
+                ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(),
                 ModBlocks.HEAVY_ORB.get()};
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(mineable);
         tag(BlockTags.NEEDS_STONE_TOOL).add(mineable);
@@ -40,13 +41,11 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.BEACON_BASE_BLOCKS).add(ModBlocks.LEAD_BLOCK.get());
 
-        // Leaded glass + panes (incl. all dyed variants) need a pickaxe to drop, but any
+        // Leaded glass + the pane (incl. all dyed glass) need a pickaxe to drop, but any
         // tier (fragile like glass), so they're only mineable/pickaxe — not NEEDS_STONE_TOOL.
-        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEADED_GLASS.get(), ModBlocks.LEADED_GLASS_PANE.get());
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEADED_GLASS.get(), ModBlocks.LEADED_GLASS_PANEL.get());
         for (DyeColor color : DyeColor.values()) {
-            tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
-                    ModBlocks.STAINED_LEADED_GLASS.get(color).get(),
-                    ModBlocks.STAINED_LEADED_GLASS_PANE.get(color).get());
+            tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
         }
     }
 }

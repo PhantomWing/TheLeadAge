@@ -20,5 +20,7 @@ public final class TheLeadAgeNeoForgeClient {
     public static void init(ModContainer container) {
         // Registers the in-game config screen (Mods -> The Lead Age -> Config).
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        // Panel tint providers are registered by ModColorHandlersNeoForge (a client
+        // RegisterColorHandlersEvent subscriber), not here.
     }
 }

@@ -24,9 +24,4 @@ public final class CommonConfigImpl {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_STRUCTURE_LOOT_ID);
     }
-
-    public static boolean heavyOrbDamage() {
-        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
-                TheLeadAgeFabricConfig.ENABLE_HEAVY_ORB_DAMAGE_ID);
-    }
 }

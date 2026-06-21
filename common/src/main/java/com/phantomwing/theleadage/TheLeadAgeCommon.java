@@ -4,8 +4,11 @@ import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.armor.MonsterArmorHandler;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.block.entity.ModBlockEntities;
+import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.recipe.ModRecipes;
 import com.phantomwing.theleadage.ui.ModCreativeModeTab;
 
 /**
@@ -30,6 +33,9 @@ public final class TheLeadAgeCommon {
         ModArmorMaterials.register();
         ModItems.register();
         ModEntities.register();
+        ModBlockEntities.register();
+        ModDataComponents.register();
+        ModRecipes.register();
         ModCreativeModeTab.register();
 
         // Swap naturally-spawned iron armor on certain mobs for lead armor (low chance).

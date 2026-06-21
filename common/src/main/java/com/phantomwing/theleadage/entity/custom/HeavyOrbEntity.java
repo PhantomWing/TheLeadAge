@@ -2,11 +2,16 @@ package com.phantomwing.theleadage.entity.custom;
 
 import com.phantomwing.theleadage.damage.ModDamageTypes;
 import com.phantomwing.theleadage.entity.ModEntities;
-import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
@@ -16,6 +21,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +55,8 @@ public class HeavyOrbEntity extends FallingBlockEntity {
     private UUID ownerUUID;
     /** Entities already damaged by this orb, so a single fall hits each at most once. */
     private final Set<Integer> hitEntityIds = new HashSet<>();
+    /** Tracks water state so the splash only fires on the tick the orb enters water. */
+    private boolean wasInWater;
 
     public HeavyOrbEntity(EntityType<? extends FallingBlockEntity> type, Level level) {
         super(type, level);
@@ -56,7 +64,11 @@ public class HeavyOrbEntity extends FallingBlockEntity {
 
     /** Spawn from a block that is starting to fall (removes the source block). */
     public static HeavyOrbEntity fromBlock(Level level, BlockPos pos, BlockState state, @Nullable Player owner) {
-        HeavyOrbEntity orb = create(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, state, owner);
+        // The falling orb carries a dry state; the source position keeps its fluid (so a
+        // waterlogged orb leaves water behind, matching vanilla falling blocks).
+        BlockState fallingState = state.hasProperty(BlockStateProperties.WATERLOGGED)
+                ? state.setValue(BlockStateProperties.WATERLOGGED, false) : state;
+        HeavyOrbEntity orb = create(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, fallingState, owner);
         level.setBlock(pos, state.getFluidState().createLegacyBlock(), 3);
         level.addFreshEntity(orb);
         return orb;
@@ -81,6 +93,8 @@ public class HeavyOrbEntity extends FallingBlockEntity {
         if (owner != null) {
             orb.ownerUUID = owner.getUUID();
         }
+        // A deep "starting to fall" whoosh so the weight is felt the moment it drops.
+        level.playSound(null, x, y, z, SoundEvents.ANVIL_FALL, SoundSource.BLOCKS, 0.9f, 0.6f);
         return orb;
     }
 
@@ -90,14 +104,42 @@ public class HeavyOrbEntity extends FallingBlockEntity {
         // discards it). Successive ticks cover the whole fall path, including impact.
         if (!level().isClientSide() && isAlive()) {
             crushEntitiesInPath();
+            handleWater();
         }
         super.tick();
     }
 
-    private void crushEntitiesInPath() {
-        if (!CommonConfig.heavyOrbDamage()) {
-            return;
+    /**
+     * A splash sound + droplet/bubble burst the moment the orb plunges into water. Water is
+     * detected directly from the level because {@link FallingBlockEntity} never updates
+     * {@code isInWater()}.
+     */
+    private void handleWater() {
+        boolean inWater = waterInFallPath();
+        if (inWater && !wasInWater && level() instanceof ServerLevel server) {
+            double x = getX(), y = getY(), z = getZ();
+            server.playSound(null, x, y, z, SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1.0f, 0.8f);
+            server.sendParticles(ParticleTypes.SPLASH, x, y + 0.1, z, 40, 0.3, 0.1, 0.3, 0.2);
+            server.sendParticles(ParticleTypes.BUBBLE, x, y, z, 20, 0.25, 0.1, 0.25, 0.1);
         }
+        wasInWater = inWater;
+    }
+
+    /** True if the orb is in, or will fall into this tick, a water block (its centre column). */
+    private boolean waterInFallPath() {
+        double startY = getY();
+        double endY = startY + Math.min(0.0, getDeltaMovement().y) - 0.04; // include this tick's fall
+        int x = Mth.floor(getX());
+        int z = Mth.floor(getZ());
+        for (int y = Mth.floor(startY); y >= Mth.floor(endY); y--) {
+            if (level().getFluidState(new BlockPos(x, y, z)).is(FluidTags.WATER)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void crushEntitiesInPath() {
         double fall = getStartPos().getY() - getY();
         if (fall < SMASH_THRESHOLD) {
             return;

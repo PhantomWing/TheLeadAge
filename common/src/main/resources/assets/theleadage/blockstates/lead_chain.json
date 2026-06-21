@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "axis=x": { "model": "theleadage:block/lead_chain", "x": 90, "y": 90 },
+    "axis=y": { "model": "theleadage:block/lead_chain" },
+    "axis=z": { "model": "theleadage:block/lead_chain", "x": 90 }
+  }
+}
