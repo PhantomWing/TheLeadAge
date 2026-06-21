@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "Verre au plomb",
   "tooltip.theleadage.frame.plain": "Simple",
   "tooltip.theleadage.frame.split_h": "Division horizontale",
+  "tooltip.theleadage.frame.split_v": "Division verticale",
+  "tooltip.theleadage.frame.grid": "Grille",
   "block.theleadage.heavy_orb": "Orbe lourd",
   "block.theleadage.leaded_glass_pane": "Vitre au plomb",
   "block.theleadage.white_leaded_glass": "Verre au plomb blanc",

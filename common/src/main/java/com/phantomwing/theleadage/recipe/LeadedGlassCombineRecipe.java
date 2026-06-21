@@ -81,15 +81,30 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
 
         // Combine: two plain panes side by side → one split pane (left | right).
         if (width == 2 && height == 1) {
-            Integer left = LeadedGlassColors.plainPaneColorIdOf(input.getItem(0));
-            Integer right = LeadedGlassColors.plainPaneColorIdOf(input.getItem(1));
-            if (left == null || right == null) {
-                return Optional.empty();
-            }
-            return Optional.of(new Result(LeadedGlassFrame.SPLIT_H, List.of(left, right), 1));
+            return combine(input, LeadedGlassFrame.SPLIT_H, 2);
+        }
+        // Two plain panes stacked → a vertical split (top / bottom).
+        if (width == 1 && height == 2) {
+            return combine(input, LeadedGlassFrame.SPLIT_V, 2);
+        }
+        // Four plain panes in a square → a 2×2 grid.
+        if (width == 2 && height == 2) {
+            return combine(input, LeadedGlassFrame.GRID, 4);
         }
 
         return Optional.empty();
+    }
+
+    /** Reads {@code count} plain panes (row-major) into a configured result of the given frame. */
+    private static Optional<Result> combine(CraftingInput input, LeadedGlassFrame frame, int count) {
+        Integer[] colors = new Integer[count];
+        for (int i = 0; i < count; i++) {
+            colors[i] = LeadedGlassColors.plainPaneColorIdOf(input.getItem(i));
+            if (colors[i] == null) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(new Result(frame, List.of(colors), 1));
     }
 
     private record Result(LeadedGlassFrame frame, List<Integer> colors, int count) {

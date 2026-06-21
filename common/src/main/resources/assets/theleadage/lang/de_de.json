@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "Bleiglas",
   "tooltip.theleadage.frame.plain": "Einfach",
   "tooltip.theleadage.frame.split_h": "Horizontal geteilt",
+  "tooltip.theleadage.frame.split_v": "Vertikal geteilt",
+  "tooltip.theleadage.frame.grid": "Gitter",
   "block.theleadage.heavy_orb": "Schwere Kugel",
   "block.theleadage.leaded_glass_pane": "Bleiglasscheibe",
   "block.theleadage.white_leaded_glass": "Weißes Bleiglas",

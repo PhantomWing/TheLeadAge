@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "Loodglas",
   "tooltip.theleadage.frame.plain": "Effen",
   "tooltip.theleadage.frame.split_h": "Horizontaal gesplitst",
+  "tooltip.theleadage.frame.split_v": "Verticaal gesplitst",
+  "tooltip.theleadage.frame.grid": "Raster",
   "block.theleadage.heavy_orb": "Zware bol",
   "block.theleadage.leaded_glass_pane": "Loodglazen ruit",
   "block.theleadage.white_leaded_glass": "Wit loodglas",

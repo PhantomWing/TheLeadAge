@@ -21,6 +21,8 @@
   "block.theleadage.leaded_glass": "Leaded Glass",
   "tooltip.theleadage.frame.plain": "Plain",
   "tooltip.theleadage.frame.split_h": "Horizontal Split",
+  "tooltip.theleadage.frame.split_v": "Vertical Split",
+  "tooltip.theleadage.frame.grid": "Grid",
   "block.theleadage.heavy_orb": "Heavy Orb",
   "block.theleadage.leaded_glass_pane": "Leaded Glass Pane",
   "block.theleadage.white_leaded_glass": "White Leaded Glass",

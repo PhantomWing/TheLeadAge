@@ -34,17 +34,16 @@ public final class ModColorHandlers {
     }
 
     public static int itemTint(ItemStack stack, int tintIndex) {
-        if (tintIndex >= 2) {
-            return NO_TINT; // the came-frame layer is never tinted
-        }
         LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
         if (config == null) {
             return NO_TINT; // a default (unconfigured) pane = clear glass
         }
-        // The 2D item has two glass halves (tintindex 0 = left, 1 = right). For a plain pane
-        // (one colour) clamp so both halves show it; a split shows its two colours.
-        int region = Math.min(tintIndex, config.colors().size() - 1);
-        return tintOf(config.colorAt(region));
+        // Each item model lays out one glass layer per region (tintindex 0..regions-1) then the
+        // came-frame layer last (tintindex == regions), which is never tinted.
+        if (tintIndex >= config.frame().regions()) {
+            return NO_TINT;
+        }
+        return tintOf(config.colorAt(tintIndex));
     }
 
     private static int tintOf(@Nullable DyeColor dye) {
@@ -57,7 +56,8 @@ public final class ModColorHandlers {
      */
     public static float frameProperty(ItemStack stack) {
         LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
-        return config != null && config.frame() != LeadedGlassFrame.PLAIN ? 1.0F : 0.0F;
+        // 0 = plain, 1 = split_h, 2 = split_v, 3 = grid (the enum order); drives the icon override.
+        return config != null ? config.frame().ordinal() : 0.0F;
     }
 
     /**

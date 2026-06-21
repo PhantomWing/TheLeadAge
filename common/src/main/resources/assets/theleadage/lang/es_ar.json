@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "Vidrio plomado",
   "tooltip.theleadage.frame.plain": "Simple",
   "tooltip.theleadage.frame.split_h": "División horizontal",
+  "tooltip.theleadage.frame.split_v": "División vertical",
+  "tooltip.theleadage.frame.grid": "Cuadrícula",
   "block.theleadage.heavy_orb": "Orbe pesado",
   "block.theleadage.leaded_glass_pane": "Panel de vidrio plomado",
   "block.theleadage.white_leaded_glass": "Vidrio plomado blanco",

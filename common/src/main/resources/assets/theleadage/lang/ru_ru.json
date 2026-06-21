@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "Свинцовое стекло",
   "tooltip.theleadage.frame.plain": "Простой",
   "tooltip.theleadage.frame.split_h": "Горизонтальное деление",
+  "tooltip.theleadage.frame.split_v": "Вертикальное деление",
+  "tooltip.theleadage.frame.grid": "Сетка",
   "block.theleadage.heavy_orb": "Тяжёлый шар",
   "block.theleadage.leaded_glass_pane": "Свинцовая стеклянная панель",
   "block.theleadage.white_leaded_glass": "Белое свинцовое стекло",

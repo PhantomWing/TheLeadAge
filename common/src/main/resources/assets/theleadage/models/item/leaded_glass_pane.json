@@ -2,12 +2,13 @@
   "parent": "minecraft:item/generated",
   "render_type": "minecraft:translucent",
   "textures": {
-    "layer0": "theleadage:item/leaded_glass_pane_left",
-    "layer1": "theleadage:item/leaded_glass_pane_right",
-    "layer2": "theleadage:item/leaded_glass_pane_frame"
+    "layer0": "theleadage:item/leaded_glass_pane_glass",
+    "layer1": "theleadage:item/leaded_glass_pane_frame"
   },
   "overrides": [
     { "predicate": { "theleadage:frame": 1 }, "model": "theleadage:item/leaded_glass_pane_split" },
+    { "predicate": { "theleadage:frame": 2 }, "model": "theleadage:item/leaded_glass_pane_split_v" },
+    { "predicate": { "theleadage:frame": 3 }, "model": "theleadage:item/leaded_glass_pane_grid" },
     { "predicate": { "theleadage:clear": 1 }, "model": "theleadage:item/leaded_glass_pane_clear" }
   ]
 }

@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "Свинцеве скло",
   "tooltip.theleadage.frame.plain": "Простий",
   "tooltip.theleadage.frame.split_h": "Горизонтальний поділ",
+  "tooltip.theleadage.frame.split_v": "Вертикальний поділ",
+  "tooltip.theleadage.frame.grid": "Сітка",
   "block.theleadage.heavy_orb": "Важка куля",
   "block.theleadage.leaded_glass_pane": "Свинцева шибка",
   "block.theleadage.white_leaded_glass": "Біле свинцеве скло",

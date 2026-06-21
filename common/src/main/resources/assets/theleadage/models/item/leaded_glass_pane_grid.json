@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:item/generated",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "layer0": "theleadage:item/leaded_glass_pane_q0",
+    "layer1": "theleadage:item/leaded_glass_pane_q1",
+    "layer2": "theleadage:item/leaded_glass_pane_q2",
+    "layer3": "theleadage:item/leaded_glass_pane_q3",
+    "layer4": "theleadage:item/leaded_glass_pane_frame_grid"
+  }
+}

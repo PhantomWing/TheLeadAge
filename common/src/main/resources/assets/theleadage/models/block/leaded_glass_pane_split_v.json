@@ -1,0 +1,49 @@
+{
+  "parent": "block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "glass_top": "theleadage:block/white_leaded_glass",
+    "glass_bottom": "theleadage:block/white_leaded_glass",
+    "came": "theleadage:block/leaded_glass_came",
+    "particle": "theleadage:block/leaded_glass_came"
+  },
+  "elements": [
+    { "__comment": "top glass (tintindex 0)", "from": [1, 9, 7], "to": [15, 15, 9],
+      "faces": {
+        "north": { "uv": [1, 1, 15, 7], "texture": "#glass_top", "tintindex": 0 },
+        "south": { "uv": [15, 1, 1, 7], "texture": "#glass_top", "tintindex": 0 }
+      }
+    },
+    { "__comment": "bottom glass (tintindex 1)", "from": [1, 1, 7], "to": [15, 7, 9],
+      "faces": {
+        "north": { "uv": [1, 9, 15, 15], "texture": "#glass_bottom", "tintindex": 1 },
+        "south": { "uv": [15, 9, 1, 15], "texture": "#glass_bottom", "tintindex": 1 }
+      }
+    },
+    { "__comment": "came centre divider (2px, y7-9)", "from": [1, 7, 7], "to": [15, 9, 9],
+      "faces": { "north": {"uv":[1,7,15,9],"texture":"#came"}, "south": {"uv":[15,7,1,9],"texture":"#came"} } },
+    { "__comment": "came left (full height)", "from": [0, 0, 7], "to": [1, 16, 9],
+      "faces": {
+        "north": {"uv":[0,0,1,16],"texture":"#came"}, "south": {"uv":[1,0,0,16],"texture":"#came"},
+        "west": {"uv":[7,0,9,16],"texture":"#came"}, "up": {"uv":[0,7,1,9],"texture":"#came"}, "down": {"uv":[0,7,1,9],"texture":"#came"}
+      }
+    },
+    { "__comment": "came right (full height)", "from": [15, 0, 7], "to": [16, 16, 9],
+      "faces": {
+        "north": {"uv":[15,0,16,16],"texture":"#came"}, "south": {"uv":[16,0,15,16],"texture":"#came"},
+        "east": {"uv":[7,0,9,16],"texture":"#came"}, "up": {"uv":[15,7,16,9],"texture":"#came"}, "down": {"uv":[15,7,16,9],"texture":"#came"}
+      }
+    },
+    { "__comment": "came bottom (inner width)", "from": [1, 0, 7], "to": [15, 1, 9],
+      "faces": {
+        "north": {"uv":[1,15,15,16],"texture":"#came"}, "south": {"uv":[15,15,1,16],"texture":"#came"}, "down": {"uv":[1,7,15,9],"texture":"#came"}
+      }
+    },
+    { "__comment": "came top (inner width)", "from": [1, 15, 7], "to": [15, 16, 9],
+      "faces": {
+        "north": {"uv":[1,0,15,1],"texture":"#came"}, "south": {"uv":[15,0,1,1],"texture":"#came"}, "up": {"uv":[1,7,15,9],"texture":"#came"}
+      }
+    }
+  ]
+}

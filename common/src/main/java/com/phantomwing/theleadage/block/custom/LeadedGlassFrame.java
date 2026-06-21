@@ -15,7 +15,11 @@ public enum LeadedGlassFrame implements StringRepresentable {
     /** A single full pane (one region). */
     PLAIN("plain", 1),
     /** Split left/right by a vertical came — a horizontal split (two regions: 0 = left, 1 = right). */
-    SPLIT_H("split_h", 2);
+    SPLIT_H("split_h", 2),
+    /** Split top/bottom by a horizontal came — a vertical split (two regions: 0 = top, 1 = bottom). */
+    SPLIT_V("split_v", 2),
+    /** A 2×2 grid of came (four regions: 0 = top-left, 1 = top-right, 2 = bottom-left, 3 = bottom-right). */
+    GRID("grid", 4);
 
     public static final Codec<LeadedGlassFrame> CODEC = StringRepresentable.fromEnum(LeadedGlassFrame::values);
     public static final StreamCodec<ByteBuf, LeadedGlassFrame> STREAM_CODEC =

@@ -16,8 +16,10 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -35,26 +37,35 @@ import java.util.List;
  * {@link LeadedGlassPanelBlockEntity} and are applied by a tint provider.
  */
 public class LeadedGlassPanelBlock extends Block implements EntityBlock {
-    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+    // Orientation, button/lever style: FACE is which surface it sits on (wall = upright,
+    // floor/ceiling = lying flat) and FACING is the horizontal yaw. Together they give 12
+    // placements (4 yaw × {upright, flat-up, flat-down}), each rotated toward the player so an
+    // asymmetric came/colour layout reads the same way it does in the item.
+    public static final EnumProperty<AttachFace> FACE = BlockStateProperties.ATTACH_FACE;
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<LeadedGlassFrame> FRAME = EnumProperty.create("frame", LeadedGlassFrame.class);
     // Whether each region is clear (uses the clear leaded_glass texture) vs coloured (the
     // tinted white_leaded_glass texture). Derived from the colours so the model can pick the
-    // right texture per region. CLEAR_1 is unused by the plain frame.
+    // right texture per region. Only as many as the frame has regions are meaningful.
     public static final BooleanProperty CLEAR_0 = BooleanProperty.create("clear_0");
     public static final BooleanProperty CLEAR_1 = BooleanProperty.create("clear_1");
+    public static final BooleanProperty CLEAR_2 = BooleanProperty.create("clear_2");
+    public static final BooleanProperty CLEAR_3 = BooleanProperty.create("clear_3");
 
     private static final VoxelShape X_SHAPE = Block.box(0.0, 0.0, 7.0, 16.0, 16.0, 9.0);
     private static final VoxelShape Z_SHAPE = Block.box(7.0, 0.0, 0.0, 9.0, 16.0, 16.0);
+    private static final VoxelShape Y_SHAPE = Block.box(0.0, 7.0, 0.0, 16.0, 9.0, 16.0);
 
     public LeadedGlassPanelBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.X)
-                .setValue(FRAME, LeadedGlassFrame.PLAIN).setValue(CLEAR_0, true).setValue(CLEAR_1, true));
+        registerDefaultState(stateDefinition.any().setValue(FACE, AttachFace.WALL).setValue(FACING, Direction.NORTH)
+                .setValue(FRAME, LeadedGlassFrame.PLAIN)
+                .setValue(CLEAR_0, true).setValue(CLEAR_1, true).setValue(CLEAR_2, true).setValue(CLEAR_3, true));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS, FRAME, CLEAR_0, CLEAR_1);
+        builder.add(FACE, FACING, FRAME, CLEAR_0, CLEAR_1, CLEAR_2, CLEAR_3);
     }
 
     /** A region is clear when it has no colour (an explicit CLEAR id, or no entry at all). */
@@ -67,18 +78,29 @@ public class LeadedGlassPanelBlock extends Block implements EntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(AXIS) == Direction.Axis.X ? X_SHAPE : Z_SHAPE;
+        // Flat slab on floor/ceiling (thin y); upright on a wall (thin z for N/S, thin x for E/W).
+        if (state.getValue(FACE) != AttachFace.WALL) {
+            return Y_SHAPE;
+        }
+        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? X_SHAPE : Z_SHAPE;
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         LeadedGlassConfig config = context.getItemInHand().get(ModDataComponents.LEADED_GLASS_CONFIG.get());
         LeadedGlassFrame frame = config != null ? config.frame() : LeadedGlassFrame.PLAIN;
-        // The sheet faces the player → it spans the axis perpendicular to their facing.
-        Direction.Axis spanAxis = context.getHorizontalDirection().getAxis() == Direction.Axis.X
-                ? Direction.Axis.Z : Direction.Axis.X;
-        return defaultBlockState().setValue(FRAME, frame).setValue(AXIS, spanAxis)
-                .setValue(CLEAR_0, isClear(config, 0)).setValue(CLEAR_1, isClear(config, 1));
+        // Looking at a floor → lie flat facing up; ceiling → flat facing down; otherwise upright.
+        // FACING is the horizontal yaw in every case, so even flat panes rotate with how you look.
+        Direction look = context.getNearestLookingDirection();
+        AttachFace face = switch (look) {
+            case UP -> AttachFace.CEILING;
+            case DOWN -> AttachFace.FLOOR;
+            default -> AttachFace.WALL;
+        };
+        return defaultBlockState().setValue(FRAME, frame).setValue(FACE, face)
+                .setValue(FACING, context.getHorizontalDirection())
+                .setValue(CLEAR_0, isClear(config, 0)).setValue(CLEAR_1, isClear(config, 1))
+                .setValue(CLEAR_2, isClear(config, 2)).setValue(CLEAR_3, isClear(config, 3));
     }
 
     @Override

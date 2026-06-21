@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "납 유리",
   "tooltip.theleadage.frame.plain": "기본",
   "tooltip.theleadage.frame.split_h": "수평 분할",
+  "tooltip.theleadage.frame.split_v": "수직 분할",
+  "tooltip.theleadage.frame.grid": "격자",
   "block.theleadage.heavy_orb": "무거운 구체",
   "block.theleadage.leaded_glass_pane": "납 유리판",
   "block.theleadage.white_leaded_glass": "하얀색 납 유리",

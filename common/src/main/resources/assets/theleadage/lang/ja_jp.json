@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "鉛ガラス",
   "tooltip.theleadage.frame.plain": "プレーン",
   "tooltip.theleadage.frame.split_h": "横分割",
+  "tooltip.theleadage.frame.split_v": "縦分割",
+  "tooltip.theleadage.frame.grid": "格子",
   "block.theleadage.heavy_orb": "重いオーブ",
   "block.theleadage.leaded_glass_pane": "鉛ガラス板",
   "block.theleadage.white_leaded_glass": "白色の鉛ガラス",

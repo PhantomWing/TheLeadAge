@@ -20,6 +20,8 @@
   "block.theleadage.leaded_glass": "Sticlă cu plumb",
   "tooltip.theleadage.frame.plain": "Simplu",
   "tooltip.theleadage.frame.split_h": "Divizat orizontal",
+  "tooltip.theleadage.frame.split_v": "Divizat vertical",
+  "tooltip.theleadage.frame.grid": "Grilă",
   "block.theleadage.heavy_orb": "Sferă grea",
   "block.theleadage.leaded_glass_pane": "Geam cu plumb",
   "block.theleadage.white_leaded_glass": "Sticlă cu plumb albă",
