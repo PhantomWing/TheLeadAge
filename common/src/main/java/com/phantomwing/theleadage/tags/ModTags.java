@@ -6,9 +6,34 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
 
 public final class ModTags {
     private ModTags() {
+    }
+
+    public static final class Blocks {
+        /** Solid, full-cube lead blocks (always a complete block). */
+        public static final TagKey<Block> SOLID_LEAD_BLOCKS = tag("solid_lead_blocks");
+        /** Lead slab blocks. */
+        public static final TagKey<Block> LEAD_SLABS = tag("lead_slabs");
+        /** Lead stair blocks. */
+        public static final TagKey<Block> LEAD_STAIRS = tag("lead_stairs");
+        /** Lead door blocks. */
+        public static final TagKey<Block> LEAD_DOORS = tag("lead_doors");
+        /** Lead trapdoor blocks. */
+        public static final TagKey<Block> LEAD_TRAPDOORS = tag("lead_trapdoors");
+        /** The lead building set: solid blocks + slabs + stairs. Feeds occludes_vibration_signals. */
+        public static final TagKey<Block> LEAD_BLOCKS = tag("lead_blocks");
+        /** Full leaded glass blocks (clear + stained), excluding panes. Mirrors vanilla glass. */
+        public static final TagKey<Block> LEADED_GLASS_BLOCKS = tag("leaded_glass_blocks");
+
+        private static TagKey<Block> tag(String name) {
+            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+        }
+
+        private Blocks() {
+        }
     }
 
     public static final class EntityTypes {

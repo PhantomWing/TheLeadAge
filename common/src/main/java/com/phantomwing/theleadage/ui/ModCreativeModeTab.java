@@ -25,23 +25,39 @@ public class ModCreativeModeTab {
                     .title(Component.translatable("item_group." + TheLeadAge.MOD_ID))
                     .displayItems((parameters, output) ->
                             ModItems.CREATIVE_TAB_ITEMS.forEach((item) -> {
-                                // The leaded glass pane is one item carrying a design component;
-                                // show a clear preset plus one per dye colour instead of the bare item.
+                                // Pane items carry a design component. Plain shows clear + every dye;
+                                // other came types just show a single all-clear preset.
                                 if (item == ModItems.LEADED_GLASS_PANEL) {
-                                    output.accept(plainPane(LeadedGlassConfig.CLEAR));
+                                    output.accept(pane(item, LeadedGlassFrame.PLAIN, List.of(LeadedGlassConfig.CLEAR)));
                                     for (DyeColor color : DyeColor.values()) {
-                                        output.accept(plainPane(color.getId()));
+                                        output.accept(pane(item, LeadedGlassFrame.PLAIN, List.of(color.getId())));
                                     }
+                                } else if (item == ModItems.LEADED_GLASS_PANE_SPLIT) {
+                                    output.accept(pane(item, LeadedGlassFrame.SPLIT_H,
+                                            List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_GRID) {
+                                    output.accept(pane(item, LeadedGlassFrame.GRID, List.of(
+                                            LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR,
+                                            LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_GRID_3) {
+                                    output.accept(pane(item, LeadedGlassFrame.GRID_3,
+                                            java.util.Collections.nCopies(9, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_DIAGONAL) {
+                                    output.accept(pane(item, LeadedGlassFrame.DIAGONAL_A,
+                                            List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_CROSS) {
+                                    output.accept(pane(item, LeadedGlassFrame.CROSS, List.of(
+                                            LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR,
+                                            LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
                                 } else {
                                     output.accept(item.get());
                                 }
                             }))
                     .build());
 
-    private static ItemStack plainPane(int colorId) {
-        ItemStack stack = new ItemStack(ModItems.LEADED_GLASS_PANEL.get());
-        stack.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
-                new LeadedGlassConfig(LeadedGlassFrame.PLAIN, List.of(colorId)));
+    private static ItemStack pane(RegistrySupplier<net.minecraft.world.item.Item> item, LeadedGlassFrame frame, List<Integer> colors) {
+        ItemStack stack = new ItemStack(item.get());
+        stack.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame, colors));
         return stack;
     }
 

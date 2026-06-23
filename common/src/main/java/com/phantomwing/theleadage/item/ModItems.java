@@ -6,7 +6,9 @@ import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.custom.HeavyOrbItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
+import com.phantomwing.theleadage.item.custom.LeadedGlassDoorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassPanelItem;
+import com.phantomwing.theleadage.item.custom.LeadedGlassTrapdoorItem;
 import com.phantomwing.theleadage.item.custom.LeadHorseArmorItem;
 import com.phantomwing.theleadage.tool.ModTiers;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -20,7 +22,9 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.HoeItem;
+import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
@@ -91,12 +95,50 @@ public class ModItems {
     // Heavy Orb — custom item: places normally (decorative / hangs), or air-drops as a
     // falling weapon when aimed at open space.
     public static final RegistrySupplier<Item> HEAVY_ORB = register("heavy_orb",
-            (props) -> new HeavyOrbItem(ModBlocks.HEAVY_ORB.get(), props), baseItem());
+            (props) -> new HeavyOrbItem(ModBlocks.HEAVY_ORB.get(), props),
+            new Item.Properties().durability(HeavyOrbItem.MAX_DURABILITY));
 
-    // The configurable leaded glass pane (design carried in the leaded_glass_config component).
-    // Single-colour presets are added to the creative tab by ModCreativeModeTab.
+    // Leaded glass panes — one item per came type (colours carried in the leaded_glass_config
+    // component). Creative presets are added by ModCreativeModeTab.
     public static final RegistrySupplier<Item> LEADED_GLASS_PANEL = register("leaded_glass_pane",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANEL.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_SPLIT = register("leaded_glass_pane_split",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_GRID = register("leaded_glass_pane_grid",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_GRID.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_GRID_3 = register("leaded_glass_pane_grid_3",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_GRID_3.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAGONAL = register("leaded_glass_pane_diagonal",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_CROSS = register("leaded_glass_pane_cross",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_CROSS.get(), props), baseItem());
+
+    // Leaded glass door — its top half shows the glass design carried in the component.
+    public static final RegistrySupplier<Item> LEADED_GLASS_DOOR = register("leaded_glass_door",
+            (props) -> new LeadedGlassDoorItem(ModBlocks.LEADED_GLASS_DOOR.get(), props), baseItem());
+
+    // Leaded glass trapdoor — its flap shows the glass design carried in the component.
+    public static final RegistrySupplier<Item> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor",
+            (props) -> new LeadedGlassTrapdoorItem(ModBlocks.LEADED_GLASS_TRAPDOOR.get(), props), baseItem());
+
+    /** The pane item for a given came frame (orientations of a came type share one item). */
+    public static Item paneItemFor(LeadedGlassFrame frame) {
+        return switch (frame) {
+            case PLAIN -> LEADED_GLASS_PANEL.get();
+            case SPLIT_H, SPLIT_V -> LEADED_GLASS_PANE_SPLIT.get();
+            case GRID -> LEADED_GLASS_PANE_GRID.get();
+            case GRID_3 -> LEADED_GLASS_PANE_GRID_3.get();
+            case DIAGONAL_A, DIAGONAL_B -> LEADED_GLASS_PANE_DIAGONAL.get();
+            case CROSS -> LEADED_GLASS_PANE_CROSS.get();
+        };
+    }
+
+    /** True if the stack is any leaded glass pane item. */
+    public static boolean isPaneItem(ItemStack stack) {
+        return stack.is(LEADED_GLASS_PANEL.get()) || stack.is(LEADED_GLASS_PANE_SPLIT.get())
+                || stack.is(LEADED_GLASS_PANE_GRID.get()) || stack.is(LEADED_GLASS_PANE_GRID_3.get())
+                || stack.is(LEADED_GLASS_PANE_DIAGONAL.get()) || stack.is(LEADED_GLASS_PANE_CROSS.get());
+    }
 
     public static Item.Properties baseItem() {
         return new Item.Properties();

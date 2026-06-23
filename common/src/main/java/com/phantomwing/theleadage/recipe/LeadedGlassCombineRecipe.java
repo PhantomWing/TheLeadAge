@@ -40,7 +40,7 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
     @Override
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
         return parse(input).map(result -> {
-            ItemStack pane = new ItemStack(ModItems.LEADED_GLASS_PANEL.get(), result.count());
+            ItemStack pane = new ItemStack(ModItems.paneItemFor(result.frame()), result.count());
             pane.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
                     new LeadedGlassConfig(result.frame(), result.colors()));
             return pane;
@@ -79,23 +79,89 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
             return Optional.of(new Result(LeadedGlassFrame.PLAIN, List.of(color), 16));
         }
 
-        // Combine: two plain panes side by side → one split pane (left | right).
+        // Combine: two plain panes side by side → two split panes (left | right).
         if (width == 2 && height == 1) {
             return combine(input, LeadedGlassFrame.SPLIT_H, 2);
         }
-        // Two plain panes stacked → a vertical split (top / bottom).
+        // Two plain panes stacked → two vertical-split panes (top / bottom).
         if (width == 1 && height == 2) {
             return combine(input, LeadedGlassFrame.SPLIT_V, 2);
         }
-        // Four plain panes in a square → a 2×2 grid.
+        // A 2×2 square: four panes → grid; two diagonal panes → a "/" or "\" diagonal.
         if (width == 2 && height == 2) {
-            return combine(input, LeadedGlassFrame.GRID, 4);
+            return parseSquare(input);
+        }
+        // A full 3×3 of panes → a 3×3 grid; the 3×3 "plus" (edge mids only) → an X cross.
+        if (width == 3 && height == 3) {
+            Optional<Result> grid3 = parseGrid3(input);
+            return grid3.isPresent() ? grid3 : parseCross(input);
         }
 
         return Optional.empty();
     }
 
-    /** Reads {@code count} plain panes (row-major) into a configured result of the given frame. */
+    /** 3×3 fully filled with plain panes → a {@link LeadedGlassFrame#GRID_3} (nine regions, row-major). */
+    private static Optional<Result> parseGrid3(CraftingInput input) {
+        Integer[] colors = new Integer[9];
+        for (int i = 0; i < 9; i++) {
+            colors[i] = LeadedGlassColors.plainPaneColorIdOf(input.getItem(i));
+            if (colors[i] == null) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(new Result(LeadedGlassFrame.GRID_3, List.of(colors), 9));
+    }
+
+    /** 2×2: all four filled → grid; the two cells of one diagonal filled (the rest empty) → diagonal. */
+    private static Optional<Result> parseSquare(CraftingInput input) {
+        // Cells: 0 = top-left, 1 = top-right, 2 = bottom-left, 3 = bottom-right.
+        Integer[] c = new Integer[4];
+        boolean[] empty = new boolean[4];
+        for (int i = 0; i < 4; i++) {
+            ItemStack stack = input.getItem(i);
+            empty[i] = stack.isEmpty();
+            c[i] = LeadedGlassColors.plainPaneColorIdOf(stack);
+            if (!empty[i] && c[i] == null) {
+                return Optional.empty(); // a non-plain-pane item is present
+            }
+        }
+        if (c[0] != null && c[1] != null && c[2] != null && c[3] != null) {
+            return Optional.of(new Result(LeadedGlassFrame.GRID, List.of(c[0], c[1], c[2], c[3]), 4));
+        }
+        // Diagonal "/" — top-left + bottom-right filled (0 = upper-left region, 1 = lower-right).
+        if (c[0] != null && c[3] != null && empty[1] && empty[2]) {
+            return Optional.of(new Result(LeadedGlassFrame.DIAGONAL_A, List.of(c[0], c[3]), 2));
+        }
+        // Diagonal "\" — top-right + bottom-left filled (0 = upper-right region, 1 = lower-left).
+        if (c[1] != null && c[2] != null && empty[0] && empty[3]) {
+            return Optional.of(new Result(LeadedGlassFrame.DIAGONAL_B, List.of(c[1], c[2]), 2));
+        }
+        return Optional.empty();
+    }
+
+    /** 3×3 plus: panes at the four edge-midpoints (top/left/right/bottom), the rest empty → cross. */
+    private static Optional<Result> parseCross(CraftingInput input) {
+        // Edge mids: 1 = top, 3 = left, 5 = right, 7 = bottom. Corners (0,2,6,8) + centre (4) empty.
+        for (int i : new int[]{0, 2, 4, 6, 8}) {
+            if (!input.getItem(i).isEmpty()) {
+                return Optional.empty();
+            }
+        }
+        Integer top = LeadedGlassColors.plainPaneColorIdOf(input.getItem(1));
+        Integer left = LeadedGlassColors.plainPaneColorIdOf(input.getItem(3));
+        Integer right = LeadedGlassColors.plainPaneColorIdOf(input.getItem(5));
+        Integer bottom = LeadedGlassColors.plainPaneColorIdOf(input.getItem(7));
+        if (top == null || left == null || right == null || bottom == null) {
+            return Optional.empty();
+        }
+        // Regions: 0 = top, 1 = right, 2 = bottom, 3 = left.
+        return Optional.of(new Result(LeadedGlassFrame.CROSS, List.of(top, right, bottom, left), 4));
+    }
+
+    /**
+     * Reads {@code count} plain panes (row-major) into a configured result of the given frame,
+     * yielding {@code count} of them — combining N panes returns N patterned panes, not one.
+     */
     private static Optional<Result> combine(CraftingInput input, LeadedGlassFrame frame, int count) {
         Integer[] colors = new Integer[count];
         for (int i = 0; i < count; i++) {
@@ -104,7 +170,7 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
                 return Optional.empty();
             }
         }
-        return Optional.of(new Result(frame, List.of(colors), 1));
+        return Optional.of(new Result(frame, List.of(colors), count));
     }
 
     private record Result(LeadedGlassFrame frame, List<Integer> colors, int count) {

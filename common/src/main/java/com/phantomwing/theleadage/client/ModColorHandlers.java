@@ -51,13 +51,13 @@ public final class ModColorHandlers {
     }
 
     /**
-     * Item-model predicate ({@code theleadage:frame}): 1 for a split pane, 0 for plain — drives
-     * the item-model override that swaps in the came-divided icon. Registered per loader.
+     * Item-model predicate: 1 when the pane has exactly this frame, else 0. One boolean property
+     * per non-plain frame (split_h/split_v/grid) drives the icon override. Booleans (not an
+     * ordinal) because {@code ItemProperties.register} clamps the value to [0, 1].
      */
-    public static float frameProperty(ItemStack stack) {
+    public static float framePredicate(ItemStack stack, LeadedGlassFrame frame) {
         LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
-        // 0 = plain, 1 = split_h, 2 = split_v, 3 = grid (the enum order); drives the icon override.
-        return config != null ? config.frame().ordinal() : 0.0F;
+        return config != null && config.frame() == frame ? 1.0F : 0.0F;
     }
 
     /**

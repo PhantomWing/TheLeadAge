@@ -6,16 +6,16 @@
   },
   "elements": [
     {
-      "__comment": "12x12x12 lead ball, bottom-centered. UVs map 12 texels -> 12px (1:1).",
-      "from": [2, 0, 2],
-      "to": [14, 12, 14],
+      "__comment": "8x8x8 lead ball on the ground, centred. UVs sample the centre 8x8 of lead_block (1:1).",
+      "from": [4, 0, 4],
+      "to": [12, 8, 12],
       "faces": {
-        "north": {"uv": [2, 4, 14, 16], "texture": "#lead"},
-        "east":  {"uv": [2, 4, 14, 16], "texture": "#lead"},
-        "south": {"uv": [2, 4, 14, 16], "texture": "#lead"},
-        "west":  {"uv": [2, 4, 14, 16], "texture": "#lead"},
-        "up":    {"uv": [2, 2, 14, 14], "texture": "#lead"},
-        "down":  {"uv": [2, 2, 14, 14], "texture": "#lead", "cullface": "down"}
+        "north": {"uv": [4, 4, 12, 12], "texture": "#lead"},
+        "east":  {"uv": [4, 4, 12, 12], "texture": "#lead"},
+        "south": {"uv": [4, 4, 12, 12], "texture": "#lead"},
+        "west":  {"uv": [4, 4, 12, 12], "texture": "#lead"},
+        "up":    {"uv": [4, 4, 12, 12], "texture": "#lead"},
+        "down":  {"uv": [4, 4, 12, 12], "texture": "#lead", "cullface": "down"}
       }
     }
   ]

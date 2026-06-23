@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.armor.MonsterArmorHandler;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.block.custom.HeavyOrbTransforms;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.entity.ModEntities;
@@ -37,6 +38,7 @@ public final class TheLeadAgeCommon {
         ModDataComponents.register();
         ModRecipes.register();
         ModCreativeModeTab.register();
+        HeavyOrbTransforms.register(); // datapack loader for heavy-orb impact block transforms
 
         // Swap naturally-spawned iron armor on certain mobs for lead armor (low chance).
         MonsterArmorHandler.register();

@@ -15,6 +15,8 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import com.phantomwing.theleadage.recipe.LeadedGlassCombineRecipe;
+import com.phantomwing.theleadage.recipe.LeadedGlassDoorRecipe;
+import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorRecipe;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -134,6 +136,10 @@ public class ModRecipeProvider extends RecipeProvider {
 
         // Configurable leaded glass panel: code-matched (reads the grid arrangement → frame + colours).
         SpecialRecipeBuilder.special(LeadedGlassCombineRecipe::new).save(output, id("leaded_glass_combine"));
+        // Leaded glass door: lead door + a configured pane → door carrying that pane's design.
+        SpecialRecipeBuilder.special(LeadedGlassDoorRecipe::new).save(output, id("leaded_glass_door"));
+        // Leaded glass trapdoor: lead trapdoor + a configured pane → trapdoor carrying that design.
+        SpecialRecipeBuilder.special(LeadedGlassTrapdoorRecipe::new).save(output, id("leaded_glass_trapdoor"));
 
         // Conditional recipe overrides. Each is gated on the master toggle AND its
         // own per-recipe toggle, so either switch turns it off.

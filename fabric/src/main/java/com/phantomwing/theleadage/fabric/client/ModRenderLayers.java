@@ -30,7 +30,13 @@ public final class ModRenderLayers {
                 ModBlocks.LEAD_GRATE.get(),
                 ModBlocks.LEAD_CHAIN.get(),
                 ModBlocks.LEAD_BARS.get());
-        // The configurable panel's glass is translucent (tinted), not cutout.
-        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(), ModBlocks.LEADED_GLASS_PANEL.get());
+        // Glass doors/trapdoors need cutout for their overlay window; the BER glass is separate.
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(),
+                ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get());
+        // The pane glass is translucent (tinted), not cutout — one per came type.
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(),
+                ModBlocks.LEADED_GLASS_PANEL.get(), ModBlocks.LEADED_GLASS_PANE_SPLIT.get(),
+                ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_GRID_3.get(),
+                ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get());
     }
 }

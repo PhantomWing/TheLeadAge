@@ -1,5 +1,6 @@
 {
   "values": [
-    "theleadage:lead_trapdoor"
+    "#theleadage:lead_trapdoors",
+    "theleadage:leaded_glass_trapdoor"
   ]
 }

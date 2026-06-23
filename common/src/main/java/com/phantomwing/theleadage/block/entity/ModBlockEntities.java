@@ -13,7 +13,22 @@ public class ModBlockEntities {
 
     public static final RegistrySupplier<BlockEntityType<LeadedGlassPanelBlockEntity>> LEADED_GLASS_PANEL =
             BLOCK_ENTITIES.register("leaded_glass_pane", () -> BlockEntityType.Builder.of(
-                    LeadedGlassPanelBlockEntity::new, ModBlocks.LEADED_GLASS_PANEL.get()).build(null));
+                    LeadedGlassPanelBlockEntity::new, ModBlocks.LEADED_GLASS_PANEL.get(),
+                    ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_GRID.get(),
+                    ModBlocks.LEADED_GLASS_PANE_GRID_3.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
+                    ModBlocks.LEADED_GLASS_PANE_CROSS.get()).build(null));
+
+    public static final RegistrySupplier<BlockEntityType<LeadedGlassDoorBlockEntity>> LEADED_GLASS_DOOR =
+            BLOCK_ENTITIES.register("leaded_glass_door", () -> BlockEntityType.Builder.of(
+                    LeadedGlassDoorBlockEntity::new, ModBlocks.LEADED_GLASS_DOOR.get()).build(null));
+
+    public static final RegistrySupplier<BlockEntityType<LeadedGlassTrapdoorBlockEntity>> LEADED_GLASS_TRAPDOOR =
+            BLOCK_ENTITIES.register("leaded_glass_trapdoor", () -> BlockEntityType.Builder.of(
+                    LeadedGlassTrapdoorBlockEntity::new, ModBlocks.LEADED_GLASS_TRAPDOOR.get()).build(null));
+
+    public static final RegistrySupplier<BlockEntityType<HeavyOrbBlockEntity>> HEAVY_ORB =
+            BLOCK_ENTITIES.register("heavy_orb", () -> BlockEntityType.Builder.of(
+                    HeavyOrbBlockEntity::new, ModBlocks.HEAVY_ORB.get()).build(null));
 
     public static void register() {
         BLOCK_ENTITIES.register();

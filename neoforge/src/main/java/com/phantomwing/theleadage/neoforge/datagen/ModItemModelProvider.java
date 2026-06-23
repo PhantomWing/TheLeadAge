@@ -50,6 +50,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         withExistingParent("lead_trapdoor", modLoc("block/lead_trapdoor_bottom"));
         // Door is a flat (generated) item sprite, not the 3D block model.
         basicItem(ModItems.LEAD_DOOR.get());
+        // leaded_glass_door item model is hand-authored (a per-came-pattern texture via overrides).
 
         blockItem("leaded_glass");
         // Heavy Orb: 3D item from its hand-authored block model.

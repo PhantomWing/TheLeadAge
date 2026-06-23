@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -58,6 +59,12 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
             loaded.add(id);
         }
         this.colors = loaded.isEmpty() ? List.of(LeadedGlassConfig.CLEAR) : List.copyOf(loaded);
+        // A live colour update (e.g. dyeing in place) arrives here on the client; the tints are baked
+        // into the chunk mesh, so force a re-render. setBlocksDirty is gated by requiresRender(old,new),
+        // which is false for the same state — so pass a sentinel old state to force the section re-mesh.
+        if (level != null && level.isClientSide) {
+            level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
+        }
     }
 
     @Override

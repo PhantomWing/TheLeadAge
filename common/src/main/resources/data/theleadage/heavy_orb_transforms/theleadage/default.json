@@ -1,0 +1,11 @@
+[
+  { "input": "minecraft:stone_bricks", "output": "minecraft:cracked_stone_bricks" },
+  { "input": "minecraft:infested_stone_bricks", "output": "minecraft:infested_cracked_stone_bricks" },
+  { "input": "minecraft:deepslate_bricks", "output": "minecraft:cracked_deepslate_bricks" },
+  { "input": "minecraft:deepslate_tiles", "output": "minecraft:cracked_deepslate_tiles" },
+  { "input": "minecraft:nether_bricks", "output": "minecraft:cracked_nether_bricks" },
+  { "input": "minecraft:polished_blackstone_bricks", "output": "minecraft:cracked_polished_blackstone_bricks" },
+  { "input": "minecraft:grass_block", "output": "minecraft:dirt" },
+  { "input": "minecraft:podzol", "output": "minecraft:dirt" },
+  { "input": "minecraft:mycelium", "output": "minecraft:dirt" }
+]

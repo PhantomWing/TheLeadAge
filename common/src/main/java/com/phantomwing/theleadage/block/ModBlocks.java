@@ -3,7 +3,9 @@ package com.phantomwing.theleadage.block;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.custom.HeavyOrbBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
-import com.phantomwing.theleadage.block.custom.LeadedGlassPanelBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassTrapdoorBlock;
 import com.phantomwing.theleadage.block.custom.LeadOreBlock;
 import com.phantomwing.theleadage.sound.ModSoundTypes;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -66,11 +68,47 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
             new TransparentBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()));
 
-    // The leaded glass pane: a thin framed pane whose came (frame) is a blockstate and whose
-    // per-region colours live on its block entity (tinted). Single-colour panes are the
-    // frame=plain preset; splits are crafted by combining two panes. See LeadedGlassPanelBlock.
+    // Leaded glass panes — one static block per came type (LeadedGlassPaneBlock.CameType). Colours
+    // live on the block entity (tinted); split is orientable (sneak-right-click toggles h/v).
     public static final RegistrySupplier<Block> LEADED_GLASS_PANEL = register("leaded_glass_pane", () ->
-            new LeadedGlassPanelBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops().noOcclusion()));
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.PLAIN, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_SPLIT = register("leaded_glass_pane_split", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.SPLIT, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_GRID = register("leaded_glass_pane_grid", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.GRID, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_GRID_3 = register("leaded_glass_pane_grid_3", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.GRID_3, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_DIAGONAL = register("leaded_glass_pane_diagonal", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.DIAGONAL, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_CROSS = register("leaded_glass_pane_cross", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.CROSS, paneProps()));
+
+    private static BlockBehaviour.Properties paneProps() {
+        return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops().noOcclusion();
+    }
+
+    /** The pane block for a came frame (the orientations of a came type share one block). */
+    public static Block paneBlockFor(com.phantomwing.theleadage.block.custom.LeadedGlassFrame frame) {
+        return switch (frame) {
+            case PLAIN -> LEADED_GLASS_PANEL.get();
+            case SPLIT_H, SPLIT_V -> LEADED_GLASS_PANE_SPLIT.get();
+            case GRID -> LEADED_GLASS_PANE_GRID.get();
+            case GRID_3 -> LEADED_GLASS_PANE_GRID_3.get();
+            case DIAGONAL_A, DIAGONAL_B -> LEADED_GLASS_PANE_DIAGONAL.get();
+            case CROSS -> LEADED_GLASS_PANE_CROSS.get();
+        };
+    }
+
+    // A lead door whose top half is a configurable leaded glass pane (design on its block entity,
+    // drawn by a renderer). See LeadedGlassDoorBlock.
+    public static final RegistrySupplier<Block> LEADED_GLASS_DOOR = register("leaded_glass_door", () ->
+            new LeadedGlassDoorBlock(ModBlockSetTypes.LEAD,
+                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion()));
+
+    // A lead trapdoor whose flap is a configurable leaded glass pane. See LeadedGlassTrapdoorBlock.
+    public static final RegistrySupplier<Block> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor", () ->
+            new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEAD,
+                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()));
 
     // Heavy Orb: a 12³ lead ball that falls like an anvil and crushes entities (combat
     // logic in HeavyOrbEntity). Hangs from a chain when placed under a block.

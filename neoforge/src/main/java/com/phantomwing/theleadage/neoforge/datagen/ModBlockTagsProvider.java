@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
@@ -30,20 +31,56 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.LEAD_GRATE.get(),
                 ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get(),
                 ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(),
+                ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get(),
                 ModBlocks.HEAVY_ORB.get()};
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(mineable);
         tag(BlockTags.NEEDS_STONE_TOOL).add(mineable);
 
-        tag(BlockTags.SLABS).add(ModBlocks.LEAD_BRICK_SLAB.get(), ModBlocks.CUT_LEAD_SLAB.get());
-        tag(BlockTags.STAIRS).add(ModBlocks.LEAD_BRICK_STAIRS.get(), ModBlocks.CUT_LEAD_STAIRS.get());
-        tag(BlockTags.DOORS).add(ModBlocks.LEAD_DOOR.get());
-        tag(BlockTags.TRAPDOORS).add(ModBlocks.LEAD_TRAPDOOR.get());
+        tag(BlockTags.SLABS).addTag(ModTags.Blocks.LEAD_SLABS);
+        tag(BlockTags.STAIRS).addTag(ModTags.Blocks.LEAD_STAIRS);
+        tag(ModTags.Blocks.LEAD_DOORS).add(ModBlocks.LEAD_DOOR.get());
+        tag(ModTags.Blocks.LEAD_TRAPDOORS).add(ModBlocks.LEAD_TRAPDOOR.get());
+        // Lead doors via the reusable tag; the leaded glass door/trapdoor belong to the glass family.
+        tag(BlockTags.DOORS).addTag(ModTags.Blocks.LEAD_DOORS).add(ModBlocks.LEADED_GLASS_DOOR.get());
+        tag(BlockTags.TRAPDOORS).addTag(ModTags.Blocks.LEAD_TRAPDOORS).add(ModBlocks.LEADED_GLASS_TRAPDOOR.get());
 
         tag(BlockTags.BEACON_BASE_BLOCKS).add(ModBlocks.LEAD_BLOCK.get());
 
+        // The lead building set, grouped into sub-tags rolled up under #lead_blocks.
+        tag(ModTags.Blocks.SOLID_LEAD_BLOCKS).add(
+                ModBlocks.LEAD_BLOCK.get(), ModBlocks.CUT_LEAD.get(), ModBlocks.LEAD_BRICKS.get(),
+                ModBlocks.CHISELED_LEAD.get(), ModBlocks.LEAD_PILLAR.get());
+        tag(ModTags.Blocks.LEAD_SLABS).add(ModBlocks.LEAD_BRICK_SLAB.get(), ModBlocks.CUT_LEAD_SLAB.get());
+        tag(ModTags.Blocks.LEAD_STAIRS).add(ModBlocks.LEAD_BRICK_STAIRS.get(), ModBlocks.CUT_LEAD_STAIRS.get());
+        tag(ModTags.Blocks.LEAD_BLOCKS)
+                .addTag(ModTags.Blocks.SOLID_LEAD_BLOCKS)
+                .addTag(ModTags.Blocks.LEAD_SLABS)
+                .addTag(ModTags.Blocks.LEAD_STAIRS);
+
+        // Lead is dense, so the building set blocks vibrations passing through (occludes_vibration_signals)
+        // like wool — but unlike wool it is NOT in dampens_vibrations, so footsteps on lead still emit a
+        // detectable vibration. NOTE: the vanilla occlusion is shape-blind, so even a half-slab or a single
+        // stair step will fully block sound (not just double-slabs / full arrangements).
+        tag(BlockTags.OCCLUDES_VIBRATION_SIGNALS).addTag(ModTags.Blocks.LEAD_BLOCKS);
+
+        // Full leaded glass blocks (clear + stained, no panes), grouped like vanilla glass.
+        tag(ModTags.Blocks.LEADED_GLASS_BLOCKS).add(ModBlocks.LEADED_GLASS.get());
+        for (DyeColor color : DyeColor.values()) {
+            tag(ModTags.Blocks.LEADED_GLASS_BLOCKS).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
+        }
+
+        // Dense lead (and leaded glass, like vanilla glass) is watertight: no water droplets drip from
+        // the underside when water sits above or it is waterlogged.
+        tag(BlockTags.IMPERMEABLE)
+                .addTag(ModTags.Blocks.LEAD_BLOCKS)
+                .addTag(ModTags.Blocks.LEADED_GLASS_BLOCKS);
+
         // Leaded glass + the pane (incl. all dyed glass) need a pickaxe to drop, but any
         // tier (fragile like glass), so they're only mineable/pickaxe — not NEEDS_STONE_TOOL.
-        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEADED_GLASS.get(), ModBlocks.LEADED_GLASS_PANEL.get());
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEADED_GLASS.get(), ModBlocks.LEADED_GLASS_PANEL.get(),
+                ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_GRID.get(),
+                ModBlocks.LEADED_GLASS_PANE_GRID_3.get(),
+                ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get());
         for (DyeColor color : DyeColor.values()) {
             tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
         }

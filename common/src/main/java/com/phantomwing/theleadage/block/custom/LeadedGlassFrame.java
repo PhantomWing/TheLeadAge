@@ -19,7 +19,15 @@ public enum LeadedGlassFrame implements StringRepresentable {
     /** Split top/bottom by a horizontal came — a vertical split (two regions: 0 = top, 1 = bottom). */
     SPLIT_V("split_v", 2),
     /** A 2×2 grid of came (four regions: 0 = top-left, 1 = top-right, 2 = bottom-left, 3 = bottom-right). */
-    GRID("grid", 4);
+    GRID("grid", 4),
+    /** A 3×3 grid of came (nine regions, row-major from the top-left: 0..2 top, 3..5 middle, 6..8 bottom). */
+    GRID_3("grid_3", 9),
+    /** Diagonal came "/" (two regions: 0 = upper-left, 1 = lower-right). */
+    DIAGONAL_A("diagonal_a", 2),
+    /** Diagonal came "\" (two regions: 0 = upper-right, 1 = lower-left). */
+    DIAGONAL_B("diagonal_b", 2),
+    /** An X of came (four regions: 0 = top, 1 = right, 2 = bottom, 3 = left). */
+    CROSS("cross", 4);
 
     public static final Codec<LeadedGlassFrame> CODEC = StringRepresentable.fromEnum(LeadedGlassFrame::values);
     public static final StreamCodec<ByteBuf, LeadedGlassFrame> STREAM_CODEC =
@@ -36,6 +44,34 @@ public enum LeadedGlassFrame implements StringRepresentable {
     /** Number of colourable regions (= the tint indices the model uses). */
     public int regions() {
         return regions;
+    }
+
+    /**
+     * The region a normalized hit on the pane face falls in, matching the model geometry.
+     * {@code u}: 0 = came-left → 1 = came-right; {@code v}: 0 = bottom → 1 = top.
+     */
+    public int regionAt(double u, double v) {
+        return switch (this) {
+            case PLAIN -> 0;
+            case SPLIT_H -> u < 0.5 ? 0 : 1;                       // left | right
+            case SPLIT_V -> v > 0.5 ? 0 : 1;                       // top / bottom
+            case GRID -> (v > 0.5 ? 0 : 2) + (u < 0.5 ? 0 : 1);    // TL, TR, BL, BR
+            case GRID_3 -> {                                       // 3×3, row-major from top-left
+                int col = u < 1.0 / 3 ? 0 : (u < 2.0 / 3 ? 1 : 2);
+                int row = v > 2.0 / 3 ? 0 : (v > 1.0 / 3 ? 1 : 2);
+                yield row * 3 + col;
+            }
+            case DIAGONAL_A -> v > u ? 0 : 1;                      // "/" upper-left | lower-right
+            case DIAGONAL_B -> v > 1 - u ? 0 : 1;                  // "\" upper-right | lower-left
+            case CROSS -> {                                        // X: the triangle by both diagonals
+                boolean aboveSlash = v > u;
+                boolean aboveBackslash = v > 1 - u;
+                if (aboveSlash && aboveBackslash) yield 0;         // top
+                if (!aboveSlash && aboveBackslash) yield 1;        // right
+                if (!aboveSlash) yield 2;                          // bottom
+                yield 3;                                           // left
+            }
+        };
     }
 
     @Override

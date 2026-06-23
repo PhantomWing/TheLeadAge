@@ -44,7 +44,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         pillar(ModBlocks.LEAD_PILLAR);
         cutoutCube(ModBlocks.LEAD_GRATE);
         trapdoor(ModBlocks.LEAD_TRAPDOOR);
+        trapdoor(ModBlocks.LEADED_GLASS_TRAPDOOR);
         door(ModBlocks.LEAD_DOOR);
+        // The glass door reuses the vanilla door models with its overlay textures (cutout, so the
+        // top half's window is transparent); the glass itself is drawn by the block-entity renderer.
+        door(ModBlocks.LEADED_GLASS_DOOR);
 
         heavyOrb();
 
@@ -100,15 +104,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
         getVariantBuilder(block.get()).partialState().setModels(new ConfiguredModel(model));
     }
 
-    private void door(RegistrySupplier<DoorBlock> doorBlock) {
-        doorBlockWithRenderType(doorBlock.get(),
+    private void door(RegistrySupplier<? extends Block> doorBlock) {
+        doorBlockWithRenderType((DoorBlock) doorBlock.get(),
                 modLoc("block/" + blockName(doorBlock) + "_bottom"),
                 modLoc("block/" + blockName(doorBlock) + "_top"),
                 RenderType.cutout().name);
     }
 
-    private void trapdoor(RegistrySupplier<TrapDoorBlock> trapdoor) {
-        trapdoorBlockWithRenderType(trapdoor.get(),
+    private void trapdoor(RegistrySupplier<? extends Block> trapdoor) {
+        trapdoorBlockWithRenderType((TrapDoorBlock) trapdoor.get(),
                 modLoc("block/" + blockName(trapdoor)),
                 true,
                 RenderType.cutout().name);

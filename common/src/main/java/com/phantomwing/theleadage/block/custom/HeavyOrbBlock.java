@@ -1,7 +1,9 @@
 package com.phantomwing.theleadage.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import com.phantomwing.theleadage.block.entity.HeavyOrbBlockEntity;
 import com.phantomwing.theleadage.entity.custom.HeavyOrbEntity;
+import com.phantomwing.theleadage.item.custom.HeavyOrbItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -9,42 +11,58 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 /**
- * A 12³ lead ball that falls like an anvil and crushes whatever it lands on (the
+ * An 8³ lead ball that falls like an anvil and crushes whatever it lands on (the
  * combat logic lives in {@link HeavyOrbEntity}). When placed against the underside
  * of a block it {@link #HANGING hangs} from a chain until that block is broken,
  * then drops.
  */
-public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBlock {
+public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBlock, EntityBlock {
     public static final MapCodec<HeavyOrbBlock> CODEC = simpleCodec(HeavyOrbBlock::new);
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    private static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 12.0, 14.0);
+    private static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 8.0, 12.0);
     private static final int LEAD_DUST_COLOR = 0x595959;
     /** Minimum blocks fallen for the impact to transform the surface (crack bricks, etc.). */
-    private static final double TRANSFORM_FALL_DISTANCE = 5.0;
+    private static final double TRANSFORM_FALL_DISTANCE = 3.0;
+    // Landing thud volume scales with the drop, clamped between a soft tap and a full slam.
+    private static final float MIN_THUD_VOLUME = 0.3f;
+    private static final float MAX_THUD_VOLUME = 1.0f;
+    private static final double FULL_THUD_FALL = 10.0; // drop (blocks) at which the thud maxes out
 
     public HeavyOrbBlock(Properties properties) {
         super(properties);
@@ -91,19 +109,48 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
     /** True when there is a sturdy block face directly above to hang the chain from. */
     private static boolean canHang(LevelReader level, BlockPos pos) {
         BlockPos above = pos.above();
-        return level.getBlockState(above).isFaceSturdy(level, above, Direction.DOWN);
+        BlockState aboveState = level.getBlockState(above);
+        // Hang from a sturdy ceiling, or chain straight off the bottom of another heavy orb.
+        return aboveState.getBlock() instanceof HeavyOrbBlock
+                || aboveState.isFaceSturdy(level, above, Direction.DOWN);
     }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(HANGING)) {
-            // Hangs until the block it is attached to is gone, then the chain snaps and it falls.
+            // Hangs until the block it is attached to is gone, then the chain snaps.
             if (!canHang(level, pos) && pos.getY() >= level.getMinBuildHeight()) {
-                level.playSound(null, pos, SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, 1.0f, 0.8f);
-                HeavyOrbEntity.fromBlock(level, pos, state.setValue(HANGING, false), null);
+                detach(level, pos, state);
             }
         } else if (isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
             HeavyOrbEntity.fromBlock(level, pos, state, null);
+        }
+    }
+
+    /** Right-clicking a hanging orb snaps its chain (then it falls, or sits if a floor holds it up). */
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!state.getValue(HANGING)) {
+            return InteractionResult.PASS;
+        }
+        if (!level.isClientSide) {
+            detach(level, pos, state);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    /** Snap the chain: the orb falls if nothing solid holds it up, otherwise it just settles in place. */
+    private static void detach(Level level, BlockPos pos, BlockState state) {
+        level.playSound(null, pos, SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, 1.0f, 0.8f);
+        BlockState detached = state.setValue(HANGING, false);
+        BlockState below = level.getBlockState(pos.below());
+        // Drop if there's nothing under it — or if the thing under it is itself a heavy orb, which is no
+        // real floor (it may be hanging/falling too), so a detached stack of orbs all drops together.
+        boolean falls = isFree(below) || below.getBlock() instanceof HeavyOrbBlock;
+        if (falls && pos.getY() >= level.getMinBuildHeight()) {
+            HeavyOrbEntity.fromBlock(level, pos, detached, null);
+        } else {
+            level.setBlock(pos, detached, Block.UPDATE_ALL); // a floor holds it — just settle (no fall thud)
         }
     }
 
@@ -111,16 +158,18 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
     @Override
     public void onLand(Level level, BlockPos pos, BlockState fallingState, BlockState landOnState, FallingBlockEntity entity) {
         BlockState surface = level.getBlockState(pos.below());
+        float thud = thudVolume(entity, pos);
 
         // Material character comes from the struck surface's place sound (a dull thump on
         // dirt, a clack on stone, ...), pitched down and layered with a deep mace-style
-        // smash so it always lands as a heavy "thud" rather than a metallic clank.
+        // smash so it always lands as a heavy "thud" rather than a metallic clank. Both scale
+        // with the drop, so a short fall is a soft tap and a long one a full slam.
         if (!surface.isAir()) {
             SoundType surfaceSound = surface.getSoundType();
             level.playSound(null, pos, surfaceSound.getPlaceSound(), SoundSource.BLOCKS,
-                    surfaceSound.getVolume() * 1.2f, surfaceSound.getPitch() * 0.75f);
+                    surfaceSound.getVolume() * 1.2f * thud, surfaceSound.getPitch() * 0.75f);
         }
-        level.playSound(null, pos, SoundEvents.MACE_SMASH_GROUND_HEAVY, SoundSource.BLOCKS, 0.9f, 0.9f);
+        level.playSound(null, pos, SoundEvents.MACE_SMASH_GROUND_HEAVY, SoundSource.BLOCKS, thud, 0.9f);
 
         if (level instanceof ServerLevel server && !surface.isAir()) {
             double cx = pos.getX() + 0.5, cy = pos.getY() + 0.05, cz = pos.getZ() + 0.5;
@@ -137,6 +186,17 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
                 level.setBlockAndUpdate(pos.below(), transformed);
             }
         }
+
+        // The landing wears the orb. Store the wear on the just-placed block, or shatter it if spent.
+        if (entity instanceof HeavyOrbEntity orb) {
+            int damage = orb.getDurabilityDamage() + HeavyOrbItem.WEAR_PER_LANDING;
+            if (damage >= HeavyOrbItem.MAX_DURABILITY) {
+                level.removeBlock(pos, false); // the orb is spent — it shatters instead of staying
+                shatterFx(level, pos);
+            } else if (level.getBlockEntity(pos) instanceof HeavyOrbBlockEntity be) {
+                be.setDamage(damage);
+            }
+        }
     }
 
     /**
@@ -145,11 +205,66 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
      */
     @Override
     public void onBrokenAfterFall(Level level, BlockPos pos, FallingBlockEntity entity) {
-        level.playSound(null, pos, SoundEvents.MACE_SMASH_GROUND_HEAVY, SoundSource.BLOCKS, 0.9f, 0.9f);
+        level.playSound(null, pos, SoundEvents.MACE_SMASH_GROUND_HEAVY, SoundSource.BLOCKS, thudVolume(entity, pos), 0.9f);
         if (level instanceof ServerLevel server) {
             server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, defaultBlockState()),
                     pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, 20, 0.3, 0.1, 0.3, 0.1);
         }
+
+        // The worn-item drop is carried by HeavyOrbEntity#spawnAtLocation (FallingBlockEntity calls it
+        // right after this). If the orb is spent it drops nothing and shatters here instead.
+        if (entity instanceof HeavyOrbEntity orb && orb.isSpentOnLanding()) {
+            shatterFx(level, pos);
+        }
+    }
+
+    /** Heavy "lead orb cracks apart" sound + a burst of its own dust, when the orb is spent. */
+    private void shatterFx(Level level, BlockPos pos) {
+        level.playSound(null, pos, SoundEvents.ANVIL_DESTROY, SoundSource.BLOCKS, 0.8f, 0.8f);
+        if (level instanceof ServerLevel server) {
+            server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, defaultBlockState()),
+                    pos.getX() + 0.5, pos.getY() + 0.4, pos.getZ() + 0.5, 35, 0.3, 0.2, 0.3, 0.12);
+        }
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new HeavyOrbBlockEntity(pos, state);
+    }
+
+    /** A placed orb carries its wear onto its block entity, so it survives being mined or re-falling. */
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (level.getBlockEntity(pos) instanceof HeavyOrbBlockEntity be) {
+            be.setDamage(stack.getDamageValue());
+        }
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        ItemStack stack = new ItemStack(this);
+        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof HeavyOrbBlockEntity be) {
+            stack.setDamageValue(be.getDamage());
+        }
+        return List.of(stack);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+        ItemStack stack = new ItemStack(this);
+        if (level.getBlockEntity(pos) instanceof HeavyOrbBlockEntity be) {
+            stack.setDamageValue(be.getDamage());
+        }
+        return stack;
+    }
+
+    /** Landing thud volume, ramped from a soft tap (short drop) to a full slam (long drop). */
+    private static float thudVolume(FallingBlockEntity entity, BlockPos pos) {
+        double fall = entity.getStartPos().getY() - pos.getY();
+        float t = (float) Mth.clamp((fall - 1.0) / (FULL_THUD_FALL - 1.0), 0.0, 1.0);
+        return Mth.lerp(t, MIN_THUD_VOLUME, MAX_THUD_VOLUME);
     }
 
     @Override

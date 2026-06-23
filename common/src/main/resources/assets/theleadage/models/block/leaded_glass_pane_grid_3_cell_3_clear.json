@@ -1,0 +1,43 @@
+{
+  "parent": "block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "glass": "theleadage:block/leaded_glass",
+    "particle": "theleadage:block/leaded_glass_came"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        6,
+        7
+      ],
+      "to": [
+        5,
+        10,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            6,
+            1,
+            10
+          ],
+          "texture": "#glass"
+        },
+        "south": {
+          "uv": [
+            1,
+            6,
+            5,
+            10
+          ],
+          "texture": "#glass"
+        }
+      }
+    }
+  ]
+}
