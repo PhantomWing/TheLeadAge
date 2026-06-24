@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "기본",
   "tooltip.theleadage.frame.split_h": "분할 (수직)",
   "tooltip.theleadage.frame.split_v": "분할 (수평)",
-  "tooltip.theleadage.frame.grid": "격자",
+  "tooltip.theleadage.frame.grid": "격자 (2×2)",
   "tooltip.theleadage.frame.grid_3": "격자 (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "대각선 (/)",
   "tooltip.theleadage.frame.diagonal_b": "대각선 (\\)",
-  "tooltip.theleadage.frame.cross": "십자",
+  "tooltip.theleadage.frame.cross": "대각선 (X)",
   "block.theleadage.heavy_orb": "무거운 구체",
   "block.theleadage.leaded_glass_pane": "납 유리판",
   "block.theleadage.leaded_glass_pane_split": "납 유리판",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "무거운 짐",
   "theleadage.advancement.obtain_lead_chestplate.description": "납 흉갑 획득하기",
   "theleadage.advancement.obtain_lead_horse_armor": "중기병",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "납 말 갑옷 획득하기"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "납 말 갑옷 획득하기",
+  "tooltip.theleadage.color.clear": "투명",
+  "item.theleadage.tinted": "%1$s %2$s"
 }

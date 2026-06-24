@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Простий",
   "tooltip.theleadage.frame.split_h": "Поділ (вертикальний)",
   "tooltip.theleadage.frame.split_v": "Поділ (горизонтальний)",
-  "tooltip.theleadage.frame.grid": "Сітка",
+  "tooltip.theleadage.frame.grid": "Сітка (2×2)",
   "tooltip.theleadage.frame.grid_3": "Сітка (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Діагональ (/)",
   "tooltip.theleadage.frame.diagonal_b": "Діагональ (\\)",
-  "tooltip.theleadage.frame.cross": "Хрест",
+  "tooltip.theleadage.frame.cross": "Діагональ (X)",
   "block.theleadage.heavy_orb": "Важка куля",
   "block.theleadage.leaded_glass_pane": "Свинцева шибка",
   "block.theleadage.leaded_glass_pane_split": "Свинцева шибка",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Мертвий вантаж",
   "theleadage.advancement.obtain_lead_chestplate.description": "Отримайте свинцевий нагрудник",
   "theleadage.advancement.obtain_lead_horse_armor": "Важка кавалерія",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Отримайте свинцеву кінську броню"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Отримайте свинцеву кінську броню",
+  "tooltip.theleadage.color.clear": "Прозоре",
+  "item.theleadage.tinted": "%1$s %2$s"
 }

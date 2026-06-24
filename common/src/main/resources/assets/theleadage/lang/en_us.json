@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Plain",
   "tooltip.theleadage.frame.split_h": "Split (vertical)",
   "tooltip.theleadage.frame.split_v": "Split (horizontal)",
-  "tooltip.theleadage.frame.grid": "Grid",
+  "tooltip.theleadage.frame.grid": "Grid (2×2)",
   "tooltip.theleadage.frame.grid_3": "Grid (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Diagonal (/)",
   "tooltip.theleadage.frame.diagonal_b": "Diagonal (\\)",
-  "tooltip.theleadage.frame.cross": "Cross",
+  "tooltip.theleadage.frame.cross": "Diagonal (X)",
   "block.theleadage.heavy_orb": "Heavy Orb",
   "block.theleadage.leaded_glass_pane": "Leaded Glass Pane",
   "block.theleadage.leaded_glass_pane_split": "Leaded Glass Pane",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Dead Weight",
   "theleadage.advancement.obtain_lead_chestplate.description": "Obtain a Lead Chestplate",
   "theleadage.advancement.obtain_lead_horse_armor": "Heavy Cavalry",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Obtain Lead Horse Armor"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Obtain Lead Horse Armor",
+  "tooltip.theleadage.color.clear": "Clear",
+  "item.theleadage.tinted": "%1$s %2$s"
 }

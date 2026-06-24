@@ -55,8 +55,11 @@ public class ModItemModelProvider extends ItemModelProvider {
         blockItem("leaded_glass");
         // Heavy Orb: 3D item from its hand-authored block model.
         blockItem("heavy_orb");
-        // Chain + bars: flat sprites of their block texture (cutout for the transparency).
-        paneItem("lead_chain", "lead_chain", RenderType.cutout().name);
+        // Chain: a dedicated flat inventory sprite (item/lead_chain), like vanilla chain.
+        withExistingParent("lead_chain", mcLoc("item/generated"))
+                .texture("layer0", modLoc("item/lead_chain"))
+                .renderType(RenderType.cutout().name);
+        // Bars: flat sprite of the block texture (cutout for the transparency).
         paneItem("lead_bars", "lead_bars", RenderType.cutout().name);
         // leaded_glass_pane (the configurable pane) item model is hand-authored.
         for (DyeColor color : DyeColor.values()) {

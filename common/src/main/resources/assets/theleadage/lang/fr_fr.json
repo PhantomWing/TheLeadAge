@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Simple",
   "tooltip.theleadage.frame.split_h": "Division (verticale)",
   "tooltip.theleadage.frame.split_v": "Division (horizontale)",
-  "tooltip.theleadage.frame.grid": "Grille",
+  "tooltip.theleadage.frame.grid": "Grille (2×2)",
   "tooltip.theleadage.frame.grid_3": "Grille (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Diagonale (/)",
   "tooltip.theleadage.frame.diagonal_b": "Diagonale (\\)",
-  "tooltip.theleadage.frame.cross": "Croix",
+  "tooltip.theleadage.frame.cross": "Diagonale (X)",
   "block.theleadage.heavy_orb": "Orbe lourd",
   "block.theleadage.leaded_glass_pane": "Vitre au plomb",
   "block.theleadage.leaded_glass_pane_split": "Vitre au plomb",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Poids mort",
   "theleadage.advancement.obtain_lead_chestplate.description": "Obtiens un plastron en plomb",
   "theleadage.advancement.obtain_lead_horse_armor": "Cavalerie lourde",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Obtiens une armure en plomb pour cheval"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Obtiens une armure en plomb pour cheval",
+  "tooltip.theleadage.color.clear": "Transparent",
+  "item.theleadage.tinted": "%2$s %1$s"
 }

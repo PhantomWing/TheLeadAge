@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Semplice",
   "tooltip.theleadage.frame.split_h": "Divisione (verticale)",
   "tooltip.theleadage.frame.split_v": "Divisione (orizzontale)",
-  "tooltip.theleadage.frame.grid": "Griglia",
+  "tooltip.theleadage.frame.grid": "Griglia (2×2)",
   "tooltip.theleadage.frame.grid_3": "Griglia (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Diagonale (/)",
   "tooltip.theleadage.frame.diagonal_b": "Diagonale (\\)",
-  "tooltip.theleadage.frame.cross": "Croce",
+  "tooltip.theleadage.frame.cross": "Diagonale (X)",
   "block.theleadage.heavy_orb": "Sfera pesante",
   "block.theleadage.leaded_glass_pane": "Pannello di vetro piombato",
   "block.theleadage.leaded_glass_pane_split": "Pannello di vetro piombato",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Peso morto",
   "theleadage.advancement.obtain_lead_chestplate.description": "Ottieni una corazza di piombo",
   "theleadage.advancement.obtain_lead_horse_armor": "Cavalleria pesante",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Ottieni un'armatura di piombo per cavallo"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Ottieni un'armatura di piombo per cavallo",
+  "tooltip.theleadage.color.clear": "Trasparente",
+  "item.theleadage.tinted": "%2$s %1$s"
 }

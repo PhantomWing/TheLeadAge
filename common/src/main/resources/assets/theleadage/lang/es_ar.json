@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Simple",
   "tooltip.theleadage.frame.split_h": "División (vertical)",
   "tooltip.theleadage.frame.split_v": "División (horizontal)",
-  "tooltip.theleadage.frame.grid": "Cuadrícula",
+  "tooltip.theleadage.frame.grid": "Cuadrícula (2×2)",
   "tooltip.theleadage.frame.grid_3": "Cuadrícula (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Diagonal (/)",
   "tooltip.theleadage.frame.diagonal_b": "Diagonal (\\)",
-  "tooltip.theleadage.frame.cross": "Cruz",
+  "tooltip.theleadage.frame.cross": "Diagonal (X)",
   "block.theleadage.heavy_orb": "Orbe pesado",
   "block.theleadage.leaded_glass_pane": "Panel de vidrio plomado",
   "block.theleadage.leaded_glass_pane_split": "Panel de vidrio plomado",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Peso muerto",
   "theleadage.advancement.obtain_lead_chestplate.description": "Consigue un peto de plomo",
   "theleadage.advancement.obtain_lead_horse_armor": "Caballería pesada",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Consigue una armadura de plomo para caballo"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Consigue una armadura de plomo para caballo",
+  "tooltip.theleadage.color.clear": "Transparente",
+  "item.theleadage.tinted": "%2$s %1$s"
 }

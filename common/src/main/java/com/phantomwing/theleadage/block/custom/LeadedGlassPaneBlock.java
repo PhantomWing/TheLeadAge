@@ -10,11 +10,13 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -134,32 +136,40 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
         return state;
     }
 
-    /** Right-clicking a region with a dye recolours just that region (front/back faces only). */
+    /** Right-clicking a region with a dye recolours just that region; with shears, clears it (front/back faces only). */
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!(stack.getItem() instanceof DyeItem dyeItem)) {
+        boolean shears = stack.getItem() instanceof ShearsItem;
+        if (!(stack.getItem() instanceof DyeItem) && !shears) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         int region = regionAt(state, pos, hit);
         if (region < 0) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // a thin edge, not the glass face
         }
-        DyeColor color = dyeItem.getDyeColor();
+        // The colour we want this region to become: a dye's colour, or null to clear it (shears).
+        DyeColor target = shears ? null : ((DyeItem) stack.getItem()).getDyeColor();
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
-            if (pane.colorAt(region) == color) {
-                return ItemInteractionResult.SUCCESS; // already this colour; consume the click, not the dye
+            if (pane.colorAt(region) == target) {
+                return ItemInteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
             }
             List<Integer> colors = new ArrayList<>(pane.getColors());
             while (colors.size() < type.regions) {
                 colors.add(LeadedGlassConfig.CLEAR);
             }
-            colors.set(region, color.getId());
+            colors.set(region, target == null ? LeadedGlassConfig.CLEAR : target.getId());
             pane.setColors(colors);
-            level.setBlock(pos, state.setValue(CLEAR[region], false), Block.UPDATE_CLIENTS);
-            level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
-            if (!player.getAbilities().instabuild) {
-                stack.shrink(1);
+            level.setBlock(pos, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
+            if (shears) {
+                level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0f, 1.0f);
+                stack.hurtAndBreak(1, player,
+                        hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            } else {
+                level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
             }
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
@@ -212,32 +222,76 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
     }
 
     /**
-     * Sneak-right-click rotates orientable came types in place: it advances the orientation and, on
-     * every wrap, swaps the two region colours — so split/diagonal panes appear to rotate a quarter
-     * turn each click rather than just flip orientation.
+     * Sneak-right-click rotates a pane a quarter turn in place. Orientable types (split/diagonal)
+     * advance their orientation and swap the two colours on each wrap; the symmetric types
+     * (grid, 3×3 grid, cross) keep their geometry and just rotate the colours. The two faces are
+     * mirror images, so clicking the back face turns the design the opposite way round the array —
+     * to the player it always reads as turning clockwise, from whichever side they clicked.
      */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (type.orientation == null || !player.isShiftKeyDown()) {
+        int[] rotation = type.colorRotation();
+        if ((type.orientation == null && rotation == null) || !player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
+        boolean reverse = isBackFace(state, hit);
         if (!level.isClientSide) {
-            int next = (state.getValue(type.orientation) + 1) % type.orientations;
-            BlockState rotated = state.setValue(type.orientation, next);
-            if (next == 0 && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
+            if (type.orientation != null) {
+                int orientations = type.orientations;
+                int current = state.getValue(type.orientation);
+                int next = reverse ? (current - 1 + orientations) % orientations : (current + 1) % orientations;
+                // Forward swaps on arrival at orientation 0; reversed swaps on leaving it, so the four-state
+                // (orientation × colour-order) cycle simply runs backwards.
+                boolean swapColors = reverse ? current == 0 : next == 0;
+                BlockState rotated = state.setValue(type.orientation, next);
+                if (swapColors && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
+                    List<Integer> colors = new ArrayList<>(pane.getColors());
+                    while (colors.size() < 2) {
+                        colors.add(LeadedGlassConfig.CLEAR);
+                    }
+                    Collections.swap(colors, 0, 1);
+                    pane.setColors(colors);
+                    rotated = rotated.setValue(CLEAR[0], colors.get(0) == LeadedGlassConfig.CLEAR)
+                            .setValue(CLEAR[1], colors.get(1) == LeadedGlassConfig.CLEAR);
+                }
+                level.setBlock(pos, rotated, Block.UPDATE_ALL);
+            } else if (level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
                 List<Integer> colors = new ArrayList<>(pane.getColors());
-                while (colors.size() < 2) {
+                while (colors.size() < type.regions) {
                     colors.add(LeadedGlassConfig.CLEAR);
                 }
-                Collections.swap(colors, 0, 1);
-                pane.setColors(colors);
-                rotated = rotated.setValue(CLEAR[0], colors.get(0) == LeadedGlassConfig.CLEAR)
-                        .setValue(CLEAR[1], colors.get(1) == LeadedGlassConfig.CLEAR);
+                List<Integer> rotated = new ArrayList<>(Collections.nCopies(type.regions, LeadedGlassConfig.CLEAR));
+                for (int i = 0; i < type.regions; i++) {
+                    if (reverse) {
+                        rotated.set(rotation[i], colors.get(i));   // inverse permutation — turn the other way
+                    } else {
+                        rotated.set(i, colors.get(rotation[i]));
+                    }
+                }
+                pane.setColors(rotated);
+                BlockState rotatedState = state;
+                for (int i = 0; i < type.regions; i++) {
+                    rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
+                }
+                level.setBlock(pos, rotatedState, Block.UPDATE_ALL);
             }
-            level.setBlock(pos, rotated, Block.UPDATE_ALL);
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 0.7f, 1.1f);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    /**
+     * Whether the player clicked the pane's back face. The front face shows the design as authored
+     * (for a wall pane it faces opposite the {@code FACING} it was placed against); the back is its
+     * mirror image, so a turn there must run the opposite way to still look clockwise to the viewer.
+     */
+    private boolean isBackFace(BlockState state, BlockHitResult hit) {
+        Direction back = switch (state.getValue(FACE)) {
+            case WALL -> state.getValue(FACING);
+            case FLOOR -> Direction.UP;
+            case CEILING -> Direction.DOWN;
+        };
+        return hit.getDirection() == back;
     }
 
     @Override
@@ -318,6 +372,21 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
                 }
             }
             return 0;
+        }
+
+        /**
+         * For the symmetric, non-orientable came types, the source region of each region after a 90°
+         * clockwise turn ({@code newColor[i] = oldColor[map[i]]}) — a true spatial rotation, so corners
+         * cycle among corners and edges among edges (the 3×3 middle is fixed). Null = not rotatable.
+         */
+        @Nullable
+        public int[] colorRotation() {
+            return switch (this) {
+                case GRID -> new int[]{2, 0, 3, 1};                      // TL TR BL BR
+                case GRID_3 -> new int[]{6, 3, 0, 7, 4, 1, 8, 5, 2};     // row-major 3×3, centre (4) fixed
+                case CROSS -> new int[]{3, 0, 1, 2};                     // top right bottom left
+                default -> null;                                         // plain / orientable types
+            };
         }
     }
 }

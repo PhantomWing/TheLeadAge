@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Einfach",
   "tooltip.theleadage.frame.split_h": "Geteilt (vertikal)",
   "tooltip.theleadage.frame.split_v": "Geteilt (horizontal)",
-  "tooltip.theleadage.frame.grid": "Gitter",
+  "tooltip.theleadage.frame.grid": "Gitter (2×2)",
   "tooltip.theleadage.frame.grid_3": "Gitter (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Diagonal (/)",
   "tooltip.theleadage.frame.diagonal_b": "Diagonal (\\)",
-  "tooltip.theleadage.frame.cross": "Kreuz",
+  "tooltip.theleadage.frame.cross": "Diagonal (X)",
   "block.theleadage.heavy_orb": "Schwere Kugel",
   "block.theleadage.leaded_glass_pane": "Bleiglasscheibe",
   "block.theleadage.leaded_glass_pane_split": "Bleiglasscheibe",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Totes Gewicht",
   "theleadage.advancement.obtain_lead_chestplate.description": "Hol dir einen Bleibrustpanzer",
   "theleadage.advancement.obtain_lead_horse_armor": "Schwere Kavallerie",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Hol dir einen bleiernen Rossharnisch"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Hol dir einen bleiernen Rossharnisch",
+  "tooltip.theleadage.color.clear": "Klar",
+  "item.theleadage.tinted": "%1$s %2$s"
 }

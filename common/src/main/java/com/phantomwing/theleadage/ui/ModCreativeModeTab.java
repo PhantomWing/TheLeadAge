@@ -35,6 +35,8 @@ public class ModCreativeModeTab {
                                 } else if (item == ModItems.LEADED_GLASS_PANE_SPLIT) {
                                     output.accept(pane(item, LeadedGlassFrame.SPLIT_H,
                                             List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
+                                    output.accept(pane(item, LeadedGlassFrame.SPLIT_V,
+                                            List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
                                 } else if (item == ModItems.LEADED_GLASS_PANE_GRID) {
                                     output.accept(pane(item, LeadedGlassFrame.GRID, List.of(
                                             LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR,
@@ -44,6 +46,8 @@ public class ModCreativeModeTab {
                                             java.util.Collections.nCopies(9, LeadedGlassConfig.CLEAR)));
                                 } else if (item == ModItems.LEADED_GLASS_PANE_DIAGONAL) {
                                     output.accept(pane(item, LeadedGlassFrame.DIAGONAL_A,
+                                            List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
+                                    output.accept(pane(item, LeadedGlassFrame.DIAGONAL_B,
                                             List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
                                 } else if (item == ModItems.LEADED_GLASS_PANE_CROSS) {
                                     output.accept(pane(item, LeadedGlassFrame.CROSS, List.of(

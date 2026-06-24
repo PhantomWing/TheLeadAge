@@ -22,6 +22,14 @@ public class ModRecipes {
             SERIALIZERS.register("leaded_glass_trapdoor",
                     () -> new SimpleCraftingRecipeSerializer<>(LeadedGlassTrapdoorRecipe::new));
 
+    public static final RegistrySupplier<SimpleCraftingRecipeSerializer<LeadedGlassDoorSplitRecipe>> LEADED_GLASS_DOOR_SPLIT =
+            SERIALIZERS.register("leaded_glass_door_split",
+                    () -> new SimpleCraftingRecipeSerializer<>(LeadedGlassDoorSplitRecipe::new));
+
+    public static final RegistrySupplier<SimpleCraftingRecipeSerializer<LeadedGlassTrapdoorSplitRecipe>> LEADED_GLASS_TRAPDOOR_SPLIT =
+            SERIALIZERS.register("leaded_glass_trapdoor_split",
+                    () -> new SimpleCraftingRecipeSerializer<>(LeadedGlassTrapdoorSplitRecipe::new));
+
     public static void register() {
         SERIALIZERS.register();
     }

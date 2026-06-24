@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Effen",
   "tooltip.theleadage.frame.split_h": "Gesplitst (verticaal)",
   "tooltip.theleadage.frame.split_v": "Gesplitst (horizontaal)",
-  "tooltip.theleadage.frame.grid": "Raster",
+  "tooltip.theleadage.frame.grid": "Raster (2×2)",
   "tooltip.theleadage.frame.grid_3": "Raster (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Diagonaal (/)",
   "tooltip.theleadage.frame.diagonal_b": "Diagonaal (\\)",
-  "tooltip.theleadage.frame.cross": "Kruis",
+  "tooltip.theleadage.frame.cross": "Diagonaal (X)",
   "block.theleadage.heavy_orb": "Zware bol",
   "block.theleadage.leaded_glass_pane": "Loodglazen ruit",
   "block.theleadage.leaded_glass_pane_split": "Loodglazen ruit",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Dood gewicht",
   "theleadage.advancement.obtain_lead_chestplate.description": "Verkrijg een loden harnas",
   "theleadage.advancement.obtain_lead_horse_armor": "Zware cavalerie",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Verkrijg een loden paardenharnas"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Verkrijg een loden paardenharnas",
+  "tooltip.theleadage.color.clear": "Transparant",
+  "item.theleadage.tinted": "%1$s %2$s"
 }

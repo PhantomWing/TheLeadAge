@@ -1,11 +1,7 @@
 package com.phantomwing.theleadage.item.custom;
 
-import com.phantomwing.theleadage.component.LeadedGlassConfig;
-import com.phantomwing.theleadage.component.ModDataComponents;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -15,8 +11,8 @@ import java.util.List;
 
 /**
  * Item form of the configurable leaded glass panel. Carries the design in the
- * {@code leaded_glass_config} data component and shows it in a tooltip: the frame plus
- * each region's colour.
+ * {@code leaded_glass_config} data component; a plain pane shows its colour in the name, every
+ * other frame lists its colours per row in the tooltip (see {@link LeadedGlassTooltip}).
  */
 public class LeadedGlassPanelItem extends BlockItem {
     public LeadedGlassPanelItem(Block block, Properties properties) {
@@ -24,27 +20,12 @@ public class LeadedGlassPanelItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
-        if (config == null) {
-            return;
-        }
-        tooltip.add(Component.translatable("tooltip.theleadage.frame." + config.frame().getSerializedName())
-                .withStyle(ChatFormatting.GRAY));
-
-        StringBuilder colours = new StringBuilder();
-        for (int region = 0; region < config.colors().size(); region++) {
-            if (region > 0) {
-                colours.append(" / ");
-            }
-            DyeColor dye = config.colorAt(region);
-            colours.append(dye == null ? "Clear" : capitalise(dye.getName()));
-        }
-        tooltip.add(Component.literal(colours.toString()).withStyle(ChatFormatting.DARK_GRAY));
+    public Component getName(ItemStack stack) {
+        return LeadedGlassTooltip.name(stack, super.getName(stack));
     }
 
-    private static String capitalise(String name) {
-        String spaced = name.replace('_', ' ');
-        return Character.toUpperCase(spaced.charAt(0)) + spaced.substring(1);
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        LeadedGlassTooltip.append(stack, tooltip);
     }
 }

@@ -27,9 +27,9 @@ import java.util.List;
  * block-entity renderer; the block itself is an ordinary vanilla door otherwise.
  */
 public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
-    // BlockSetType is fixed (lead), so a Properties-only codec is enough.
+    // BlockSetType is fixed (leaded glass), so a Properties-only codec is enough.
     public static final MapCodec<LeadedGlassDoorBlock> CODEC =
-            simpleCodec(props -> new LeadedGlassDoorBlock(ModBlockSetTypes.LEAD, props));
+            simpleCodec(props -> new LeadedGlassDoorBlock(ModBlockSetTypes.LEADED_GLASS, props));
 
     public LeadedGlassDoorBlock(BlockSetType type, Properties properties) {
         super(type, properties);

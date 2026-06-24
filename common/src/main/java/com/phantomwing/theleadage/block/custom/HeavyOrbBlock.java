@@ -17,6 +17,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ChainBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -106,13 +108,19 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
-    /** True when there is a sturdy block face directly above to hang the chain from. */
+    /** True when something directly above can anchor the orb: a sturdy ceiling, another orb, or a vertical chain. */
     private static boolean canHang(LevelReader level, BlockPos pos) {
         BlockPos above = pos.above();
         BlockState aboveState = level.getBlockState(above);
-        // Hang from a sturdy ceiling, or chain straight off the bottom of another heavy orb.
         return aboveState.getBlock() instanceof HeavyOrbBlock
+                || isVerticalChain(aboveState)
                 || aboveState.isFaceSturdy(level, above, Direction.DOWN);
+    }
+
+    /** A chain (lead or vanilla) standing upright — a valid anchor for the orb's own chain to hang from. */
+    private static boolean isVerticalChain(BlockState state) {
+        return state.getBlock() instanceof ChainBlock
+                && state.getValue(BlockStateProperties.AXIS) == Direction.Axis.Y;
     }
 
     @Override
@@ -131,6 +139,12 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!state.getValue(HANGING)) {
+            return InteractionResult.PASS;
+        }
+        // Holding a heavy orb? Don't snap the chain — pass so the held orb places instead, letting a
+        // player build orbs under/beside this one without the one they click detaching and falling.
+        if (player.getMainHandItem().getItem() instanceof BlockItem blockItem
+                && blockItem.getBlock() instanceof HeavyOrbBlock) {
             return InteractionResult.PASS;
         }
         if (!level.isClientSide) {

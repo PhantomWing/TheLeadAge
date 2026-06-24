@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "純色",
   "tooltip.theleadage.frame.split_h": "分割（豎向）",
   "tooltip.theleadage.frame.split_v": "分割（橫向）",
-  "tooltip.theleadage.frame.grid": "網格",
+  "tooltip.theleadage.frame.grid": "網格 (2×2)",
   "tooltip.theleadage.frame.grid_3": "網格 (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "對角（/）",
   "tooltip.theleadage.frame.diagonal_b": "對角（\\）",
-  "tooltip.theleadage.frame.cross": "交叉",
+  "tooltip.theleadage.frame.cross": "對角（X）",
   "block.theleadage.heavy_orb": "沉重的球",
   "block.theleadage.leaded_glass_pane": "鉛玻璃片",
   "block.theleadage.leaded_glass_pane_split": "鉛玻璃片",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "死重",
   "theleadage.advancement.obtain_lead_chestplate.description": "獲得一件鉛胸甲",
   "theleadage.advancement.obtain_lead_horse_armor": "重騎兵",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "獲得鉛馬鎧"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "獲得鉛馬鎧",
+  "tooltip.theleadage.color.clear": "透明",
+  "item.theleadage.tinted": "%1$s%2$s"
 }

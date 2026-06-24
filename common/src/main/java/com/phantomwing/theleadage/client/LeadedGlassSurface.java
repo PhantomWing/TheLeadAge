@@ -31,9 +31,11 @@ public final class LeadedGlassSurface {
      *  fills the slab (only the hidden side faces move — the front/back design faces are unaffected). */
     private static final float GLASS_DEPTH = 1.5f;
     /** Fraction of that depth the sheet actually fills, recessing the front/back faces just inside the
-     *  overlay so they don't z-fight it — even at distance, where depth precision drops. Depth-only, so
-     *  the pane keeps its full width; lower this if z-fighting still shows from far away. */
+     *  overlay so they don't z-fight it — even at distance, where depth precision drops. */
     private static final float GLASS_INSET = 0.95f;
+    /** A whisker of width inset (~0.08px per edge) so the pane's thin side faces sit just inside the
+     *  window frame instead of z-fighting it — too small to shrink the visible front/back design. */
+    private static final float GLASS_EDGE_INSET = 0.99f;
 
     private LeadedGlassSurface() {
     }
@@ -59,10 +61,10 @@ public final class LeadedGlassSurface {
             pose.translate(-0.5, -0.5, -0.5);
         }
         // Stretch the thin axis toward 3px to fill the slab, but stop just short (GLASS_INSET) so the
-        // faces recess inside the overlay instead of z-fighting it. Depth-only, so width is untouched.
-        // (Applied in canonical space, where the thin axis is z.)
+        // front/back faces recess inside the overlay; a whisker of width inset (GLASS_EDGE_INSET) keeps
+        // the thin side faces off the frame too. (Applied in canonical space, where the thin axis is z.)
         pose.translate(0.5, 0.5, 0.5);
-        pose.scale(1.0f, 1.0f, GLASS_INSET * GLASS_DEPTH);
+        pose.scale(GLASS_EDGE_INSET, GLASS_EDGE_INSET, GLASS_INSET * GLASS_DEPTH);
         pose.translate(-0.5, -0.5, -0.5);
 
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentCullBlockSheet());

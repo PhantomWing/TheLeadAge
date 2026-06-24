@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Простой",
   "tooltip.theleadage.frame.split_h": "Деление (вертикальное)",
   "tooltip.theleadage.frame.split_v": "Деление (горизонтальное)",
-  "tooltip.theleadage.frame.grid": "Сетка",
+  "tooltip.theleadage.frame.grid": "Сетка (2×2)",
   "tooltip.theleadage.frame.grid_3": "Сетка (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Диагональ (/)",
   "tooltip.theleadage.frame.diagonal_b": "Диагональ (\\)",
-  "tooltip.theleadage.frame.cross": "Крест",
+  "tooltip.theleadage.frame.cross": "Диагональ (X)",
   "block.theleadage.heavy_orb": "Тяжёлый шар",
   "block.theleadage.leaded_glass_pane": "Свинцовая стеклянная панель",
   "block.theleadage.leaded_glass_pane_split": "Свинцовая стеклянная панель",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Мёртвый груз",
   "theleadage.advancement.obtain_lead_chestplate.description": "Получите свинцовый нагрудник",
   "theleadage.advancement.obtain_lead_horse_armor": "Тяжёлая кавалерия",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Получите свинцовую конскую броню"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Получите свинцовую конскую броню",
+  "tooltip.theleadage.color.clear": "Прозрачное",
+  "item.theleadage.tinted": "%1$s %2$s"
 }

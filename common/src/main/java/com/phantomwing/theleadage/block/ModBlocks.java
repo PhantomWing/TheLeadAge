@@ -102,12 +102,12 @@ public class ModBlocks {
     // A lead door whose top half is a configurable leaded glass pane (design on its block entity,
     // drawn by a renderer). See LeadedGlassDoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_DOOR = register("leaded_glass_door", () ->
-            new LeadedGlassDoorBlock(ModBlockSetTypes.LEAD,
+            new LeadedGlassDoorBlock(ModBlockSetTypes.LEADED_GLASS,
                     leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion()));
 
     // A lead trapdoor whose flap is a configurable leaded glass pane. See LeadedGlassTrapdoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor", () ->
-            new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEAD,
+            new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
                     leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()));
 
     // Heavy Orb: a 12³ lead ball that falls like an anvil and crushes entities (combat

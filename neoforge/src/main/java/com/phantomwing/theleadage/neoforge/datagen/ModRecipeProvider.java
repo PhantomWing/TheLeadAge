@@ -16,7 +16,9 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import com.phantomwing.theleadage.recipe.LeadedGlassCombineRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassDoorRecipe;
+import com.phantomwing.theleadage.recipe.LeadedGlassDoorSplitRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorRecipe;
+import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorSplitRecipe;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -140,6 +142,9 @@ public class ModRecipeProvider extends RecipeProvider {
         SpecialRecipeBuilder.special(LeadedGlassDoorRecipe::new).save(output, id("leaded_glass_door"));
         // Leaded glass trapdoor: lead trapdoor + a configured pane → trapdoor carrying that design.
         SpecialRecipeBuilder.special(LeadedGlassTrapdoorRecipe::new).save(output, id("leaded_glass_trapdoor"));
+        // The reverse: a leaded glass door/trapdoor splits back into the lead base + its pane.
+        SpecialRecipeBuilder.special(LeadedGlassDoorSplitRecipe::new).save(output, id("leaded_glass_door_split"));
+        SpecialRecipeBuilder.special(LeadedGlassTrapdoorSplitRecipe::new).save(output, id("leaded_glass_trapdoor_split"));
 
         // Conditional recipe overrides. Each is gated on the master toggle AND its
         // own per-recipe toggle, so either switch turns it off.

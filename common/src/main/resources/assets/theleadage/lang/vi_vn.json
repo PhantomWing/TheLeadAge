@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Trơn",
   "tooltip.theleadage.frame.split_h": "Chia (dọc)",
   "tooltip.theleadage.frame.split_v": "Chia (ngang)",
-  "tooltip.theleadage.frame.grid": "Lưới",
+  "tooltip.theleadage.frame.grid": "Lưới (2×2)",
   "tooltip.theleadage.frame.grid_3": "Lưới (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Chéo (/)",
   "tooltip.theleadage.frame.diagonal_b": "Chéo (\\)",
-  "tooltip.theleadage.frame.cross": "Chữ thập",
+  "tooltip.theleadage.frame.cross": "Chéo (X)",
   "block.theleadage.heavy_orb": "Quả cầu nặng",
   "block.theleadage.leaded_glass_pane": "Tấm kính chì",
   "block.theleadage.leaded_glass_pane_split": "Tấm kính chì",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Gánh nặng",
   "theleadage.advancement.obtain_lead_chestplate.description": "Nhận một giáp ngực chì",
   "theleadage.advancement.obtain_lead_horse_armor": "Kỵ binh hạng nặng",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Nhận giáp ngựa chì"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Nhận giáp ngựa chì",
+  "tooltip.theleadage.color.clear": "Trong suốt",
+  "item.theleadage.tinted": "%2$s %1$s"
 }

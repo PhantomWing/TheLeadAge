@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.entity.custom;
 
+import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.entity.HeavyOrbBlockEntity;
 import com.phantomwing.theleadage.damage.ModDamageTypes;
 import com.phantomwing.theleadage.entity.ModEntities;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -123,6 +125,27 @@ public class HeavyOrbEntity extends FallingBlockEntity {
             handleWater();
         }
         super.tick();
+        // If that landing just placed the orb as a block on top of a hopper, hand it over as an item
+        // the hopper collects — so only a *falling* orb is sucked in (manual placement is untouched).
+        if (!level().isClientSide() && isRemoved()) {
+            convertHopperLanding();
+        }
+    }
+
+    /**
+     * Replace a freshly-placed orb block sitting on a hopper with the worn item the hopper then
+     * sucks in. The thud and wear/shatter already ran in HeavyOrbBlock#onLand.
+     */
+    private void convertHopperLanding() {
+        BlockPos pos = blockPosition();
+        if (!level().getBlockState(pos).is(ModBlocks.HEAVY_ORB.get())) {
+            return; // didn't place a block here (dropped as an item, or landed elsewhere)
+        }
+        if (!(level().getBlockState(pos.below()).getBlock() instanceof HopperBlock)) {
+            return;
+        }
+        level().removeBlock(pos, false);
+        spawnAtLocation(getBlockState().getBlock()); // worn orb item, or nothing if it was spent
     }
 
     /**

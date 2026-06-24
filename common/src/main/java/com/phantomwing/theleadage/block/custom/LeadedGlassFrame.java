@@ -47,6 +47,22 @@ public enum LeadedGlassFrame implements StringRepresentable {
     }
 
     /**
+     * Region indices grouped per display row (top → bottom), so the tooltip can lay colours out the
+     * way the pane reads rather than on one long line.
+     */
+    public int[][] rows() {
+        return switch (this) {
+            case PLAIN -> new int[][]{{0}};
+            case SPLIT_H -> new int[][]{{0, 1}};                       // left · right
+            case SPLIT_V -> new int[][]{{0}, {1}};                     // top / bottom
+            case GRID -> new int[][]{{0, 1}, {2, 3}};
+            case GRID_3 -> new int[][]{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
+            case DIAGONAL_A, DIAGONAL_B -> new int[][]{{0}, {1}};
+            case CROSS -> new int[][]{{0}, {3, 1}, {2}};               // top / left · right / bottom
+        };
+    }
+
+    /**
      * The region a normalized hit on the pane face falls in, matching the model geometry.
      * {@code u}: 0 = came-left → 1 = came-right; {@code v}: 0 = bottom → 1 = top.
      */

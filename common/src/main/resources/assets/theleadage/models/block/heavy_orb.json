@@ -1,5 +1,13 @@
 {
-  "parent": "block/block",
+  "gui_light": "side",
+  "render_type": "minecraft:cutout",
+  "__comment": "Display copied verbatim from vanilla heavy_core (same 8³ geometry) so the item renders the same size; undefined contexts fall back to identity exactly as heavy_core does. No block/block parent — its smaller display would otherwise apply. World/entity rendering ignores display.",
+  "display": {
+    "gui": { "rotation": [30, 225, 0], "translation": [0, 3, 0], "scale": [1, 1, 1] },
+    "ground": { "rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.5, 0.5, 0.5] },
+    "fixed": { "rotation": [0, 180, 0], "translation": [0, 4, 0], "scale": [1, 1, 1] },
+    "thirdperson_righthand": { "rotation": [45, 45, 0], "translation": [0, 3, 0], "scale": [0.5, 0.5, 0.5] }
+  },
   "textures": {
     "particle": "theleadage:block/lead_block",
     "lead": "theleadage:block/lead_block"
@@ -16,6 +24,18 @@
         "west":  {"uv": [4, 4, 12, 12], "texture": "#lead"},
         "up":    {"uv": [4, 4, 12, 12], "texture": "#lead"},
         "down":  {"uv": [4, 4, 12, 12], "texture": "#lead", "cullface": "down"}
+      }
+    },
+    {
+      "__comment": "4x4x2 nub centred on the orb's top (the chain anchor). No down face: it sits flush on the orb.",
+      "from": [6, 8, 6],
+      "to": [10, 10, 10],
+      "faces": {
+        "north": {"uv": [6, 6, 10, 8], "texture": "#lead"},
+        "east":  {"uv": [6, 6, 10, 8], "texture": "#lead"},
+        "south": {"uv": [6, 6, 10, 8], "texture": "#lead"},
+        "west":  {"uv": [6, 6, 10, 8], "texture": "#lead"},
+        "up":    {"uv": [6, 6, 10, 10], "texture": "#lead"}
       }
     }
   ]

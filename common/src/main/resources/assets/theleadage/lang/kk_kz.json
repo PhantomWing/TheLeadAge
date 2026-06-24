@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Қарапайым",
   "tooltip.theleadage.frame.split_h": "Бөлінген (тік)",
   "tooltip.theleadage.frame.split_v": "Бөлінген (көлденең)",
-  "tooltip.theleadage.frame.grid": "Тор",
+  "tooltip.theleadage.frame.grid": "Тор (2×2)",
   "tooltip.theleadage.frame.grid_3": "Тор (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Диагональ (/)",
   "tooltip.theleadage.frame.diagonal_b": "Диагональ (\\)",
-  "tooltip.theleadage.frame.cross": "Айқас",
+  "tooltip.theleadage.frame.cross": "Диагональ (X)",
   "block.theleadage.heavy_orb": "Ауыр шар",
   "block.theleadage.leaded_glass_pane": "Қорғасынды әйнек",
   "block.theleadage.leaded_glass_pane_split": "Қорғасынды әйнек",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Өлі салмақ",
   "theleadage.advancement.obtain_lead_chestplate.description": "Қорғасын кіреуке алыңыз",
   "theleadage.advancement.obtain_lead_horse_armor": "Ауыр атты әскер",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Қорғасын ат сауытын алыңыз"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Қорғасын ат сауытын алыңыз",
+  "tooltip.theleadage.color.clear": "Мөлдір",
+  "item.theleadage.tinted": "%1$s %2$s"
 }

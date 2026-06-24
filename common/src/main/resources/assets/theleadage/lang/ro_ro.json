@@ -21,11 +21,11 @@
   "tooltip.theleadage.frame.plain": "Simplu",
   "tooltip.theleadage.frame.split_h": "Divizat (vertical)",
   "tooltip.theleadage.frame.split_v": "Divizat (orizontal)",
-  "tooltip.theleadage.frame.grid": "Grilă",
+  "tooltip.theleadage.frame.grid": "Grilă (2×2)",
   "tooltip.theleadage.frame.grid_3": "Grilă (3×3)",
   "tooltip.theleadage.frame.diagonal_a": "Diagonal (/)",
   "tooltip.theleadage.frame.diagonal_b": "Diagonal (\\)",
-  "tooltip.theleadage.frame.cross": "Cruce",
+  "tooltip.theleadage.frame.cross": "Diagonal (X)",
   "block.theleadage.heavy_orb": "Sferă grea",
   "block.theleadage.leaded_glass_pane": "Geam cu plumb",
   "block.theleadage.leaded_glass_pane_split": "Geam cu plumb",
@@ -84,5 +84,7 @@
   "theleadage.advancement.obtain_lead_chestplate": "Greutate moartă",
   "theleadage.advancement.obtain_lead_chestplate.description": "Obține o platoșă de plumb",
   "theleadage.advancement.obtain_lead_horse_armor": "Cavalerie grea",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Obține o armură de plumb pentru cal"
+  "theleadage.advancement.obtain_lead_horse_armor.description": "Obține o armură de plumb pentru cal",
+  "tooltip.theleadage.color.clear": "Transparent",
+  "item.theleadage.tinted": "%2$s %1$s"
 }
