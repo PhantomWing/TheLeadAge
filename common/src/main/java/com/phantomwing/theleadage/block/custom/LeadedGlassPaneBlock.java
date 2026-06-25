@@ -98,6 +98,15 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
         return type.frame(type.orientation != null ? state.getValue(type.orientation) : 0);
     }
 
+    /**
+     * Whether a vanilla-style bar / glass pane (any {@code IronBarsBlock}, incl. lead bars) should grow
+     * a connection arm toward this state. True for a wall-mounted leaded glass pane: its full-face plane
+     * sits at the shared edge, so the arm meets it cleanly. Called from the per-loader IronBarsBlock mixin.
+     */
+    public static boolean barsConnectTo(BlockState state) {
+        return state.getBlock() instanceof LeadedGlassPaneBlock && state.getValue(FACE) == AttachFace.WALL;
+    }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACE, FACING);

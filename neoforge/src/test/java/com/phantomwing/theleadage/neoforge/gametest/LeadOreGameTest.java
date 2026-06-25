@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge.gametest;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.HeavyOrbTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
+import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.entity.HeavyOrbBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
@@ -36,7 +37,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -110,6 +113,25 @@ public class LeadOreGameTest {
         } else {
             helper.fail("Matched " + match.get().id() + " but result was " + result);
         }
+    }
+
+    /** The IronBarsBlock mixin: bars/panes attach to a wall leaded glass pane, but not floor panes, and vanilla still works. */
+    @GameTest(template = "empty")
+    public static void barsConnectToLeadedGlass(GameTestHelper helper) {
+        IronBarsBlock bars = (IronBarsBlock) ModBlocks.LEAD_BARS.get();
+        BlockState wallPane = ModBlocks.LEADED_GLASS_PANEL.get().defaultBlockState(); // FACE = WALL by default
+        if (!bars.attachsTo(wallPane, false)) {
+            helper.fail("bars don't attach to a wall leaded glass pane — the IronBarsBlock mixin didn't apply");
+        }
+        // Only wall panes anchor; a floor-mounted pane must not connect.
+        if (bars.attachsTo(wallPane.setValue(LeadedGlassPaneBlock.FACE, AttachFace.FLOOR), false)) {
+            helper.fail("bars wrongly attach to a floor-mounted leaded glass pane");
+        }
+        // Vanilla behaviour intact: bars still attach to other bars.
+        if (!bars.attachsTo(Blocks.IRON_BARS.defaultBlockState(), false)) {
+            helper.fail("bars no longer attach to iron bars — the mixin broke vanilla connection");
+        }
+        helper.succeed();
     }
 
     /** A lone leaded glass door splits back into a lead door (result) + its pane, design intact (remaining). */

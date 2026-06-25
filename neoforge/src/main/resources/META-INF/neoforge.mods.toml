@@ -3,6 +3,9 @@ loaderVersion = "[4,)"
 issueTrackerURL = "https://github.com/PhantomWing/TheLeadAge/issues"
 license = "MIT License"
 
+[[mixins]]
+config = "theleadage.mixins.json"
+
 [[mods]]
 modId = "theleadage"
 version = "${version}"
