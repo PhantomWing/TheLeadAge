@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.block;
 
 import com.phantomwing.theleadage.TheLeadAge;
-import com.phantomwing.theleadage.block.custom.HeavyOrbBlock;
+import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
@@ -110,10 +110,10 @@ public class ModBlocks {
             new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
                     leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()));
 
-    // Heavy Orb: a 12³ lead ball that falls like an anvil and crushes entities (combat
-    // logic in HeavyOrbEntity). Hangs from a chain when placed under a block.
-    public static final RegistrySupplier<Block> HEAVY_ORB = register("heavy_orb", () ->
-            new HeavyOrbBlock(leadProps().noOcclusion().sound(ModSoundTypes.HEAVY_ORB)));
+    // Lead Weight: a 12³ lead ball that falls like an anvil and crushes entities (combat
+    // logic in LeadWeightEntity). Hangs from a chain when placed under a block.
+    public static final RegistrySupplier<Block> LEAD_WEIGHT = register("lead_weight", () ->
+            new LeadWeightBlock(leadProps().noOcclusion().sound(ModSoundTypes.LEAD_WEIGHT)));
 
     // 16 dyed leaded glass blocks (the colour palette for crafting panes). StainedGlassBlock
     // carries the DyeColor (beacon-beam tint); same pickaxe-drop rule as plain leaded glass.

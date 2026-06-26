@@ -32,7 +32,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get(),
                 ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(),
                 ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get(),
-                ModBlocks.HEAVY_ORB.get()};
+                ModBlocks.LEAD_WEIGHT.get()};
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(mineable);
         tag(BlockTags.NEEDS_STONE_TOOL).add(mineable);
 

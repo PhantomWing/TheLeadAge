@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Data-driven surface transformations applied when a {@link HeavyOrbBlock} lands on a block
+ * Data-driven surface transformations applied when a {@link LeadWeightBlock} lands on a block
  * hard enough (bricks crack, grass is pounded to dirt, ...). Entries are loaded from datapacks,
- * so any mod or pack can extend them — drop JSON files under {@code data/<namespace>/heavy_orb_transforms/}
+ * so any mod or pack can extend them — drop JSON files under {@code data/<namespace>/lead_weight_transforms/}
  * (nested folders allowed). Each file is an array (or a single object) of transforms:
  *
  * <pre>{@code
@@ -43,8 +43,8 @@ import java.util.Map;
  * block id (its default state). Direct-block entries win over tag entries; among tags, the first
  * match (in load order) is used.
  */
-public final class HeavyOrbTransforms extends SimpleJsonResourceReloadListener {
-    public static final String DIRECTORY = "heavy_orb_transforms";
+public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener {
+    public static final String DIRECTORY = "lead_weight_transforms";
     private static final Gson GSON = new Gson();
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -55,13 +55,13 @@ public final class HeavyOrbTransforms extends SimpleJsonResourceReloadListener {
     private static volatile Map<Block, BlockState> byBlock = Map.of();
     private static volatile List<TagRule> byTag = List.of();
 
-    public HeavyOrbTransforms() {
+    public LeadWeightTransforms() {
         super(GSON, DIRECTORY);
     }
 
     /** Wire the datapack loader on both loaders. Call once from common init. */
     public static void register() {
-        ReloadListenerRegistry.register(PackType.SERVER_DATA, new HeavyOrbTransforms(),
+        ReloadListenerRegistry.register(PackType.SERVER_DATA, new LeadWeightTransforms(),
                 ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, DIRECTORY));
     }
 
@@ -95,12 +95,12 @@ public final class HeavyOrbTransforms extends SimpleJsonResourceReloadListener {
                     parse(GsonHelper.convertToJsonObject(root, "transform"), blocks, tags);
                 }
             } catch (Exception e) {
-                LOGGER.error("Skipping invalid heavy orb transform file {}: {}", file.getKey(), e.getMessage());
+                LOGGER.error("Skipping invalid lead weight transform file {}: {}", file.getKey(), e.getMessage());
             }
         }
         byBlock = Map.copyOf(blocks);
         byTag = List.copyOf(tags);
-        LOGGER.debug("Loaded {} heavy orb block transforms + {} tag rules from {} file(s)", blocks.size(), tags.size(), files.size());
+        LOGGER.debug("Loaded {} lead weight block transforms + {} tag rules from {} file(s)", blocks.size(), tags.size(), files.size());
     }
 
     private static void parse(JsonObject obj, Map<Block, BlockState> blocks, List<TagRule> tags) {

@@ -114,8 +114,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
         leadedGlassFamily(output);
 
-        // Heavy Orb: 8 lead ingots around a lead block.
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.HEAVY_ORB.get())
+        // Lead Weight: 8 lead ingots around a lead block.
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
                 .pattern("III").pattern("ILI").pattern("III")
                 .define('I', ModItems.LEAD_INGOT.get())
                 .define('L', ModItems.LEAD_BLOCK.get())

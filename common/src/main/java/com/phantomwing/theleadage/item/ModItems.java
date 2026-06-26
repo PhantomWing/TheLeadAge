@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
-import com.phantomwing.theleadage.item.custom.HeavyOrbItem;
+import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassDoorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassPanelItem;
@@ -92,11 +92,11 @@ public class ModItems {
             registerBlock(color.getName() + "_leaded_glass", ModBlocks.STAINED_LEADED_GLASS.get(color));
         }
     }
-    // Heavy Orb — custom item: places normally (decorative / hangs), or air-drops as a
+    // Lead Weight — custom item: places normally (decorative / hangs), or air-drops as a
     // falling weapon when aimed at open space.
-    public static final RegistrySupplier<Item> HEAVY_ORB = register("heavy_orb",
-            (props) -> new HeavyOrbItem(ModBlocks.HEAVY_ORB.get(), props),
-            new Item.Properties().durability(HeavyOrbItem.MAX_DURABILITY));
+    public static final RegistrySupplier<Item> LEAD_WEIGHT = register("lead_weight",
+            (props) -> new LeadWeightItem(ModBlocks.LEAD_WEIGHT.get(), props),
+            new Item.Properties().durability(LeadWeightItem.MAX_DURABILITY));
 
     // Leaded glass panes — one item per came type (colours carried in the leaded_glass_config
     // component). Creative presets are added by ModCreativeModeTab.

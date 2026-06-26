@@ -7,14 +7,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Holds a placed Heavy Orb's accumulated durability damage, so its wear survives while it is in
+ * Holds a placed Lead Weight's accumulated durability damage, so its wear survives while it is in
  * block form (it falls, lands, and is mined back into an item carrying the same damage value).
  */
-public class HeavyOrbBlockEntity extends BlockEntity {
+public class LeadWeightBlockEntity extends BlockEntity {
     private int damage;
 
-    public HeavyOrbBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.HEAVY_ORB.get(), pos, state);
+    public LeadWeightBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.LEAD_WEIGHT.get(), pos, state);
     }
 
     public int getDamage() {

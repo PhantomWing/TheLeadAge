@@ -29,7 +29,7 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModRenderLayers.register();
-        EntityRendererRegistry.register(ModEntities.HEAVY_ORB.get(), FallingBlockRenderer::new);
+        EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
 
         // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersNeoForge.
         ColorProviderRegistry.BLOCK.register(ModColorHandlers::blockTint, ModBlocks.LEADED_GLASS_PANEL.get(),

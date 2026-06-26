@@ -1,15 +1,15 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
-import com.phantomwing.theleadage.block.custom.HeavyOrbTransforms;
+import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
-import com.phantomwing.theleadage.block.entity.HeavyOrbBlockEntity;
+import com.phantomwing.theleadage.block.entity.LeadWeightBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
-import com.phantomwing.theleadage.entity.custom.HeavyOrbEntity;
+import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
-import com.phantomwing.theleadage.item.custom.HeavyOrbItem;
+import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -197,103 +197,103 @@ public class LeadOreGameTest {
         helper.succeed();
     }
 
-    /** Heavy orb transforms are loaded from the mod's datapack and resolve block + (non-)matches. */
+    /** Heavy weight transforms are loaded from the mod's datapack and resolve block + (non-)matches. */
     @GameTest(template = "empty")
-    public static void heavyOrbTransformsFromData(GameTestHelper helper) {
-        var cracked = HeavyOrbTransforms.transform(Blocks.STONE_BRICKS.defaultBlockState());
-        var dirt = HeavyOrbTransforms.transform(Blocks.GRASS_BLOCK.defaultBlockState());
+    public static void leadWeightTransformsFromData(GameTestHelper helper) {
+        var cracked = LeadWeightTransforms.transform(Blocks.STONE_BRICKS.defaultBlockState());
+        var dirt = LeadWeightTransforms.transform(Blocks.GRASS_BLOCK.defaultBlockState());
         if (cracked == null || !cracked.is(Blocks.CRACKED_STONE_BRICKS)) {
             helper.fail("stone_bricks -> " + cracked + ", expected cracked_stone_bricks");
         } else if (dirt == null || !dirt.is(Blocks.DIRT)) {
             helper.fail("grass_block -> " + dirt + ", expected dirt");
-        } else if (HeavyOrbTransforms.transform(Blocks.STONE.defaultBlockState()) != null) {
+        } else if (LeadWeightTransforms.transform(Blocks.STONE.defaultBlockState()) != null) {
             helper.fail("plain stone should not transform");
         } else {
             helper.succeed();
         }
     }
 
-    /** A placed orb's wear lives on its block entity and flows back into the picked/dropped item. */
+    /** A placed weight's wear lives on its block entity and flows back into the picked/dropped item. */
     @GameTest(template = "empty")
-    public static void heavyOrbBlockCarriesWear(GameTestHelper helper) {
+    public static void leadWeightBlockCarriesWear(GameTestHelper helper) {
         BlockPos rel = new BlockPos(1, 1, 1);
-        helper.setBlock(rel, ModBlocks.HEAVY_ORB.get());
+        helper.setBlock(rel, ModBlocks.LEAD_WEIGHT.get());
         BlockState state = helper.getBlockState(rel);
-        if (!(helper.getBlockEntity(rel) instanceof HeavyOrbBlockEntity be)) {
-            helper.fail("orb block has no HeavyOrbBlockEntity");
+        if (!(helper.getBlockEntity(rel) instanceof LeadWeightBlockEntity be)) {
+            helper.fail("weight block has no LeadWeightBlockEntity");
             return;
         }
         be.setDamage(55);
-        ItemStack clone = ModBlocks.HEAVY_ORB.get().getCloneItemStack(helper.getLevel(), helper.absolutePos(rel), state);
+        ItemStack clone = ModBlocks.LEAD_WEIGHT.get().getCloneItemStack(helper.getLevel(), helper.absolutePos(rel), state);
         if (clone.getDamageValue() != 55) {
-            helper.fail("picked orb damage = " + clone.getDamageValue() + ", expected 55");
+            helper.fail("picked weight damage = " + clone.getDamageValue() + ", expected 55");
         } else {
             helper.succeed();
         }
     }
 
-    /** A falling orb wears by WEAR_PER_LANDING on impact, stored on the block it becomes. */
+    /** A falling weight wears by WEAR_PER_LANDING on impact, stored on the block it becomes. */
     @GameTest(template = "empty", timeoutTicks = 200)
-    public static void heavyOrbWearsOnLanding(GameTestHelper helper) {
+    public static void leadWeightWearsOnLanding(GameTestHelper helper) {
         helper.setBlock(new BlockPos(1, 0, 1), Blocks.STONE);  // floor
         helper.setBlock(new BlockPos(1, 1, 1), Blocks.AIR);    // carve the drop column out of the barrier
         helper.setBlock(new BlockPos(1, 2, 1), Blocks.AIR);
         BlockPos spawn = helper.absolutePos(new BlockPos(1, 2, 1));
-        HeavyOrbEntity.inAir(helper.getLevel(), spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
-                ModBlocks.HEAVY_ORB.get().defaultBlockState(), null, 30);
+        LeadWeightEntity.inAir(helper.getLevel(), spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
+                ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null, 30);
         helper.startSequence()
-                // Poll until the orb has actually settled, rather than guessing a fixed idle.
+                // Poll until the weight has actually settled, rather than guessing a fixed idle.
                 .thenWaitUntil(() -> {
                     if (landedOrbWear(helper) == null) {
-                        helper.fail("orb has not settled yet");
+                        helper.fail("weight has not settled yet");
                     }
                 })
                 .thenExecute(() -> {
-                    int expected = 30 + HeavyOrbItem.WEAR_PER_LANDING;
+                    int expected = 30 + LeadWeightItem.WEAR_PER_LANDING;
                     int got = landedOrbWear(helper);
                     if (got != expected) {
-                        helper.fail("returned orb wear = " + got + ", expected " + expected);
+                        helper.fail("returned weight wear = " + got + ", expected " + expected);
                     }
                 })
                 .thenSucceed();
     }
 
-    /** A worn orb returned by a landing — as the block it became, or the item if it couldn't place. Null until it settles. */
+    /** A worn weight returned by a landing — as the block it became, or the item if it couldn't place. Null until it settles. */
     private static Integer landedOrbWear(GameTestHelper helper) {
         for (int y = 2; y >= 0; y--) {
             if (helper.getLevel().getBlockEntity(helper.absolutePos(new BlockPos(1, y, 1)))
-                    instanceof HeavyOrbBlockEntity be) {
+                    instanceof LeadWeightBlockEntity be) {
                 return be.getDamage();
             }
         }
         AABB area = AABB.ofSize(Vec3.atCenterOf(helper.absolutePos(new BlockPos(1, 1, 1))), 5, 5, 5);
         for (ItemEntity item : helper.getLevel().getEntitiesOfClass(ItemEntity.class, area)) {
-            if (item.getItem().is(ModItems.HEAVY_ORB.get())) {
+            if (item.getItem().is(ModItems.LEAD_WEIGHT.get())) {
                 return item.getItem().getDamageValue();
             }
         }
         return null;
     }
 
-    /** An orb that falls onto a hopper is collected by it as an item, not left as a block on top. */
+    /** An weight that falls onto a hopper is collected by it as an item, not left as a block on top. */
     @GameTest(template = "empty", timeoutTicks = 200)
-    public static void heavyOrbDropsIntoHopper(GameTestHelper helper) {
+    public static void leadWeightDropsIntoHopper(GameTestHelper helper) {
         helper.setBlock(new BlockPos(1, 0, 1), Blocks.HOPPER);  // hopper on the floor
         helper.setBlock(new BlockPos(1, 1, 1), Blocks.AIR);     // carve the drop column out of the barrier
         helper.setBlock(new BlockPos(1, 2, 1), Blocks.AIR);
         BlockPos spawn = helper.absolutePos(new BlockPos(1, 2, 1));
-        HeavyOrbEntity.inAir(helper.getLevel(), spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
-                ModBlocks.HEAVY_ORB.get().defaultBlockState(), null, 0);
+        LeadWeightEntity.inAir(helper.getLevel(), spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
+                ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null, 0);
         helper.startSequence()
                 // Poll until the hopper has it, rather than guessing how long the fall + collect takes.
                 .thenWaitUntil(() -> {
                     if (!hopperHasOrb(helper)) {
-                        helper.fail("hopper has not collected the orb yet");
+                        helper.fail("hopper has not collected the weight yet");
                     }
                 })
                 .thenExecute(() -> {
-                    if (helper.getBlockState(new BlockPos(1, 1, 1)).is(ModBlocks.HEAVY_ORB.get())) {
-                        helper.fail("orb placed itself as a block on the hopper instead of being collected");
+                    if (helper.getBlockState(new BlockPos(1, 1, 1)).is(ModBlocks.LEAD_WEIGHT.get())) {
+                        helper.fail("weight placed itself as a block on the hopper instead of being collected");
                     }
                 })
                 .thenSucceed();
@@ -304,68 +304,89 @@ public class LeadOreGameTest {
             return false;
         }
         for (int i = 0; i < hopper.getContainerSize(); i++) {
-            if (hopper.getItem(i).is(ModItems.HEAVY_ORB.get())) {
+            if (hopper.getItem(i).is(ModItems.LEAD_WEIGHT.get())) {
                 return true;
             }
         }
         return false;
     }
 
-    /** An orb hung directly under a vertical chain stays put — the chain anchors it. */
+    /** An weight hung directly under a vertical chain stays put — the chain anchors it. */
     @GameTest(template = "empty")
-    public static void heavyOrbHangsFromVerticalChain(GameTestHelper helper) {
+    public static void leadWeightHangsFromVerticalChain(GameTestHelper helper) {
         helper.setBlock(new BlockPos(1, 3, 1), ModBlocks.LEAD_CHAIN.get());  // vertical (axis Y is the default)
         helper.setBlock(new BlockPos(1, 2, 1),
-                ModBlocks.HEAVY_ORB.get().defaultBlockState().setValue(BlockStateProperties.HANGING, true));
+                ModBlocks.LEAD_WEIGHT.get().defaultBlockState().setValue(BlockStateProperties.HANGING, true));
         helper.startSequence()
                 .thenIdle(5)  // let the scheduled FallingBlock tick run its canHang check
                 .thenExecute(() -> {
                     BlockState s = helper.getBlockState(new BlockPos(1, 2, 1));
-                    if (!s.is(ModBlocks.HEAVY_ORB.get()) || !s.getValue(BlockStateProperties.HANGING)) {
-                        helper.fail("orb did not stay hanging from the vertical chain above it");
+                    if (!s.is(ModBlocks.LEAD_WEIGHT.get()) || !s.getValue(BlockStateProperties.HANGING)) {
+                        helper.fail("weight did not stay hanging from the vertical chain above it");
                     }
                 })
                 .thenSucceed();
     }
 
-    /** A horizontal chain is not an anchor: an orb under one detaches (stops hanging). */
+    /** A horizontal chain is not an anchor: an weight under one detaches (stops hanging). */
     @GameTest(template = "empty")
-    public static void heavyOrbDetachesFromHorizontalChain(GameTestHelper helper) {
+    public static void leadWeightDetachesFromHorizontalChain(GameTestHelper helper) {
         helper.setBlock(new BlockPos(1, 3, 1), ModBlocks.LEAD_CHAIN.get().defaultBlockState()
                 .setValue(BlockStateProperties.AXIS, Direction.Axis.X));
         helper.setBlock(new BlockPos(1, 2, 1),
-                ModBlocks.HEAVY_ORB.get().defaultBlockState().setValue(BlockStateProperties.HANGING, true));
+                ModBlocks.LEAD_WEIGHT.get().defaultBlockState().setValue(BlockStateProperties.HANGING, true));
         helper.startSequence()
                 .thenWaitUntil(() -> {
                     BlockState s = helper.getBlockState(new BlockPos(1, 2, 1));
-                    if (s.is(ModBlocks.HEAVY_ORB.get()) && s.getValue(BlockStateProperties.HANGING)) {
-                        helper.fail("orb is still hanging from a horizontal chain");
+                    if (s.is(ModBlocks.LEAD_WEIGHT.get()) && s.getValue(BlockStateProperties.HANGING)) {
+                        helper.fail("weight is still hanging from a horizontal chain");
                     }
                 })
                 .thenSucceed();
     }
 
-    /** The heavy orb's air-drop point: a fixed reach ahead of the eyes, biased to eye level. */
+    /** The lead weight aims at the 8-way adjacent direction; a near-vertical look uses the body facing. */
     @GameTest(template = "empty")
-    public static void heavyOrbDropPosition(GameTestHelper helper) {
-        // Eye at the centre of block (0,1,0) — so eye level = y 1, feet = y 0, below feet = y -1.
-        assertDrop(helper, 0, 0, -1, 0, 1, -1);               // north, level → one ahead, eye level
-        assertDrop(helper, 1, 0, 0, 1, 1, 0);                 // east, level → eye level
-        assertDrop(helper, 0.707, 0, -0.707, 1, 1, -1);       // northeast (flat diagonal) → eye level
-        assertDrop(helper, 0, -0.5, -0.866, 0, 1, -1);        // 30° down → still eye level (favours eye level)
-        assertDrop(helper, 0, -0.707, -0.707, 0, 0, -1);      // 45° down → drops to feet level, still ahead
-        assertDrop(helper, 0, -0.94, -0.34, 0, -1, -1);       // steep down → below feet but still one ahead, in view
-        assertDrop(helper, 0.1, -0.995, 0, 0, -1, 0);         // near-vertical → straight down at the feet
-        assertDrop(helper, 0, 0.5, -0.866, 0, 1, -1);         // shallow up → eye level (never descends for up looks)
+    public static void leadWeightAimDirection(GameTestHelper helper) {
+        assertDir(helper, Direction.NORTH, 0, 0, -1, 0, -1);        // look north
+        assertDir(helper, Direction.NORTH, 1, 0, 0, 1, 0);         // look east
+        assertDir(helper, Direction.NORTH, -1, 0, 0, -1, 0);       // look west
+        assertDir(helper, Direction.NORTH, 0, 0, 1, 0, 1);         // look south
+        assertDir(helper, Direction.NORTH, 0.707, 0, -0.707, 1, -1); // northeast diagonal
+        assertDir(helper, Direction.NORTH, -0.707, 0, 0.707, -1, 1); // southwest diagonal
+        assertDir(helper, Direction.NORTH, 0, -0.9, -0.44, 0, -1);  // down-forward → north (horizontal kept)
+        assertDir(helper, Direction.NORTH, 0, 0.7, -0.71, 0, -1);   // up-forward → north (up isn't refused)
+        assertDir(helper, Direction.EAST, 0.05, -0.998, 0, 1, 0);   // near-straight-down → body facing (east)
         helper.succeed();
     }
 
-    private static void assertDrop(GameTestHelper helper, double lx, double ly, double lz, int ex, int ey, int ez) {
-        Vec3 p = HeavyOrbItem.dropPosition(new Vec3(0.5, 1.62, 0.5), 0.0, new Vec3(lx, ly, lz));
-        BlockPos b = BlockPos.containing(p);
-        if (b.getX() != ex || b.getY() != ey || b.getZ() != ez) {
-            helper.fail("look (" + lx + "," + ly + "," + lz + ") -> " + p + " block ["
-                    + b.getX() + "," + b.getY() + "," + b.getZ() + "], expected [" + ex + "," + ey + "," + ez + "]");
+    private static void assertDir(GameTestHelper helper, Direction facing, double lx, double ly, double lz, int ex, int ez) {
+        int[] d = LeadWeightItem.aimDirection(facing, new Vec3(lx, ly, lz));
+        if (d[0] != ex || d[1] != ez) {
+            helper.fail("look (" + lx + "," + ly + "," + lz + ") facing " + facing + " -> ["
+                    + d[0] + "," + d[1] + "], expected [" + ex + "," + ez + "]");
+        }
+    }
+
+    /** The drop height follows the look pitch: eye level (1), a block up (2), or a block down (0). */
+    @GameTest(template = "empty")
+    public static void leadWeightVerticalOffset(GameTestHelper helper) {
+        assertVert(helper, 0, 0, -1, 1);          // level → eye level
+        assertVert(helper, 0, 0.26, -0.966, 1);   // shallow up → still eye level
+        assertVert(helper, 0, -0.26, -0.966, 1);  // shallow down → still eye level
+        assertVert(helper, 0, 0.5, -0.866, 2);    // ~30° up → a block higher
+        assertVert(helper, 0, -0.5, -0.866, 0);   // ~30° down → a block lower
+        assertVert(helper, 0, 0.87, -0.5, 2);     // steep up → capped one above
+        assertVert(helper, 0, -0.87, -0.5, 0);    // steep down → capped one below
+        assertVert(helper, 0.05, 0.998, 0, 2);    // near-straight-up → above
+        assertVert(helper, 0.05, -0.998, 0, 0);   // near-straight-down → below
+        helper.succeed();
+    }
+
+    private static void assertVert(GameTestHelper helper, double lx, double ly, double lz, int expected) {
+        int dy = LeadWeightItem.verticalOffset(new Vec3(lx, ly, lz));
+        if (dy != expected) {
+            helper.fail("look (" + lx + "," + ly + "," + lz + ") -> dy " + dy + ", expected " + expected);
         }
     }
 

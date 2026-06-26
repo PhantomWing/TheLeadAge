@@ -2,7 +2,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
-import com.phantomwing.theleadage.block.custom.HeavyOrbBlock;
+import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.client.renderer.RenderType;
@@ -50,7 +50,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         // top half's window is transparent); the glass itself is drawn by the block-entity renderer.
         door(ModBlocks.LEADED_GLASS_DOOR);
 
-        heavyOrb();
+        leadWeight();
 
         // Leaded glass blocks. Plain = cutout (like vanilla glass), dyed = translucent
         // (like vanilla stained glass). The leaded_glass_pane blockstate is hand-authored.
@@ -60,14 +60,14 @@ public class ModBlockStateProvider extends BlockStateProvider {
         }
     }
 
-    private void heavyOrb() {
+    private void leadWeight() {
         // Both models are hand-authored (custom UV element + chain); HANGING picks the
         // chained variant placed under a block.
-        ModelFile orb = models().getExistingFile(modLoc("block/heavy_orb"));
-        ModelFile hanging = models().getExistingFile(modLoc("block/heavy_orb_hanging"));
-        getVariantBuilder(ModBlocks.HEAVY_ORB.get())
-                .partialState().with(HeavyOrbBlock.HANGING, false).setModels(new ConfiguredModel(orb))
-                .partialState().with(HeavyOrbBlock.HANGING, true).setModels(new ConfiguredModel(hanging));
+        ModelFile weight = models().getExistingFile(modLoc("block/lead_weight"));
+        ModelFile hanging = models().getExistingFile(modLoc("block/lead_weight_hanging"));
+        getVariantBuilder(ModBlocks.LEAD_WEIGHT.get())
+                .partialState().with(LeadWeightBlock.HANGING, false).setModels(new ConfiguredModel(weight))
+                .partialState().with(LeadWeightBlock.HANGING, true).setModels(new ConfiguredModel(hanging));
     }
 
     private void translucentCube(RegistrySupplier<Block> block) {

@@ -1,9 +1,9 @@
 package com.phantomwing.theleadage.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import com.phantomwing.theleadage.block.entity.HeavyOrbBlockEntity;
-import com.phantomwing.theleadage.entity.custom.HeavyOrbEntity;
-import com.phantomwing.theleadage.item.custom.HeavyOrbItem;
+import com.phantomwing.theleadage.block.entity.LeadWeightBlockEntity;
+import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
+import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -48,12 +48,12 @@ import java.util.List;
 
 /**
  * An 8³ lead ball that falls like an anvil and crushes whatever it lands on (the
- * combat logic lives in {@link HeavyOrbEntity}). When placed against the underside
+ * combat logic lives in {@link LeadWeightEntity}). When placed against the underside
  * of a block it {@link #HANGING hangs} from a chain until that block is broken,
  * then drops.
  */
-public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBlock, EntityBlock {
-    public static final MapCodec<HeavyOrbBlock> CODEC = simpleCodec(HeavyOrbBlock::new);
+public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBlock, EntityBlock {
+    public static final MapCodec<LeadWeightBlock> CODEC = simpleCodec(LeadWeightBlock::new);
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -66,7 +66,7 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
     private static final float MAX_THUD_VOLUME = 1.0f;
     private static final double FULL_THUD_FALL = 10.0; // drop (blocks) at which the thud maxes out
 
-    public HeavyOrbBlock(Properties properties) {
+    public LeadWeightBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(HANGING, false).setValue(WATERLOGGED, false));
     }
@@ -108,16 +108,16 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
-    /** True when something directly above can anchor the orb: a sturdy ceiling, another orb, or a vertical chain. */
+    /** True when something directly above can anchor the weight: a sturdy ceiling, another weight, or a vertical chain. */
     private static boolean canHang(LevelReader level, BlockPos pos) {
         BlockPos above = pos.above();
         BlockState aboveState = level.getBlockState(above);
-        return aboveState.getBlock() instanceof HeavyOrbBlock
+        return aboveState.getBlock() instanceof LeadWeightBlock
                 || isVerticalChain(aboveState)
                 || aboveState.isFaceSturdy(level, above, Direction.DOWN);
     }
 
-    /** A chain (lead or vanilla) standing upright — a valid anchor for the orb's own chain to hang from. */
+    /** A chain (lead or vanilla) standing upright — a valid anchor for the weight's own chain to hang from. */
     private static boolean isVerticalChain(BlockState state) {
         return state.getBlock() instanceof ChainBlock
                 && state.getValue(BlockStateProperties.AXIS) == Direction.Axis.Y;
@@ -131,20 +131,20 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
                 detach(level, pos, state);
             }
         } else if (isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
-            HeavyOrbEntity.fromBlock(level, pos, state, null);
+            LeadWeightEntity.fromBlock(level, pos, state, null);
         }
     }
 
-    /** Right-clicking a hanging orb snaps its chain (then it falls, or sits if a floor holds it up). */
+    /** Right-clicking a hanging weight snaps its chain (then it falls, or sits if a floor holds it up). */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!state.getValue(HANGING)) {
             return InteractionResult.PASS;
         }
-        // Holding a heavy orb? Don't snap the chain — pass so the held orb places instead, letting a
+        // Holding a lead weight? Don't snap the chain — pass so the held weight places instead, letting a
         // player build orbs under/beside this one without the one they click detaching and falling.
         if (player.getMainHandItem().getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock() instanceof HeavyOrbBlock) {
+                && blockItem.getBlock() instanceof LeadWeightBlock) {
             return InteractionResult.PASS;
         }
         if (!level.isClientSide) {
@@ -153,16 +153,16 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Snap the chain: the orb falls if nothing solid holds it up, otherwise it just settles in place. */
+    /** Snap the chain: the weight falls if nothing solid holds it up, otherwise it just settles in place. */
     private static void detach(Level level, BlockPos pos, BlockState state) {
         level.playSound(null, pos, SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, 1.0f, 0.8f);
         BlockState detached = state.setValue(HANGING, false);
         BlockState below = level.getBlockState(pos.below());
-        // Drop if there's nothing under it — or if the thing under it is itself a heavy orb, which is no
+        // Drop if there's nothing under it — or if the thing under it is itself a lead weight, which is no
         // real floor (it may be hanging/falling too), so a detached stack of orbs all drops together.
-        boolean falls = isFree(below) || below.getBlock() instanceof HeavyOrbBlock;
+        boolean falls = isFree(below) || below.getBlock() instanceof LeadWeightBlock;
         if (falls && pos.getY() >= level.getMinBuildHeight()) {
-            HeavyOrbEntity.fromBlock(level, pos, detached, null);
+            LeadWeightEntity.fromBlock(level, pos, detached, null);
         } else {
             level.setBlock(pos, detached, Block.UPDATE_ALL); // a floor holds it — just settle (no fall thud)
         }
@@ -187,7 +187,7 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
 
         if (level instanceof ServerLevel server && !surface.isAir()) {
             double cx = pos.getX() + 0.5, cy = pos.getY() + 0.05, cz = pos.getZ() + 0.5;
-            // Dust of the surface the orb struck, not the orb itself.
+            // Dust of the surface the weight struck, not the weight itself.
             server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, surface),
                     cx, cy, cz, 30, 0.35, 0.05, 0.35, 0.15);
             server.sendParticles(ParticleTypes.POOF, cx, cy + 0.1, cz, 8, 0.3, 0.02, 0.3, 0.02);
@@ -195,26 +195,26 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
 
         // A hard enough impact transforms certain surfaces (bricks crack, grass -> dirt).
         if (entity.getStartPos().getY() - pos.getY() >= TRANSFORM_FALL_DISTANCE) {
-            BlockState transformed = HeavyOrbTransforms.transform(surface);
+            BlockState transformed = LeadWeightTransforms.transform(surface);
             if (transformed != null) {
                 level.setBlockAndUpdate(pos.below(), transformed);
             }
         }
 
-        // The landing wears the orb. Store the wear on the just-placed block, or shatter it if spent.
-        if (entity instanceof HeavyOrbEntity orb) {
-            int damage = orb.getDurabilityDamage() + HeavyOrbItem.WEAR_PER_LANDING;
-            if (damage >= HeavyOrbItem.MAX_DURABILITY) {
-                level.removeBlock(pos, false); // the orb is spent — it shatters instead of staying
+        // The landing wears the weight. Store the wear on the just-placed block, or shatter it if spent.
+        if (entity instanceof LeadWeightEntity weight) {
+            int damage = weight.getDurabilityDamage() + LeadWeightItem.WEAR_PER_LANDING;
+            if (damage >= LeadWeightItem.MAX_DURABILITY) {
+                level.removeBlock(pos, false); // the weight is spent — it shatters instead of staying
                 shatterFx(level, pos);
-            } else if (level.getBlockEntity(pos) instanceof HeavyOrbBlockEntity be) {
+            } else if (level.getBlockEntity(pos) instanceof LeadWeightBlockEntity be) {
                 be.setDamage(damage);
             }
         }
     }
 
     /**
-     * Called when the orb can't place where it lands (e.g. it came down on an entity) and
+     * Called when the weight can't place where it lands (e.g. it came down on an entity) and
      * drops as an item instead — {@link #onLand} never fires, so give it the thud here too.
      */
     @Override
@@ -225,14 +225,14 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
                     pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, 20, 0.3, 0.1, 0.3, 0.1);
         }
 
-        // The worn-item drop is carried by HeavyOrbEntity#spawnAtLocation (FallingBlockEntity calls it
-        // right after this). If the orb is spent it drops nothing and shatters here instead.
-        if (entity instanceof HeavyOrbEntity orb && orb.isSpentOnLanding()) {
+        // The worn-item drop is carried by LeadWeightEntity#spawnAtLocation (FallingBlockEntity calls it
+        // right after this). If the weight is spent it drops nothing and shatters here instead.
+        if (entity instanceof LeadWeightEntity weight && weight.isSpentOnLanding()) {
             shatterFx(level, pos);
         }
     }
 
-    /** Heavy "lead orb cracks apart" sound + a burst of its own dust, when the orb is spent. */
+    /** Heavy "lead weight cracks apart" sound + a burst of its own dust, when the weight is spent. */
     private void shatterFx(Level level, BlockPos pos) {
         level.playSound(null, pos, SoundEvents.ANVIL_DESTROY, SoundSource.BLOCKS, 0.8f, 0.8f);
         if (level instanceof ServerLevel server) {
@@ -244,14 +244,14 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new HeavyOrbBlockEntity(pos, state);
+        return new LeadWeightBlockEntity(pos, state);
     }
 
-    /** A placed orb carries its wear onto its block entity, so it survives being mined or re-falling. */
+    /** A placed weight carries its wear onto its block entity, so it survives being mined or re-falling. */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        if (level.getBlockEntity(pos) instanceof HeavyOrbBlockEntity be) {
+        if (level.getBlockEntity(pos) instanceof LeadWeightBlockEntity be) {
             be.setDamage(stack.getDamageValue());
         }
     }
@@ -259,7 +259,7 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         ItemStack stack = new ItemStack(this);
-        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof HeavyOrbBlockEntity be) {
+        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof LeadWeightBlockEntity be) {
             stack.setDamageValue(be.getDamage());
         }
         return List.of(stack);
@@ -268,7 +268,7 @@ public class HeavyOrbBlock extends FallingBlock implements SimpleWaterloggedBloc
     @Override
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
         ItemStack stack = new ItemStack(this);
-        if (level.getBlockEntity(pos) instanceof HeavyOrbBlockEntity be) {
+        if (level.getBlockEntity(pos) instanceof LeadWeightBlockEntity be) {
             stack.setDamageValue(be.getDamage());
         }
         return stack;

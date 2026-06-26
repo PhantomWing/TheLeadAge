@@ -14,9 +14,9 @@ public class ModSoundTypes {
     // No iron grate exists, so the grate keeps the copper-grate sound but pitched
     // extra low (half-pitch) for a notably deeper, heavier grate than silver's.
     public static final SoundType LEAD_GRATE = ofCopy(SoundType.COPPER_GRATE, 1.1f, 0.5f);
-    // Heavy Orb: dense netherite-block sounds pitched down so placing/breaking it reads
+    // Lead Weight: dense netherite-block sounds pitched down so placing/breaking it reads
     // as a weighty hunk of lead. (The falling/landing sounds are played in code.)
-    public static final SoundType HEAVY_ORB = ofCopy(SoundType.NETHERITE_BLOCK, 1.0f, 0.5f);
+    public static final SoundType LEAD_WEIGHT = ofCopy(SoundType.NETHERITE_BLOCK, 1.0f, 0.5f);
 
     private static SoundType ofCopy(SoundType soundType, float volume, float pitch) {
         return new SoundType(

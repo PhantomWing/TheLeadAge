@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "theleadage:heavy_orb"
+          "name": "theleadage:lead_weight"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "theleadage:blocks/heavy_orb"
+  "random_sequence": "theleadage:blocks/lead_weight"
 }

@@ -53,8 +53,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         // leaded_glass_door item model is hand-authored (a per-came-pattern texture via overrides).
 
         blockItem("leaded_glass");
-        // Heavy Orb: 3D item from its hand-authored block model.
-        blockItem("heavy_orb");
+        // Lead Weight: 3D item from its hand-authored block model.
+        blockItem("lead_weight");
         // Chain: a dedicated flat inventory sprite (item/lead_chain), like vanilla chain.
         withExistingParent("lead_chain", mcLoc("item/generated"))
                 .texture("layer0", modLoc("item/lead_chain"))

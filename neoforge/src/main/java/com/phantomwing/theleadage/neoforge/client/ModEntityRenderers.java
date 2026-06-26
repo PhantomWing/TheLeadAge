@@ -9,9 +9,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 /**
- * Registers the Heavy Orb entity's renderer on NeoForge. It reuses the vanilla
- * {@link FallingBlockRenderer} (the orb is a {@code FallingBlockEntity}), so the
- * falling orb draws its block model automatically.
+ * Registers the Lead Weight entity's renderer on NeoForge. It reuses the vanilla
+ * {@link FallingBlockRenderer} (the weight is a {@code FallingBlockEntity}), so the
+ * falling weight draws its block model automatically.
  */
 @EventBusSubscriber(modid = TheLeadAge.MOD_ID, value = Dist.CLIENT)
 public final class ModEntityRenderers {
@@ -20,6 +20,6 @@ public final class ModEntityRenderers {
 
     @SubscribeEvent
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(ModEntities.HEAVY_ORB.get(), FallingBlockRenderer::new);
+        event.registerEntityRenderer(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
     }
 }

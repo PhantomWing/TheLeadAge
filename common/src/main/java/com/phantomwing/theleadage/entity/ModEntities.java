@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.entity;
 
 import com.phantomwing.theleadage.TheLeadAge;
-import com.phantomwing.theleadage.entity.custom.HeavyOrbEntity;
+import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -12,14 +12,14 @@ public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES =
             DeferredRegister.create(TheLeadAge.MOD_ID, Registries.ENTITY_TYPE);
 
-    // The falling Heavy Orb. Reuses the vanilla FallingBlockRenderer (registered per
+    // The falling Lead Weight. Reuses the vanilla FallingBlockRenderer (registered per
     // loader), so no custom model/renderer is needed — only the entity behaviour.
-    public static final RegistrySupplier<EntityType<HeavyOrbEntity>> HEAVY_ORB =
-            ENTITIES.register("heavy_orb", () -> EntityType.Builder.<HeavyOrbEntity>of(HeavyOrbEntity::new, MobCategory.MISC)
+    public static final RegistrySupplier<EntityType<LeadWeightEntity>> LEAD_WEIGHT =
+            ENTITIES.register("lead_weight", () -> EntityType.Builder.<LeadWeightEntity>of(LeadWeightEntity::new, MobCategory.MISC)
                     .sized(0.98f, 0.98f)
                     .clientTrackingRange(10)
                     .updateInterval(20)
-                    .build("heavy_orb"));
+                    .build("lead_weight"));
 
     public static void register() {
         ENTITIES.register();
