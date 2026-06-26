@@ -1,8 +1,9 @@
 - Improve lead block placement sounds: Feel heavier, deeper.
-- Leaded glass doors & trapdoors should open by hand.
-- Missing Split (horizontal) creative mode preset.
-- Improve leaded glass tooltips
+
+# Lead Weight
+- Achievement when killing an entity with a Lead Weight: Is it a bird?
+- Replace current durability system with anvil-like system: Chipped Lead Weight & Damaged Lead Weight.
+    - 1/4 chance to become Chipped. Then 1/3 to become Damaged. Then 1/2 chance to break.
 
 # Textures
-- Lead Ore
-- Lead door, trapdoor, leaded glass door/trapdoor
+- Lead Pillar

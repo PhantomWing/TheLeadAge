@@ -1,9 +1,11 @@
 package com.phantomwing.theleadage.item.custom;
 
+import com.phantomwing.theleadage.block.entity.LeadWeightBlockEntity;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -12,7 +14,11 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +30,10 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Because it's heavy, it spawns right next to you and falls onto what's below:</p>
  * <ul>
- *   <li>in the adjacent cell (one of the 8 around you, incl. diagonals) in the direction you look —
- *       a near-vertical look uses your body facing;</li>
+ *   <li>looking straight down with open space directly below you (e.g. sneaked out over an edge) drops
+ *       it straight down your own column;</li>
+ *   <li>otherwise into the adjacent cell (one of the 8 around you, incl. diagonals) in the direction
+ *       you look — a near-vertical look uses your body facing;</li>
  *   <li>at a height that follows your pitch: eye level when level, one block higher when you look up,
  *       one block lower when you look down — so it stays in view (never more than a block off eye level);</li>
  *   <li>so position yourself above a target and aim its way — it drops in beside you and falls onto it.</li>
@@ -53,14 +61,20 @@ public class LeadWeightItem extends BlockItem {
         }
 
         if (level instanceof ServerLevel serverLevel) {
-            BlockState state = getBlock().defaultBlockState(); // HANGING = false; it falls
-            // Centred at the bottom of the chosen cell: a grid-aligned column, so it drops straight down
-            // to the floor there and the block it becomes lands exactly where it was dropped.
-            LeadWeightEntity.inAir(serverLevel, cell.getX() + 0.5, cell.getY(), cell.getZ() + 0.5,
-                    state, player, stack.getDamageValue());
+            if (FallingBlock.isFree(level.getBlockState(cell.below()))) {
+                // Open space below → it actually falls. Centred at the bottom of the chosen cell, a
+                // grid-aligned column, so where it lands matches where it was dropped.
+                BlockState state = getBlock().defaultBlockState(); // HANGING = false; it falls
+                LeadWeightEntity.inAir(serverLevel, cell.getX() + 0.5, cell.getY(), cell.getZ() + 0.5,
+                        state, player, stack.getDamageValue());
+            } else {
+                // Sitting right on a block — just place it, skipping the zero-distance fall + landing fx.
+                placeResting(serverLevel, cell, stack.getDamageValue());
+            }
         }
 
-        // No throw sound here: the spawned weight already plays its "starting to fall" whoosh.
+        // The spawned weight plays its own "starting to fall" whoosh; a resting placement plays a block
+        // place sound — so no throw sound here.
         player.swing(hand, true);
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
@@ -69,16 +83,38 @@ public class LeadWeightItem extends BlockItem {
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
+    /** Places a resting weight directly in {@code cell} (carrying the item's wear), no fall, with a block-place sound. */
+    private void placeResting(ServerLevel level, BlockPos cell, int durability) {
+        BlockState state = getBlock().defaultBlockState();
+        if (state.hasProperty(BlockStateProperties.WATERLOGGED)) {
+            state = state.setValue(BlockStateProperties.WATERLOGGED, level.getFluidState(cell).is(Fluids.WATER));
+        }
+        level.setBlock(cell, state, Block.UPDATE_ALL);
+        if (level.getBlockEntity(cell) instanceof LeadWeightBlockEntity weight) {
+            weight.setDamage(durability);
+        }
+        SoundType sound = state.getSoundType();
+        level.playSound(null, cell, sound.getPlaceSound(), SoundSource.BLOCKS,
+                (sound.getVolume() + 1.0f) / 2.0f, sound.getPitch() * 0.8f);
+    }
+
     /**
-     * The cell to drop into: the adjacent cell (one of the 8 around the player, incl. diagonals) in the
-     * look direction, at a pitch-following height ({@link #verticalOffset}) — or one block higher if that
-     * cell is occupied. Null when both are blocked. Always horizontally offset, so it never spawns inside
-     * the player.
+     * The cell to drop into. Looking straight down with open space directly below you drops it into your
+     * own column (the cell under your feet); otherwise it's the adjacent cell (one of the 8 around you,
+     * incl. diagonals) in the look direction, at a pitch-following height ({@link #verticalOffset}) — or
+     * one block higher if that cell is occupied. Null when blocked. Outside the straight-down case it's
+     * always horizontally offset, so it never spawns inside the player.
      */
     @Nullable
     public static BlockPos targetCell(Level level, Player player, Vec3 look) {
+        BlockPos feet = player.blockPosition();
+        // Straight down with room directly below (e.g. sneaked out over an edge) → drop down your column.
+        if (Math.sqrt(look.x * look.x + look.z * look.z) < NEAR_VERTICAL && look.y < 0
+                && level.getBlockState(feet.below()).canBeReplaced()) {
+            return feet.below();
+        }
         int[] dir = aimDirection(player.getDirection(), look);
-        BlockPos cell = player.blockPosition().offset(dir[0], verticalOffset(look), dir[1]);
+        BlockPos cell = feet.offset(dir[0], verticalOffset(look), dir[1]);
         if (level.getBlockState(cell).canBeReplaced()) {
             return cell;
         }
