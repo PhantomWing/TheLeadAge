@@ -17,8 +17,8 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String GENERATE_LEAD_ORE_ID = "generate_lead_ore";
     public boolean generate_lead_ore = true;
 
-    public static final String ENABLE_LEAD_ORE_NAUSEA_ID = "enable_lead_ore_nausea";
-    public boolean enable_lead_ore_nausea = true;
+    public static final String ENABLE_LEAD_ORE_SICKNESS_ID = "enable_lead_ore_sickness";
+    public boolean enable_lead_ore_sickness = true;
 
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public boolean enable_recipe_overrides = true;
@@ -51,7 +51,7 @@ public class TheLeadAgeFabricConfig implements ConfigData {
         TheLeadAgeFabricConfig config = get();
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> config.generate_lead_ore;
-            case ENABLE_LEAD_ORE_NAUSEA_ID -> config.enable_lead_ore_nausea;
+            case ENABLE_LEAD_ORE_SICKNESS_ID -> config.enable_lead_ore_sickness;
             case ENABLE_RECIPE_OVERRIDES_ID -> config.enable_recipe_overrides;
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> config.override_heavy_core_recipe;

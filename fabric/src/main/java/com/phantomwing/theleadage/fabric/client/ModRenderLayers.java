@@ -30,7 +30,9 @@ public final class ModRenderLayers {
                 ModBlocks.LEAD_GRATE.get(),
                 ModBlocks.LEAD_CHAIN.get(),
                 ModBlocks.LEAD_BARS.get(),
-                ModBlocks.LEAD_WEIGHT.get());  // the hanging variant's chain has transparent link holes
+                ModBlocks.LEAD_WEIGHT.get(),  // the hanging variant's chain has transparent link holes
+                ModBlocks.CHIPPED_LEAD_WEIGHT.get(),
+                ModBlocks.DAMAGED_LEAD_WEIGHT.get());
         // Glass doors/trapdoors need cutout for their overlay window; the BER glass is separate.
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(),
                 ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get());

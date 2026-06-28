@@ -1,9 +1,11 @@
 package com.phantomwing.theleadage.item.custom;
 
-import com.phantomwing.theleadage.block.entity.LeadWeightBlockEntity;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -11,7 +13,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
@@ -21,6 +25,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Block item for the Lead Weight — a drop-from-above weapon. {@code useOn} keeps normal block
@@ -43,13 +49,27 @@ public class LeadWeightItem extends BlockItem {
     private static final double NEAR_VERTICAL = 0.1; // horizontal look below this → aim by body facing
     private static final int DROP_COOLDOWN = 10;     // ticks between throws
 
-    /** Durability budget (~12 landings) and the wear per crushed entity / per ground impact. */
-    public static final int MAX_DURABILITY = 120;
-    public static final int WEAR_PER_ENTITY = 10;
-    public static final int WEAR_PER_LANDING = 10;
-
     public LeadWeightItem(Block block, Properties properties) {
         super(block, properties);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        // Combat-style tooltip: a guaranteed base hit, then a flat amount per block fallen (the smash
+        // damage from LeadWeightEntity). Same on all three tiers — wear doesn't change the hit.
+        tooltip.add(CommonComponents.EMPTY); // blank line before the section, like vanilla weapon tooltips
+        tooltip.add(Component.translatable("tooltip.theleadage.lead_weight.when_dropped").withStyle(ChatFormatting.GRAY));
+        tooltip.add(CommonComponents.space()
+                .append(Component.translatable("tooltip.theleadage.lead_weight.base_damage", fmt(LeadWeightEntity.BASE_DAMAGE)))
+                .withStyle(ChatFormatting.DARK_GREEN));
+        tooltip.add(CommonComponents.space()
+                .append(Component.translatable("tooltip.theleadage.lead_weight.per_block", fmt(LeadWeightEntity.DAMAGE_PER_BLOCK)))
+                .withStyle(ChatFormatting.DARK_GREEN));
+    }
+
+    /** Trims a whole-number float to "6" rather than "6.0" for the tooltip. */
+    private static String fmt(float value) {
+        return value == (long) value ? Long.toString((long) value) : Float.toString(value);
     }
 
     @Override
@@ -66,10 +86,10 @@ public class LeadWeightItem extends BlockItem {
                 // grid-aligned column, so where it lands matches where it was dropped.
                 BlockState state = getBlock().defaultBlockState(); // HANGING = false; it falls
                 LeadWeightEntity.inAir(serverLevel, cell.getX() + 0.5, cell.getY(), cell.getZ() + 0.5,
-                        state, player, stack.getDamageValue());
+                        state, player);
             } else {
                 // Sitting right on a block — just place it, skipping the zero-distance fall + landing fx.
-                placeResting(serverLevel, cell, stack.getDamageValue());
+                placeResting(serverLevel, cell);
             }
         }
 
@@ -83,16 +103,13 @@ public class LeadWeightItem extends BlockItem {
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
-    /** Places a resting weight directly in {@code cell} (carrying the item's wear), no fall, with a block-place sound. */
-    private void placeResting(ServerLevel level, BlockPos cell, int durability) {
+    /** Places a resting weight directly in {@code cell}, no fall (so no chip roll), with a block-place sound. */
+    private void placeResting(ServerLevel level, BlockPos cell) {
         BlockState state = getBlock().defaultBlockState();
         if (state.hasProperty(BlockStateProperties.WATERLOGGED)) {
             state = state.setValue(BlockStateProperties.WATERLOGGED, level.getFluidState(cell).is(Fluids.WATER));
         }
         level.setBlock(cell, state, Block.UPDATE_ALL);
-        if (level.getBlockEntity(cell) instanceof LeadWeightBlockEntity weight) {
-            weight.setDamage(durability);
-        }
         SoundType sound = state.getSoundType();
         level.playSound(null, cell, sound.getPlaceSound(), SoundSource.BLOCKS,
                 (sound.getVolume() + 1.0f) / 2.0f, sound.getPitch() * 0.8f);

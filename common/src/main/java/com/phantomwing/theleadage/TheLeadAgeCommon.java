@@ -7,6 +7,7 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
 import com.phantomwing.theleadage.component.ModDataComponents;
+import com.phantomwing.theleadage.effect.ModMobEffects;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.recipe.ModRecipes;
@@ -35,6 +36,7 @@ public final class TheLeadAgeCommon {
         ModItems.register();
         ModEntities.register();
         ModBlockEntities.register();
+        ModMobEffects.register();
         ModDataComponents.register();
         ModRecipes.register();
         ModCreativeModeTab.register();

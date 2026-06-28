@@ -19,9 +19,9 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
-    /** Gate for the "lead fumes" Nausea + particle effect when mining lead ore. */
+    /** Gate for the "lead fumes" Lead Sickness + particle effect when mining lead ore. */
     @ExpectPlatform
-    public static boolean leadOreNausea() {
+    public static boolean leadOreSickness() {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 

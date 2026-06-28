@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.WaterloggedTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -110,10 +112,12 @@ public class ModBlocks {
             new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
                     leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()));
 
-    // Lead Weight: a 12³ lead ball that falls like an anvil and crushes entities (combat
-    // logic in LeadWeightEntity). Hangs from a chain when placed under a block.
-    public static final RegistrySupplier<Block> LEAD_WEIGHT = register("lead_weight", () ->
-            new LeadWeightBlock(leadProps().noOcclusion().sound(ModSoundTypes.LEAD_WEIGHT)));
+    // Lead Weight: an 8³ lead ball that falls like an anvil and crushes entities (combat logic in
+    // LeadWeightEntity); hangs from a chain when placed under a block. A hard landing can chip it
+    // down a tier (lead_weight -> chipped -> damaged -> shatters), anvil-style. See nextWeightTier.
+    public static final RegistrySupplier<Block> LEAD_WEIGHT = registerLeadWeight("lead_weight");
+    public static final RegistrySupplier<Block> CHIPPED_LEAD_WEIGHT = registerLeadWeight("chipped_lead_weight");
+    public static final RegistrySupplier<Block> DAMAGED_LEAD_WEIGHT = registerLeadWeight("damaged_lead_weight");
 
     // 16 dyed leaded glass blocks (the colour palette for crafting panes). StainedGlassBlock
     // carries the DyeColor (beacon-beam tint); same pickaxe-drop rule as plain leaded glass.
@@ -139,7 +143,8 @@ public class ModBlocks {
     }
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
-        return register(name, () -> new ChainBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN))));
+        return register(name, () -> new ChainBlock(
+                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN)).sound(SoundType.CHAIN)));
     }
 
     private static RegistrySupplier<IronBarsBlock> registerLeadBars(String name) {
@@ -173,6 +178,24 @@ public class ModBlocks {
         return register(color.getName() + "_leaded_glass", () ->
                 new StainedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
                         .mapColor(color.getMapColor()).requiresCorrectToolForDrops()));
+    }
+
+    private static RegistrySupplier<Block> registerLeadWeight(String name) {
+        // All three tiers share one falling block; the tier is the block's identity. The degrade
+        // chain lives in nextWeightTier, rolled on a hard landing by LeadWeightBlock#onLand.
+        return register(name, () -> new LeadWeightBlock(leadProps().noOcclusion().sound(ModSoundTypes.LEAD_WEIGHT)));
+    }
+
+    /** The next tier a weight degrades to on a hard landing, or null if it should shatter (the last tier). */
+    @Nullable
+    public static Block nextWeightTier(Block current) {
+        if (current == LEAD_WEIGHT.get()) {
+            return CHIPPED_LEAD_WEIGHT.get();
+        }
+        if (current == CHIPPED_LEAD_WEIGHT.get()) {
+            return DAMAGED_LEAD_WEIGHT.get();
+        }
+        return null;
     }
 
     private static BlockBehaviour.Properties leadProps() {

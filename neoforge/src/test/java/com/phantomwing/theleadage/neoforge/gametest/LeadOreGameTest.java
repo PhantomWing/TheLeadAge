@@ -1,10 +1,10 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
-import com.phantomwing.theleadage.block.entity.LeadWeightBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
@@ -213,66 +213,36 @@ public class LeadOreGameTest {
         }
     }
 
-    /** A placed weight's wear lives on its block entity and flows back into the picked/dropped item. */
+    /** A weight degrades tier-by-tier; the last tier has no next, so it shatters. */
     @GameTest(template = "empty")
-    public static void leadWeightBlockCarriesWear(GameTestHelper helper) {
-        BlockPos rel = new BlockPos(1, 1, 1);
-        helper.setBlock(rel, ModBlocks.LEAD_WEIGHT.get());
-        BlockState state = helper.getBlockState(rel);
-        if (!(helper.getBlockEntity(rel) instanceof LeadWeightBlockEntity be)) {
-            helper.fail("weight block has no LeadWeightBlockEntity");
-            return;
-        }
-        be.setDamage(55);
-        ItemStack clone = ModBlocks.LEAD_WEIGHT.get().getCloneItemStack(helper.getLevel(), helper.absolutePos(rel), state);
-        if (clone.getDamageValue() != 55) {
-            helper.fail("picked weight damage = " + clone.getDamageValue() + ", expected 55");
+    public static void leadWeightTierChain(GameTestHelper helper) {
+        Block base = ModBlocks.LEAD_WEIGHT.get();
+        Block chipped = ModBlocks.CHIPPED_LEAD_WEIGHT.get();
+        Block damaged = ModBlocks.DAMAGED_LEAD_WEIGHT.get();
+        if (ModBlocks.nextWeightTier(base) != chipped) {
+            helper.fail("lead_weight should chip to chipped_lead_weight");
+        } else if (ModBlocks.nextWeightTier(chipped) != damaged) {
+            helper.fail("chipped should chip to damaged");
+        } else if (ModBlocks.nextWeightTier(damaged) != null) {
+            helper.fail("damaged should have no next tier (it shatters)");
         } else {
             helper.succeed();
         }
     }
 
-    /** A falling weight wears by WEAR_PER_LANDING on impact, stored on the block it becomes. */
-    @GameTest(template = "empty", timeoutTicks = 200)
-    public static void leadWeightWearsOnLanding(GameTestHelper helper) {
-        helper.setBlock(new BlockPos(1, 0, 1), Blocks.STONE);  // floor
-        helper.setBlock(new BlockPos(1, 1, 1), Blocks.AIR);    // carve the drop column out of the barrier
-        helper.setBlock(new BlockPos(1, 2, 1), Blocks.AIR);
-        BlockPos spawn = helper.absolutePos(new BlockPos(1, 2, 1));
-        LeadWeightEntity.inAir(helper.getLevel(), spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
-                ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null, 30);
-        helper.startSequence()
-                // Poll until the weight has actually settled, rather than guessing a fixed idle.
-                .thenWaitUntil(() -> {
-                    if (landedOrbWear(helper) == null) {
-                        helper.fail("weight has not settled yet");
-                    }
-                })
-                .thenExecute(() -> {
-                    int expected = 30 + LeadWeightItem.WEAR_PER_LANDING;
-                    int got = landedOrbWear(helper);
-                    if (got != expected) {
-                        helper.fail("returned weight wear = " + got + ", expected " + expected);
-                    }
-                })
-                .thenSucceed();
-    }
-
-    /** A worn weight returned by a landing — as the block it became, or the item if it couldn't place. Null until it settles. */
-    private static Integer landedOrbWear(GameTestHelper helper) {
-        for (int y = 2; y >= 0; y--) {
-            if (helper.getLevel().getBlockEntity(helper.absolutePos(new BlockPos(1, y, 1)))
-                    instanceof LeadWeightBlockEntity be) {
-                return be.getDamage();
-            }
+    /** The chip chance is 0 for short drops, rises with fall height, and is capped past the max fall. */
+    @GameTest(template = "empty")
+    public static void leadWeightBreakChance(GameTestHelper helper) {
+        if (LeadWeightBlock.breakChance(1.0) != 0.0 || LeadWeightBlock.breakChance(2.0) != 0.0) {
+            helper.fail("short drops (<= 2 blocks) must never chip the weight");
+        } else if (!(LeadWeightBlock.breakChance(6.5) > 0.0
+                && LeadWeightBlock.breakChance(6.5) < LeadWeightBlock.breakChance(10.0))) {
+            helper.fail("chip chance must rise with fall height");
+        } else if (LeadWeightBlock.breakChance(12.0) != 1.0 || LeadWeightBlock.breakChance(50.0) != 1.0) {
+            helper.fail("chip chance must reach 100% at a high fall and stay capped");
+        } else {
+            helper.succeed();
         }
-        AABB area = AABB.ofSize(Vec3.atCenterOf(helper.absolutePos(new BlockPos(1, 1, 1))), 5, 5, 5);
-        for (ItemEntity item : helper.getLevel().getEntitiesOfClass(ItemEntity.class, area)) {
-            if (item.getItem().is(ModItems.LEAD_WEIGHT.get())) {
-                return item.getItem().getDamageValue();
-            }
-        }
-        return null;
     }
 
     /** An weight that falls onto a hopper is collected by it as an item, not left as a block on top. */
@@ -283,7 +253,7 @@ public class LeadOreGameTest {
         helper.setBlock(new BlockPos(1, 2, 1), Blocks.AIR);
         BlockPos spawn = helper.absolutePos(new BlockPos(1, 2, 1));
         LeadWeightEntity.inAir(helper.getLevel(), spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
-                ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null, 0);
+                ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null);
         helper.startSequence()
                 // Poll until the hopper has it, rather than guessing how long the fall + collect takes.
                 .thenWaitUntil(() -> {

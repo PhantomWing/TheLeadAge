@@ -61,11 +61,17 @@ public class ModBlockStateProvider extends BlockStateProvider {
     }
 
     private void leadWeight() {
-        // Both models are hand-authored (custom UV element + chain); HANGING picks the
-        // chained variant placed under a block.
-        ModelFile weight = models().getExistingFile(modLoc("block/lead_weight"));
-        ModelFile hanging = models().getExistingFile(modLoc("block/lead_weight_hanging"));
-        getVariantBuilder(ModBlocks.LEAD_WEIGHT.get())
+        // One blockstate per tier; each references its own hand-authored models (the chipped/damaged
+        // models just re-texture the base via parent). HANGING picks the chained variant.
+        leadWeightTier(ModBlocks.LEAD_WEIGHT, "lead_weight");
+        leadWeightTier(ModBlocks.CHIPPED_LEAD_WEIGHT, "chipped_lead_weight");
+        leadWeightTier(ModBlocks.DAMAGED_LEAD_WEIGHT, "damaged_lead_weight");
+    }
+
+    private void leadWeightTier(RegistrySupplier<Block> block, String name) {
+        ModelFile weight = models().getExistingFile(modLoc("block/" + name));
+        ModelFile hanging = models().getExistingFile(modLoc("block/" + name + "_hanging"));
+        getVariantBuilder(block.get())
                 .partialState().with(LeadWeightBlock.HANGING, false).setModels(new ConfiguredModel(weight))
                 .partialState().with(LeadWeightBlock.HANGING, true).setModels(new ConfiguredModel(hanging));
     }

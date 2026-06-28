@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "theleadage:block/chipped_lead_weight"
+    },
+    "hanging=true": {
+      "model": "theleadage:block/chipped_lead_weight_hanging"
+    }
+  }
+}

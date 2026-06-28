@@ -58,6 +58,8 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get());
         dropSelf(ModBlocks.LEADED_GLASS_PANE_CROSS.get());
         dropSelf(ModBlocks.LEAD_WEIGHT.get());
+        dropSelf(ModBlocks.CHIPPED_LEAD_WEIGHT.get());
+        dropSelf(ModBlocks.DAMAGED_LEAD_WEIGHT.get());
         for (DyeColor color : DyeColor.values()) {
             dropSelf(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
         }

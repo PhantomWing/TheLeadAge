@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.fabric.client;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
+import com.phantomwing.theleadage.client.LeadSicknessBlur;
 import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorItemRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorRenderer;
@@ -11,6 +12,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -30,6 +32,7 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         ModRenderLayers.register();
         EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
+        WorldRenderEvents.END.register(context -> LeadSicknessBlur.render());
 
         // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersNeoForge.
         ColorProviderRegistry.BLOCK.register(ModColorHandlers::blockTint, ModBlocks.LEADED_GLASS_PANEL.get(),

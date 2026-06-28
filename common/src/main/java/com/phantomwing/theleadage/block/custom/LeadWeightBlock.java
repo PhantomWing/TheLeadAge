@@ -1,9 +1,8 @@
 package com.phantomwing.theleadage.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import com.phantomwing.theleadage.block.entity.LeadWeightBlockEntity;
+import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
-import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -14,11 +13,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -26,33 +23,33 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ChainBlock;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * An 8³ lead ball that falls like an anvil and crushes whatever it lands on (the
  * combat logic lives in {@link LeadWeightEntity}). When placed against the underside
  * of a block it {@link #HANGING hangs} from a chain until that block is broken,
  * then drops.
+ *
+ * <p>Anvil-style wear: a hard ground landing has a fall-scaled chance to chip the
+ * weight down a tier — {@code lead_weight → chipped → damaged → shatters}. The tier
+ * is the block's identity (three registered blocks); the chain lives in
+ * {@link ModBlocks#nextWeightTier}. Landing on a hopper is exempt (it's collected
+ * intact). Stackable items, so no per-item durability and no block entity.</p>
  */
-public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBlock, EntityBlock {
+public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBlock {
     public static final MapCodec<LeadWeightBlock> CODEC = simpleCodec(LeadWeightBlock::new);
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -65,6 +62,11 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     private static final float MIN_THUD_VOLUME = 0.3f;
     private static final float MAX_THUD_VOLUME = 1.0f;
     private static final double FULL_THUD_FALL = 10.0; // drop (blocks) at which the thud maxes out
+
+    // Chip chance ramps with the drop: 0 at/under BREAK_FALL_MIN, then +10%/block to BREAK_CHANCE_MAX.
+    private static final double BREAK_FALL_MIN = 2.0;     // at/under this a landing never chips it
+    private static final double BREAK_FALL_MAX = 12.0;    // at/over this the chance is maxed (100%)
+    private static final double BREAK_CHANCE_MAX = 1.0;   // a 12-block+ drop always chips a tier
 
     public LeadWeightBlock(Properties properties) {
         super(properties);
@@ -141,10 +143,9 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         if (!state.getValue(HANGING)) {
             return InteractionResult.PASS;
         }
-        // Holding a lead weight? Don't snap the chain — pass so the held weight places instead, letting a
-        // player build orbs under/beside this one without the one they click detaching and falling.
-        if (player.getMainHandItem().getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock() instanceof LeadWeightBlock) {
+        // Only snap the chain when empty-handed — any held item passes through, so you can place a weight
+        // under/beside this one (or use other items) without the one you click dropping.
+        if (!player.getMainHandItem().isEmpty()) {
             return InteractionResult.PASS;
         }
         if (!level.isClientSide) {
@@ -153,8 +154,22 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Snap the chain: the weight falls if nothing solid holds it up, otherwise it just settles in place. */
+    /** A projectile (e.g. an arrow) hitting a hanging weight snaps its chain too, crediting the shooter. */
+    @Override
+    protected void onProjectileHit(Level level, BlockState state, BlockHitResult hit, Projectile projectile) {
+        super.onProjectileHit(level, state, hit, projectile);
+        if (!level.isClientSide && state.getValue(HANGING)) {
+            Player shooter = projectile.getOwner() instanceof Player player ? player : null;
+            detach(level, hit.getBlockPos(), state, shooter);
+        }
+    }
+
     private static void detach(Level level, BlockPos pos, BlockState state) {
+        detach(level, pos, state, null);
+    }
+
+    /** Snap the chain: the weight falls if nothing solid holds it up, otherwise it just settles in place. */
+    private static void detach(Level level, BlockPos pos, BlockState state, Player owner) {
         level.playSound(null, pos, SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, 1.0f, 0.8f);
         BlockState detached = state.setValue(HANGING, false);
         BlockState below = level.getBlockState(pos.below());
@@ -162,13 +177,13 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         // real floor (it may be hanging/falling too), so a detached stack of orbs all drops together.
         boolean falls = isFree(below) || below.getBlock() instanceof LeadWeightBlock;
         if (falls && pos.getY() >= level.getMinBuildHeight()) {
-            LeadWeightEntity.fromBlock(level, pos, detached, null);
+            LeadWeightEntity.fromBlock(level, pos, detached, owner);
         } else {
             level.setBlock(pos, detached, Block.UPDATE_ALL); // a floor holds it — just settle (no fall thud)
         }
     }
 
-    /** Heavy landing thud + a burst of dust from the surface it struck. */
+    /** Heavy landing thud + a burst of dust from the surface it struck, then a chance to chip down a tier. */
     @Override
     public void onLand(Level level, BlockPos pos, BlockState fallingState, BlockState landOnState, FallingBlockEntity entity) {
         BlockState surface = level.getBlockState(pos.below());
@@ -193,29 +208,42 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
             server.sendParticles(ParticleTypes.POOF, cx, cy + 0.1, cz, 8, 0.3, 0.02, 0.3, 0.02);
         }
 
+        double fall = entity.getStartPos().getY() - pos.getY();
+
         // A hard enough impact transforms certain surfaces (bricks crack, grass -> dirt).
-        if (entity.getStartPos().getY() - pos.getY() >= TRANSFORM_FALL_DISTANCE) {
+        if (fall >= TRANSFORM_FALL_DISTANCE) {
             BlockState transformed = LeadWeightTransforms.transform(surface);
             if (transformed != null) {
                 level.setBlockAndUpdate(pos.below(), transformed);
             }
         }
 
-        // The landing wears the weight. Store the wear on the just-placed block, or shatter it if spent.
-        if (entity instanceof LeadWeightEntity weight) {
-            int damage = weight.getDurabilityDamage() + LeadWeightItem.WEAR_PER_LANDING;
-            if (damage >= LeadWeightItem.MAX_DURABILITY) {
-                level.removeBlock(pos, false); // the weight is spent — it shatters instead of staying
-                shatterFx(level, pos);
-            } else if (level.getBlockEntity(pos) instanceof LeadWeightBlockEntity be) {
-                be.setDamage(damage);
-            }
+        // The landing can chip the weight down a tier (the last tier shatters). A weight a hopper is about
+        // to swallow is exempt — it's collected intact (see LeadWeightEntity#convertHopperLanding).
+        boolean ontoHopper = surface.getBlock() instanceof HopperBlock;
+        if (!ontoHopper && entity.getRandom().nextDouble() < breakChance(fall)) {
+            degradeLanded(level, pos);
         }
     }
 
+    /** Chip the just-landed weight at {@code pos} to its next tier, or shatter it if it was the last. */
+    private void degradeLanded(Level level, BlockPos pos) {
+        Block next = ModBlocks.nextWeightTier(this);
+        if (next == null) {
+            level.removeBlock(pos, false); // damaged tier -> it shatters and is gone
+            shatterFx(level, pos);
+            return;
+        }
+        BlockState placed = level.getBlockState(pos);
+        boolean waterlogged = placed.hasProperty(WATERLOGGED) && placed.getValue(WATERLOGGED);
+        level.setBlock(pos, next.defaultBlockState().setValue(WATERLOGGED, waterlogged), Block.UPDATE_ALL);
+        chipFx(level, pos);
+    }
+
     /**
-     * Called when the weight can't place where it lands (e.g. it came down on an entity) and
-     * drops as an item instead — {@link #onLand} never fires, so give it the thud here too.
+     * Called when the weight can't place where it lands (e.g. it came down on an entity) and drops as an
+     * item instead — {@link #onLand} never fires, so give it the thud here too. No chip: that's a crush,
+     * not a ground landing, and FallingBlockEntity drops the same-tier item.
      */
     @Override
     public void onBrokenAfterFall(Level level, BlockPos pos, FallingBlockEntity entity) {
@@ -224,15 +252,18 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
             server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, defaultBlockState()),
                     pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, 20, 0.3, 0.1, 0.3, 0.1);
         }
+    }
 
-        // The worn-item drop is carried by LeadWeightEntity#spawnAtLocation (FallingBlockEntity calls it
-        // right after this). If the weight is spent it drops nothing and shatters here instead.
-        if (entity instanceof LeadWeightEntity weight && weight.isSpentOnLanding()) {
-            shatterFx(level, pos);
+    /** A short metallic crack + a puff of lead dust when the weight chips down a tier. */
+    private void chipFx(Level level, BlockPos pos) {
+        level.playSound(null, pos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.5f, 1.5f);
+        if (level instanceof ServerLevel server) {
+            server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, defaultBlockState()),
+                    pos.getX() + 0.5, pos.getY() + 0.4, pos.getZ() + 0.5, 12, 0.25, 0.15, 0.25, 0.08);
         }
     }
 
-    /** Heavy "lead weight cracks apart" sound + a burst of its own dust, when the weight is spent. */
+    /** Heavy "lead weight cracks apart" sound + a burst of its own dust, when the last tier shatters. */
     private void shatterFx(Level level, BlockPos pos) {
         level.playSound(null, pos, SoundEvents.ANVIL_DESTROY, SoundSource.BLOCKS, 0.8f, 0.8f);
         if (level instanceof ServerLevel server) {
@@ -241,37 +272,16 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         }
     }
 
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new LeadWeightBlockEntity(pos, state);
-    }
-
-    /** A placed weight carries its wear onto its block entity, so it survives being mined or re-falling. */
-    @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        if (level.getBlockEntity(pos) instanceof LeadWeightBlockEntity be) {
-            be.setDamage(stack.getDamageValue());
+    /**
+     * Chance a landing chips the weight, ramping from 0 at/under {@value #BREAK_FALL_MIN} blocks fallen to
+     * {@value #BREAK_CHANCE_MAX} at {@value #BREAK_FALL_MAX}+ — so short hops are safe and long drops punish.
+     */
+    public static double breakChance(double fallDistance) {
+        if (fallDistance <= BREAK_FALL_MIN) {
+            return 0.0;
         }
-    }
-
-    @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        ItemStack stack = new ItemStack(this);
-        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof LeadWeightBlockEntity be) {
-            stack.setDamageValue(be.getDamage());
-        }
-        return List.of(stack);
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
-        ItemStack stack = new ItemStack(this);
-        if (level.getBlockEntity(pos) instanceof LeadWeightBlockEntity be) {
-            stack.setDamageValue(be.getDamage());
-        }
-        return stack;
+        double t = Mth.clamp((fallDistance - BREAK_FALL_MIN) / (BREAK_FALL_MAX - BREAK_FALL_MIN), 0.0, 1.0);
+        return t * BREAK_CHANCE_MAX;
     }
 
     /** Landing thud volume, ramped from a soft tap (short drop) to a full slam (long drop). */

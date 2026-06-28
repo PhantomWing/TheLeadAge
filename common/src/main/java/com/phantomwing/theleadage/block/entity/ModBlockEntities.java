@@ -26,10 +26,6 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("leaded_glass_trapdoor", () -> BlockEntityType.Builder.of(
                     LeadedGlassTrapdoorBlockEntity::new, ModBlocks.LEADED_GLASS_TRAPDOOR.get()).build(null));
 
-    public static final RegistrySupplier<BlockEntityType<LeadWeightBlockEntity>> LEAD_WEIGHT =
-            BLOCK_ENTITIES.register("lead_weight", () -> BlockEntityType.Builder.of(
-                    LeadWeightBlockEntity::new, ModBlocks.LEAD_WEIGHT.get()).build(null));
-
     public static void register() {
         BLOCK_ENTITIES.register();
     }

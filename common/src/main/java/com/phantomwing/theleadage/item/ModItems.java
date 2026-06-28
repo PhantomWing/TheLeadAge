@@ -92,11 +92,15 @@ public class ModItems {
             registerBlock(color.getName() + "_leaded_glass", ModBlocks.STAINED_LEADED_GLASS.get(color));
         }
     }
-    // Lead Weight — custom item: places normally (decorative / hangs), or air-drops as a
-    // falling weapon when aimed at open space.
+    // Lead Weight — custom item: places normally (decorative / hangs), or air-drops as a falling
+    // weapon when aimed at open space. Stackable; the three tiers (lead_weight / chipped / damaged)
+    // are distinct stackable items, each placing its own block. Heavy, so they stack to only 16.
     public static final RegistrySupplier<Item> LEAD_WEIGHT = register("lead_weight",
-            (props) -> new LeadWeightItem(ModBlocks.LEAD_WEIGHT.get(), props),
-            new Item.Properties().durability(LeadWeightItem.MAX_DURABILITY));
+            (props) -> new LeadWeightItem(ModBlocks.LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
+    public static final RegistrySupplier<Item> CHIPPED_LEAD_WEIGHT = register("chipped_lead_weight",
+            (props) -> new LeadWeightItem(ModBlocks.CHIPPED_LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
+    public static final RegistrySupplier<Item> DAMAGED_LEAD_WEIGHT = register("damaged_lead_weight",
+            (props) -> new LeadWeightItem(ModBlocks.DAMAGED_LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
 
     // Leaded glass panes — one item per came type (colours carried in the leaded_glass_config
     // component). Creative presets are added by ModCreativeModeTab.

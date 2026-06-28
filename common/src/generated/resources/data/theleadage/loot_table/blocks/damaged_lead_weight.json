@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "theleadage:damaged_lead_weight"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "theleadage:blocks/damaged_lead_weight"
+}

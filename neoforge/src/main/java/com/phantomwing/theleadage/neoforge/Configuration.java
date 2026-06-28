@@ -13,8 +13,8 @@ public class Configuration {
     public static final String GENERATE_LEAD_ORE_ID = "generate_lead_ore";
     public static final ModConfigSpec.BooleanValue GENERATE_LEAD_ORE;
 
-    public static final String ENABLE_LEAD_ORE_NAUSEA_ID = "enable_lead_ore_nausea";
-    public static final ModConfigSpec.BooleanValue ENABLE_LEAD_ORE_NAUSEA;
+    public static final String ENABLE_LEAD_ORE_SICKNESS_ID = "enable_lead_ore_sickness";
+    public static final ModConfigSpec.BooleanValue ENABLE_LEAD_ORE_SICKNESS;
 
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public static final ModConfigSpec.BooleanValue ENABLE_RECIPE_OVERRIDES;
@@ -37,7 +37,7 @@ public class Configuration {
     public static boolean getBooleanConfigurationValue(String id) {
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> GENERATE_LEAD_ORE.get();
-            case ENABLE_LEAD_ORE_NAUSEA_ID -> ENABLE_LEAD_ORE_NAUSEA.get();
+            case ENABLE_LEAD_ORE_SICKNESS_ID -> ENABLE_LEAD_ORE_SICKNESS.get();
             case ENABLE_RECIPE_OVERRIDES_ID -> ENABLE_RECIPE_OVERRIDES.get();
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
@@ -55,10 +55,10 @@ public class Configuration {
                 .comment("Should lead ore generate in the world? (Applies to newly generated chunks.)")
                 .translation("text.autoconfig.theleadage.option.generate_lead_ore")
                 .define(GENERATE_LEAD_ORE_ID, true);
-        ENABLE_LEAD_ORE_NAUSEA = builder
-                .comment("Should mining lead ore sometimes release fumes (a brief Nausea effect + smoke particles)?")
-                .translation("text.autoconfig.theleadage.option.enable_lead_ore_nausea")
-                .define(ENABLE_LEAD_ORE_NAUSEA_ID, true);
+        ENABLE_LEAD_ORE_SICKNESS = builder
+                .comment("Should mining lead ore sometimes release fumes (the Lead Sickness effect + particles)?")
+                .translation("text.autoconfig.theleadage.option.enable_lead_ore_sickness")
+                .define(ENABLE_LEAD_ORE_SICKNESS_ID, true);
         ENABLE_RECIPE_OVERRIDES = builder
                 .comment("Master toggle for the lead recipe overrides below. When off, none of them apply and vanilla recipes are kept.")
                 .translation("text.autoconfig.theleadage.option.enable_recipe_overrides")

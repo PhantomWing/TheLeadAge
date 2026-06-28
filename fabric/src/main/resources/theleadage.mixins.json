@@ -8,6 +8,9 @@
     "LootTableMixin",
     "PersistentEntitySectionManagerMixin"
   ],
+  "client": [
+    "client.GuiHeartTypeMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
