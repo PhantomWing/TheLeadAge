@@ -27,17 +27,25 @@ public class ModBiomeModifiers {
     public static final Supplier<MapCodec<LeadOreBiomeModifier>> LEAD_ORE =
             SERIALIZERS.register("lead_ore", () -> LeadOreBiomeModifier.CODEC);
 
-    // The biome-modifier instance (data, emitted by ModDatapackProvider).
+    // The biome-modifier instances (data, emitted by ModDatapackProvider).
     public static final ResourceKey<BiomeModifier> ADD_LEAD_ORE = ResourceKey.create(
             NeoForgeRegistries.Keys.BIOME_MODIFIERS, ResourceLocation.fromNamespaceAndPath(TheLeadAgeCommon.MOD_ID, "add_lead_ore"));
+    public static final ResourceKey<BiomeModifier> ADD_LEAD_ORE_EXTRA = ResourceKey.create(
+            NeoForgeRegistries.Keys.BIOME_MODIFIERS, ResourceLocation.fromNamespaceAndPath(TheLeadAgeCommon.MOD_ID, "add_lead_ore_extra"));
 
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
 
+        // Main band: every overworld biome.
         context.register(ADD_LEAD_ORE, new LeadOreBiomeModifier(
                 biomes.getOrThrow(ModTags.Biomes.HAS_LEAD_ORE),
                 HolderSet.direct(placedFeatures.getOrThrow(ModPlacedFeatures.ORE_LEAD))));
+
+        // Extra dense small-vein band: only the lead-rich biomes (swamps), on top of the main band.
+        context.register(ADD_LEAD_ORE_EXTRA, new LeadOreBiomeModifier(
+                biomes.getOrThrow(ModTags.Biomes.HAS_EXTRA_LEAD_ORE),
+                HolderSet.direct(placedFeatures.getOrThrow(ModPlacedFeatures.ORE_LEAD_EXTRA))));
     }
 
     public static void register(IEventBus eventBus) {

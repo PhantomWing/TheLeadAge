@@ -4,10 +4,23 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.biome.Biome;
 
 /** Conventional ({@code c:}) tags. Mod-namespaced tags live in {@link ModTags}. */
 public final class CommonTags {
     private CommonTags() {
+    }
+
+    public static final class Biomes {
+        /** {@code c:is_swamp} — vanilla swamp + mangrove swamp, plus any modded swamps (populated by both loaders). */
+        public static final TagKey<Biome> IS_SWAMP = tag("is_swamp");
+
+        private static TagKey<Biome> tag(String path) {
+            return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath("c", path));
+        }
+
+        private Biomes() {
+        }
     }
 
     public static final class Items {

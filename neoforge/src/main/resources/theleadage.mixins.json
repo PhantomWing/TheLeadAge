@@ -6,9 +6,6 @@
   "mixins": [
     "IronBarsBlockMixin"
   ],
-  "client": [
-    "client.GuiHeartTypeMixin"
-  ],
   "injectors": {
     "defaultRequire": 1
   }

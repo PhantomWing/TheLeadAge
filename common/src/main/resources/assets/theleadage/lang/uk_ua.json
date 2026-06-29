@@ -32,7 +32,6 @@
   "tooltip.theleadage.lead_weight.when_dropped": "При падінні:",
   "tooltip.theleadage.lead_weight.base_damage": "%s шкоди від удару",
   "tooltip.theleadage.lead_weight.per_block": "+%s за кожен блок падіння",
-  "effect.theleadage.lead_sickness": "Свинцева хвороба",
   "block.theleadage.leaded_glass_pane": "Свинцева шибка",
   "block.theleadage.leaded_glass_pane_split": "Свинцева шибка",
   "block.theleadage.leaded_glass_pane_grid": "Свинцева шибка",

@@ -54,7 +54,7 @@ public class LeadWeightEntity extends FallingBlockEntity {
     /** Guaranteed impact damage on a smash, plus a flat amount per block fallen (linear, uncapped). */
     public static final float BASE_DAMAGE = 6.0f;
     public static final float DAMAGE_PER_BLOCK = 2.0f;
-    private static final double KNOCKBACK_POWER = 0.6;   // horizontal shove
+    private static final double KNOCKBACK_POWER = 0.2;   // horizontal shove
     private static final double KNOCKBACK_DOWN = 0.3;    // extra downward smash
     private static final float MOMENTUM_LOSS_PER_HIT = 0.8f; // each crushed entity leaves the weight 80% as deadly
     private static final float MIN_MOMENTUM = 0.1f;      // below this the weight is spent and passes through harmlessly

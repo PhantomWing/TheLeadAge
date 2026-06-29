@@ -32,7 +32,6 @@
   "tooltip.theleadage.lead_weight.when_dropped": "Al caer:",
   "tooltip.theleadage.lead_weight.base_damage": "%s de daño de impacto",
   "tooltip.theleadage.lead_weight.per_block": "+%s por bloque caído",
-  "effect.theleadage.lead_sickness": "Mal de plomo",
   "block.theleadage.leaded_glass_pane": "Panel de vidrio plomado",
   "block.theleadage.leaded_glass_pane_split": "Panel de vidrio plomado",
   "block.theleadage.leaded_glass_pane_grid": "Panel de vidrio plomado",

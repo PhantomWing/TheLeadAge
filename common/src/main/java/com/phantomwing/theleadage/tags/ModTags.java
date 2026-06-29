@@ -51,6 +51,8 @@ public final class ModTags {
     public static final class Biomes {
         /** Biomes that lead ore generates in (all overworld biomes by default). */
         public static final TagKey<Biome> HAS_LEAD_ORE = tag("has_lead_ore");
+        /** Lead-rich biomes that get an extra dense band of small veins (swamps — lead leaches into the stagnant water). */
+        public static final TagKey<Biome> HAS_EXTRA_LEAD_ORE = tag("has_extra_lead_ore");
 
         private static TagKey<Biome> tag(String name) {
             return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));

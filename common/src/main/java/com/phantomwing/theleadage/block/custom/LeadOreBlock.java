@@ -66,22 +66,23 @@ public class LeadOreBlock extends Block {
         if (EnchantmentHelper.getItemEnchantmentLevel(silkTouch, tool) > 0) {
             return;
         }
-        // Every non-silk harvest fumes; the roll decides a big release vs a faint wisp. The actual dose
-        // lands ~1s later (LeadFumes) on nearby living entities — the delay is the window to back away.
+        // Every non-silk harvest fumes; the roll decides a big release vs a faint wisp. The fumes
+        // immediately expose nearby living entities (LeadFumes) — keep clear of the block to dodge them.
         double cx = pos.getX() + 0.5, cy = pos.getY() + 0.6, cz = pos.getZ() + 0.5;
         if (serverLevel.getRandom().nextFloat() < FUMES_CHANCE) {
-            // Big release: full smoke + poisonous green swirl burst; guaranteed dose up close. The hiss
+            // Big release: full smoke + sickly olive swirl burst (the Hunger-effect colour); guaranteed
+            // dose up close. The hiss
             // now plays when the fumes actually take hold (see LeadFumes), not here.
             serverLevel.sendParticles(ParticleTypes.SMOKE, cx, cy, cz, 18, 0.28, 0.08, 0.28, 0.02);
-            serverLevel.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0.333f, 0.761f, 0.196f),
+            serverLevel.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0.345f, 0.463f, 0.325f),
                     cx, cy + 0.1, cz, 12, 0.3, 0.12, 0.3, 0.0);
-            LeadFumes.schedule(serverLevel, pos, BIG_DOSE_CHANCE);
+            LeadFumes.expose(serverLevel, pos, BIG_DOSE_CHANCE);
         } else {
             // Small wisp: raw lead is still toxic, but only a small chance to dose anyone close.
             serverLevel.sendParticles(ParticleTypes.SMOKE, cx, cy - 0.05, cz, 3, 0.2, 0.05, 0.2, 0.01);
-            serverLevel.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0.333f, 0.761f, 0.196f),
+            serverLevel.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0.345f, 0.463f, 0.325f),
                     cx, cy - 0.05, cz, 2, 0.2, 0.05, 0.2, 0.0);
-            LeadFumes.schedule(serverLevel, pos, SMALL_DOSE_CHANCE);
+            LeadFumes.expose(serverLevel, pos, SMALL_DOSE_CHANCE);
         }
     }
 }

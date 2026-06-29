@@ -27,5 +27,10 @@ public final class ModWorldGen {
                 BiomeSelectors.tag(ModTags.Biomes.HAS_LEAD_ORE),
                 GenerationStep.Decoration.UNDERGROUND_ORES,
                 ModPlacedFeatures.ORE_LEAD);
+        // Extra dense small-vein band in the lead-rich biomes (swamps), on top of the main band.
+        BiomeModifications.addFeature(
+                BiomeSelectors.tag(ModTags.Biomes.HAS_EXTRA_LEAD_ORE),
+                GenerationStep.Decoration.UNDERGROUND_ORES,
+                ModPlacedFeatures.ORE_LEAD_EXTRA);
     }
 }

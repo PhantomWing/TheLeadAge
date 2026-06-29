@@ -17,6 +17,7 @@ import java.util.List;
 
 public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_LEAD = registerKey("ore_lead");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_LEAD_SMALL = registerKey("ore_lead_small");
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         RuleTest stone = new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES);
@@ -26,8 +27,10 @@ public class ModConfiguredFeatures {
                 OreConfiguration.target(stone, ModBlocks.LEAD_ORE.get().defaultBlockState()),
                 OreConfiguration.target(deepslate, ModBlocks.DEEPSLATE_LEAD_ORE.get().defaultBlockState()));
 
-        // Vein size 8 (iron is 9); no air-discard.
+        // Main veins: size 8 (iron is 9); no air-discard.
         context.register(ORE_LEAD, new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(targets, 8)));
+        // Small veins for the lead-rich "extra" band (size 4, like iron/copper small).
+        context.register(ORE_LEAD_SMALL, new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(targets, 4)));
     }
 
     private static ResourceKey<ConfiguredFeature<?, ?>> registerKey(String name) {

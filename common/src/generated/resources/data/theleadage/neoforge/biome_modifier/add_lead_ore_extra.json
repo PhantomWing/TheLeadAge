@@ -1,0 +1,5 @@
+{
+  "type": "theleadage:lead_ore",
+  "biomes": "#theleadage:has_extra_lead_ore",
+  "features": "theleadage:ore_lead_extra"
+}
