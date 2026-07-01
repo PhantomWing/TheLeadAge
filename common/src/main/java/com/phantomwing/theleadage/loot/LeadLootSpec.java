@@ -33,6 +33,8 @@ public final class LeadLootSpec {
 
     /** Low chance for a given iron-horse-armor roll to become lead instead. */
     private static final float CHANCE = 0.10f;
+    /** Chance for a rolled iron-ingot stack to become lead ingots instead. */
+    private static final float INGOT_CHANCE = 0.20f;
 
     private static ResourceLocation mc(String path) {
         return ResourceLocation.withDefaultNamespace(path);
@@ -44,17 +46,39 @@ public final class LeadLootSpec {
 
     public static List<Entry> entries() {
         List<Supplier<Item>> ironHorseArmor = List.of(vanilla(Items.IRON_HORSE_ARMOR));
+        List<Supplier<Item>> ironIngot = List.of(vanilla(Items.IRON_INGOT));
         return List.of(
+                // Lead horse armor: occasionally replaces iron horse armor.
                 replaceIronHorseArmor("lead_horse_armor_from_desert_pyramid", "chests/desert_pyramid", ironHorseArmor),
                 replaceIronHorseArmor("lead_horse_armor_from_jungle_temple", "chests/jungle_temple", ironHorseArmor),
                 replaceIronHorseArmor("lead_horse_armor_from_simple_dungeon", "chests/simple_dungeon", ironHorseArmor),
                 replaceIronHorseArmor("lead_horse_armor_from_stronghold_corridor", "chests/stronghold_corridor", ironHorseArmor),
                 replaceIronHorseArmor("lead_horse_armor_from_village_weaponsmith", "chests/village/village_weaponsmith", ironHorseArmor),
-                replaceIronHorseArmor("lead_horse_armor_from_end_city", "chests/end_city_treasure", ironHorseArmor)
+                replaceIronHorseArmor("lead_horse_armor_from_end_city", "chests/end_city_treasure", ironHorseArmor),
+
+                // Lead ingots: a rolled iron-ingot stack occasionally comes up lead instead. Curated to
+                // old ruins, mines, shipwrecks/treasure and metalworkers — where a mundane heavy metal fits.
+                replaceIronIngot("lead_ingot_from_abandoned_mineshaft", "chests/abandoned_mineshaft", ironIngot),
+                replaceIronIngot("lead_ingot_from_simple_dungeon", "chests/simple_dungeon", ironIngot),
+                replaceIronIngot("lead_ingot_from_desert_pyramid", "chests/desert_pyramid", ironIngot),
+                replaceIronIngot("lead_ingot_from_jungle_temple", "chests/jungle_temple", ironIngot),
+                replaceIronIngot("lead_ingot_from_stronghold_corridor", "chests/stronghold_corridor", ironIngot),
+                replaceIronIngot("lead_ingot_from_stronghold_crossing", "chests/stronghold_crossing", ironIngot),
+                replaceIronIngot("lead_ingot_from_shipwreck_treasure", "chests/shipwreck_treasure", ironIngot),
+                replaceIronIngot("lead_ingot_from_buried_treasure", "chests/buried_treasure", ironIngot),
+                replaceIronIngot("lead_ingot_from_woodland_mansion", "chests/woodland_mansion", ironIngot),
+                replaceIronIngot("lead_ingot_from_pillager_outpost", "chests/pillager_outpost", ironIngot),
+                replaceIronIngot("lead_ingot_from_village_weaponsmith", "chests/village/village_weaponsmith", ironIngot),
+                replaceIronIngot("lead_ingot_from_village_toolsmith", "chests/village/village_toolsmith", ironIngot),
+                replaceIronIngot("lead_ingot_from_village_armorer", "chests/village/village_armorer", ironIngot)
         );
     }
 
     private static Entry replaceIronHorseArmor(String id, String table, List<Supplier<Item>> removed) {
         return new Entry(id, mc(table), CHANCE, ModItems.LEAD_HORSE_ARMOR::get, 1, 1, removed);
+    }
+
+    private static Entry replaceIronIngot(String id, String table, List<Supplier<Item>> removed) {
+        return new Entry(id, mc(table), INGOT_CHANCE, ModItems.LEAD_INGOT::get, 1, 1, removed);
     }
 }

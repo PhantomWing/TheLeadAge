@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge.villager;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.villager.LeadVillagerTrades;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
@@ -27,10 +28,14 @@ public class ModVillagerTrades {
         if (!Configuration.ENABLE_VILLAGER_TRADES.get()) {
             return;
         }
-        // TODO: add profession trades. Define each in LeadVillagerTrades, then:
-        //   if (event.getType() == VillagerProfession.TOOLSMITH) {
-        //       event.getTrades().get(2).add(LeadVillagerTrades.toolsmithBuysRawLead());
-        //   }
+        // Mirror vanilla: Armorer, Toolsmith and Weaponsmith all buy 4 lead ingots for
+        // an emerald at apprentice (level 2), exactly as they do iron ingots.
+        VillagerProfession type = event.getType();
+        if (type == VillagerProfession.ARMORER
+                || type == VillagerProfession.TOOLSMITH
+                || type == VillagerProfession.WEAPONSMITH) {
+            event.getTrades().get(2).add(LeadVillagerTrades.smithBuysLeadIngots());
+        }
     }
 
     @SubscribeEvent

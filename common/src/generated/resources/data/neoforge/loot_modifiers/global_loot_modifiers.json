@@ -5,7 +5,20 @@
     "theleadage:lead_horse_armor_from_simple_dungeon",
     "theleadage:lead_horse_armor_from_stronghold_corridor",
     "theleadage:lead_horse_armor_from_village_weaponsmith",
-    "theleadage:lead_horse_armor_from_end_city"
+    "theleadage:lead_horse_armor_from_end_city",
+    "theleadage:lead_ingot_from_abandoned_mineshaft",
+    "theleadage:lead_ingot_from_simple_dungeon",
+    "theleadage:lead_ingot_from_desert_pyramid",
+    "theleadage:lead_ingot_from_jungle_temple",
+    "theleadage:lead_ingot_from_stronghold_corridor",
+    "theleadage:lead_ingot_from_stronghold_crossing",
+    "theleadage:lead_ingot_from_shipwreck_treasure",
+    "theleadage:lead_ingot_from_buried_treasure",
+    "theleadage:lead_ingot_from_woodland_mansion",
+    "theleadage:lead_ingot_from_pillager_outpost",
+    "theleadage:lead_ingot_from_village_weaponsmith",
+    "theleadage:lead_ingot_from_village_toolsmith",
+    "theleadage:lead_ingot_from_village_armorer"
   ],
   "replace": false
 }

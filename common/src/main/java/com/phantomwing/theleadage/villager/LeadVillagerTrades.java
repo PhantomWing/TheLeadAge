@@ -1,5 +1,12 @@
 package com.phantomwing.theleadage.villager;
 
+import com.phantomwing.theleadage.item.ModItems;
+import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
+
 /**
  * Loader-agnostic source of truth for the lead villager trades — the "shared spec,
  * per-loader apply" model already used for loot. Trade content (items, counts,
@@ -8,24 +15,29 @@ package com.phantomwing.theleadage.villager;
  * {@code VillagerTradesEvent}/{@code WandererTradesEvent}, Fabric via
  * {@code TradeOfferHelper}). Config gating is applied per loader, not here.
  *
- * <p>No trades are defined yet. To add one: write a static
- * {@code VillagerTrades.ItemListing factoryMethod()} here, then wire it into BOTH
- * {@code com.phantomwing.theleadage.neoforge.villager.ModVillagerTrades} and
- * {@code com.phantomwing.theleadage.fabric.villager.ModVillagerTrades}. Example:</p>
- *
- * <pre>{@code
- * public static VillagerTrades.ItemListing toolsmithBuysRawLead() {
- *     return (trader, random) -> new MerchantOffer(
- *             new ItemCost(ModItems.RAW_LEAD.get(), 6),   // cost
- *             new ItemStack(Items.EMERALD, 1),            // result
- *             12, 4, PRICE_MULTIPLIER);                   // maxUses, villagerXp, priceMultiplier
- * }
- * }</pre>
+ * <p>To add a trade: write a static {@code VillagerTrades.ItemListing factoryMethod()}
+ * here, then wire it into BOTH {@code com.phantomwing.theleadage.neoforge.villager.ModVillagerTrades}
+ * and {@code com.phantomwing.theleadage.fabric.villager.ModVillagerTrades}.</p>
  */
 public final class LeadVillagerTrades {
     /** Standard villager price multiplier (how much demand shifts the price). */
     public static final float PRICE_MULTIPLIER = 0.05f;
 
     private LeadVillagerTrades() {
+    }
+
+    /**
+     * Smith (Armorer / Toolsmith / Weaponsmith), profession level 2: buy 4 Lead
+     * Ingot, sell 1 Emerald (maxUses 12, villagerXp 10). Mirrors vanilla's identical
+     * iron-ingot buy trade, which all three smith professions share at apprentice.
+     */
+    public static VillagerTrades.ItemListing smithBuysLeadIngots() {
+        return (trader, random) -> new MerchantOffer(
+                new ItemCost(ModItems.LEAD_INGOT.get(), 4),
+                new ItemStack(Items.EMERALD, 1),
+                12,
+                10,
+                PRICE_MULTIPLIER
+        );
     }
 }

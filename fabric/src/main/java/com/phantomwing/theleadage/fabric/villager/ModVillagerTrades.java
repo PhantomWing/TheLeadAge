@@ -1,5 +1,11 @@
 package com.phantomwing.theleadage.fabric.villager;
 
+import com.phantomwing.theleadage.fabric.config.TheLeadAgeFabricConfig;
+import com.phantomwing.theleadage.villager.LeadVillagerTrades;
+import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
+
 /**
  * Fabric parity for the NeoForge {@code ModVillagerTrades}. NeoForge adds trades
  * from {@code VillagerTradesEvent}/{@code WandererTradesEvent} (re-fired on every
@@ -25,7 +31,23 @@ public final class ModVillagerTrades {
     }
 
     public static void register() {
-        // TODO: register villager + wandering-trader offers via TradeOfferHelper,
-        //       each gated on the config, in lockstep with the NeoForge side.
+        VillagerTrades.ItemListing smithTrade = LeadVillagerTrades.smithBuysLeadIngots();
+
+        // Mirror vanilla: Armorer, Toolsmith and Weaponsmith all buy lead ingots at
+        // level 2, exactly like iron ingots. Parity with the NeoForge event branch;
+        // the config gate is pushed into the listing (null = no offer, vanilla skips it).
+        VillagerProfession[] smiths = {
+                VillagerProfession.ARMORER,
+                VillagerProfession.TOOLSMITH,
+                VillagerProfession.WEAPONSMITH
+        };
+        for (VillagerProfession smith : smiths) {
+            TradeOfferHelper.registerVillagerOffers(smith, 2, factories ->
+                    factories.add((trader, random) ->
+                            TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                                    TheLeadAgeFabricConfig.ENABLE_VILLAGER_TRADES_ID)
+                                    ? smithTrade.getOffer(trader, random)
+                                    : null));
+        }
     }
 }
