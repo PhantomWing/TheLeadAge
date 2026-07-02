@@ -1,0 +1,7 @@
+{
+  "parent": "theleadage:block/leaded_glass_pane_diamond",
+  "textures": {
+    "glass_1": "theleadage:block/leaded_glass_diamond",
+    "glass_2": "theleadage:block/leaded_glass_diamond"
+  }
+}

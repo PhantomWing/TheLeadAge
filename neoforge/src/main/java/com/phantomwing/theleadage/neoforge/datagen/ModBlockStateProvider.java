@@ -170,6 +170,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 paneFamily("leaded_glass_pane_grid", "leaded_glass_grid", regionKeys(4), numericClearNames(4)));
         paneVariants(ModBlocks.LEADED_GLASS_PANE_CROSS,
                 paneFamily("leaded_glass_pane_cross", "leaded_glass_cross", regionKeys(4), numericClearNames(4)));
+        paneVariants(ModBlocks.LEADED_GLASS_PANE_DIAMOND,
+                paneFamily("leaded_glass_pane_diamond", "leaded_glass_diamond", regionKeys(5), numericClearNames(5)));
         paneVariants(ModBlocks.LEADED_GLASS_PANE_DIAGONAL,
                 paneFamily("leaded_glass_pane_diagonal_a", "leaded_glass_diagonal_a", regionKeys(2), numericClearNames(2)),
                 paneFamily("leaded_glass_pane_diagonal_b", "leaded_glass_diagonal_b", regionKeys(2), numericClearNames(2)));

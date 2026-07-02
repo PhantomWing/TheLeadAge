@@ -27,7 +27,10 @@ public enum LeadedGlassFrame implements StringRepresentable {
     /** Diagonal came "\" (two regions: 0 = upper-right, 1 = lower-left). */
     DIAGONAL_B("diagonal_b", 2),
     /** An X of came (four regions: 0 = top, 1 = right, 2 = bottom, 3 = left). */
-    CROSS("cross", 4);
+    CROSS("cross", 4),
+    /** A rhombus of came joining the edge midpoints (five regions: corners 0 = top-left,
+     * 1 = top-right, 3 = bottom-left, 4 = bottom-right, and 2 = the centre diamond). */
+    DIAMOND("diamond", 5);
 
     public static final Codec<LeadedGlassFrame> CODEC = StringRepresentable.fromEnum(LeadedGlassFrame::values);
     public static final StreamCodec<ByteBuf, LeadedGlassFrame> STREAM_CODEC =
@@ -59,6 +62,7 @@ public enum LeadedGlassFrame implements StringRepresentable {
             case GRID_3 -> new int[][]{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
             case DIAGONAL_A, DIAGONAL_B -> new int[][]{{0}, {1}};
             case CROSS -> new int[][]{{0}, {3, 1}, {2}};               // top / left · right / bottom
+            case DIAMOND -> new int[][]{{0, 1}, {2}, {3, 4}};          // top corners / centre / bottom corners
         };
     }
 
@@ -86,6 +90,10 @@ public enum LeadedGlassFrame implements StringRepresentable {
                 if (!aboveSlash && aboveBackslash) yield 1;        // right
                 if (!aboveSlash) yield 2;                          // bottom
                 yield 3;                                           // left
+            }
+            case DIAMOND -> {                                      // inside the rhombus, or a corner
+                if (Math.abs(u - 0.5) + Math.abs(v - 0.5) < 0.5) yield 2;
+                yield (v > 0.5 ? 0 : 3) + (u < 0.5 ? 0 : 1);       // TL, TR / BL, BR
             }
         };
     }

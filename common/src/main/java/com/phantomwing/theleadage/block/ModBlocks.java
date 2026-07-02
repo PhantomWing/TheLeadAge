@@ -84,6 +84,8 @@ public class ModBlocks {
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.DIAGONAL, paneProps()));
     public static final RegistrySupplier<Block> LEADED_GLASS_PANE_CROSS = register("leaded_glass_pane_cross", () ->
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.CROSS, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_DIAMOND = register("leaded_glass_pane_diamond", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.DIAMOND, paneProps()));
 
     private static BlockBehaviour.Properties paneProps() {
         return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops().noOcclusion();
@@ -98,6 +100,7 @@ public class ModBlocks {
             case GRID_3 -> LEADED_GLASS_PANE_GRID_3.get();
             case DIAGONAL_A, DIAGONAL_B -> LEADED_GLASS_PANE_DIAGONAL.get();
             case CROSS -> LEADED_GLASS_PANE_CROSS.get();
+            case DIAMOND -> LEADED_GLASS_PANE_DIAMOND.get();
         };
     }
 

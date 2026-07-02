@@ -194,6 +194,12 @@ public class LeadOreGameTest {
         assertRegion(helper, LeadedGlassFrame.GRID_3, 0.17, 0.17, 6);
         assertRegion(helper, LeadedGlassFrame.GRID_3, 0.50, 0.17, 7);
         assertRegion(helper, LeadedGlassFrame.GRID_3, 0.83, 0.17, 8);
+        // Diamond: corners outside the centre rhombus (0 TL, 1 TR, 3 BL, 4 BR), 2 = centre.
+        assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.1, 0.9, 0);    // top-left corner
+        assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.9, 0.9, 1);    // top-right corner
+        assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.5, 0.5, 2);    // centre
+        assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.1, 0.1, 3);    // bottom-left corner
+        assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.9, 0.1, 4);    // bottom-right corner
         helper.succeed();
     }
 

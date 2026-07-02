@@ -53,6 +53,9 @@ public class ModCreativeModeTab {
                                     output.accept(pane(item, LeadedGlassFrame.CROSS, List.of(
                                             LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR,
                                             LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_DIAMOND) {
+                                    output.accept(pane(item, LeadedGlassFrame.DIAMOND,
+                                            java.util.Collections.nCopies(5, LeadedGlassConfig.CLEAR)));
                                 } else {
                                     output.accept(item.get());
                                 }

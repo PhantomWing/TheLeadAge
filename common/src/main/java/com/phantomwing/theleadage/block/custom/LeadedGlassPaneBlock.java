@@ -351,7 +351,8 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
         GRID("grid", 4, null, LeadedGlassFrame.GRID),
         GRID_3("grid_3", 9, null, LeadedGlassFrame.GRID_3),
         DIAGONAL("diagonal", 2, IntegerProperty.create("orientation", 0, 1), LeadedGlassFrame.DIAGONAL_A, LeadedGlassFrame.DIAGONAL_B),
-        CROSS("cross", 4, null, LeadedGlassFrame.CROSS);
+        CROSS("cross", 4, null, LeadedGlassFrame.CROSS),
+        DIAMOND("diamond", 5, null, LeadedGlassFrame.DIAMOND);
 
         public final String id;
         public final int regions;
@@ -394,6 +395,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
                 case GRID -> new int[]{2, 0, 3, 1};                      // TL TR BL BR
                 case GRID_3 -> new int[]{6, 3, 0, 7, 4, 1, 8, 5, 2};     // row-major 3×3, centre (4) fixed
                 case CROSS -> new int[]{3, 0, 1, 2};                     // top right bottom left
+                case DIAMOND -> new int[]{3, 0, 2, 4, 1};                // corners cycle, centre (2) fixed
                 default -> null;                                         // plain / orientable types
             };
         }

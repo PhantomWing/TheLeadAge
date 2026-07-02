@@ -91,10 +91,15 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
         if (width == 2 && height == 2) {
             return parseSquare(input);
         }
-        // A full 3×3 of panes → a 3×3 grid; the 3×3 "plus" (edge mids only) → an X cross.
+        // A full 3×3 of panes → a 3×3 grid; the 3×3 "plus" (edge mids only) → an X cross;
+        // the 3×3 "X" (corners + centre) → a diamond.
         if (width == 3 && height == 3) {
             Optional<Result> grid3 = parseGrid3(input);
-            return grid3.isPresent() ? grid3 : parseCross(input);
+            if (grid3.isPresent()) {
+                return grid3;
+            }
+            Optional<Result> cross = parseCross(input);
+            return cross.isPresent() ? cross : parseDiamond(input);
         }
 
         return Optional.empty();
@@ -156,6 +161,27 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
         }
         // Regions: 0 = top, 1 = right, 2 = bottom, 3 = left.
         return Optional.of(new Result(LeadedGlassFrame.CROSS, List.of(top, right, bottom, left), 4));
+    }
+
+    /** 3×3 X: panes at the four corners + the centre, the edge mids empty → diamond. */
+    private static Optional<Result> parseDiamond(CraftingInput input) {
+        // Corners 0/2/6/8 + centre 4 filled; edge mids (1,3,5,7) empty.
+        for (int i : new int[]{1, 3, 5, 7}) {
+            if (!input.getItem(i).isEmpty()) {
+                return Optional.empty();
+            }
+        }
+        Integer topLeft = LeadedGlassColors.plainPaneColorIdOf(input.getItem(0));
+        Integer topRight = LeadedGlassColors.plainPaneColorIdOf(input.getItem(2));
+        Integer center = LeadedGlassColors.plainPaneColorIdOf(input.getItem(4));
+        Integer bottomLeft = LeadedGlassColors.plainPaneColorIdOf(input.getItem(6));
+        Integer bottomRight = LeadedGlassColors.plainPaneColorIdOf(input.getItem(8));
+        if (topLeft == null || topRight == null || center == null || bottomLeft == null || bottomRight == null) {
+            return Optional.empty();
+        }
+        // Regions: corners 0 = TL, 1 = TR, 3 = BL, 4 = BR; 2 = the centre diamond.
+        return Optional.of(new Result(LeadedGlassFrame.DIAMOND,
+                List.of(topLeft, topRight, center, bottomLeft, bottomRight), 5));
     }
 
     /**

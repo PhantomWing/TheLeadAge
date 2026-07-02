@@ -16,7 +16,8 @@ public class ModBlockEntities {
                     LeadedGlassPanelBlockEntity::new, ModBlocks.LEADED_GLASS_PANEL.get(),
                     ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_GRID.get(),
                     ModBlocks.LEADED_GLASS_PANE_GRID_3.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
-                    ModBlocks.LEADED_GLASS_PANE_CROSS.get()).build(null));
+                    ModBlocks.LEADED_GLASS_PANE_CROSS.get(),
+                    ModBlocks.LEADED_GLASS_PANE_DIAMOND.get()).build(null));
 
     public static final RegistrySupplier<BlockEntityType<LeadedGlassDoorBlockEntity>> LEADED_GLASS_DOOR =
             BLOCK_ENTITIES.register("leaded_glass_door", () -> BlockEntityType.Builder.of(
