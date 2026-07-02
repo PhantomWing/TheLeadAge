@@ -1,0 +1,110 @@
+{
+  "variants": {
+    "clear_0=false,face=ceiling,facing=east": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 90
+    },
+    "clear_0=false,face=ceiling,facing=north": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=false,face=ceiling,facing=south": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=false,face=ceiling,facing=west": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=false,face=floor,facing=east": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=false,face=floor,facing=north": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=false,face=floor,facing=south": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=false,face=floor,facing=west": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "x": 270
+    },
+    "clear_0=false,face=wall,facing=east": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "y": 90
+    },
+    "clear_0=false,face=wall,facing=north": {
+      "model": "theleadage:block/leaded_glass_pane_plain"
+    },
+    "clear_0=false,face=wall,facing=south": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "y": 180
+    },
+    "clear_0=false,face=wall,facing=west": {
+      "model": "theleadage:block/leaded_glass_pane_plain",
+      "y": 270
+    },
+    "clear_0=true,face=ceiling,facing=east": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 90
+    },
+    "clear_0=true,face=ceiling,facing=north": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=true,face=ceiling,facing=south": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=true,face=ceiling,facing=west": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=true,face=floor,facing=east": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=true,face=floor,facing=north": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=true,face=floor,facing=south": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=true,face=floor,facing=west": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "x": 270
+    },
+    "clear_0=true,face=wall,facing=east": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "y": 90
+    },
+    "clear_0=true,face=wall,facing=north": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear"
+    },
+    "clear_0=true,face=wall,facing=south": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "y": 180
+    },
+    "clear_0=true,face=wall,facing=west": {
+      "model": "theleadage:block/leaded_glass_pane_plain_clear",
+      "y": 270
+    }
+  }
+}

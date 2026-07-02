@@ -1,0 +1,428 @@
+{
+  "variants": {
+    "clear_0=false,clear_1=false,face=ceiling,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 90
+    },
+    "clear_0=false,clear_1=false,face=ceiling,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 90
+    },
+    "clear_0=false,clear_1=false,face=ceiling,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=false,clear_1=false,face=ceiling,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=false,clear_1=false,face=ceiling,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=false,clear_1=false,face=ceiling,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=false,clear_1=false,face=ceiling,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=false,clear_1=false,face=ceiling,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "x": 270
+    },
+    "clear_0=false,clear_1=false,face=floor,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "x": 270
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "y": 90
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "y": 90
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h"
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v"
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "y": 180
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "y": 180
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h",
+      "y": 270
+    },
+    "clear_0=false,clear_1=false,face=wall,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v",
+      "y": 270
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 90
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 90
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=false,clear_1=true,face=ceiling,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "x": 270
+    },
+    "clear_0=false,clear_1=true,face=floor,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "x": 270
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "y": 90
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "y": 90
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right"
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom"
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "y": 180
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "y": 180
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_right",
+      "y": 270
+    },
+    "clear_0=false,clear_1=true,face=wall,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_bottom",
+      "y": 270
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 90
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 90
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=true,clear_1=false,face=ceiling,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "x": 270
+    },
+    "clear_0=true,clear_1=false,face=floor,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "x": 270
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "y": 90
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "y": 90
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left"
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top"
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "y": 180
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "y": 180
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_left",
+      "y": 270
+    },
+    "clear_0=true,clear_1=false,face=wall,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_top",
+      "y": 270
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 90
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 90
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 90,
+      "y": 270
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 90,
+      "y": 90
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=true,clear_1=true,face=ceiling,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 90,
+      "y": 180
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 270,
+      "y": 180
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 270,
+      "y": 90
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 270,
+      "y": 270
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "x": 270
+    },
+    "clear_0=true,clear_1=true,face=floor,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "x": 270
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=east,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "y": 90
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=east,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "y": 90
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=north,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both"
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=north,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both"
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=south,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "y": 180
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=south,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "y": 180
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=west,orientation=0": {
+      "model": "theleadage:block/leaded_glass_pane_split_h_clear_both",
+      "y": 270
+    },
+    "clear_0=true,clear_1=true,face=wall,facing=west,orientation=1": {
+      "model": "theleadage:block/leaded_glass_pane_split_v_clear_both",
+      "y": 270
+    }
+  }
+}

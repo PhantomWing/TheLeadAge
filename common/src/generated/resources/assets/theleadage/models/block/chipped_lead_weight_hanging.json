@@ -1,0 +1,8 @@
+{
+  "parent": "theleadage:block/lead_weight_hanging",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "all": "theleadage:block/chipped_lead_weight",
+    "particle": "theleadage:block/chipped_lead_weight"
+  }
+}

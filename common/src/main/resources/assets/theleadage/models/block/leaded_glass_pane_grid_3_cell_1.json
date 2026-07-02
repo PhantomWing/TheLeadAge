@@ -3,8 +3,8 @@
   "ambientocclusion": false,
   "render_type": "minecraft:translucent",
   "textures": {
-    "glass": "theleadage:block/white_leaded_glass",
-    "particle": "theleadage:block/leaded_glass_came"
+    "particle": "theleadage:block/white_leaded_glass_grid_3",
+    "glass": "theleadage:block/white_leaded_glass_grid_3"
   },
   "elements": [
     {

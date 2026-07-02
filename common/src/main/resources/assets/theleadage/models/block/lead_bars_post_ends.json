@@ -1,9 +1,0 @@
-{
-  "parent": "minecraft:block/iron_bars_post_ends",
-  "render_type": "minecraft:cutout",
-  "textures": {
-    "particle": "theleadage:block/lead_bars",
-    "bars": "theleadage:block/lead_bars",
-    "edge": "theleadage:block/lead_bars"
-  }
-}

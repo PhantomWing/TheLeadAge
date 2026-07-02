@@ -1,0 +1,6 @@
+{
+  "parent": "theleadage:block/leaded_glass_pane_split_h",
+  "textures": {
+    "glass_right": "theleadage:block/leaded_glass_split_h"
+  }
+}
