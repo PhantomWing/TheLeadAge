@@ -1,0 +1,181 @@
+{
+  "parent": "block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "particle": "theleadage:block/white_leaded_glass_lattice",
+    "glass": "theleadage:block/white_leaded_glass_lattice"
+  },
+  "elements": [
+    {
+      "from": [
+        7,
+        6,
+        7
+      ],
+      "to": [
+        9,
+        7,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9,
+            9,
+            7,
+            10
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        },
+        "south": {
+          "uv": [
+            7,
+            9,
+            9,
+            10
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        5,
+        7
+      ],
+      "to": [
+        10,
+        6,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            10,
+            6,
+            11
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        },
+        "south": {
+          "uv": [
+            6,
+            10,
+            10,
+            11
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        4,
+        7
+      ],
+      "to": [
+        11,
+        5,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            11,
+            5,
+            12
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        },
+        "south": {
+          "uv": [
+            5,
+            11,
+            11,
+            12
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        3,
+        7
+      ],
+      "to": [
+        10,
+        4,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            12,
+            6,
+            13
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        },
+        "south": {
+          "uv": [
+            6,
+            12,
+            10,
+            13
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        2,
+        7
+      ],
+      "to": [
+        9,
+        3,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9,
+            13,
+            7,
+            14
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        },
+        "south": {
+          "uv": [
+            7,
+            13,
+            9,
+            14
+          ],
+          "texture": "#glass",
+          "tintindex": 8
+        }
+      }
+    }
+  ]
+}

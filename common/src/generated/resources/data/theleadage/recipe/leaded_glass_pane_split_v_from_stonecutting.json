@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:stonecutting",
+  "group": "leaded_glass_pane",
+  "ingredient": {
+    "item": "theleadage:leaded_glass_pane"
+  },
+  "result": {
+    "components": {
+      "theleadage:leaded_glass_config": {
+        "colors": [
+          -1,
+          -1
+        ],
+        "frame": "split_v"
+      }
+    },
+    "count": 1,
+    "id": "theleadage:leaded_glass_pane_split"
+  }
+}

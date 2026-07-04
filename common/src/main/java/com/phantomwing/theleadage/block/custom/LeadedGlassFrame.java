@@ -18,10 +18,10 @@ public enum LeadedGlassFrame implements StringRepresentable {
     SPLIT_H("split_h", 2),
     /** Split top/bottom by a horizontal came — a vertical split (two regions: 0 = top, 1 = bottom). */
     SPLIT_V("split_v", 2),
-    /** A 2×2 grid of came (four regions: 0 = top-left, 1 = top-right, 2 = bottom-left, 3 = bottom-right). */
-    GRID("grid", 4),
+    /** A plus of came dividing the pane 2×2 (four regions: 0 = top-left, 1 = top-right, 2 = bottom-left, 3 = bottom-right). */
+    PLUS("plus", 4),
     /** A 3×3 grid of came (nine regions, row-major from the top-left: 0..2 top, 3..5 middle, 6..8 bottom). */
-    GRID_3("grid_3", 9),
+    GRID("grid", 9),
     /** Diagonal came "/" (two regions: 0 = upper-left, 1 = lower-right). */
     DIAGONAL_A("diagonal_a", 2),
     /** Diagonal came "\" (two regions: 0 = upper-right, 1 = lower-left). */
@@ -30,7 +30,16 @@ public enum LeadedGlassFrame implements StringRepresentable {
     CROSS("cross", 4),
     /** A rhombus of came joining the edge midpoints (five regions: corners 0 = top-left,
      * 1 = top-right, 3 = bottom-left, 4 = bottom-right, and 2 = the centre diamond). */
-    DIAMOND("diamond", 5);
+    DIAMOND("diamond", 5),
+    /** The diamond rhombus overlaid with both full diagonals — a diamond lattice. Twelve regions,
+     * roughly row-major: corner triangles hugging the top border (0, 1), the left/right-hugging
+     * upper triangles flanking the north rhombus (2, 3 = north, 4), the west/east rhombi (5, 6),
+     * the lower flanks with the south rhombus (7, 8 = south, 9), and the bottom-hugging pair (10, 11). */
+    LATTICE("lattice", 12),
+    /** Three columns behind two vertical cames (three regions: 0 = left, 1 = middle, 2 = right). */
+    BARS_H("bars_h", 3),
+    /** Three rows behind two horizontal cames (three regions: 0 = top, 1 = middle, 2 = bottom). */
+    BARS_V("bars_v", 3);
 
     public static final Codec<LeadedGlassFrame> CODEC = StringRepresentable.fromEnum(LeadedGlassFrame::values);
     public static final StreamCodec<ByteBuf, LeadedGlassFrame> STREAM_CODEC =
@@ -58,11 +67,14 @@ public enum LeadedGlassFrame implements StringRepresentable {
             case PLAIN -> new int[][]{{0}};
             case SPLIT_H -> new int[][]{{0, 1}};                       // left · right
             case SPLIT_V -> new int[][]{{0}, {1}};                     // top / bottom
-            case GRID -> new int[][]{{0, 1}, {2, 3}};
-            case GRID_3 -> new int[][]{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
+            case PLUS -> new int[][]{{0, 1}, {2, 3}};
+            case GRID -> new int[][]{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
             case DIAGONAL_A, DIAGONAL_B -> new int[][]{{0}, {1}};
             case CROSS -> new int[][]{{0}, {3, 1}, {2}};               // top / left · right / bottom
             case DIAMOND -> new int[][]{{0, 1}, {2}, {3, 4}};          // top corners / centre / bottom corners
+            case LATTICE -> new int[][]{{0, 1}, {2, 3, 4}, {5, 6}, {7, 8, 9}, {10, 11}};
+            case BARS_H -> new int[][]{{0, 1, 2}};                     // left · middle · right
+            case BARS_V -> new int[][]{{0}, {1}, {2}};                 // top / middle / bottom
         };
     }
 
@@ -75,8 +87,8 @@ public enum LeadedGlassFrame implements StringRepresentable {
             case PLAIN -> 0;
             case SPLIT_H -> u < 0.5 ? 0 : 1;                       // left | right
             case SPLIT_V -> v > 0.5 ? 0 : 1;                       // top / bottom
-            case GRID -> (v > 0.5 ? 0 : 2) + (u < 0.5 ? 0 : 1);    // TL, TR, BL, BR
-            case GRID_3 -> {                                       // 3×3, row-major from top-left
+            case PLUS -> (v > 0.5 ? 0 : 2) + (u < 0.5 ? 0 : 1);    // TL, TR, BL, BR
+            case GRID -> {                                       // 3×3, row-major from top-left
                 int col = u < 1.0 / 3 ? 0 : (u < 2.0 / 3 ? 1 : 2);
                 int row = v > 2.0 / 3 ? 0 : (v > 1.0 / 3 ? 1 : 2);
                 yield row * 3 + col;
@@ -94,6 +106,18 @@ public enum LeadedGlassFrame implements StringRepresentable {
             case DIAMOND -> {                                      // inside the rhombus, or a corner
                 if (Math.abs(u - 0.5) + Math.abs(v - 0.5) < 0.5) yield 2;
                 yield (v > 0.5 ? 0 : 3) + (u < 0.5 ? 0 : 1);       // TL, TR / BL, BR
+            }
+            case BARS_H -> u < 1.0 / 3 ? 0 : (u < 2.0 / 3 ? 1 : 2); // left | middle | right
+            case BARS_V -> v > 2.0 / 3 ? 0 : (v > 1.0 / 3 ? 1 : 2); // top / middle / bottom
+            case LATTICE -> {                                // diamond lattice: "/" bands × "\" bands
+                double p = u - v;                                  // "/" lines at -0.5, 0, +0.5
+                double q = u + v;                                  // "\" lines at 0.5, 1, 1.5
+                if (p < -0.5) yield q > 1 ? 0 : 2;                 // top-left corner: top / left triangle
+                if (p > 0.5) yield q > 1 ? 9 : 11;                 // bottom-right: right / bottom triangle
+                if (q > 1.5) yield p < 0 ? 1 : 4;                  // top-right: top / right triangle
+                if (q < 0.5) yield p < 0 ? 7 : 10;                 // bottom-left: left / bottom triangle
+                if (p < 0) yield q > 1 ? 3 : 5;                    // rhombus: north / west
+                yield q > 1 ? 6 : 8;                               // rhombus: east / south
             }
         };
     }

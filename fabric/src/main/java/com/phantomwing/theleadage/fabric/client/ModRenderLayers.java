@@ -39,7 +39,7 @@ public final class ModRenderLayers {
         // The pane glass is translucent (tinted), not cutout — one per came type.
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(),
                 ModBlocks.LEADED_GLASS_PANEL.get(), ModBlocks.LEADED_GLASS_PANE_SPLIT.get(),
-                ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_GRID_3.get(),
-                ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get());
+                ModBlocks.LEADED_GLASS_PANE_PLUS.get(), ModBlocks.LEADED_GLASS_PANE_GRID.get(),
+                ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get());
     }
 }

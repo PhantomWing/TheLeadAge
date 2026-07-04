@@ -143,9 +143,22 @@
   "overrides": [
     {
       "predicate": {
+        "theleadage:clear": 1
+      },
+      "model": "theleadage:item/leaded_glass_pane_split_clear"
+    },
+    {
+      "predicate": {
         "theleadage:split_v": 1
       },
       "model": "theleadage:item/leaded_glass_pane_split_v"
+    },
+    {
+      "predicate": {
+        "theleadage:split_v": 1,
+        "theleadage:clear": 1
+      },
+      "model": "theleadage:item/leaded_glass_pane_split_v_clear"
     }
   ]
 }

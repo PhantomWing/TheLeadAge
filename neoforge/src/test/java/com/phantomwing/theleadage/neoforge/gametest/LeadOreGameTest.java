@@ -172,10 +172,10 @@ public class LeadOreGameTest {
         assertRegion(helper, LeadedGlassFrame.SPLIT_H, 0.75, 0.5, 1);   // right
         assertRegion(helper, LeadedGlassFrame.SPLIT_V, 0.5, 0.75, 0);   // top
         assertRegion(helper, LeadedGlassFrame.SPLIT_V, 0.5, 0.25, 1);   // bottom
-        assertRegion(helper, LeadedGlassFrame.GRID, 0.25, 0.75, 0);     // TL
-        assertRegion(helper, LeadedGlassFrame.GRID, 0.75, 0.75, 1);     // TR
-        assertRegion(helper, LeadedGlassFrame.GRID, 0.25, 0.25, 2);     // BL
-        assertRegion(helper, LeadedGlassFrame.GRID, 0.75, 0.25, 3);     // BR
+        assertRegion(helper, LeadedGlassFrame.PLUS, 0.25, 0.75, 0);     // TL
+        assertRegion(helper, LeadedGlassFrame.PLUS, 0.75, 0.75, 1);     // TR
+        assertRegion(helper, LeadedGlassFrame.PLUS, 0.25, 0.25, 2);     // BL
+        assertRegion(helper, LeadedGlassFrame.PLUS, 0.75, 0.25, 3);     // BR
         assertRegion(helper, LeadedGlassFrame.DIAGONAL_A, 0.2, 0.8, 0); // "/" upper-left
         assertRegion(helper, LeadedGlassFrame.DIAGONAL_A, 0.8, 0.2, 1); // "/" lower-right
         assertRegion(helper, LeadedGlassFrame.DIAGONAL_B, 0.8, 0.8, 0); // "\" upper-right
@@ -185,21 +185,41 @@ public class LeadOreGameTest {
         assertRegion(helper, LeadedGlassFrame.CROSS, 0.5, 0.1, 2);      // bottom
         assertRegion(helper, LeadedGlassFrame.CROSS, 0.1, 0.5, 3);      // left
         // 3×3 grid: row-major from the top-left (0..2 top, 3..5 middle, 6..8 bottom)
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.17, 0.83, 0);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.50, 0.83, 1);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.83, 0.83, 2);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.17, 0.50, 3);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.50, 0.50, 4);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.83, 0.50, 5);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.17, 0.17, 6);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.50, 0.17, 7);
-        assertRegion(helper, LeadedGlassFrame.GRID_3, 0.83, 0.17, 8);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.17, 0.83, 0);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.50, 0.83, 1);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.83, 0.83, 2);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.17, 0.50, 3);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.50, 0.50, 4);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.83, 0.50, 5);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.17, 0.17, 6);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.50, 0.17, 7);
+        assertRegion(helper, LeadedGlassFrame.GRID, 0.83, 0.17, 8);
         // Diamond: corners outside the centre rhombus (0 TL, 1 TR, 3 BL, 4 BR), 2 = centre.
         assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.1, 0.9, 0);    // top-left corner
         assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.9, 0.9, 1);    // top-right corner
         assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.5, 0.5, 2);    // centre
         assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.1, 0.1, 3);    // bottom-left corner
         assertRegion(helper, LeadedGlassFrame.DIAMOND, 0.9, 0.1, 4);    // bottom-right corner
+        // Diamond lattice: corner triangle pairs around the border, four rhombi in the middle.
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.25, 0.93, 0);  // TL corner, top side
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.75, 0.93, 1);  // TR corner, top side
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.07, 0.75, 2);  // TL corner, left side
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.5, 0.8, 3);    // north rhombus
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.93, 0.75, 4);  // TR corner, right side
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.2, 0.5, 5);    // west rhombus
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.8, 0.5, 6);    // east rhombus
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.07, 0.25, 7);  // BL corner, left side
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.5, 0.2, 8);    // south rhombus
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.93, 0.25, 9);  // BR corner, right side
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.25, 0.07, 10); // BL corner, bottom side
+        assertRegion(helper, LeadedGlassFrame.LATTICE, 0.75, 0.07, 11); // BR corner, bottom side
+        // Bars: three strips (0..2 left→right for _h, top→bottom for _v).
+        assertRegion(helper, LeadedGlassFrame.BARS_H, 0.17, 0.5, 0);    // left
+        assertRegion(helper, LeadedGlassFrame.BARS_H, 0.50, 0.5, 1);    // middle
+        assertRegion(helper, LeadedGlassFrame.BARS_H, 0.83, 0.5, 2);    // right
+        assertRegion(helper, LeadedGlassFrame.BARS_V, 0.5, 0.83, 0);    // top
+        assertRegion(helper, LeadedGlassFrame.BARS_V, 0.5, 0.50, 1);    // middle
+        assertRegion(helper, LeadedGlassFrame.BARS_V, 0.5, 0.17, 2);    // bottom
         helper.succeed();
     }
 

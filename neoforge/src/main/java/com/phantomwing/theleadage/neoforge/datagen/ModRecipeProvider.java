@@ -14,6 +14,9 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
+import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.recipe.LeadedGlassCombineRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassDoorRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassDoorSplitRecipe;
@@ -28,13 +31,16 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.conditions.AndCondition;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.NotCondition;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -145,6 +151,16 @@ public class ModRecipeProvider extends RecipeProvider {
         // The reverse: a leaded glass door/trapdoor splits back into the lead base + its pane.
         SpecialRecipeBuilder.special(LeadedGlassDoorSplitRecipe::new).save(output, id("leaded_glass_door_split"));
         SpecialRecipeBuilder.special(LeadedGlassTrapdoorSplitRecipe::new).save(output, id("leaded_glass_trapdoor_split"));
+
+        // Stonecutter path: a plain leaded glass pane cuts into any pattern's pane, 1:1, all
+        // regions clear (colours are applied afterwards with dyes / the crafting combine
+        // recipes — a coloured input loses its colour). One entry per frame so both orientations
+        // of split/diagonal/bars are pickable directly; plain itself is skipped (it's the input).
+        for (LeadedGlassFrame frame : LeadedGlassFrame.values()) {
+            if (frame != LeadedGlassFrame.PLAIN) {
+                paneStonecutting(output, frame);
+            }
+        }
 
         // Conditional recipe overrides. Each is gated on the master toggle AND its
         // own per-recipe toggle, so either switch turns it off.
@@ -373,6 +389,21 @@ public class ModRecipeProvider extends RecipeProvider {
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(material), RecipeCategory.BUILDING_BLOCKS, result, count)
                 .unlockedBy(getHasName(material), has(material))
                 .save(output, id(name(result) + "_from_" + name(material) + "_stonecutting"));
+    }
+
+    /**
+     * Plain leaded glass pane → one all-clear pane of the given frame. Built directly (not via
+     * {@link SingleItemRecipeBuilder}) because the result carries the frame in its
+     * leaded_glass_config component, which the builder cannot attach.
+     */
+    private void paneStonecutting(RecipeOutput output, LeadedGlassFrame frame) {
+        ItemStack result = new ItemStack(ModItems.paneItemFor(frame));
+        result.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame,
+                Collections.nCopies(frame.regions(), LeadedGlassConfig.CLEAR)));
+        output.accept(ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID,
+                        "leaded_glass_pane_" + frame.getSerializedName() + "_from_stonecutting"),
+                new StonecutterRecipe("leaded_glass_pane",
+                        Ingredient.of(ModItems.LEADED_GLASS_PANEL.get()), result), null);
     }
 
     private void storage(RecipeOutput output, ItemLike item, ItemLike block, RecipeCategory packedCategory) {

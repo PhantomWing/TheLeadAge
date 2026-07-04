@@ -59,7 +59,8 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
             BooleanProperty.create("clear_2"), BooleanProperty.create("clear_3"),
             BooleanProperty.create("clear_4"), BooleanProperty.create("clear_5"),
             BooleanProperty.create("clear_6"), BooleanProperty.create("clear_7"),
-            BooleanProperty.create("clear_8")
+            BooleanProperty.create("clear_8"), BooleanProperty.create("clear_9"),
+            BooleanProperty.create("clear_10"), BooleanProperty.create("clear_11")
     };
 
     private static final VoxelShape X_SHAPE = Block.box(0.0, 0.0, 7.0, 16.0, 16.0, 9.0);
@@ -231,9 +232,9 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
     }
 
     /**
-     * Sneak-right-click rotates a pane a quarter turn in place. Orientable types (split/diagonal)
-     * advance their orientation and swap the two colours on each wrap; the symmetric types
-     * (grid, 3×3 grid, cross) keep their geometry and just rotate the colours. The two faces are
+     * Sneak-right-click rotates a pane a quarter turn in place. Orientable types (split/diagonal/bars)
+     * advance their orientation and reverse the region colours on each wrap; the symmetric types
+     * (plus, grid, cross) keep their geometry and just rotate the colours. The two faces are
      * mirror images, so clicking the back face turns the design the opposite way round the array —
      * to the player it always reads as turning clockwise, from whichever side they clicked.
      */
@@ -249,19 +250,22 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
                 int orientations = type.orientations;
                 int current = state.getValue(type.orientation);
                 int next = reverse ? (current - 1 + orientations) % orientations : (current + 1) % orientations;
-                // Forward swaps on arrival at orientation 0; reversed swaps on leaving it, so the four-state
-                // (orientation × colour-order) cycle simply runs backwards.
-                boolean swapColors = reverse ? current == 0 : next == 0;
+                // Forward reverses on arrival at orientation 0; reversed reverses on leaving it, so the
+                // four-state (orientation × region-order) cycle simply runs backwards. Reversing the
+                // region order is what the 180° across the wrap looks like — the two 90° turns flip the
+                // strips end to end (for the two-region split this is the old swap).
+                boolean reverseColors = reverse ? current == 0 : next == 0;
                 BlockState rotated = state.setValue(type.orientation, next);
-                if (swapColors && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
+                if (reverseColors && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
                     List<Integer> colors = new ArrayList<>(pane.getColors());
-                    while (colors.size() < 2) {
+                    while (colors.size() < type.regions) {
                         colors.add(LeadedGlassConfig.CLEAR);
                     }
-                    Collections.swap(colors, 0, 1);
+                    Collections.reverse(colors);
                     pane.setColors(colors);
-                    rotated = rotated.setValue(CLEAR[0], colors.get(0) == LeadedGlassConfig.CLEAR)
-                            .setValue(CLEAR[1], colors.get(1) == LeadedGlassConfig.CLEAR);
+                    for (int i = 0; i < type.regions; i++) {
+                        rotated = rotated.setValue(CLEAR[i], colors.get(i) == LeadedGlassConfig.CLEAR);
+                    }
                 }
                 level.setBlock(pos, rotated, Block.UPDATE_ALL);
             } else if (level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
@@ -348,11 +352,14 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
     public enum CameType {
         PLAIN("plain", 1, null, LeadedGlassFrame.PLAIN),
         SPLIT("split", 2, IntegerProperty.create("orientation", 0, 1), LeadedGlassFrame.SPLIT_H, LeadedGlassFrame.SPLIT_V),
-        GRID("grid", 4, null, LeadedGlassFrame.GRID),
-        GRID_3("grid_3", 9, null, LeadedGlassFrame.GRID_3),
+        PLUS("plus", 4, null, LeadedGlassFrame.PLUS),
+        GRID("grid", 9, null, LeadedGlassFrame.GRID),
         DIAGONAL("diagonal", 2, IntegerProperty.create("orientation", 0, 1), LeadedGlassFrame.DIAGONAL_A, LeadedGlassFrame.DIAGONAL_B),
         CROSS("cross", 4, null, LeadedGlassFrame.CROSS),
-        DIAMOND("diamond", 5, null, LeadedGlassFrame.DIAMOND);
+        DIAMOND("diamond", 5, null, LeadedGlassFrame.DIAMOND),
+        LATTICE("lattice", 12, null, LeadedGlassFrame.LATTICE),
+        BARS("bars", 3, IntegerProperty.create("orientation", 0, 1),
+                LeadedGlassFrame.BARS_H, LeadedGlassFrame.BARS_V);
 
         public final String id;
         public final int regions;
@@ -392,10 +399,12 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
         @Nullable
         public int[] colorRotation() {
             return switch (this) {
-                case GRID -> new int[]{2, 0, 3, 1};                      // TL TR BL BR
-                case GRID_3 -> new int[]{6, 3, 0, 7, 4, 1, 8, 5, 2};     // row-major 3×3, centre (4) fixed
+                case PLUS -> new int[]{2, 0, 3, 1};                      // TL TR BL BR
+                case GRID -> new int[]{6, 3, 0, 7, 4, 1, 8, 5, 2};     // row-major 3×3, centre (4) fixed
                 case CROSS -> new int[]{3, 0, 1, 2};                     // top right bottom left
                 case DIAMOND -> new int[]{3, 0, 2, 4, 1};                // corners cycle, centre (2) fixed
+                // Three 4-cycles: border-hugging triangles ×2 and the inner rhombi (N/E/S/W).
+                case LATTICE -> new int[]{7, 2, 10, 5, 0, 8, 3, 11, 6, 1, 9, 4};
                 default -> null;                                         // plain / orientable types
             };
         }

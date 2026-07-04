@@ -76,16 +76,20 @@ public class ModBlocks {
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.PLAIN, paneProps()));
     public static final RegistrySupplier<Block> LEADED_GLASS_PANE_SPLIT = register("leaded_glass_pane_split", () ->
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.SPLIT, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_PLUS = register("leaded_glass_pane_plus", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.PLUS, paneProps()));
     public static final RegistrySupplier<Block> LEADED_GLASS_PANE_GRID = register("leaded_glass_pane_grid", () ->
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.GRID, paneProps()));
-    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_GRID_3 = register("leaded_glass_pane_grid_3", () ->
-            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.GRID_3, paneProps()));
     public static final RegistrySupplier<Block> LEADED_GLASS_PANE_DIAGONAL = register("leaded_glass_pane_diagonal", () ->
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.DIAGONAL, paneProps()));
     public static final RegistrySupplier<Block> LEADED_GLASS_PANE_CROSS = register("leaded_glass_pane_cross", () ->
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.CROSS, paneProps()));
     public static final RegistrySupplier<Block> LEADED_GLASS_PANE_DIAMOND = register("leaded_glass_pane_diamond", () ->
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.DIAMOND, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_LATTICE = register("leaded_glass_pane_lattice", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.LATTICE, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_BARS = register("leaded_glass_pane_bars", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.BARS, paneProps()));
 
     private static BlockBehaviour.Properties paneProps() {
         return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops().noOcclusion();
@@ -96,11 +100,13 @@ public class ModBlocks {
         return switch (frame) {
             case PLAIN -> LEADED_GLASS_PANEL.get();
             case SPLIT_H, SPLIT_V -> LEADED_GLASS_PANE_SPLIT.get();
+            case PLUS -> LEADED_GLASS_PANE_PLUS.get();
             case GRID -> LEADED_GLASS_PANE_GRID.get();
-            case GRID_3 -> LEADED_GLASS_PANE_GRID_3.get();
             case DIAGONAL_A, DIAGONAL_B -> LEADED_GLASS_PANE_DIAGONAL.get();
             case CROSS -> LEADED_GLASS_PANE_CROSS.get();
             case DIAMOND -> LEADED_GLASS_PANE_DIAMOND.get();
+            case LATTICE -> LEADED_GLASS_PANE_LATTICE.get();
+            case BARS_H, BARS_V -> LEADED_GLASS_PANE_BARS.get();
         };
     }
 

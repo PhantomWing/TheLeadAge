@@ -108,16 +108,20 @@ public class ModItems {
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANEL.get(), props), baseItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_SPLIT = register("leaded_glass_pane_split",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_PLUS = register("leaded_glass_pane_plus",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_PLUS.get(), props), baseItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_GRID = register("leaded_glass_pane_grid",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_GRID.get(), props), baseItem());
-    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_GRID_3 = register("leaded_glass_pane_grid_3",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_GRID_3.get(), props), baseItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAGONAL = register("leaded_glass_pane_diagonal",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), props), baseItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_CROSS = register("leaded_glass_pane_cross",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_CROSS.get(), props), baseItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAMOND = register("leaded_glass_pane_diamond",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_LATTICE = register("leaded_glass_pane_lattice",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_BARS = register("leaded_glass_pane_bars",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_BARS.get(), props), baseItem());
 
     // Leaded glass door — its top half shows the glass design carried in the component.
     public static final RegistrySupplier<Item> LEADED_GLASS_DOOR = register("leaded_glass_door",
@@ -132,20 +136,23 @@ public class ModItems {
         return switch (frame) {
             case PLAIN -> LEADED_GLASS_PANEL.get();
             case SPLIT_H, SPLIT_V -> LEADED_GLASS_PANE_SPLIT.get();
+            case PLUS -> LEADED_GLASS_PANE_PLUS.get();
             case GRID -> LEADED_GLASS_PANE_GRID.get();
-            case GRID_3 -> LEADED_GLASS_PANE_GRID_3.get();
             case DIAGONAL_A, DIAGONAL_B -> LEADED_GLASS_PANE_DIAGONAL.get();
             case CROSS -> LEADED_GLASS_PANE_CROSS.get();
             case DIAMOND -> LEADED_GLASS_PANE_DIAMOND.get();
+            case LATTICE -> LEADED_GLASS_PANE_LATTICE.get();
+            case BARS_H, BARS_V -> LEADED_GLASS_PANE_BARS.get();
         };
     }
 
     /** True if the stack is any leaded glass pane item. */
     public static boolean isPaneItem(ItemStack stack) {
         return stack.is(LEADED_GLASS_PANEL.get()) || stack.is(LEADED_GLASS_PANE_SPLIT.get())
-                || stack.is(LEADED_GLASS_PANE_GRID.get()) || stack.is(LEADED_GLASS_PANE_GRID_3.get())
+                || stack.is(LEADED_GLASS_PANE_PLUS.get()) || stack.is(LEADED_GLASS_PANE_GRID.get())
                 || stack.is(LEADED_GLASS_PANE_DIAGONAL.get()) || stack.is(LEADED_GLASS_PANE_CROSS.get())
-                || stack.is(LEADED_GLASS_PANE_DIAMOND.get());
+                || stack.is(LEADED_GLASS_PANE_DIAMOND.get()) || stack.is(LEADED_GLASS_PANE_LATTICE.get())
+                || stack.is(LEADED_GLASS_PANE_BARS.get());
     }
 
     public static Item.Properties baseItem() {

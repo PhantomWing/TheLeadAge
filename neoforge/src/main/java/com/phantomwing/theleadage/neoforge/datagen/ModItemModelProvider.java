@@ -63,7 +63,10 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .renderType(RenderType.cutout().name);
         // Bars: flat sprite of the block texture (cutout for the transparency).
         paneItem("lead_bars", "lead_bars", RenderType.cutout().name);
-        // leaded_glass_pane (the configurable pane) item model is hand-authored.
+        // Leaded glass pane item models come from scripts/genpanes.js, NOT datagen: their GUI
+        // display must be an explicit identity transform (flat, front-facing, filling the 16x16
+        // slot) to shadow block/block's isometric view, and NeoForge's transforms builder
+        // silently drops identity transforms from the generated JSON.
         for (DyeColor color : DyeColor.values()) {
             blockItem(color.getName() + "_leaded_glass");
         }

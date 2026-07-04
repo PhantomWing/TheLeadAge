@@ -1,0 +1,45 @@
+{
+  "parent": "block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "particle": "theleadage:block/white_leaded_glass_grid",
+    "glass": "theleadage:block/white_leaded_glass_grid"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        6,
+        7
+      ],
+      "to": [
+        5,
+        10,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            6,
+            1,
+            10
+          ],
+          "texture": "#glass",
+          "tintindex": 3
+        },
+        "south": {
+          "uv": [
+            1,
+            6,
+            5,
+            10
+          ],
+          "texture": "#glass",
+          "tintindex": 3
+        }
+      }
+    }
+  ]
+}

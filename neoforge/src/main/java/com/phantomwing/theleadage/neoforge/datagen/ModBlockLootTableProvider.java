@@ -53,11 +53,13 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         // this dropSelf table just satisfies the loot validator.
         dropSelf(ModBlocks.LEADED_GLASS_PANEL.get());
         dropSelf(ModBlocks.LEADED_GLASS_PANE_SPLIT.get());
+        dropSelf(ModBlocks.LEADED_GLASS_PANE_PLUS.get());
         dropSelf(ModBlocks.LEADED_GLASS_PANE_GRID.get());
-        dropSelf(ModBlocks.LEADED_GLASS_PANE_GRID_3.get());
         dropSelf(ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get());
         dropSelf(ModBlocks.LEADED_GLASS_PANE_CROSS.get());
         dropSelf(ModBlocks.LEADED_GLASS_PANE_DIAMOND.get());
+        dropSelf(ModBlocks.LEADED_GLASS_PANE_LATTICE.get());
+        dropSelf(ModBlocks.LEADED_GLASS_PANE_BARS.get());
         dropSelf(ModBlocks.LEAD_WEIGHT.get());
         dropSelf(ModBlocks.CHIPPED_LEAD_WEIGHT.get());
         dropSelf(ModBlocks.DAMAGED_LEAD_WEIGHT.get());

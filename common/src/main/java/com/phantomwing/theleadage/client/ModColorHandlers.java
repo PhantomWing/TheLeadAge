@@ -61,16 +61,20 @@ public final class ModColorHandlers {
     }
 
     /**
-     * Item-model predicate ({@code theleadage:clear}): 1 for a plain, uncoloured pane — swaps in
-     * the clear-glass icon. Only the plain frame, so it never collides with the split override.
+     * Item-model predicate ({@code theleadage:clear}): 1 when every region is uncoloured — swaps
+     * in the clear-glass icon (the white tintable texture reads wrong for a clear pane). Missing
+     * colour entries count as clear; any dyed region keeps the tinted white-glass icon.
      */
     public static float clearProperty(ItemStack stack) {
         LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
-        if (config != null && config.frame() != LeadedGlassFrame.PLAIN) {
-            return 0.0F; // splits keep their own icon
+        if (config == null) {
+            return 1.0F; // a default (unconfigured) pane = clear glass
         }
-        boolean clear = config == null || config.colors().isEmpty()
-                || config.colors().get(0) == LeadedGlassConfig.CLEAR;
-        return clear ? 1.0F : 0.0F;
+        for (int color : config.colors()) {
+            if (color != LeadedGlassConfig.CLEAR) {
+                return 0.0F;
+            }
+        }
+        return 1.0F;
     }
 }

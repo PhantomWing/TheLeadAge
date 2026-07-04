@@ -33,13 +33,13 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
 
         // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersNeoForge.
         ColorProviderRegistry.BLOCK.register(ModColorHandlers::blockTint, ModBlocks.LEADED_GLASS_PANEL.get(),
-                ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_GRID.get(),
-                ModBlocks.LEADED_GLASS_PANE_GRID_3.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
-                ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get());
+                ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
+                ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
+                ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get());
         ColorProviderRegistry.ITEM.register(ModColorHandlers::itemTint, ModItems.LEADED_GLASS_PANEL.get(),
-                ModItems.LEADED_GLASS_PANE_SPLIT.get(), ModItems.LEADED_GLASS_PANE_GRID.get(),
-                ModItems.LEADED_GLASS_PANE_GRID_3.get(), ModItems.LEADED_GLASS_PANE_DIAGONAL.get(),
-                ModItems.LEADED_GLASS_PANE_CROSS.get(), ModItems.LEADED_GLASS_PANE_DIAMOND.get());
+                ModItems.LEADED_GLASS_PANE_SPLIT.get(), ModItems.LEADED_GLASS_PANE_PLUS.get(),
+                ModItems.LEADED_GLASS_PANE_GRID.get(), ModItems.LEADED_GLASS_PANE_DIAGONAL.get(),
+                ModItems.LEADED_GLASS_PANE_CROSS.get(), ModItems.LEADED_GLASS_PANE_DIAMOND.get(), ModItems.LEADED_GLASS_PANE_LATTICE.get(), ModItems.LEADED_GLASS_PANE_BARS.get());
 
         // Leaded glass door + trapdoor renderers.
         BlockEntityRendererRegistry.register(ModBlockEntities.LEADED_GLASS_DOOR.get(), LeadedGlassDoorRenderer::new);
@@ -52,9 +52,9 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         // Per-pattern / clear item-icon predicates (registering all four on each is harmless).
         for (Item item : new Item[]{
                 ModItems.LEADED_GLASS_PANEL.get(), ModItems.LEADED_GLASS_PANE_SPLIT.get(),
-                ModItems.LEADED_GLASS_PANE_GRID.get(), ModItems.LEADED_GLASS_PANE_GRID_3.get(),
+                ModItems.LEADED_GLASS_PANE_PLUS.get(), ModItems.LEADED_GLASS_PANE_GRID.get(),
                 ModItems.LEADED_GLASS_PANE_DIAGONAL.get(),
-                ModItems.LEADED_GLASS_PANE_CROSS.get(), ModItems.LEADED_GLASS_PANE_DIAMOND.get(), ModItems.LEADED_GLASS_DOOR.get(),
+                ModItems.LEADED_GLASS_PANE_CROSS.get(), ModItems.LEADED_GLASS_PANE_DIAMOND.get(), ModItems.LEADED_GLASS_PANE_LATTICE.get(), ModItems.LEADED_GLASS_PANE_BARS.get(), ModItems.LEADED_GLASS_DOOR.get(),
                 ModItems.LEADED_GLASS_TRAPDOOR.get()}) {
             registerPredicates(item);
         }

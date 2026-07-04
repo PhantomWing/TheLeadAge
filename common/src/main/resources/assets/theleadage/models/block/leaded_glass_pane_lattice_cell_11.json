@@ -1,0 +1,113 @@
+{
+  "parent": "block/block",
+  "ambientocclusion": false,
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "particle": "theleadage:block/white_leaded_glass_lattice",
+    "glass": "theleadage:block/white_leaded_glass_lattice"
+  },
+  "elements": [
+    {
+      "from": [
+        11,
+        3,
+        7
+      ],
+      "to": [
+        12,
+        4,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            12,
+            12,
+            11,
+            13
+          ],
+          "texture": "#glass",
+          "tintindex": 11
+        },
+        "south": {
+          "uv": [
+            11,
+            12,
+            12,
+            13
+          ],
+          "texture": "#glass",
+          "tintindex": 11
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        2,
+        7
+      ],
+      "to": [
+        13,
+        3,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            13,
+            10,
+            14
+          ],
+          "texture": "#glass",
+          "tintindex": 11
+        },
+        "south": {
+          "uv": [
+            10,
+            13,
+            13,
+            14
+          ],
+          "texture": "#glass",
+          "tintindex": 11
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        1,
+        7
+      ],
+      "to": [
+        14,
+        2,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            14,
+            14,
+            9,
+            15
+          ],
+          "texture": "#glass",
+          "tintindex": 11
+        },
+        "south": {
+          "uv": [
+            9,
+            14,
+            14,
+            15
+          ],
+          "texture": "#glass",
+          "tintindex": 11
+        }
+      }
+    }
+  ]
+}

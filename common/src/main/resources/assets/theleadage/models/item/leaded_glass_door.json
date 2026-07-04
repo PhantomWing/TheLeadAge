@@ -6,6 +6,6 @@
   "overrides": [
     { "predicate": { "theleadage:split_h": 1 }, "model": "theleadage:item/leaded_glass_door_split_h" },
     { "predicate": { "theleadage:split_v": 1 }, "model": "theleadage:item/leaded_glass_door_split_v" },
-    { "predicate": { "theleadage:grid": 1 }, "model": "theleadage:item/leaded_glass_door_grid" }
+    { "predicate": { "theleadage:plus": 1 }, "model": "theleadage:item/leaded_glass_door_plus" }
   ]
 }

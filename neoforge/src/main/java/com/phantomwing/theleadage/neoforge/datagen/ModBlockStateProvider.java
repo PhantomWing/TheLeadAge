@@ -166,16 +166,20 @@ public class ModBlockStateProvider extends BlockStateProvider {
                         new String[]{"glass_left", "glass_right"}, new String[]{null, "_left", "_right", "_both"}),
                 paneFamily("leaded_glass_pane_split_v", "leaded_glass_split_v",
                         new String[]{"glass_top", "glass_bottom"}, new String[]{null, "_top", "_bottom", "_both"}));
-        paneVariants(ModBlocks.LEADED_GLASS_PANE_GRID,
-                paneFamily("leaded_glass_pane_grid", "leaded_glass_grid", regionKeys(4), numericClearNames(4)));
+        paneVariants(ModBlocks.LEADED_GLASS_PANE_PLUS,
+                paneFamily("leaded_glass_pane_plus", "leaded_glass_plus", regionKeys(4), numericClearNames(4)));
         paneVariants(ModBlocks.LEADED_GLASS_PANE_CROSS,
                 paneFamily("leaded_glass_pane_cross", "leaded_glass_cross", regionKeys(4), numericClearNames(4)));
         paneVariants(ModBlocks.LEADED_GLASS_PANE_DIAMOND,
                 paneFamily("leaded_glass_pane_diamond", "leaded_glass_diamond", regionKeys(5), numericClearNames(5)));
+        paneVariants(ModBlocks.LEADED_GLASS_PANE_BARS,
+                paneFamily("leaded_glass_pane_bars_h", "leaded_glass_bars_h", regionKeys(3), numericClearNames(3)),
+                paneFamily("leaded_glass_pane_bars_v", "leaded_glass_bars_v", regionKeys(3), numericClearNames(3)));
         paneVariants(ModBlocks.LEADED_GLASS_PANE_DIAGONAL,
                 paneFamily("leaded_glass_pane_diagonal_a", "leaded_glass_diagonal_a", regionKeys(2), numericClearNames(2)),
                 paneFamily("leaded_glass_pane_diagonal_b", "leaded_glass_diagonal_b", regionKeys(2), numericClearNames(2)));
-        gridPane3();
+        paneMultipart(ModBlocks.LEADED_GLASS_PANE_GRID, "leaded_glass_pane_grid", 9, "leaded_glass_grid");
+        paneMultipart(ModBlocks.LEADED_GLASS_PANE_LATTICE, "leaded_glass_pane_lattice", 12, "leaded_glass_lattice");
     }
 
     /**
@@ -245,19 +249,19 @@ public class ModBlockStateProvider extends BlockStateProvider {
         });
     }
 
-    // The 3x3 grid would need 2^9 combined models, so it is a multipart instead: the came frame
-    // plus one part per cell, each cell picking its plain (hand-authored) or clear (a generated
-    // re-texture of it) model.
-    private void gridPane3() {
-        ModelFile came = models().getExistingFile(modLoc("block/leaded_glass_pane_grid_3_came"));
-        ModelFile[][] cells = new ModelFile[9][2];
-        for (int cell = 0; cell < 9; cell++) {
-            String name = "leaded_glass_pane_grid_3_cell_" + cell;
+    // Panes with too many regions for combined models (2^regions) are multiparts instead: the came
+    // frame plus one part per cell, each cell picking its plain (hand-authored) or clear (a
+    // generated re-texture of it) model.
+    private void paneMultipart(RegistrySupplier<Block> block, String base, int cellCount, String clearTexture) {
+        ModelFile came = models().getExistingFile(modLoc("block/" + base + "_came"));
+        ModelFile[][] cells = new ModelFile[cellCount][2];
+        for (int cell = 0; cell < cellCount; cell++) {
+            String name = base + "_cell_" + cell;
             cells[cell][0] = models().getExistingFile(modLoc("block/" + name));
             cells[cell][1] = models().withExistingParent(name + "_clear", modLoc("block/" + name))
-                    .texture("glass", modLoc("block/leaded_glass_grid_3"));
+                    .texture("glass", modLoc("block/" + clearTexture));
         }
-        MultiPartBlockStateBuilder builder = getMultipartBuilder(ModBlocks.LEADED_GLASS_PANE_GRID_3.get());
+        MultiPartBlockStateBuilder builder = getMultipartBuilder(block.get());
         for (AttachFace face : AttachFace.values()) {
             for (Direction facing : Direction.Plane.HORIZONTAL) {
                 int xRot = paneXRot(face);
@@ -265,7 +269,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 builder.part().modelFile(came).rotationX(xRot).rotationY(yRot).addModel()
                         .condition(LeadedGlassPaneBlock.FACE, face)
                         .condition(LeadedGlassPaneBlock.FACING, facing).end();
-                for (int cell = 0; cell < 9; cell++) {
+                for (int cell = 0; cell < cellCount; cell++) {
                     for (boolean clear : new boolean[]{false, true}) {
                         builder.part().modelFile(cells[cell][clear ? 1 : 0]).rotationX(xRot).rotationY(yRot).addModel()
                                 .condition(LeadedGlassPaneBlock.FACE, face)

@@ -139,5 +139,13 @@
         1
       ]
     }
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "theleadage:clear": 1
+      },
+      "model": "theleadage:item/leaded_glass_pane_diamond_clear"
+    }
+  ]
 }

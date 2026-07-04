@@ -37,12 +37,12 @@ public class ModCreativeModeTab {
                                             List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
                                     output.accept(pane(item, LeadedGlassFrame.SPLIT_V,
                                             List.of(LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
-                                } else if (item == ModItems.LEADED_GLASS_PANE_GRID) {
-                                    output.accept(pane(item, LeadedGlassFrame.GRID, List.of(
+                                } else if (item == ModItems.LEADED_GLASS_PANE_PLUS) {
+                                    output.accept(pane(item, LeadedGlassFrame.PLUS, List.of(
                                             LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR,
                                             LeadedGlassConfig.CLEAR, LeadedGlassConfig.CLEAR)));
-                                } else if (item == ModItems.LEADED_GLASS_PANE_GRID_3) {
-                                    output.accept(pane(item, LeadedGlassFrame.GRID_3,
+                                } else if (item == ModItems.LEADED_GLASS_PANE_GRID) {
+                                    output.accept(pane(item, LeadedGlassFrame.GRID,
                                             java.util.Collections.nCopies(9, LeadedGlassConfig.CLEAR)));
                                 } else if (item == ModItems.LEADED_GLASS_PANE_DIAGONAL) {
                                     output.accept(pane(item, LeadedGlassFrame.DIAGONAL_A,
@@ -56,6 +56,14 @@ public class ModCreativeModeTab {
                                 } else if (item == ModItems.LEADED_GLASS_PANE_DIAMOND) {
                                     output.accept(pane(item, LeadedGlassFrame.DIAMOND,
                                             java.util.Collections.nCopies(5, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_BARS) {
+                                    output.accept(pane(item, LeadedGlassFrame.BARS_H,
+                                            java.util.Collections.nCopies(3, LeadedGlassConfig.CLEAR)));
+                                    output.accept(pane(item, LeadedGlassFrame.BARS_V,
+                                            java.util.Collections.nCopies(3, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_LATTICE) {
+                                    output.accept(pane(item, LeadedGlassFrame.LATTICE,
+                                            java.util.Collections.nCopies(12, LeadedGlassConfig.CLEAR)));
                                 } else {
                                     output.accept(item.get());
                                 }
