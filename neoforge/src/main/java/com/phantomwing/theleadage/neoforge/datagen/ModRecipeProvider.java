@@ -92,6 +92,9 @@ public class ModRecipeProvider extends RecipeProvider {
         slabWithCutting(output, ModItems.LEAD_BRICK_SLAB.get(), bricks);
         stoneCutting(output, ModItems.LEAD_BRICK_SLAB.get(), block, 8);
 
+        wallWithCutting(output, ModItems.LEAD_BRICK_WALL.get(), bricks);
+        stoneCutting(output, ModItems.LEAD_BRICK_WALL.get(), block, 4);
+
         stairsWithCutting(output, ModItems.CUT_LEAD_STAIRS.get(), cut);
         stoneCutting(output, ModItems.CUT_LEAD_STAIRS.get(), block, 4);
         slabWithCutting(output, ModItems.CUT_LEAD_SLAB.get(), cut);
@@ -357,6 +360,14 @@ public class ModRecipeProvider extends RecipeProvider {
     private void slabWithCutting(RecipeOutput output, ItemLike result, ItemLike material) {
         stoneCutting(output, result, material, 2);
         slabBuilder(RecipeCategory.BUILDING_BLOCKS, result, Ingredient.of(material))
+                .group(name(material))
+                .unlockedBy(getHasName(material), has(material))
+                .save(output);
+    }
+
+    private void wallWithCutting(RecipeOutput output, ItemLike result, ItemLike material) {
+        stoneCutting(output, result, material, 1);
+        wallBuilder(RecipeCategory.BUILDING_BLOCKS, result, Ingredient.of(material))
                 .group(name(material))
                 .unlockedBy(getHasName(material), has(material))
                 .save(output);

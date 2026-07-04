@@ -19,6 +19,8 @@ public final class ModTags {
         public static final TagKey<Block> LEAD_SLABS = tag("lead_slabs");
         /** Lead stair blocks. */
         public static final TagKey<Block> LEAD_STAIRS = tag("lead_stairs");
+        /** Lead walls (currently just the lead brick wall). */
+        public static final TagKey<Block> LEAD_WALLS = tag("lead_walls");
         /** Lead door blocks. */
         public static final TagKey<Block> LEAD_DOORS = tag("lead_doors");
         /** Lead trapdoor blocks. */

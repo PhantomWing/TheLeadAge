@@ -2,6 +2,7 @@
   "values": [
     "#theleadage:solid_lead_blocks",
     "#theleadage:lead_slabs",
-    "#theleadage:lead_stairs"
+    "#theleadage:lead_stairs",
+    "#theleadage:lead_walls"
   ]
 }

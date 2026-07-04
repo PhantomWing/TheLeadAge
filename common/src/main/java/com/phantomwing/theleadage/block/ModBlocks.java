@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.TransparentBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.WaterloggedTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -54,6 +55,7 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEAD_BRICKS = registerLeadBlock("lead_bricks");
     public static final RegistrySupplier<SlabBlock> LEAD_BRICK_SLAB = registerLeadSlab("lead_brick_slab");
     public static final RegistrySupplier<StairBlock> LEAD_BRICK_STAIRS = registerLeadStairs("lead_brick_stairs");
+    public static final RegistrySupplier<WallBlock> LEAD_BRICK_WALL = registerLeadWall("lead_brick_wall");
     public static final RegistrySupplier<SlabBlock> CUT_LEAD_SLAB = registerLeadSlab("cut_lead_slab");
     public static final RegistrySupplier<StairBlock> CUT_LEAD_STAIRS = registerLeadStairs("cut_lead_stairs");
     public static final RegistrySupplier<HorizontalFacingBlock> CHISELED_LEAD = registerLeadChiseled("chiseled_lead");
@@ -166,6 +168,10 @@ public class ModBlocks {
 
     private static RegistrySupplier<StairBlock> registerLeadStairs(String name) {
         return register(name, () -> new StairBlock(Blocks.IRON_BLOCK.defaultBlockState(), leadProps()));
+    }
+
+    private static RegistrySupplier<WallBlock> registerLeadWall(String name) {
+        return register(name, () -> new WallBlock(leadProps()));
     }
 
     private static RegistrySupplier<Block> registerLeadGrate(String name) {

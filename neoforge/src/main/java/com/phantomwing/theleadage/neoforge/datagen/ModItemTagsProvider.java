@@ -64,6 +64,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         // Decorative block items.
         tag(ItemTags.SLABS).add(ModItems.LEAD_BRICK_SLAB.get(), ModItems.CUT_LEAD_SLAB.get());
         tag(ItemTags.STAIRS).add(ModItems.LEAD_BRICK_STAIRS.get(), ModItems.CUT_LEAD_STAIRS.get());
+        tag(ItemTags.WALLS).add(ModItems.LEAD_BRICK_WALL.get());
         tag(ItemTags.DOORS).add(ModItems.LEAD_DOOR.get());
         tag(ItemTags.TRAPDOORS).add(ModItems.LEAD_TRAPDOOR.get());
     }

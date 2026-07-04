@@ -42,6 +42,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         // The rest need an explicit item model pointing at the right block model.
         blockItem("lead_brick_slab");
         blockItem("lead_brick_stairs");
+        // Walls have no full block model; the item shows the vanilla wall inventory shape.
+        wallInventory("lead_brick_wall", modLoc("block/lead_bricks"));
         blockItem("cut_lead_slab");
         blockItem("cut_lead_stairs");
         blockItem("chiseled_lead");

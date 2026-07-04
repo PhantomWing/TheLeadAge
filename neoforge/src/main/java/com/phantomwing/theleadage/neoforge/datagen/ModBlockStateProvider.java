@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
@@ -44,6 +45,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(ModBlocks.LEAD_BRICKS.get(), cubeAll(ModBlocks.LEAD_BRICKS.get()));
         slab(ModBlocks.LEAD_BRICK_SLAB, ModBlocks.LEAD_BRICKS);
         stairs(ModBlocks.LEAD_BRICK_STAIRS, ModBlocks.LEAD_BRICKS);
+        wall(ModBlocks.LEAD_BRICK_WALL, ModBlocks.LEAD_BRICKS);
         slab(ModBlocks.CUT_LEAD_SLAB, ModBlocks.CUT_LEAD);
         stairs(ModBlocks.CUT_LEAD_STAIRS, ModBlocks.CUT_LEAD);
         chiseled(ModBlocks.CHISELED_LEAD);
@@ -315,6 +317,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void stairs(RegistrySupplier<StairBlock> stairs, RegistrySupplier<Block> parentBlock) {
         stairsBlock(stairs.get(), blockTexture(parentBlock.get()));
+    }
+
+    private void wall(RegistrySupplier<WallBlock> wall, RegistrySupplier<Block> parentBlock) {
+        wallBlock(wall.get(), blockTexture(parentBlock.get()));
     }
 
     private void chiseled(RegistrySupplier<HorizontalFacingBlock> block) {

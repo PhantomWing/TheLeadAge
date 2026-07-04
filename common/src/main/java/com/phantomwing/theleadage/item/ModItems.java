@@ -74,6 +74,7 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_BRICKS = registerBlock("lead_bricks", ModBlocks.LEAD_BRICKS);
     public static final RegistrySupplier<Item> LEAD_BRICK_SLAB = registerBlock("lead_brick_slab", ModBlocks.LEAD_BRICK_SLAB);
     public static final RegistrySupplier<Item> LEAD_BRICK_STAIRS = registerBlock("lead_brick_stairs", ModBlocks.LEAD_BRICK_STAIRS);
+    public static final RegistrySupplier<Item> LEAD_BRICK_WALL = registerBlock("lead_brick_wall", ModBlocks.LEAD_BRICK_WALL);
     public static final RegistrySupplier<Item> CUT_LEAD_SLAB = registerBlock("cut_lead_slab", ModBlocks.CUT_LEAD_SLAB);
     public static final RegistrySupplier<Item> CUT_LEAD_STAIRS = registerBlock("cut_lead_stairs", ModBlocks.CUT_LEAD_STAIRS);
     public static final RegistrySupplier<Item> CHISELED_LEAD = registerBlock("chiseled_lead", ModBlocks.CHISELED_LEAD);

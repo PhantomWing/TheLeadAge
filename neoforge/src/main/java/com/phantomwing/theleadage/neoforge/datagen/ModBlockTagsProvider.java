@@ -26,6 +26,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.RAW_LEAD_BLOCK.get(), ModBlocks.LEAD_BLOCK.get(),
                 ModBlocks.CUT_LEAD.get(), ModBlocks.LEAD_BRICKS.get(),
                 ModBlocks.LEAD_BRICK_SLAB.get(), ModBlocks.LEAD_BRICK_STAIRS.get(),
+                ModBlocks.LEAD_BRICK_WALL.get(),
                 ModBlocks.CUT_LEAD_SLAB.get(), ModBlocks.CUT_LEAD_STAIRS.get(),
                 ModBlocks.CHISELED_LEAD.get(), ModBlocks.LEAD_PILLAR.get(),
                 ModBlocks.LEAD_GRATE.get(),
@@ -39,6 +40,8 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.SLABS).addTag(ModTags.Blocks.LEAD_SLABS);
         tag(BlockTags.STAIRS).addTag(ModTags.Blocks.LEAD_STAIRS);
+        // Walls connect to each other through #minecraft:walls.
+        tag(BlockTags.WALLS).addTag(ModTags.Blocks.LEAD_WALLS);
         tag(ModTags.Blocks.LEAD_DOORS).add(ModBlocks.LEAD_DOOR.get());
         tag(ModTags.Blocks.LEAD_TRAPDOORS).add(ModBlocks.LEAD_TRAPDOOR.get());
         // Lead doors via the reusable tag; the leaded glass door/trapdoor belong to the glass family.
@@ -53,10 +56,12 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.CHISELED_LEAD.get(), ModBlocks.LEAD_PILLAR.get());
         tag(ModTags.Blocks.LEAD_SLABS).add(ModBlocks.LEAD_BRICK_SLAB.get(), ModBlocks.CUT_LEAD_SLAB.get());
         tag(ModTags.Blocks.LEAD_STAIRS).add(ModBlocks.LEAD_BRICK_STAIRS.get(), ModBlocks.CUT_LEAD_STAIRS.get());
+        tag(ModTags.Blocks.LEAD_WALLS).add(ModBlocks.LEAD_BRICK_WALL.get());
         tag(ModTags.Blocks.LEAD_BLOCKS)
                 .addTag(ModTags.Blocks.SOLID_LEAD_BLOCKS)
                 .addTag(ModTags.Blocks.LEAD_SLABS)
-                .addTag(ModTags.Blocks.LEAD_STAIRS);
+                .addTag(ModTags.Blocks.LEAD_STAIRS)
+                .addTag(ModTags.Blocks.LEAD_WALLS);
 
         // Lead is dense, so the building set blocks vibrations passing through (occludes_vibration_signals)
         // like wool — but unlike wool it is NOT in dampens_vibrations, so footsteps on lead still emit a

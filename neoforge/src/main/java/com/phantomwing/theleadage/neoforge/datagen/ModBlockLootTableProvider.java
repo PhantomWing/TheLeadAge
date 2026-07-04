@@ -32,6 +32,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.CUT_LEAD.get());
         dropSelf(ModBlocks.LEAD_BRICKS.get());
         dropSelf(ModBlocks.LEAD_BRICK_STAIRS.get());
+        dropSelf(ModBlocks.LEAD_BRICK_WALL.get());
         dropSelf(ModBlocks.CUT_LEAD_STAIRS.get());
         dropSelf(ModBlocks.CHISELED_LEAD.get());
         dropSelf(ModBlocks.LEAD_PILLAR.get());
