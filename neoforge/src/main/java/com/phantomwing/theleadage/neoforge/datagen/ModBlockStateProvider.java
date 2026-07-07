@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -52,14 +53,18 @@ public class ModBlockStateProvider extends BlockStateProvider {
         pillar(ModBlocks.LEAD_PILLAR);
         cutoutCube(ModBlocks.LEAD_GRATE);
         trapdoor(ModBlocks.LEAD_TRAPDOOR);
-        trapdoor(ModBlocks.LEADED_GLASS_TRAPDOOR);
+        // Like the glass door: hand-authored models (window faces + edges on leaded_glass_door_side);
+        // datagen emits only the blockstate, referencing those resource models.
+        leadedGlassTrapdoor();
         door(ModBlocks.LEAD_DOOR);
-        // The glass door reuses the vanilla door models with its overlay textures (cutout, so the
-        // top half's window is transparent); the glass itself is drawn by the block-entity renderer.
-        door(ModBlocks.LEADED_GLASS_DOOR);
+        // The glass door uses hand-authored door models (both halves' windows are transparent and
+        // the thin edges use leaded_glass_door_side); the glass itself is drawn by the block-entity
+        // renderer. Datagen emits only the blockstate, referencing those resource models.
+        leadedGlassDoor();
 
         leadChain();
         leadBars();
+        leadTorchAndLantern();
         leadWeight();
 
         // Leaded glass blocks. Plain = cutout (like vanilla glass), dyed = translucent
@@ -116,6 +121,37 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .part().modelFile(side).rotationY(90).addModel().condition(CrossCollisionBlock.EAST, true).end()
                 .part().modelFile(sideAlt).addModel().condition(CrossCollisionBlock.SOUTH, true).end()
                 .part().modelFile(sideAlt).rotationY(90).addModel().condition(CrossCollisionBlock.WEST, true).end();
+    }
+
+    // Vanilla torch/lantern templates with the lead textures (grayish-white flame/glow).
+    private void leadTorchAndLantern() {
+        ModelFile torch = models().withExistingParent("lead_torch", mcLoc("block/template_torch"))
+                .renderType(RenderType.cutout().name)
+                .texture("torch", modLoc("block/lead_torch"));
+        getVariantBuilder(ModBlocks.LEAD_TORCH.get()).partialState().setModels(new ConfiguredModel(torch));
+
+        ModelFile wallTorch = models().withExistingParent("lead_wall_torch", mcLoc("block/template_torch_wall"))
+                .renderType(RenderType.cutout().name)
+                .texture("torch", modLoc("block/lead_torch"));
+        getVariantBuilder(ModBlocks.LEAD_WALL_TORCH.get())
+                .partialState().with(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST)
+                .setModels(new ConfiguredModel(wallTorch))
+                .partialState().with(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH)
+                .setModels(new ConfiguredModel(wallTorch, 0, 270, false))
+                .partialState().with(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH)
+                .setModels(new ConfiguredModel(wallTorch, 0, 90, false))
+                .partialState().with(BlockStateProperties.HORIZONTAL_FACING, Direction.WEST)
+                .setModels(new ConfiguredModel(wallTorch, 0, 180, false));
+
+        ModelFile lantern = models().withExistingParent("lead_lantern", mcLoc("block/template_lantern"))
+                .renderType(RenderType.cutout().name)
+                .texture("lantern", modLoc("block/lead_lantern"));
+        ModelFile hanging = models().withExistingParent("lead_lantern_hanging", mcLoc("block/template_hanging_lantern"))
+                .renderType(RenderType.cutout().name)
+                .texture("lantern", modLoc("block/lead_lantern"));
+        getVariantBuilder(ModBlocks.LEAD_LANTERN.get())
+                .partialState().with(BlockStateProperties.HANGING, false).setModels(new ConfiguredModel(lantern))
+                .partialState().with(BlockStateProperties.HANGING, true).setModels(new ConfiguredModel(hanging));
     }
 
     private ModelFile barsModel(String name) {
@@ -177,6 +213,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
         paneVariants(ModBlocks.LEADED_GLASS_PANE_BARS,
                 paneFamily("leaded_glass_pane_bars_h", "leaded_glass_bars_h", regionKeys(3), numericClearNames(3)),
                 paneFamily("leaded_glass_pane_bars_v", "leaded_glass_bars_v", regionKeys(3), numericClearNames(3)));
+        paneVariants(ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS,
+                paneFamily("leaded_glass_pane_diagonal_bars_a", "leaded_glass_diagonal_bars_a", regionKeys(4), numericClearNames(4)),
+                paneFamily("leaded_glass_pane_diagonal_bars_b", "leaded_glass_diagonal_bars_b", regionKeys(4), numericClearNames(4)));
         paneVariants(ModBlocks.LEADED_GLASS_PANE_DIAGONAL,
                 paneFamily("leaded_glass_pane_diagonal_a", "leaded_glass_diagonal_a", regionKeys(2), numericClearNames(2)),
                 paneFamily("leaded_glass_pane_diagonal_b", "leaded_glass_diagonal_b", regionKeys(2), numericClearNames(2)));
@@ -345,11 +384,37 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 RenderType.cutout().name);
     }
 
+    // Generates only the leaded glass door blockstate; the 8 door models are hand-authored in
+    // resources (full geometry, with the thin edges on leaded_glass_door_side).
+    private void leadedGlassDoor() {
+        String base = "block/leaded_glass_door_";
+        doorBlock((DoorBlock) ModBlocks.LEADED_GLASS_DOOR.get(),
+                models().getExistingFile(modLoc(base + "bottom_left")),
+                models().getExistingFile(modLoc(base + "bottom_left_open")),
+                models().getExistingFile(modLoc(base + "bottom_right")),
+                models().getExistingFile(modLoc(base + "bottom_right_open")),
+                models().getExistingFile(modLoc(base + "top_left")),
+                models().getExistingFile(modLoc(base + "top_left_open")),
+                models().getExistingFile(modLoc(base + "top_right")),
+                models().getExistingFile(modLoc(base + "top_right_open")));
+    }
+
     private void trapdoor(RegistrySupplier<? extends Block> trapdoor) {
         trapdoorBlockWithRenderType((TrapDoorBlock) trapdoor.get(),
                 modLoc("block/" + blockName(trapdoor)),
                 true,
                 RenderType.cutout().name);
+    }
+
+    // Generates only the leaded glass trapdoor blockstate; the 3 models (bottom/top/open) are
+    // hand-authored in resources (full geometry, with the thin edges on leaded_glass_door_side).
+    private void leadedGlassTrapdoor() {
+        String base = "block/leaded_glass_trapdoor_";
+        trapdoorBlock((TrapDoorBlock) ModBlocks.LEADED_GLASS_TRAPDOOR.get(),
+                models().getExistingFile(modLoc(base + "bottom")),
+                models().getExistingFile(modLoc(base + "top")),
+                models().getExistingFile(modLoc(base + "open")),
+                true);
     }
 
     private static String blockName(RegistrySupplier<? extends Block> block) {

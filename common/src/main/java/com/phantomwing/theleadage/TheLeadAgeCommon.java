@@ -9,6 +9,7 @@ import com.phantomwing.theleadage.block.entity.ModBlockEntities;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.recipe.ModRecipes;
 import com.phantomwing.theleadage.ui.ModCreativeModeTab;
 
@@ -37,6 +38,7 @@ public final class TheLeadAgeCommon {
         ModBlockEntities.register();
         ModDataComponents.register();
         ModRecipes.register();
+        ModParticles.register();
         ModCreativeModeTab.register();
         LeadWeightTransforms.register(); // datapack loader for heavy-weight impact block transforms
 

@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "theleadage:item/leaded_glass_door_split_h"
-  }
-}

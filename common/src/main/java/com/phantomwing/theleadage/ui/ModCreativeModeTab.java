@@ -56,6 +56,11 @@ public class ModCreativeModeTab {
                                 } else if (item == ModItems.LEADED_GLASS_PANE_DIAMOND) {
                                     output.accept(pane(item, LeadedGlassFrame.DIAMOND,
                                             java.util.Collections.nCopies(5, LeadedGlassConfig.CLEAR)));
+                                } else if (item == ModItems.LEADED_GLASS_PANE_DIAGONAL_BARS) {
+                                    output.accept(pane(item, LeadedGlassFrame.DIAGONAL_BARS_A,
+                                            java.util.Collections.nCopies(4, LeadedGlassConfig.CLEAR)));
+                                    output.accept(pane(item, LeadedGlassFrame.DIAGONAL_BARS_B,
+                                            java.util.Collections.nCopies(4, LeadedGlassConfig.CLEAR)));
                                 } else if (item == ModItems.LEADED_GLASS_PANE_BARS) {
                                     output.accept(pane(item, LeadedGlassFrame.BARS_H,
                                             java.util.Collections.nCopies(3, LeadedGlassConfig.CLEAR)));

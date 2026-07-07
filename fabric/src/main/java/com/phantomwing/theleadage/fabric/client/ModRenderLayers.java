@@ -33,6 +33,9 @@ public final class ModRenderLayers {
                 ModBlocks.LEAD_WEIGHT.get(),  // the hanging variant's chain has transparent link holes
                 ModBlocks.CHIPPED_LEAD_WEIGHT.get(),
                 ModBlocks.DAMAGED_LEAD_WEIGHT.get());
+        // Torches and the lantern are cutout, like vanilla.
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(),
+                ModBlocks.LEAD_TORCH.get(), ModBlocks.LEAD_WALL_TORCH.get(), ModBlocks.LEAD_LANTERN.get());
         // Glass doors/trapdoors need cutout for their overlay window; the BER glass is separate.
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(),
                 ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get());
@@ -40,6 +43,6 @@ public final class ModRenderLayers {
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(),
                 ModBlocks.LEADED_GLASS_PANEL.get(), ModBlocks.LEADED_GLASS_PANE_SPLIT.get(),
                 ModBlocks.LEADED_GLASS_PANE_PLUS.get(), ModBlocks.LEADED_GLASS_PANE_GRID.get(),
-                ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get());
+                ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
     }
 }

@@ -5,8 +5,12 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -14,12 +18,15 @@ import java.util.Map;
 
 /**
  * Maps the leaded glass crafting inputs to a region colour id (a dye id, or
- * {@link LeadedGlassConfig#CLEAR}). Two sources: the leaded glass <i>blocks</i> (the palette
- * for cutting panes) and a <i>plain</i> leaded glass pane (for combining into a split).
+ * {@link LeadedGlassConfig#CLEAR}). Sources: the leaded glass <i>blocks</i> (the palette for
+ * cutting panes), a <i>plain</i> leaded glass pane (for combining into a split), and vanilla
+ * <i>glass panes</i> (crafting leaded panes from glass — clear or stained).
  */
 public final class LeadedGlassColors {
     @Nullable
     private static Map<Item, Integer> blockMap;
+    @Nullable
+    private static Map<Item, Integer> glassPaneMap;
 
     private LeadedGlassColors() {
     }
@@ -34,10 +41,30 @@ public final class LeadedGlassColors {
         return blockMap;
     }
 
+    private static Map<Item, Integer> glassPaneMap() {
+        if (glassPaneMap == null) {
+            Map<Item, Integer> built = new HashMap<>();
+            built.put(Items.GLASS_PANE, LeadedGlassConfig.CLEAR);
+            for (DyeColor dye : DyeColor.values()) {
+                Item pane = BuiltInRegistries.ITEM.get(
+                        ResourceLocation.withDefaultNamespace(dye.getName() + "_stained_glass_pane"));
+                built.put(pane, dye.getId());
+            }
+            glassPaneMap = built;
+        }
+        return glassPaneMap;
+    }
+
     /** Colour id for a leaded glass <i>block</i> stack (pane-cutting), or {@code null} if it isn't one. */
     @Nullable
     public static Integer blockColorIdOf(ItemStack stack) {
         return stack.isEmpty() ? null : blockMap().get(stack.getItem());
+    }
+
+    /** Colour id for a vanilla <i>glass pane</i> stack (clear or stained), or {@code null} if it isn't one. */
+    @Nullable
+    public static Integer glassPaneColorIdOf(ItemStack stack) {
+        return stack.isEmpty() ? null : glassPaneMap().get(stack.getItem());
     }
 
     /** Colour id for a <i>plain</i> leaded glass pane stack (combining), or {@code null} if it isn't one. */

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "theleadage:block/lead_lantern"
+    },
+    "hanging=true": {
+      "model": "theleadage:block/lead_lantern_hanging"
+    }
+  }
+}

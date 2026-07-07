@@ -359,7 +359,9 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
         DIAMOND("diamond", 5, null, LeadedGlassFrame.DIAMOND),
         LATTICE("lattice", 12, null, LeadedGlassFrame.LATTICE),
         BARS("bars", 3, IntegerProperty.create("orientation", 0, 1),
-                LeadedGlassFrame.BARS_H, LeadedGlassFrame.BARS_V);
+                LeadedGlassFrame.BARS_H, LeadedGlassFrame.BARS_V),
+        DIAGONAL_BARS("diagonal_bars", 4, IntegerProperty.create("orientation", 0, 1),
+                LeadedGlassFrame.DIAGONAL_BARS_A, LeadedGlassFrame.DIAGONAL_BARS_B);
 
         public final String id;
         public final int regions;

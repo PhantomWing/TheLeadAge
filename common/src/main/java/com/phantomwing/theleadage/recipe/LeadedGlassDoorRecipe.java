@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.recipe;
 
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.core.HolderLookup;
@@ -13,8 +14,10 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Combines a lead door with a configured leaded glass pane into a leaded glass door, copying
- * the pane's design (frame + colours) onto the door so its top half shows that exact pattern.
+ * Crafts a leaded glass door from a lead door + two leaded glass panes (shapeless): the first pane
+ * (in grid reading order) becomes the door's upper half, the second its lower half. The panes may
+ * be any frame/colour; each half shows that pane's exact design. There is no reverse recipe — a
+ * door would have to hand back three items (lead door + both panes), more than crafting allows.
  */
 public class LeadedGlassDoorRecipe extends CustomRecipe {
     public LeadedGlassDoorRecipe(CraftingBookCategory category) {
@@ -23,27 +26,25 @@ public class LeadedGlassDoorRecipe extends CustomRecipe {
 
     @Override
     public boolean matches(CraftingInput input, Level level) {
-        return findPane(input) != null;
+        return doorConfig(input) != null;
     }
 
     @Override
     public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
-        ItemStack pane = findPane(input);
-        if (pane == null) {
+        LeadedGlassDoorConfig config = doorConfig(input);
+        if (config == null) {
             return ItemStack.EMPTY;
         }
         ItemStack door = new ItemStack(ModItems.LEADED_GLASS_DOOR.get());
-        LeadedGlassConfig config = pane.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
-        if (config != null) {
-            door.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), config);
-        }
+        door.set(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(), config);
         return door;
     }
 
-    /** The pane stack iff the grid holds exactly one lead door + one leaded glass pane (no extras). */
+    /** The door design iff the grid holds exactly one lead door + two panes (first = top), else null. */
     @Nullable
-    private static ItemStack findPane(CraftingInput input) {
-        ItemStack pane = null;
+    private static LeadedGlassDoorConfig doorConfig(CraftingInput input) {
+        LeadedGlassConfig top = null;
+        LeadedGlassConfig bottom = null;
         boolean hasDoor = false;
         for (int i = 0; i < input.size(); i++) {
             ItemStack stack = input.getItem(i);
@@ -52,24 +53,34 @@ public class LeadedGlassDoorRecipe extends CustomRecipe {
             }
             if (stack.is(ModItems.LEAD_DOOR.get())) {
                 if (hasDoor) {
-                    return null;
+                    return null; // a second lead door
                 }
                 hasDoor = true;
             } else if (ModItems.isPaneItem(stack)) {
-                if (pane != null) {
-                    return null;
+                LeadedGlassConfig pane = paneConfig(stack);
+                if (top == null) {
+                    top = pane;
+                } else if (bottom == null) {
+                    bottom = pane;
+                } else {
+                    return null; // more than two panes
                 }
-                pane = stack;
             } else {
                 return null; // an unrelated item is present
             }
         }
-        return hasDoor && pane != null ? pane : null;
+        return hasDoor && bottom != null ? new LeadedGlassDoorConfig(top, bottom) : null;
+    }
+
+    /** A pane's design, or a clear plain pane when the item carries no component. */
+    private static LeadedGlassConfig paneConfig(ItemStack pane) {
+        LeadedGlassConfig config = pane.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        return config != null ? config : LeadedGlassDoorConfig.DEFAULT.top();
     }
 
     @Override
     public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
+        return width * height >= 3;
     }
 
     @Override

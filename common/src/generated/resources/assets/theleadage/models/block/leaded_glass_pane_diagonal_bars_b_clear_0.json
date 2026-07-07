@@ -1,0 +1,6 @@
+{
+  "parent": "theleadage:block/leaded_glass_pane_diagonal_bars_b",
+  "textures": {
+    "glass_0": "theleadage:block/leaded_glass_diagonal_bars_b"
+  }
+}

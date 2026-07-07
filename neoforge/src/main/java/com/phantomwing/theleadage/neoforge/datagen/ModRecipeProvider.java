@@ -17,11 +17,11 @@ import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
+import com.phantomwing.theleadage.recipe.ColoredPaneStonecutterRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassCombineRecipe;
+import com.phantomwing.theleadage.recipe.LeadedGlassPaneCraftRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassDoorRecipe;
-import com.phantomwing.theleadage.recipe.LeadedGlassDoorSplitRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorRecipe;
-import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorSplitRecipe;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +34,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.conditions.AndCondition;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -114,14 +113,32 @@ public class ModRecipeProvider extends RecipeProvider {
         door(output, ModItems.LEAD_DOOR.get(), ingot);
         trapdoor(output, ModItems.LEAD_TRAPDOOR.get(), ingot);
 
-        // Leaded glass: a glass block reinforced with 8 lead nuggets around it.
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.LEADED_GLASS.get())
-                .pattern("NNN").pattern("NGN").pattern("NNN")
-                .define('N', ModItems.LEAD_NUGGET.get())
+        // Leaded glass: 8 glass blocks around a lead ingot -> 8 leaded glass (matches the pane recipe).
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.LEADED_GLASS.get(), 8)
+                .pattern("GGG").pattern("GIG").pattern("GGG")
                 .define('G', Items.GLASS)
-                .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
+                .define('I', ModItems.LEAD_INGOT.get())
+                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
                 .save(output);
         leadedGlassFamily(output);
+
+        // Lead torch: a torch column (stick + coal) tipped with a lead nugget — the salts burn
+        // grayish-white (and toxic). Charcoal works too, like the vanilla torch.
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_TORCH.get())
+                .pattern("N").pattern("C").pattern("S")
+                .define('N', ModItems.LEAD_NUGGET.get())
+                .define('C', Ingredient.of(Items.COAL, Items.CHARCOAL))
+                .define('S', Items.STICK)
+                .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
+                .save(output);
+        // Lead lantern: 8 lead nuggets around a lead torch (the vanilla lantern pattern) — the
+        // enclosure makes it safe to stand beside.
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_LANTERN.get())
+                .pattern("NNN").pattern("NTN").pattern("NNN")
+                .define('N', ModItems.LEAD_NUGGET.get())
+                .define('T', ModItems.LEAD_TORCH.get())
+                .unlockedBy(getHasName(ModItems.LEAD_TORCH.get()), has(ModItems.LEAD_TORCH.get()))
+                .save(output);
 
         // Lead Weight: 8 lead ingots around a lead block.
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
@@ -147,18 +164,17 @@ public class ModRecipeProvider extends RecipeProvider {
 
         // Configurable leaded glass panel: code-matched (reads the grid arrangement → frame + colours).
         SpecialRecipeBuilder.special(LeadedGlassCombineRecipe::new).save(output, id("leaded_glass_combine"));
+        // Glass panes around a lead ingot → 8 plain leaded glass panes of that glass's colour.
+        SpecialRecipeBuilder.special(LeadedGlassPaneCraftRecipe::new).save(output, id("leaded_glass_pane_craft"));
         // Leaded glass door: lead door + a configured pane → door carrying that pane's design.
         SpecialRecipeBuilder.special(LeadedGlassDoorRecipe::new).save(output, id("leaded_glass_door"));
         // Leaded glass trapdoor: lead trapdoor + a configured pane → trapdoor carrying that design.
         SpecialRecipeBuilder.special(LeadedGlassTrapdoorRecipe::new).save(output, id("leaded_glass_trapdoor"));
-        // The reverse: a leaded glass door/trapdoor splits back into the lead base + its pane.
-        SpecialRecipeBuilder.special(LeadedGlassDoorSplitRecipe::new).save(output, id("leaded_glass_door_split"));
-        SpecialRecipeBuilder.special(LeadedGlassTrapdoorSplitRecipe::new).save(output, id("leaded_glass_trapdoor_split"));
 
-        // Stonecutter path: a plain leaded glass pane cuts into any pattern's pane, 1:1, all
-        // regions clear (colours are applied afterwards with dyes / the crafting combine
-        // recipes — a coloured input loses its colour). One entry per frame so both orientations
-        // of split/diagonal/bars are pickable directly; plain itself is skipped (it's the input).
+        // Stonecutter path: a plain leaded glass pane cuts into any pattern's pane, 1:1, keeping
+        // the input pane's colour on every region (ColoredPaneStonecutterRecipe; a clear input
+        // gives a clear pattern). One entry per frame so both orientations of split/diagonal/bars
+        // are pickable directly; plain itself is skipped (it's the input).
         for (LeadedGlassFrame frame : LeadedGlassFrame.values()) {
             if (frame != LeadedGlassFrame.PLAIN) {
                 paneStonecutting(output, frame);
@@ -226,12 +242,12 @@ public class ModRecipeProvider extends RecipeProvider {
                     .define('D', dye)
                     .unlockedBy(getHasName(ModItems.LEADED_GLASS.get()), has(ModItems.LEADED_GLASS.get()))
                     .save(output);
-            // "Lead" a vanilla stained glass: surround it with 8 lead nuggets -> 1.
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded)
-                    .pattern("NNN").pattern("NGN").pattern("NNN")
-                    .define('N', ModItems.LEAD_NUGGET.get())
+            // "Lead" vanilla stained glass: 8 stained glass around a lead ingot -> 8 of that colour.
+            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
+                    .pattern("GGG").pattern("GIG").pattern("GGG")
                     .define('G', stainedGlass)
-                    .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
+                    .define('I', ModItems.LEAD_INGOT.get())
+                    .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
                     .save(output, id(name(leaded) + "_from_" + name(stainedGlass)));
         }
     }
@@ -413,7 +429,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 Collections.nCopies(frame.regions(), LeadedGlassConfig.CLEAR)));
         output.accept(ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID,
                         "leaded_glass_pane_" + frame.getSerializedName() + "_from_stonecutting"),
-                new StonecutterRecipe("leaded_glass_pane",
+                new ColoredPaneStonecutterRecipe("leaded_glass_pane",
                         Ingredient.of(ModItems.LEADED_GLASS_PANEL.get()), result), null);
     }
 

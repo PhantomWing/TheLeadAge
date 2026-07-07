@@ -23,7 +23,9 @@ import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.HoeItem;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
@@ -84,6 +86,11 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_DOOR = registerBlock("lead_door", ModBlocks.LEAD_DOOR);
     public static final RegistrySupplier<Item> LEAD_CHAIN = registerBlock("lead_chain", ModBlocks.LEAD_CHAIN);
     public static final RegistrySupplier<Item> LEAD_BARS = registerBlock("lead_bars", ModBlocks.LEAD_BARS);
+    // One item places the standing or wall torch depending on the clicked face (like vanilla).
+    public static final RegistrySupplier<Item> LEAD_TORCH = register("lead_torch",
+            (props) -> new StandingAndWallBlockItem(ModBlocks.LEAD_TORCH.get(), ModBlocks.LEAD_WALL_TORCH.get(),
+                    props, Direction.DOWN), baseItem());
+    public static final RegistrySupplier<Item> LEAD_LANTERN = registerBlock("lead_lantern", ModBlocks.LEAD_LANTERN);
 
     // Leaded glass: glass reinforced with lead nuggets (drops itself when mined with a pickaxe).
     public static final RegistrySupplier<Item> LEADED_GLASS = registerBlock("leaded_glass", ModBlocks.LEADED_GLASS);
@@ -123,6 +130,8 @@ public class ModItems {
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), props), baseItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_BARS = register("leaded_glass_pane_bars",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_BARS.get(), props), baseItem());
+    public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAGONAL_BARS = register("leaded_glass_pane_diagonal_bars",
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get(), props), baseItem());
 
     // Leaded glass door — its top half shows the glass design carried in the component.
     public static final RegistrySupplier<Item> LEADED_GLASS_DOOR = register("leaded_glass_door",
@@ -144,6 +153,7 @@ public class ModItems {
             case DIAMOND -> LEADED_GLASS_PANE_DIAMOND.get();
             case LATTICE -> LEADED_GLASS_PANE_LATTICE.get();
             case BARS_H, BARS_V -> LEADED_GLASS_PANE_BARS.get();
+            case DIAGONAL_BARS_A, DIAGONAL_BARS_B -> LEADED_GLASS_PANE_DIAGONAL_BARS.get();
         };
     }
 
@@ -153,7 +163,7 @@ public class ModItems {
                 || stack.is(LEADED_GLASS_PANE_PLUS.get()) || stack.is(LEADED_GLASS_PANE_GRID.get())
                 || stack.is(LEADED_GLASS_PANE_DIAGONAL.get()) || stack.is(LEADED_GLASS_PANE_CROSS.get())
                 || stack.is(LEADED_GLASS_PANE_DIAMOND.get()) || stack.is(LEADED_GLASS_PANE_LATTICE.get())
-                || stack.is(LEADED_GLASS_PANE_BARS.get());
+                || stack.is(LEADED_GLASS_PANE_BARS.get()) || stack.is(LEADED_GLASS_PANE_DIAGONAL_BARS.get());
     }
 
     public static Item.Properties baseItem() {

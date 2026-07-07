@@ -10,10 +10,9 @@ import net.minecraft.world.level.block.Block;
 import java.util.List;
 
 /**
- * Item form of the leaded glass door. Carries the top-half glass design in the
- * {@code leaded_glass_config} data component (taken from the pane it was crafted with); a plain
- * design shows its colour in the name, every other frame lists its colours per row in the tooltip
- * (see {@link LeadedGlassTooltip}).
+ * Item form of the leaded glass door. Carries both halves' glass designs in the
+ * {@code leaded_glass_door_config} data component (from the two panes it was crafted with); the
+ * tooltip lists each half (see {@link LeadedGlassTooltip#appendDoor}).
  */
 public class LeadedGlassDoorItem extends BlockItem {
     public LeadedGlassDoorItem(Block block, Properties properties) {
@@ -21,12 +20,7 @@ public class LeadedGlassDoorItem extends BlockItem {
     }
 
     @Override
-    public Component getName(ItemStack stack) {
-        return LeadedGlassTooltip.name(stack, super.getName(stack));
-    }
-
-    @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        LeadedGlassTooltip.append(stack, tooltip);
+        LeadedGlassTooltip.appendDoor(stack, tooltip);
     }
 }

@@ -2,6 +2,8 @@ package com.phantomwing.theleadage.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.phantomwing.theleadage.block.entity.LeadedGlassDoorBlockEntity;
+import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -10,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-/** Draws the configurable glass into the top half of a leaded glass door (see LeadedGlassSurface). */
+/** Draws the configurable glass into each half of a leaded glass door (see LeadedGlassSurface). */
 public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassDoorBlockEntity> {
     public LeadedGlassDoorRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -19,13 +21,16 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
     public void render(LeadedGlassDoorBlockEntity be, float partialTick, PoseStack pose,
                        MultiBufferSource buffers, int light, int overlay) {
         BlockState state = be.getBlockState();
-        if (be.getLevel() == null || !(state.getBlock() instanceof DoorBlock)
-                || state.getValue(DoorBlock.HALF) != DoubleBlockHalf.UPPER) {
-            return; // glass only on the top half
+        if (be.getLevel() == null || !(state.getBlock() instanceof DoorBlock)) {
+            return;
         }
+        // The upper half shows the top pane, the lower half the bottom pane.
+        LeadedGlassDoorConfig config = be.getConfig();
+        LeadedGlassConfig pane = state.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER
+                ? config.top() : config.bottom();
         VoxelShape shape = state.getShape(be.getLevel(), be.getBlockPos());
         if (!shape.isEmpty()) {
-            LeadedGlassSurface.render(be.getConfig(), shape.bounds(), pose, buffers, light, overlay);
+            LeadedGlassSurface.render(pane, shape.bounds(), pose, buffers, light, overlay);
         }
     }
 }

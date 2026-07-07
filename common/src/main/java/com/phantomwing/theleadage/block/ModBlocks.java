@@ -5,6 +5,8 @@ import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
+import com.phantomwing.theleadage.block.custom.LeadTorchBlock;
+import com.phantomwing.theleadage.block.custom.LeadWallTorchBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassTrapdoorBlock;
 import com.phantomwing.theleadage.block.custom.LeadOreBlock;
 import com.phantomwing.theleadage.sound.ModSoundTypes;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChainBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
+import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -66,6 +69,15 @@ public class ModBlocks {
     public static final RegistrySupplier<RotatedPillarBlock> LEAD_CHAIN = registerLeadChain("lead_chain");
     public static final RegistrySupplier<IronBarsBlock> LEAD_BARS = registerLeadBars("lead_bars");
 
+    // Lead torch: burns a grayish-white lead-salt flame and slowly sickens anyone lingering
+    // beside it (LeadTorchBlockEntity). The lead lantern is the enclosed — and safe — version.
+    public static final RegistrySupplier<Block> LEAD_TORCH = register("lead_torch", () ->
+            new LeadTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TORCH)));
+    public static final RegistrySupplier<Block> LEAD_WALL_TORCH = register("lead_wall_torch", () ->
+            new LeadWallTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WALL_TORCH)));
+    public static final RegistrySupplier<Block> LEAD_LANTERN = register("lead_lantern", () ->
+            new LanternBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LANTERN)));
+
     // Leaded glass: renders/behaves exactly like glass, but requires a pickaxe to
     // drop itself (requiresCorrectToolForDrops + the mineable/pickaxe tag); broken
     // by hand it still shatters, just without a drop. Keeps the glass sound.
@@ -92,6 +104,8 @@ public class ModBlocks {
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.LATTICE, paneProps()));
     public static final RegistrySupplier<Block> LEADED_GLASS_PANE_BARS = register("leaded_glass_pane_bars", () ->
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.BARS, paneProps()));
+    public static final RegistrySupplier<Block> LEADED_GLASS_PANE_DIAGONAL_BARS = register("leaded_glass_pane_diagonal_bars", () ->
+            LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.DIAGONAL_BARS, paneProps()));
 
     private static BlockBehaviour.Properties paneProps() {
         return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops().noOcclusion();
@@ -109,6 +123,7 @@ public class ModBlocks {
             case DIAMOND -> LEADED_GLASS_PANE_DIAMOND.get();
             case LATTICE -> LEADED_GLASS_PANE_LATTICE.get();
             case BARS_H, BARS_V -> LEADED_GLASS_PANE_BARS.get();
+            case DIAGONAL_BARS_A, DIAGONAL_BARS_B -> LEADED_GLASS_PANE_DIAGONAL_BARS.get();
         };
     }
 

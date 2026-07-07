@@ -5,17 +5,17 @@
     "G": {
       "item": "minecraft:glass"
     },
-    "N": {
-      "item": "theleadage:lead_nugget"
+    "I": {
+      "item": "theleadage:lead_ingot"
     }
   },
   "pattern": [
-    "NNN",
-    "NGN",
-    "NNN"
+    "GGG",
+    "GIG",
+    "GGG"
   ],
   "result": {
-    "count": 1,
+    "count": 8,
     "id": "theleadage:leaded_glass"
   }
 }

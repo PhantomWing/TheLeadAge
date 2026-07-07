@@ -3,7 +3,7 @@ package com.phantomwing.theleadage.block.custom;
 import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.block.ModBlockSetTypes;
 import com.phantomwing.theleadage.block.entity.LeadedGlassDoorBlockEntity;
-import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,14 +49,14 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack); // also places the upper half
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassDoorConfig config = stack.get(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get());
         if (config != null) {
             applyConfig(level, pos, config);
             applyConfig(level, pos.above(), config);
         }
     }
 
-    private static void applyConfig(Level level, BlockPos pos, LeadedGlassConfig config) {
+    private static void applyConfig(Level level, BlockPos pos, LeadedGlassDoorConfig config) {
         if (level.getBlockEntity(pos) instanceof LeadedGlassDoorBlockEntity door) {
             door.setConfig(config);
         }
@@ -66,7 +66,7 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
         ItemStack stack = super.getCloneItemStack(level, pos, state);
         if (level.getBlockEntity(pos) instanceof LeadedGlassDoorBlockEntity door) {
-            stack.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), door.getConfig());
+            stack.set(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(), door.getConfig());
         }
         return stack;
     }
@@ -77,7 +77,7 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
         if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof LeadedGlassDoorBlockEntity door) {
             for (ItemStack drop : drops) {
                 if (drop.is(asItem())) {
-                    drop.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), door.getConfig());
+                    drop.set(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(), door.getConfig());
                 }
             }
         }

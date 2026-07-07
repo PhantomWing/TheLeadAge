@@ -31,7 +31,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.CHISELED_LEAD.get(), ModBlocks.LEAD_PILLAR.get(),
                 ModBlocks.LEAD_GRATE.get(),
                 ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get(),
-                ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(),
+                ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(), ModBlocks.LEAD_LANTERN.get(),
                 ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get(),
                 ModBlocks.LEAD_WEIGHT.get(), ModBlocks.CHIPPED_LEAD_WEIGHT.get(),
                 ModBlocks.DAMAGED_LEAD_WEIGHT.get()};
@@ -88,7 +88,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.LEADED_GLASS_PANE_GRID.get(),
                 ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get(),
                 ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(),
-                ModBlocks.LEADED_GLASS_PANE_BARS.get());
+                ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
         for (DyeColor color : DyeColor.values()) {
             tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
         }

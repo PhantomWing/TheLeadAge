@@ -117,6 +117,14 @@ const REGIONS = {
   },
   bars_h: (u) => u < 16 / 3 ? 0 : (u < 32 / 3 ? 1 : 2),   // left | middle | right
   bars_v: (u, v) => v > 32 / 3 ? 0 : (v > 16 / 3 ? 1 : 2), // top / middle / bottom
+  diagonal_bars_a: (u, v) => {                             // "/" cames at v-u = 7, 0, -7
+    const d = v - u;
+    return d > 7 ? 0 : d > 0 ? 1 : d > -7 ? 2 : 3;         // top-left ... bottom-right
+  },
+  diagonal_bars_b: (u, v) => {                             // "\" cames at u+v = 9, 16, 23
+    const s = u + v;
+    return s > 23 ? 0 : s > 16 ? 1 : s > 9 ? 2 : 3;        // top-right ... bottom-left
+  },
   lattice: (u, v) => {
     // Diamond lattice: "/" lines at p = u-v in {-7, 0, 7}, "\" lines at q = u+v in {9, 16, 23}
     // (pixel-centre coordinates). Regions match LeadedGlassFrame.LATTICE.
@@ -142,6 +150,8 @@ const GLASS_KEYS = {
   diamond: r => 'glass_' + r,
   bars_h: r => 'glass_' + r,
   bars_v: r => 'glass_' + r,
+  diagonal_bars_a: r => 'glass_' + r,
+  diagonal_bars_b: r => 'glass_' + r,
   lattice: () => 'glass',
 };
 
@@ -280,6 +290,8 @@ const FULL_PANES = [
   ['leaded_glass_pane_diamond', 'diamond', 'white_leaded_glass_diamond', ['glass_0', 'glass_1', 'glass_2', 'glass_3', 'glass_4']],
   ['leaded_glass_pane_bars_h', 'bars_h', 'white_leaded_glass_bars_h', ['glass_0', 'glass_1', 'glass_2']],
   ['leaded_glass_pane_bars_v', 'bars_v', 'white_leaded_glass_bars_v', ['glass_0', 'glass_1', 'glass_2']],
+  ['leaded_glass_pane_diagonal_bars_a', 'diagonal_bars_a', 'white_leaded_glass_diagonal_bars_a', ['glass_0', 'glass_1', 'glass_2', 'glass_3']],
+  ['leaded_glass_pane_diagonal_bars_b', 'diagonal_bars_b', 'white_leaded_glass_diagonal_bars_b', ['glass_0', 'glass_1', 'glass_2', 'glass_3']],
 ];
 
 for (const [name, pattern, texture, glassKeys] of FULL_PANES) {
@@ -394,6 +406,14 @@ const VARIANT_PANE_ITEMS = [
   ['leaded_glass_pane_bars_clear', 'leaded_glass_pane_bars_h_clear_012', null],
   ['leaded_glass_pane_bars_v', 'leaded_glass_pane_bars_v', null],
   ['leaded_glass_pane_bars_v_clear', 'leaded_glass_pane_bars_v_clear_012', null],
+  ['leaded_glass_pane_diagonal_bars', 'leaded_glass_pane_diagonal_bars_a', [
+    [{ 'theleadage:clear': 1 }, 'leaded_glass_pane_diagonal_bars_clear'],
+    [{ 'theleadage:diagonal_bars_b': 1 }, 'leaded_glass_pane_diagonal_bars_b'],
+    [{ 'theleadage:diagonal_bars_b': 1, 'theleadage:clear': 1 }, 'leaded_glass_pane_diagonal_bars_b_clear'],
+  ]],
+  ['leaded_glass_pane_diagonal_bars_clear', 'leaded_glass_pane_diagonal_bars_a_clear_0123', null],
+  ['leaded_glass_pane_diagonal_bars_b', 'leaded_glass_pane_diagonal_bars_b', null],
+  ['leaded_glass_pane_diagonal_bars_b_clear', 'leaded_glass_pane_diagonal_bars_b_clear_0123', null],
 ];
 
 for (const [name, blockModel, overrides] of VARIANT_PANE_ITEMS) {

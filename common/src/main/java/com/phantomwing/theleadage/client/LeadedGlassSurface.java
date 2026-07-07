@@ -54,10 +54,12 @@ public final class LeadedGlassSurface {
             case Y -> pose.translate(0, (slab.minY + slab.maxY) / 2.0 - 0.5, 0);
             case Z -> pose.translate(0, 0, (slab.minZ + slab.maxZ) / 2.0 - 0.5);
         }
-        // ...then rotate it onto the slab's plane (thin-z needs no rotation).
+        // ...then rotate it onto the slab's plane (thin-z needs no rotation). A flat surface (thin-y,
+        // the trapdoor flap) lays down with XP -90 so its FRONT face points up; +90 would show the
+        // mirror-authored back face (which reads flipped).
         if (thin != Direction.Axis.Z) {
             pose.translate(0.5, 0.5, 0.5);
-            pose.mulPose(thin == Direction.Axis.X ? Axis.YP.rotationDegrees(90) : Axis.XP.rotationDegrees(90));
+            pose.mulPose(thin == Direction.Axis.X ? Axis.YP.rotationDegrees(90) : Axis.XP.rotationDegrees(-90));
             pose.translate(-0.5, -0.5, -0.5);
         }
         // Stretch the thin axis toward 3px to fill the slab, but stop just short (GLASS_INSET) so the

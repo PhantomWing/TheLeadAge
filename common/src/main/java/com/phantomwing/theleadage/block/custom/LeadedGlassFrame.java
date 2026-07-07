@@ -39,7 +39,11 @@ public enum LeadedGlassFrame implements StringRepresentable {
     /** Three columns behind two vertical cames (three regions: 0 = left, 1 = middle, 2 = right). */
     BARS_H("bars_h", 3),
     /** Three rows behind two horizontal cames (three regions: 0 = top, 1 = middle, 2 = bottom). */
-    BARS_V("bars_v", 3);
+    BARS_V("bars_v", 3),
+    /** Three parallel "/" cames — four diagonal strips (0 = top-left … 3 = bottom-right). */
+    DIAGONAL_BARS_A("diagonal_bars_a", 4),
+    /** Three parallel "\" cames — four diagonal strips (0 = top-right … 3 = bottom-left). */
+    DIAGONAL_BARS_B("diagonal_bars_b", 4);
 
     public static final Codec<LeadedGlassFrame> CODEC = StringRepresentable.fromEnum(LeadedGlassFrame::values);
     public static final StreamCodec<ByteBuf, LeadedGlassFrame> STREAM_CODEC =
@@ -75,6 +79,7 @@ public enum LeadedGlassFrame implements StringRepresentable {
             case LATTICE -> new int[][]{{0, 1}, {2, 3, 4}, {5, 6}, {7, 8, 9}, {10, 11}};
             case BARS_H -> new int[][]{{0, 1, 2}};                     // left · middle · right
             case BARS_V -> new int[][]{{0}, {1}, {2}};                 // top / middle / bottom
+            case DIAGONAL_BARS_A, DIAGONAL_BARS_B -> new int[][]{{0}, {1}, {2}, {3}};
         };
     }
 
@@ -109,6 +114,20 @@ public enum LeadedGlassFrame implements StringRepresentable {
             }
             case BARS_H -> u < 1.0 / 3 ? 0 : (u < 2.0 / 3 ? 1 : 2); // left | middle | right
             case BARS_V -> v > 2.0 / 3 ? 0 : (v > 1.0 / 3 ? 1 : 2); // top / middle / bottom
+            case DIAGONAL_BARS_A -> {                              // "/" cames at v-u = ±7/16, 0
+                double d = v - u;
+                if (d > 7.0 / 16) yield 0;                         // top-left triangle
+                if (d > 0) yield 1;
+                if (d > -7.0 / 16) yield 2;
+                yield 3;                                           // bottom-right triangle
+            }
+            case DIAGONAL_BARS_B -> {                              // "\" cames at u+v = 9/16, 1, 23/16
+                double s = u + v;
+                if (s > 23.0 / 16) yield 0;                        // top-right triangle
+                if (s > 1) yield 1;
+                if (s > 9.0 / 16) yield 2;
+                yield 3;                                           // bottom-left triangle
+            }
             case LATTICE -> {                                // diamond lattice: "/" bands × "\" bands
                 double p = u - v;                                  // "/" lines at -0.5, 0, +0.5
                 double q = u + v;                                  // "\" lines at 0.5, 1, 1.5

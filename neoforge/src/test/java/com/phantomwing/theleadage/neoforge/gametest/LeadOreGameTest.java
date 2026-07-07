@@ -99,12 +99,14 @@ public class LeadOreGameTest {
     public static void doorRecipeCombines(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         RecipeManager recipes = level.getServer().getRecipeManager();
-        CraftingInput input = CraftingInput.of(1, 2, List.of(
+        // A lead door + two panes (first pane in reading order = the door's top half).
+        CraftingInput input = CraftingInput.of(1, 3, List.of(
                 new ItemStack(ModItems.LEAD_DOOR.get()),
+                new ItemStack(ModItems.LEADED_GLASS_PANEL.get()),
                 new ItemStack(ModItems.LEADED_GLASS_PANEL.get())));
         Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, level);
         if (match.isEmpty()) {
-            helper.fail("No crafting recipe matched lead_door + leaded glass pane");
+            helper.fail("No crafting recipe matched lead_door + two leaded glass panes");
             return;
         }
         ItemStack result = match.get().value().assemble(input, level.registryAccess());
@@ -130,37 +132,6 @@ public class LeadOreGameTest {
         // Vanilla behaviour intact: bars still attach to other bars.
         if (!bars.attachsTo(Blocks.IRON_BARS.defaultBlockState(), false)) {
             helper.fail("bars no longer attach to iron bars — the mixin broke vanilla connection");
-        }
-        helper.succeed();
-    }
-
-    /** A lone leaded glass door splits back into a lead door (result) + its pane, design intact (remaining). */
-    @GameTest(template = "empty")
-    public static void doorRecipeSplits(GameTestHelper helper) {
-        ServerLevel level = helper.getLevel();
-        RecipeManager recipes = level.getServer().getRecipeManager();
-        LeadedGlassConfig config = new LeadedGlassConfig(LeadedGlassFrame.SPLIT_H, List.of(14, 11)); // red | blue
-        ItemStack door = new ItemStack(ModItems.LEADED_GLASS_DOOR.get());
-        door.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), config);
-        CraftingInput input = CraftingInput.of(1, 1, List.of(door));
-
-        Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, level);
-        if (match.isEmpty()) {
-            helper.fail("No crafting recipe matched a lone leaded glass door");
-            return;
-        }
-        CraftingRecipe recipe = match.get().value();
-        ItemStack result = recipe.assemble(input, level.registryAccess());
-        if (!result.is(ModItems.LEAD_DOOR.get())) {
-            helper.fail("Split result was " + result + ", expected lead_door");
-            return;
-        }
-        ItemStack pane = recipe.getRemainingItems(input).get(0);
-        LeadedGlassConfig got = pane.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
-        if (!pane.is(ModItems.LEADED_GLASS_PANE_SPLIT.get())
-                || got == null || got.frame() != LeadedGlassFrame.SPLIT_H || !got.colors().equals(config.colors())) {
-            helper.fail("Returned pane was " + pane + " with config " + got + ", expected a split pane keeping red|blue");
-            return;
         }
         helper.succeed();
     }
@@ -220,6 +191,15 @@ public class LeadOreGameTest {
         assertRegion(helper, LeadedGlassFrame.BARS_V, 0.5, 0.83, 0);    // top
         assertRegion(helper, LeadedGlassFrame.BARS_V, 0.5, 0.50, 1);    // middle
         assertRegion(helper, LeadedGlassFrame.BARS_V, 0.5, 0.17, 2);    // bottom
+        // Diagonal bars: four "/" (or "\") strips, 0 at the top-left (top-right for B) corner.
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_A, 0.1, 0.9, 0);   // top-left triangle
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_A, 0.3, 0.6, 1);
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_A, 0.6, 0.3, 2);
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_A, 0.9, 0.1, 3);   // bottom-right triangle
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_B, 0.9, 0.9, 0);   // top-right triangle
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_B, 0.65, 0.65, 1);
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_B, 0.35, 0.35, 2);
+        assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_B, 0.1, 0.1, 3);   // bottom-left triangle
         helper.succeed();
     }
 

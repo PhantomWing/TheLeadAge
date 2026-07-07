@@ -6,6 +6,9 @@
   "mixins": [
     "IronBarsBlockMixin"
   ],
+  "client": [
+    "StonecutterScreenMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

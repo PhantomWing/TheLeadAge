@@ -2,10 +2,5 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "theleadage:item/leaded_glass_door"
-  },
-  "overrides": [
-    { "predicate": { "theleadage:split_h": 1 }, "model": "theleadage:item/leaded_glass_door_split_h" },
-    { "predicate": { "theleadage:split_v": 1 }, "model": "theleadage:item/leaded_glass_door_split_v" },
-    { "predicate": { "theleadage:plus": 1 }, "model": "theleadage:item/leaded_glass_door_plus" }
-  ]
+  }
 }

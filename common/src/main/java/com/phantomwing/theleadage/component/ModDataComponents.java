@@ -20,6 +20,13 @@ public class ModDataComponents {
                     .networkSynchronized(LeadedGlassConfig.STREAM_CODEC)
                     .build());
 
+    // The leaded glass door's design: a pane per half (top + bottom).
+    public static final RegistrySupplier<DataComponentType<LeadedGlassDoorConfig>> LEADED_GLASS_DOOR_CONFIG =
+            DATA_COMPONENTS.register("leaded_glass_door_config", () -> DataComponentType.<LeadedGlassDoorConfig>builder()
+                    .persistent(LeadedGlassDoorConfig.CODEC)
+                    .networkSynchronized(LeadedGlassDoorConfig.STREAM_CODEC)
+                    .build());
+
     public static void register() {
         DATA_COMPONENTS.register();
     }

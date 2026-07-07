@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.block.entity;
 
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -17,22 +18,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Holds a leaded glass door's glass design (frame + per-region colours). Unlike the pane, the
- * frame is NOT a block state here — the whole design lives on the block entity and is drawn by
- * {@code LeadedGlassDoorRenderer}, so the door keeps the plain vanilla door state set.
+ * Holds a leaded glass door's design: a pane per half ({@link LeadedGlassDoorConfig#top()} in the
+ * upper half, {@code bottom} in the lower). The whole design lives on the block entity (present on
+ * both halves) and is drawn by {@code LeadedGlassDoorRenderer}, so the door keeps the plain vanilla
+ * door state set.
  */
 public class LeadedGlassDoorBlockEntity extends BlockEntity {
-    private LeadedGlassConfig config = new LeadedGlassConfig(LeadedGlassFrame.PLAIN, List.of(LeadedGlassConfig.CLEAR));
+    private LeadedGlassDoorConfig config = LeadedGlassDoorConfig.DEFAULT;
 
     public LeadedGlassDoorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.LEADED_GLASS_DOOR.get(), pos, state);
     }
 
-    public LeadedGlassConfig getConfig() {
+    public LeadedGlassDoorConfig getConfig() {
         return config;
     }
 
-    public void setConfig(LeadedGlassConfig config) {
+    public void setConfig(LeadedGlassDoorConfig config) {
         this.config = config;
         setChanged();
         if (level != null && !level.isClientSide) {
@@ -43,7 +45,20 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        LeadedGlassFrame frame = LeadedGlassFrame.values()[Math.floorMod(tag.getInt("Frame"), LeadedGlassFrame.values().length)];
+        this.config = new LeadedGlassDoorConfig(
+                loadPane(tag.getCompound("Top")), loadPane(tag.getCompound("Bottom")));
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.put("Top", savePane(config.top()));
+        tag.put("Bottom", savePane(config.bottom()));
+    }
+
+    private static LeadedGlassConfig loadPane(CompoundTag tag) {
+        LeadedGlassFrame frame = LeadedGlassFrame.values()[
+                Math.floorMod(tag.getInt("Frame"), LeadedGlassFrame.values().length)];
         List<Integer> colors = new ArrayList<>();
         for (int id : tag.getIntArray("Colors")) {
             colors.add(id);
@@ -51,14 +66,14 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
         if (colors.isEmpty()) {
             colors = List.of(LeadedGlassConfig.CLEAR);
         }
-        this.config = new LeadedGlassConfig(frame, colors);
+        return new LeadedGlassConfig(frame, colors);
     }
 
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("Frame", config.frame().ordinal());
-        tag.putIntArray("Colors", config.colors().stream().mapToInt(Integer::intValue).toArray());
+    private static CompoundTag savePane(LeadedGlassConfig pane) {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("Frame", pane.frame().ordinal());
+        tag.putIntArray("Colors", pane.colors().stream().mapToInt(Integer::intValue).toArray());
+        return tag;
     }
 
     // ---- Client sync (the design must reach the client for the renderer) ----

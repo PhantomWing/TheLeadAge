@@ -65,6 +65,11 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .renderType(RenderType.cutout().name);
         // Bars: flat sprite of the block texture (cutout for the transparency).
         paneItem("lead_bars", "lead_bars", RenderType.cutout().name);
+        // Torch: flat sprite of the block texture (like vanilla); lantern has a dedicated item sprite.
+        paneItem("lead_torch", "lead_torch", RenderType.cutout().name);
+        withExistingParent("lead_lantern", mcLoc("item/generated"))
+                .texture("layer0", modLoc("item/lead_lantern"))
+                .renderType(RenderType.cutout().name);
         // Leaded glass pane item models come from scripts/genpanes.js, NOT datagen: their GUI
         // display must be an explicit identity transform (flat, front-facing, filling the 16x16
         // slot) to shadow block/block's isometric view, and NeoForge's transforms builder
