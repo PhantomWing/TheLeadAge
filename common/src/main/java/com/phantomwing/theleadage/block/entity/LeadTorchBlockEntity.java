@@ -1,12 +1,10 @@
 package com.phantomwing.theleadage.block.entity;
 
+import com.phantomwing.theleadage.effect.LeadFumes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,22 +17,21 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The lead torch's slow poison: an open lead-salt flame. Living entities that linger within
- * {@value #RADIUS} blocks for about {@value #LINGER_SCANS} seconds catch the Hunger effect, and the
- * torch lets out a wisp of toxic fumes (the same smoke + sickly olive swirl as lead ore). Leaving
- * the radius resets the build-up; undead don't breathe, so they're immune. The lead lantern is the
- * enclosed — and therefore safe — alternative.
+ * The lead torch's slow poison: an open lead-salt flame. A player who lingers within {@value #RADIUS}
+ * blocks catches a dose of Lead Sickness every ~{@value #LINGER_SCANS}s, climbing the same staged ladder
+ * as lead-ore fumes — <b>Hunger → +Weakness → +Poison +Nausea</b>, one stage per dose (see
+ * {@link LeadFumes#escalate}) — with a wisp of toxic fumes at each trigger. Leaving the radius resets the
+ * build-up. Only players are affected; the enclosed lead lantern is the safe alternative.
  *
  * <p>Exposure build-up is transient (not saved): a torch forgets bystanders on chunk reload, which
  * just restarts the linger timer.</p>
  */
 public class LeadTorchBlockEntity extends BlockEntity {
     private static final int SCAN_INTERVAL = 20;   // scan once a second
-    private static final int LINGER_SCANS = 5;     // ~5s of staying nearby before the dose
+    private static final int LINGER_SCANS = 5;     // ~5s of staying nearby before each dose
     private static final double RADIUS = 2.5;
-    private static final int HUNGER_TICKS = 240;   // 12s — refreshed while you keep lingering
 
-    /** Consecutive scans each nearby entity has been in range (cleared the moment it leaves). */
+    /** Consecutive scans each nearby player has been in range (cleared the moment they leave). */
     private final Map<UUID, Integer> exposure = new HashMap<>();
     private int cooldown;
 
@@ -52,21 +49,20 @@ public class LeadTorchBlockEntity extends BlockEntity {
         Map<UUID, Integer> exposure = torch.exposure;
         Map<UUID, Integer> present = new HashMap<>();
         AABB box = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
-        for (LivingEntity entity : serverLevel.getEntitiesOfClass(LivingEntity.class, box)) {
-            if (entity.isInvertedHealAndHarm()                     // undead don't breathe the fumes
-                    || entity.position().distanceTo(center) > RADIUS
-                    || (entity instanceof Player player && (player.isCreative() || player.isSpectator()))) {
+        for (Player player : serverLevel.getEntitiesOfClass(Player.class, box)) {
+            if (player.isCreative() || player.isSpectator()
+                    || player.position().distanceTo(center) > RADIUS) {
                 continue;
             }
-            int scans = exposure.getOrDefault(entity.getUUID(), 0) + 1;
+            int scans = exposure.getOrDefault(player.getUUID(), 0) + 1;
             if (scans >= LINGER_SCANS) {
-                entity.addEffect(new MobEffectInstance(MobEffects.HUNGER, HUNGER_TICKS, 0));
+                LeadFumes.escalate(player); // climb one Lead Sickness stage, then re-fume
                 emitFumes(serverLevel, pos);
-                scans = 0; // re-dose (and re-fume) after another linger period
+                scans = 0; // restart the linger timer for the next stage
             }
-            present.put(entity.getUUID(), scans);
+            present.put(player.getUUID(), scans);
         }
-        // Only entities still in range keep their build-up; stepping away resets it.
+        // Only players still in range keep their build-up; stepping away resets it.
         exposure.clear();
         exposure.putAll(present);
     }

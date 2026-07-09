@@ -50,8 +50,12 @@ public final class LeadFumes {
         }
     }
 
-    /** Climb one stage, then (re)apply every effect up to it, so the sickness STACKS rather than swaps. */
-    private static void escalate(LivingEntity entity) {
+    /**
+     * One dose: climb one stage, then (re)apply every effect up to it, so the sickness STACKS rather
+     * than swaps. Shared by the ore fumes ({@link #expose}) and the lead torch, so both walk the same
+     * <b>Hunger → +Weakness → +Poison +Nausea</b> ladder on repeated exposure.
+     */
+    public static void escalate(LivingEntity entity) {
         applyStack(entity, Math.min(currentStage(entity) + 1, 3));
     }
 

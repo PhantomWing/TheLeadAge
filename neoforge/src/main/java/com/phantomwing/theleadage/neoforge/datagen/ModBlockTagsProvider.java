@@ -50,6 +50,10 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.BEACON_BASE_BLOCKS).add(ModBlocks.LEAD_BLOCK.get());
 
+        // A standing lead torch on a wall forces the wall's centre post, like a vanilla torch
+        // (vanilla lists only the standing torches here, not the wall variants).
+        tag(BlockTags.WALL_POST_OVERRIDE).add(ModBlocks.LEAD_TORCH.get());
+
         // The lead building set, grouped into sub-tags rolled up under #lead_blocks.
         tag(ModTags.Blocks.SOLID_LEAD_BLOCKS).add(
                 ModBlocks.LEAD_BLOCK.get(), ModBlocks.CUT_LEAD.get(), ModBlocks.LEAD_BRICKS.get(),
@@ -75,20 +79,25 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
             tag(ModTags.Blocks.LEADED_GLASS_BLOCKS).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
         }
 
-        // Dense lead (and leaded glass, like vanilla glass) is watertight: no water droplets drip from
-        // the underside when water sits above or it is waterlogged.
-        tag(BlockTags.IMPERMEABLE)
-                .addTag(ModTags.Blocks.LEAD_BLOCKS)
-                .addTag(ModTags.Blocks.LEADED_GLASS_BLOCKS);
-
-        // Leaded glass + the pane (incl. all dyed glass) need a pickaxe to drop, but any
-        // tier (fragile like glass), so they're only mineable/pickaxe — not NEEDS_STONE_TOOL.
-        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEADED_GLASS.get(), ModBlocks.LEADED_GLASS_PANEL.get(),
+        Block[] leadedGlassPanes = {
+                ModBlocks.LEADED_GLASS_PANEL.get(),
                 ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
                 ModBlocks.LEADED_GLASS_PANE_GRID.get(),
                 ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get(),
                 ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(),
-                ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+                ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get()};
+
+        // Dense lead (and leaded glass, like vanilla glass) is watertight: no water droplets drip from
+        // the underside when water sits above or it is waterlogged. The panes are impermeable too, like
+        // vanilla glass panes, so rain/precipitation doesn't render through them.
+        tag(BlockTags.IMPERMEABLE)
+                .addTag(ModTags.Blocks.LEAD_BLOCKS)
+                .addTag(ModTags.Blocks.LEADED_GLASS_BLOCKS)
+                .add(leadedGlassPanes);
+
+        // Leaded glass + the panes (incl. all dyed glass) need a pickaxe to drop, but any
+        // tier (fragile like glass), so they're only mineable/pickaxe — not NEEDS_STONE_TOOL.
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEADED_GLASS.get()).add(leadedGlassPanes);
         for (DyeColor color : DyeColor.values()) {
             tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
         }
