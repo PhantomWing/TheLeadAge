@@ -105,8 +105,12 @@ public final class LeadedGlassSurface {
             if (pane.cameType().orientation != null) {
                 state = state.setValue(pane.cameType().orientation, pane.cameType().orientationOf(frame));
             }
-            for (int i = 0; i < frame.regions(); i++) {
-                state = state.setValue(LeadedGlassPaneBlock.CLEAR[i], config.colorAt(i) == null);
+            // Dynamic (cell-based) panes carry no clear_N state; their clear regions come from render
+            // data, not the block state, so there is nothing to set here.
+            if (!pane.cameType().isDynamic()) {
+                for (int i = 0; i < frame.regions(); i++) {
+                    state = state.setValue(LeadedGlassPaneBlock.CLEAR[i], config.colorAt(i) == null);
+                }
             }
         }
         return state;

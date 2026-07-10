@@ -87,13 +87,13 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(),
                 ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get()};
 
-        // Dense lead (and leaded glass, like vanilla glass) is watertight: no water droplets drip from
-        // the underside when water sits above or it is waterlogged. The panes are impermeable too, like
-        // vanilla glass panes, so rain/precipitation doesn't render through them.
+        // Dense lead and the full leaded glass blocks (like vanilla glass) are impermeable: no water
+        // droplets drip through, and they seal cleanly against water. NOTE: panes are deliberately NOT
+        // here — vanilla glass panes aren't impermeable either. Panes stop rain by blocking motion
+        // (MOTION_BLOCKING heightmap) via paneProps().forceSolidOn(), not through this tag.
         tag(BlockTags.IMPERMEABLE)
                 .addTag(ModTags.Blocks.LEAD_BLOCKS)
-                .addTag(ModTags.Blocks.LEADED_GLASS_BLOCKS)
-                .add(leadedGlassPanes);
+                .addTag(ModTags.Blocks.LEADED_GLASS_BLOCKS);
 
         // Leaded glass + the panes (incl. all dyed glass) need a pickaxe to drop, but any
         // tier (fragile like glass), so they're only mineable/pickaxe — not NEEDS_STONE_TOOL.

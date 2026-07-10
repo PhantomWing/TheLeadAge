@@ -20,9 +20,11 @@ import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -32,6 +34,8 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
@@ -51,9 +55,10 @@ import java.util.List;
  * picks the clear vs. coloured texture. Orientable types (e.g. split) carry an {@code orientation}
  * that selects a distinct model and can be cycled in place by sneak-right-click.
  */
-public class LeadedGlassPaneBlock extends Block implements EntityBlock {
+public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWaterloggedBlock {
     public static final EnumProperty<AttachFace> FACE = BlockStateProperties.ATTACH_FACE;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty[] CLEAR = {
             BooleanProperty.create("clear_0"), BooleanProperty.create("clear_1"),
             BooleanProperty.create("clear_2"), BooleanProperty.create("clear_3"),
@@ -80,9 +85,12 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
     private LeadedGlassPaneBlock(Properties properties) {
         super(properties);
         this.type = pendingType;
-        BlockState state = stateDefinition.any().setValue(FACE, AttachFace.WALL).setValue(FACING, Direction.NORTH);
-        for (int i = 0; i < type.regions; i++) {
-            state = state.setValue(CLEAR[i], true);
+        BlockState state = stateDefinition.any().setValue(FACE, AttachFace.WALL).setValue(FACING, Direction.NORTH)
+                .setValue(WATERLOGGED, false);
+        if (!type.isDynamic()) {
+            for (int i = 0; i < type.regions; i++) {
+                state = state.setValue(CLEAR[i], true);
+            }
         }
         if (type.orientation != null) {
             state = state.setValue(type.orientation, 0);
@@ -110,9 +118,11 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACE, FACING);
-        for (int i = 0; i < pendingType.regions; i++) {
-            builder.add(CLEAR[i]);
+        builder.add(FACE, FACING, WATERLOGGED);
+        if (!pendingType.isDynamic()) {
+            for (int i = 0; i < pendingType.regions; i++) {
+                builder.add(CLEAR[i]);
+            }
         }
         if (pendingType.orientation != null) {
             builder.add(pendingType.orientation);
@@ -128,6 +138,20 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
     }
 
     @Override
+    protected FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+                                     LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         LeadedGlassConfig config = context.getItemInHand().get(ModDataComponents.LEADED_GLASS_CONFIG.get());
         Direction look = context.getNearestLookingDirection();
@@ -136,9 +160,13 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
             case DOWN -> AttachFace.FLOOR;
             default -> AttachFace.WALL;
         };
-        BlockState state = defaultBlockState().setValue(FACE, face).setValue(FACING, context.getHorizontalDirection());
-        for (int i = 0; i < type.regions; i++) {
-            state = state.setValue(CLEAR[i], isClear(config, i));
+        boolean waterlogged = context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER;
+        BlockState state = defaultBlockState().setValue(FACE, face).setValue(FACING, context.getHorizontalDirection())
+                .setValue(WATERLOGGED, waterlogged);
+        if (!type.isDynamic()) {
+            for (int i = 0; i < type.regions; i++) {
+                state = state.setValue(CLEAR[i], isClear(config, i));
+            }
         }
         if (type.orientation != null) {
             state = state.setValue(type.orientation, type.orientationOf(config != null ? config.frame() : null));
@@ -170,7 +198,11 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
             }
             colors.set(region, target == null ? LeadedGlassConfig.CLEAR : target.getId());
             pane.setColors(colors);
-            level.setBlock(pos, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
+            // Dynamic (cell-based) panes carry no clear_N state — the wrapper model reads the block
+            // entity, and setColors already triggered the client re-render; the others flip the state.
+            if (!type.isDynamic()) {
+                level.setBlock(pos, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
+            }
             if (shears) {
                 level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0f, 1.0f);
                 stack.hurtAndBreak(1, player,
@@ -282,11 +314,15 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
                     }
                 }
                 pane.setColors(rotated);
-                BlockState rotatedState = state;
-                for (int i = 0; i < type.regions; i++) {
-                    rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
+                // Dynamic panes have no clear_N state to flip; setColors already synced to the client and
+                // re-rendered the wrapper model. The others flip the state so their block-state model updates.
+                if (!type.isDynamic()) {
+                    BlockState rotatedState = state;
+                    for (int i = 0; i < type.regions; i++) {
+                        rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
+                    }
+                    level.setBlock(pos, rotatedState, Block.UPDATE_ALL);
                 }
-                level.setBlock(pos, rotatedState, Block.UPDATE_ALL);
             }
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 0.7f, 1.1f);
         }
@@ -381,6 +417,16 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock {
 
         public LeadedGlassFrame frame(int orientation) {
             return frames[Math.floorMod(orientation, frames.length)];
+        }
+
+        /**
+         * Cell-based types with many regions ({@link #GRID}, {@link #LATTICE}). These render their
+         * per-region clear/colour from the block entity at draw time (a wrapper baked model retextures
+         * clear cells) rather than via {@code clear_N} block-state properties — otherwise 2^regions
+         * states (Lattice = 4096) explode the block-state count. The ≤5-region types stay on block states.
+         */
+        public boolean isDynamic() {
+            return this == GRID || this == LATTICE;
         }
 
         /** Which orientation index a crafted frame maps to (so split_h/split_v place correctly). */

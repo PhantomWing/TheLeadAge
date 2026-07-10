@@ -5,73 +5,55 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
- * The lead torch's slow poison: an open lead-salt flame. A player who lingers within {@value #RADIUS}
- * blocks catches a dose of Lead Sickness every ~{@value #LINGER_SCANS}s, climbing the same staged ladder
- * as lead-ore fumes — <b>Hunger → +Weakness → +Poison +Nausea</b>, one stage per dose (see
- * {@link LeadFumes#escalate}) — with a wisp of toxic fumes at each trigger. Leaving the radius resets the
- * build-up. Only players are affected; the enclosed lead lantern is the safe alternative.
+ * The lead torch's open lead-salt flame periodically coughs out a burst of toxic fumes — the same
+ * smoke + sickly olive swirl as broken lead ore — at random intervals ({@value #MIN_INTERVAL}–
+ * {@value #MAX_INTERVAL} ticks apart). Any player near the block when a burst fires takes a dose of
+ * Lead Sickness (or climbs a stage), with the same hiss as the ore; the whole exposure just reuses
+ * {@link LeadFumes#expose}. The enclosed lead lantern is the safe alternative.
  *
- * <p>Exposure build-up is transient (not saved): a torch forgets bystanders on chunk reload, which
- * just restarts the linger timer.</p>
+ * <p>The interval timer is transient (not saved): a torch simply re-arms it on chunk reload.</p>
  */
 public class LeadTorchBlockEntity extends BlockEntity {
-    private static final int SCAN_INTERVAL = 20;   // scan once a second
-    private static final int LINGER_SCANS = 5;     // ~5s of staying nearby before each dose
-    private static final double RADIUS = 2.5;
+    private static final int MIN_INTERVAL = 60;    // 3s — shortest gap between fume bursts
+    private static final int MAX_INTERVAL = 200;   // 10s — longest gap
+    private static final double DOSE_CHANCE = 1.0; // guaranteed dose within LeadFumes' full range
 
-    /** Consecutive scans each nearby player has been in range (cleared the moment they leave). */
-    private final Map<UUID, Integer> exposure = new HashMap<>();
-    private int cooldown;
+    /** Ticks until the next fume burst; {@code -1} until the timer is first armed (transient). */
+    private int ticksUntilBurst = -1;
 
     public LeadTorchBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.LEAD_TORCH.get(), pos, state);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, LeadTorchBlockEntity torch) {
-        if (++torch.cooldown < SCAN_INTERVAL || !(level instanceof ServerLevel serverLevel)) {
+        if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        torch.cooldown = 0;
-
-        Vec3 center = Vec3.atCenterOf(pos);
-        Map<UUID, Integer> exposure = torch.exposure;
-        Map<UUID, Integer> present = new HashMap<>();
-        AABB box = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
-        for (Player player : serverLevel.getEntitiesOfClass(Player.class, box)) {
-            if (player.isCreative() || player.isSpectator()
-                    || player.position().distanceTo(center) > RADIUS) {
-                continue;
-            }
-            int scans = exposure.getOrDefault(player.getUUID(), 0) + 1;
-            if (scans >= LINGER_SCANS) {
-                LeadFumes.escalate(player); // climb one Lead Sickness stage, then re-fume
-                emitFumes(serverLevel, pos);
-                scans = 0; // restart the linger timer for the next stage
-            }
-            present.put(player.getUUID(), scans);
+        if (torch.ticksUntilBurst > 0) {
+            torch.ticksUntilBurst--;
+            return;
         }
-        // Only players still in range keep their build-up; stepping away resets it.
-        exposure.clear();
-        exposure.putAll(present);
+        // Re-arm the timer with a fresh random gap. The first pass after load only arms it; every later
+        // firing puffs out a burst of fumes and doses nearby players — like breaking lead ore, on a timer.
+        boolean arming = torch.ticksUntilBurst < 0;
+        torch.ticksUntilBurst = MIN_INTERVAL + serverLevel.getRandom().nextInt(MAX_INTERVAL - MIN_INTERVAL + 1);
+        if (arming) {
+            return;
+        }
+        emitFumes(serverLevel, pos);
+        LeadFumes.expose(serverLevel, pos, DOSE_CHANCE);
     }
 
-    /** A toxic wisp at the torch — a small version of lead ore's smoke + olive swirl burst. */
+    /** A toxic wisp at the torch — the same smoke + olive swirl as lead ore's release. */
     private static void emitFumes(ServerLevel level, BlockPos pos) {
         double cx = pos.getX() + 0.5, cy = pos.getY() + 0.7, cz = pos.getZ() + 0.5;
-        level.sendParticles(ParticleTypes.SMOKE, cx, cy, cz, 5, 0.15, 0.1, 0.15, 0.01);
+        level.sendParticles(ParticleTypes.SMOKE, cx, cy, cz, 6, 0.15, 0.1, 0.15, 0.01);
         level.sendParticles(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 0.345f, 0.463f, 0.325f),
-                cx, cy + 0.1, cz, 4, 0.25, 0.15, 0.25, 0.0);
+                cx, cy + 0.1, cz, 5, 0.25, 0.15, 0.25, 0.0);
     }
 }

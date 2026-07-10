@@ -108,7 +108,12 @@ public class ModBlocks {
             LeadedGlassPaneBlock.of(LeadedGlassPaneBlock.CameType.DIAGONAL_BARS, paneProps()));
 
     private static BlockBehaviour.Properties paneProps() {
-        return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops().noOcclusion();
+        // forceSolidOn: a pane's thin slab is only "solid" (motion-blocking) when full-height, so a
+        // floor/ceiling-mounted pane would otherwise drop out of the MOTION_BLOCKING heightmap and let
+        // rain render through it. Forcing solid keeps every orientation in the heightmap (vanilla panes
+        // are wall-only, so they never hit this) without changing the actual (thin) collision shape.
+        return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
+                .noOcclusion().forceSolidOn();
     }
 
     /** The pane block for a came frame (the orientations of a came type share one block). */

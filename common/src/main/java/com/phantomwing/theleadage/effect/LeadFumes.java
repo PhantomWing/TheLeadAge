@@ -7,13 +7,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * "Lead fumes" exposure. Breaking lead ore immediately exposes nearby living entities, with a
- * distance-based chance (full within {@value #FULL_RANGE} blocks, falling to 0 at {@value #RADIUS}).
- * Undead don't breathe, so they're immune.
+ * "Lead fumes" exposure. Breaking lead ore (and the lead torch's periodic bursts) immediately exposes
+ * nearby <b>players</b>, with a distance-based chance (full within {@value #FULL_RANGE} blocks, falling
+ * to 0 at {@value #RADIUS}). Only players breathe the fumes; other mobs ignore them.
  *
  * <p>Built entirely from vanilla effects — no custom effect, overlay or mixin, so it reads like a
  * pufferfish. The sickness escalates in stages that <em>stack</em>: <b>Hunger → +Weakness →
@@ -32,19 +33,16 @@ public final class LeadFumes {
     private LeadFumes() {
     }
 
-    /** Immediately expose nearby living entities to the fumes (distance-based chance per entity). */
+    /** Immediately expose nearby players to the fumes (distance-based chance per player). */
     public static void expose(ServerLevel level, BlockPos pos, double baseChance) {
         Vec3 center = Vec3.atCenterOf(pos);
         AABB box = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
-        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, box)) {
-            if (entity.isInvertedHealAndHarm()) {
-                continue; // undead don't breathe the fumes
-            }
-            double chance = baseChance * falloff(entity.position().distanceTo(center));
+        for (Player player : level.getEntitiesOfClass(Player.class, box)) {
+            double chance = baseChance * falloff(player.position().distanceTo(center));
             if (chance > 0.0 && level.getRandom().nextDouble() < chance) {
-                escalate(entity);
-                // A toxic hiss the moment the fumes take hold (at the affected entity).
-                level.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
+                escalate(player);
+                // A toxic hiss the moment the fumes take hold (at the affected player).
+                level.playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
             }
         }

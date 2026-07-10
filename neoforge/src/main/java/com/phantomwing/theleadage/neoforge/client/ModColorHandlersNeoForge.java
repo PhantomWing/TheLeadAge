@@ -13,17 +13,24 @@ import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+
+import java.util.Map;
 
 /**
  * Registers the leaded glass client hooks on NeoForge: pane tint providers (per came-type block /
@@ -40,6 +47,23 @@ public final class ModColorHandlersNeoForge {
                 ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
                 ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
                 ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+    }
+
+    @SubscribeEvent
+    static void modifyModels(ModelEvent.ModifyBakingResult event) {
+        // Dynamic (grid/lattice) panes: wrap their baked models so clear cells are retextured from the
+        // block entity at mesh time (see LeadedGlassPaneModel). Other pane types stay on block states.
+        wrapPane(event, ModBlocks.LEADED_GLASS_PANE_GRID.get());
+        wrapPane(event, ModBlocks.LEADED_GLASS_PANE_LATTICE.get());
+    }
+
+    private static void wrapPane(ModelEvent.ModifyBakingResult event, Block block) {
+        ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
+        for (Map.Entry<ModelResourceLocation, BakedModel> e : event.getModels().entrySet()) {
+            if (e.getKey().id().equals(id) && !(e.getValue() instanceof LeadedGlassPaneModel)) {
+                e.setValue(new LeadedGlassPaneModel(e.getValue()));
+            }
+        }
     }
 
     @SubscribeEvent

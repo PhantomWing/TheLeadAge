@@ -1,0 +1,6 @@
+{
+  "sources": [
+    { "type": "minecraft:single", "resource": "theleadage:block/leaded_glass_grid" },
+    { "type": "minecraft:single", "resource": "theleadage:block/leaded_glass_lattice" }
+  ]
+}

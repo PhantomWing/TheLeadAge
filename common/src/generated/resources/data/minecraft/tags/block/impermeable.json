@@ -1,16 +1,6 @@
 {
   "values": [
     "#theleadage:lead_blocks",
-    "#theleadage:leaded_glass_blocks",
-    "theleadage:leaded_glass_pane",
-    "theleadage:leaded_glass_pane_split",
-    "theleadage:leaded_glass_pane_plus",
-    "theleadage:leaded_glass_pane_grid",
-    "theleadage:leaded_glass_pane_diagonal",
-    "theleadage:leaded_glass_pane_cross",
-    "theleadage:leaded_glass_pane_diamond",
-    "theleadage:leaded_glass_pane_lattice",
-    "theleadage:leaded_glass_pane_bars",
-    "theleadage:leaded_glass_pane_diagonal_bars"
+    "#theleadage:leaded_glass_blocks"
   ]
 }

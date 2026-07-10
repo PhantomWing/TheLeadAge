@@ -12,6 +12,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -20,6 +21,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -45,6 +47,19 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
                 ModItems.LEADED_GLASS_PANE_SPLIT.get(), ModItems.LEADED_GLASS_PANE_PLUS.get(),
                 ModItems.LEADED_GLASS_PANE_GRID.get(), ModItems.LEADED_GLASS_PANE_DIAGONAL.get(),
                 ModItems.LEADED_GLASS_PANE_CROSS.get(), ModItems.LEADED_GLASS_PANE_DIAMOND.get(), ModItems.LEADED_GLASS_PANE_LATTICE.get(), ModItems.LEADED_GLASS_PANE_BARS.get(), ModItems.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+
+        // Dynamic (grid/lattice) panes: wrap their baked models so clear cells are retextured from the
+        // block entity at mesh time (Fabric twin of the NeoForge ModelEvent.ModifyBakingResult wrap).
+        ResourceLocation gridId = BuiltInRegistries.BLOCK.getKey(ModBlocks.LEADED_GLASS_PANE_GRID.get());
+        ResourceLocation latticeId = BuiltInRegistries.BLOCK.getKey(ModBlocks.LEADED_GLASS_PANE_LATTICE.get());
+        ModelLoadingPlugin.register(ctx -> ctx.modifyModelAfterBake().register((model, context) -> {
+            var topId = context.topLevelId();
+            if (model != null && topId != null && !(model instanceof LeadedGlassPaneModelFabric)
+                    && (topId.id().equals(gridId) || topId.id().equals(latticeId))) {
+                return new LeadedGlassPaneModelFabric(model);
+            }
+            return model;
+        }));
 
         // Leaded glass door + trapdoor renderers.
         BlockEntityRendererRegistry.register(ModBlockEntities.LEADED_GLASS_DOOR.get(), LeadedGlassDoorRenderer::new);

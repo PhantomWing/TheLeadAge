@@ -219,8 +219,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
         paneVariants(ModBlocks.LEADED_GLASS_PANE_DIAGONAL,
                 paneFamily("leaded_glass_pane_diagonal_a", "leaded_glass_diagonal_a", regionKeys(2), numericClearNames(2)),
                 paneFamily("leaded_glass_pane_diagonal_b", "leaded_glass_diagonal_b", regionKeys(2), numericClearNames(2)));
-        paneMultipart(ModBlocks.LEADED_GLASS_PANE_GRID, "leaded_glass_pane_grid", 9, "leaded_glass_grid");
-        paneMultipart(ModBlocks.LEADED_GLASS_PANE_LATTICE, "leaded_glass_pane_lattice", 12, "leaded_glass_lattice");
+        paneMultipart(ModBlocks.LEADED_GLASS_PANE_GRID, "leaded_glass_pane_grid", 9);
+        paneMultipart(ModBlocks.LEADED_GLASS_PANE_LATTICE, "leaded_glass_pane_lattice", 12);
     }
 
     /**
@@ -290,17 +290,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
         });
     }
 
-    // Panes with too many regions for combined models (2^regions) are multiparts instead: the came
-    // frame plus one part per cell, each cell picking its plain (hand-authored) or clear (a
-    // generated re-texture of it) model.
-    private void paneMultipart(RegistrySupplier<Block> block, String base, int cellCount, String clearTexture) {
+    // Cell-based panes (grid, lattice) have too many regions for per-clear-combo models (2^regions),
+    // so they are DYNAMIC: no clear_N block-state props at all. The multipart just applies the came
+    // frame + every (coloured) cell per face/facing; a wrapper baked model retextures whichever cells
+    // are clear at draw time, reading the block entity (see the per-loader LeadedGlassPaneModel).
+    private void paneMultipart(RegistrySupplier<Block> block, String base, int cellCount) {
         ModelFile came = models().getExistingFile(modLoc("block/" + base + "_came"));
-        ModelFile[][] cells = new ModelFile[cellCount][2];
+        ModelFile[] cells = new ModelFile[cellCount];
         for (int cell = 0; cell < cellCount; cell++) {
-            String name = base + "_cell_" + cell;
-            cells[cell][0] = models().getExistingFile(modLoc("block/" + name));
-            cells[cell][1] = models().withExistingParent(name + "_clear", modLoc("block/" + name))
-                    .texture("glass", modLoc("block/" + clearTexture));
+            cells[cell] = models().getExistingFile(modLoc("block/" + base + "_cell_" + cell));
         }
         MultiPartBlockStateBuilder builder = getMultipartBuilder(block.get());
         for (AttachFace face : AttachFace.values()) {
@@ -311,12 +309,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
                         .condition(LeadedGlassPaneBlock.FACE, face)
                         .condition(LeadedGlassPaneBlock.FACING, facing).end();
                 for (int cell = 0; cell < cellCount; cell++) {
-                    for (boolean clear : new boolean[]{false, true}) {
-                        builder.part().modelFile(cells[cell][clear ? 1 : 0]).rotationX(xRot).rotationY(yRot).addModel()
-                                .condition(LeadedGlassPaneBlock.FACE, face)
-                                .condition(LeadedGlassPaneBlock.FACING, facing)
-                                .condition(LeadedGlassPaneBlock.CLEAR[cell], clear).end();
-                    }
+                    builder.part().modelFile(cells[cell]).rotationX(xRot).rotationY(yRot).addModel()
+                            .condition(LeadedGlassPaneBlock.FACE, face)
+                            .condition(LeadedGlassPaneBlock.FACING, facing).end();
                 }
             }
         }
