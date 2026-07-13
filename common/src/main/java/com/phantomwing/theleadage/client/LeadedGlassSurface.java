@@ -68,6 +68,10 @@ public final class LeadedGlassSurface {
         pose.translate(0.5, 0.5, 0.5);
         pose.scale(GLASS_EDGE_INSET, GLASS_EDGE_INSET, GLASS_INSET * GLASS_DEPTH);
         pose.translate(-0.5, -0.5, -0.5);
+        // The block-form pane models sit 1px off-centre on their thin (canonical z) axis (shifted so a
+        // placed pane lines up with stairs/slabs). The door/trapdoor window wants the design centred in
+        // its frame, so cancel that shift here — innermost, in canonical space, before the depth stretch.
+        pose.translate(0.0, 0.0, 1.0 / 16.0);
 
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentCullBlockSheet());
         RandomSource random = RandomSource.create(42L);

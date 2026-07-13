@@ -68,9 +68,15 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             BooleanProperty.create("clear_10"), BooleanProperty.create("clear_11")
     };
 
-    private static final VoxelShape X_SHAPE = Block.box(0.0, 0.0, 7.0, 16.0, 16.0, 9.0);
-    private static final VoxelShape Z_SHAPE = Block.box(7.0, 0.0, 0.0, 9.0, 16.0, 16.0);
-    private static final VoxelShape Y_SHAPE = Block.box(0.0, 7.0, 0.0, 16.0, 9.0, 16.0);
+    // The glass plane sits 1px off-centre, shifted toward the placement direction (away from the
+    // player) so its front face lands on a pixel edge, lining up with stairs/slabs. One shape per
+    // placement, matching the shifted model. (Floor = down, ceiling = up — the vertical "away".)
+    private static final VoxelShape SHAPE_NORTH = Block.box(0.0, 0.0, 6.0, 16.0, 16.0, 8.0);
+    private static final VoxelShape SHAPE_SOUTH = Block.box(0.0, 0.0, 8.0, 16.0, 16.0, 10.0);
+    private static final VoxelShape SHAPE_EAST = Block.box(8.0, 0.0, 0.0, 10.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_WEST = Block.box(6.0, 0.0, 0.0, 8.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_FLOOR = Block.box(0.0, 6.0, 0.0, 16.0, 8.0, 16.0);
+    private static final VoxelShape SHAPE_CEILING = Block.box(0.0, 8.0, 0.0, 16.0, 10.0, 16.0);
 
     /** Set just before a {@code new}, so {@link #createBlockStateDefinition} (called from super) sees it. */
     private static CameType pendingType;
@@ -131,10 +137,16 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (state.getValue(FACE) != AttachFace.WALL) {
-            return Y_SHAPE;
-        }
-        return state.getValue(FACING).getAxis() == Direction.Axis.Z ? X_SHAPE : Z_SHAPE;
+        return switch (state.getValue(FACE)) {
+            case FLOOR -> SHAPE_FLOOR;
+            case CEILING -> SHAPE_CEILING;
+            case WALL -> switch (state.getValue(FACING)) {
+                case SOUTH -> SHAPE_SOUTH;
+                case EAST -> SHAPE_EAST;
+                case WEST -> SHAPE_WEST;
+                default -> SHAPE_NORTH;
+            };
+        };
     }
 
     @Override
