@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "より重い宝物",
   "theleadage.advancement.obtain_lead_ingot": "鉛を取り出せ",
   "theleadage.advancement.obtain_lead_ingot.description": "鉛インゴットを精錬する",
-  "theleadage.advancement.obtain_lead_chestplate": "重荷",
-  "theleadage.advancement.obtain_lead_chestplate.description": "鉛のチェストプレートを入手する",
-  "theleadage.advancement.obtain_lead_horse_armor": "重騎兵",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "鉛の馬鎧を入手する",
+  "theleadage.advancement.crush_enemy": "デッドウェイト",
+  "theleadage.advancement.crush_enemy.description": "落下する鉛の重りで敵を押しつぶす",
+  "theleadage.advancement.leaded_lights": "鉛ガラス",
+  "theleadage.advancement.leaded_lights.description": "鉛ガラスを手に入れる",
   "tooltip.theleadage.color.clear": "透明",
   "item.theleadage.tinted": "%1$s%2$s"
 }

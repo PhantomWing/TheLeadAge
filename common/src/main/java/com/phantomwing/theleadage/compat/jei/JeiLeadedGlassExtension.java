@@ -33,18 +33,46 @@ public class JeiLeadedGlassExtension implements ICraftingCategoryExtension<JeiLe
     public void setRecipe(RecipeHolder<JeiLeadedGlassRecipe> recipeHolder, IRecipeLayoutBuilder builder,
                           ICraftingGridHelper craftingGridHelper, IFocusGroup focuses) {
         JeiLeadedGlassRecipe recipe = recipeHolder.value();
+        int width = recipe.gridWidth();
+        int height = recipe.gridHeight();
         List<List<ItemStack>> inputs = recipe.inputVariants();
-        List<IRecipeSlotBuilder> slots = craftingGridHelper.createAndSetInputs(
-                builder, inputs, recipe.gridWidth(), recipe.gridHeight());
+        // Always returns 9 slots (a full 3x3); input i is placed at craftingIndex(i), not slot i.
+        List<IRecipeSlotBuilder> slots = craftingGridHelper.createAndSetInputs(builder, inputs, width, height);
         IRecipeSlotBuilder output = craftingGridHelper.createAndSetOutputs(builder, recipe.resultVariants());
 
         List<IIngredientAcceptor<?>> linked = new ArrayList<>();
         for (int i = 0; i < inputs.size(); i++) {
             if (recipe.cyclesAt(i)) {
-                linked.add(slots.get(i));
+                linked.add(slots.get(craftingIndex(i, width, height)));
             }
         }
         linked.add(output);
         builder.createFocusLink(linked.toArray(new IIngredientAcceptor<?>[0]));
+    }
+
+    /**
+     * Where JEI's {@code CraftingGridHelper} places input {@code i} within its fixed 3x3 slot list —
+     * sub-3x3 recipes are anchored into specific cells, so the returned slot for input {@code i} is
+     * {@code slots.get(craftingIndex(i))}, not {@code slots.get(i)}. Mirrors JEI's private mapping.
+     */
+    private static int craftingIndex(int i, int width, int height) {
+        if (width == 1) {
+            return (height == 2 || height == 3) ? (i * 3) + 1 : 4;
+        } else if (height == 1) {
+            return i + 3;
+        } else if (width == 2) {
+            int index = i;
+            if (i > 1) {
+                index++;
+                if (i > 3) {
+                    index++;
+                }
+            }
+            return index;
+        } else if (height == 2) {
+            return i + 3;
+        } else {
+            return i;
+        }
     }
 }

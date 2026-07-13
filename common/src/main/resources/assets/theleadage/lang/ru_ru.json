@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Сокровище потяжелее",
   "theleadage.advancement.obtain_lead_ingot": "Выплавь свинец",
   "theleadage.advancement.obtain_lead_ingot.description": "Выплавьте свинцовый слиток",
-  "theleadage.advancement.obtain_lead_chestplate": "Мёртвый груз",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Получите свинцовый нагрудник",
-  "theleadage.advancement.obtain_lead_horse_armor": "Тяжёлая кавалерия",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Получите свинцовую конскую броню",
+  "theleadage.advancement.crush_enemy": "Мёртвый груз",
+  "theleadage.advancement.crush_enemy.description": "Раздавите врага падающим свинцовым грузом",
+  "theleadage.advancement.leaded_lights": "Свинцовый витраж",
+  "theleadage.advancement.leaded_lights.description": "Получите свинцовое стекло",
   "tooltip.theleadage.color.clear": "Прозрачное",
   "item.theleadage.tinted": "%1$s %2$s"
 }

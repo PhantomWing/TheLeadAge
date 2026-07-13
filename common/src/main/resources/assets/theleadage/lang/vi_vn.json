@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Một kho báu nặng hơn",
   "theleadage.advancement.obtain_lead_ingot": "Lấy chì ra",
   "theleadage.advancement.obtain_lead_ingot.description": "Nung một thỏi chì",
-  "theleadage.advancement.obtain_lead_chestplate": "Gánh nặng",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Nhận một giáp ngực chì",
-  "theleadage.advancement.obtain_lead_horse_armor": "Kỵ binh hạng nặng",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Nhận giáp ngựa chì",
+  "theleadage.advancement.crush_enemy": "Trọng Lượng Chết",
+  "theleadage.advancement.crush_enemy.description": "Đè bẹp kẻ thù bằng Quả Nặng Chì rơi xuống",
+  "theleadage.advancement.leaded_lights": "Kính Chì",
+  "theleadage.advancement.leaded_lights.description": "Nhận được kính chì",
   "tooltip.theleadage.color.clear": "Trong suốt",
   "item.theleadage.tinted": "%2$s %1$s"
 }

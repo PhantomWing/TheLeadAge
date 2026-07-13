@@ -1,0 +1,33 @@
+{
+  "parent": "theleadage:main/obtain_lead_ingot",
+  "criteria": {
+    "crush_enemy": {
+      "conditions": {
+        "killing_blow": {
+          "direct_entity": {
+            "type": "theleadage:lead_weight"
+          }
+        }
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "theleadage.advancement.crush_enemy.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "theleadage:lead_weight"
+    },
+    "title": {
+      "translate": "theleadage.advancement.crush_enemy"
+    }
+  },
+  "requirements": [
+    [
+      "crush_enemy"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "更沉重的宝藏",
   "theleadage.advancement.obtain_lead_ingot": "炼出铅来",
   "theleadage.advancement.obtain_lead_ingot.description": "冶炼一个铅锭",
-  "theleadage.advancement.obtain_lead_chestplate": "死重",
-  "theleadage.advancement.obtain_lead_chestplate.description": "获得一件铅胸甲",
-  "theleadage.advancement.obtain_lead_horse_armor": "重骑兵",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "获得铅马铠",
+  "theleadage.advancement.crush_enemy": "泰山压顶",
+  "theleadage.advancement.crush_enemy.description": "用坠落的铅锤压扁一个敌人",
+  "theleadage.advancement.leaded_lights": "铅框玻璃窗",
+  "theleadage.advancement.leaded_lights.description": "获得一块铅玻璃",
   "tooltip.theleadage.color.clear": "透明",
   "item.theleadage.tinted": "%1$s%2$s"
 }

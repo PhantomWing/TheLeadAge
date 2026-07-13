@@ -78,11 +78,12 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEAD_LANTERN = register("lead_lantern", () ->
             new LanternBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LANTERN)));
 
-    // Leaded glass: renders/behaves exactly like glass, but requires a pickaxe to
-    // drop itself (requiresCorrectToolForDrops + the mineable/pickaxe tag); broken
-    // by hand it still shatters, just without a drop. Keeps the glass sound.
+    // Leaded glass: renders/behaves like glass, but requires a pickaxe to drop itself
+    // (requiresCorrectToolForDrops + the mineable/pickaxe tag). It's pried from its lead
+    // came, not shattered, so it uses the heavy LEAD sound and a lead-gray map colour.
     public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
-            new TransparentBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()));
+            new TransparentBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
+                    .sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)));
 
     // Leaded glass panes — one static block per came type (LeadedGlassPaneBlock.CameType). Colours
     // live on the block entity (tinted); split is orientable (sneak-right-click toggles h/v).
@@ -113,7 +114,7 @@ public class ModBlocks {
         // rain render through it. Forcing solid keeps every orientation in the heightmap (vanilla panes
         // are wall-only, so they never hit this) without changing the actual (thin) collision shape.
         return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
-                .noOcclusion().forceSolidOn();
+                .noOcclusion().forceSolidOn().sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY);
     }
 
     /** The pane block for a came frame (the orientations of a came type share one block). */
@@ -136,12 +137,12 @@ public class ModBlocks {
     // drawn by a renderer). See LeadedGlassDoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_DOOR = register("leaded_glass_door", () ->
             new LeadedGlassDoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion()));
+                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion().sound(SoundType.COPPER)));
 
     // A lead trapdoor whose flap is a configurable leaded glass pane. See LeadedGlassTrapdoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor", () ->
             new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()));
+                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion().sound(SoundType.COPPER)));
 
     // Lead Weight: an 8³ lead ball that falls like an anvil and crushes entities (combat logic in
     // LeadWeightEntity); hangs from a chain when placed under a block. A hard landing can chip it
@@ -212,7 +213,7 @@ public class ModBlocks {
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
         return register(color.getName() + "_leaded_glass", () ->
                 new StainedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
-                        .mapColor(color.getMapColor()).requiresCorrectToolForDrops()));
+                        .mapColor(color.getMapColor()).requiresCorrectToolForDrops().sound(ModSoundTypes.LEAD)));
     }
 
     private static RegistrySupplier<Block> registerLeadWeight(String name) {

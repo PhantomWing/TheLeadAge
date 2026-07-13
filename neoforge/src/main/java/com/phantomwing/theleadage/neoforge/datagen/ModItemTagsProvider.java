@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -67,6 +68,9 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.WALLS).add(ModItems.LEAD_BRICK_WALL.get());
         tag(ItemTags.DOORS).add(ModItems.LEAD_DOOR.get());
         tag(ItemTags.TRAPDOORS).add(ModItems.LEAD_TRAPDOOR.get());
+
+        // Mirror the leaded-glass block tag onto items (used by the "Leaded Lights" advancement).
+        copy(ModTags.Blocks.LEADED_GLASS_BLOCKS, ModTags.Items.LEADED_GLASS_BLOCKS);
     }
 
     private static TagKey<Item> c(String path) {

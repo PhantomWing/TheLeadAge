@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Un tesoro más pesado",
   "theleadage.advancement.obtain_lead_ingot": "Saca el plomo",
   "theleadage.advancement.obtain_lead_ingot.description": "Funde un lingote de plomo",
-  "theleadage.advancement.obtain_lead_chestplate": "Peso muerto",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Consigue un peto de plomo",
-  "theleadage.advancement.obtain_lead_horse_armor": "Caballería pesada",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Consigue una armadura de plomo para caballo",
+  "theleadage.advancement.crush_enemy": "Peso Muerto",
+  "theleadage.advancement.crush_enemy.description": "Aplasta a un enemigo con un Peso de Plomo que cae",
+  "theleadage.advancement.leaded_lights": "Vidriera Emplomada",
+  "theleadage.advancement.leaded_lights.description": "Consigue un bloque de vidrio emplomado",
   "tooltip.theleadage.color.clear": "Transparente",
   "item.theleadage.tinted": "%2$s %1$s"
 }

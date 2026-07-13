@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Een zwaardere schat",
   "theleadage.advancement.obtain_lead_ingot": "Haal het lood eruit",
   "theleadage.advancement.obtain_lead_ingot.description": "Smelt een loodstaaf",
-  "theleadage.advancement.obtain_lead_chestplate": "Dood gewicht",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Verkrijg een loden harnas",
-  "theleadage.advancement.obtain_lead_horse_armor": "Zware cavalerie",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Verkrijg een loden paardenharnas",
+  "theleadage.advancement.crush_enemy": "Dood Gewicht",
+  "theleadage.advancement.crush_enemy.description": "Verpletter een vijand met een vallend Loden Gewicht",
+  "theleadage.advancement.leaded_lights": "Glas-in-lood",
+  "theleadage.advancement.leaded_lights.description": "Verkrijg glas-in-lood",
   "tooltip.theleadage.color.clear": "Transparant",
   "item.theleadage.tinted": "%1$s %2$s"
 }

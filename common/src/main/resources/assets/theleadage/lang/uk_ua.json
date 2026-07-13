@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Важчий скарб",
   "theleadage.advancement.obtain_lead_ingot": "Добудь свинець",
   "theleadage.advancement.obtain_lead_ingot.description": "Виплавте свинцевий зливок",
-  "theleadage.advancement.obtain_lead_chestplate": "Мертвий вантаж",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Отримайте свинцевий нагрудник",
-  "theleadage.advancement.obtain_lead_horse_armor": "Важка кавалерія",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Отримайте свинцеву кінську броню",
+  "theleadage.advancement.crush_enemy": "Мертвий вантаж",
+  "theleadage.advancement.crush_enemy.description": "Розчавіть ворога свинцевим тягарем, що падає",
+  "theleadage.advancement.leaded_lights": "Свинцевий вітраж",
+  "theleadage.advancement.leaded_lights.description": "Отримайте свинцеве скло",
   "tooltip.theleadage.color.clear": "Прозоре",
   "item.theleadage.tinted": "%1$s %2$s"
 }

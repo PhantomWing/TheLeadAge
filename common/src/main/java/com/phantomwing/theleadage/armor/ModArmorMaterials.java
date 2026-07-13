@@ -20,15 +20,15 @@ public class ModArmorMaterials {
     public static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS =
             DeferredRegister.create(TheLeadAge.MOD_ID, Registries.ARMOR_MATERIAL);
 
-    // Heavy plate: very high protection but extremely low durability. The
+    // Heavy plate: diamond/netherite-level protection but extremely low durability. The
     // movement-speed + gravity penalties live on LeadArmorItem. Repaired with lead.
     public static final Holder<ArmorMaterial> LEAD_ARMOR_MATERIAL = register("lead",
-            4,    // boots    (Diamond 3, Netherite 3)
-            7,    // leggings (Diamond 6, Netherite 6)
-            9,    // chestplate (Diamond 8, Netherite 8)
-            4,    // helmet   (Diamond 3, Netherite 3)
+            3,    // boots      (matches Diamond/Netherite 3)
+            6,    // leggings   (matches Diamond/Netherite 6)
+            8,    // chestplate (matches Diamond/Netherite 8)
+            3,    // helmet     (matches Diamond/Netherite 3)
             8,    // body (horse/wolf)
-            3.0f, // toughness (Diamond 2, Netherite 3)
+            0, // toughness (Diamond 2, Netherite 3 — lead is lower at 1)
             0,    // knockback resistance
             5,    // enchantment value
             Ingredient.of(CommonTags.Items.INGOTS_LEAD)

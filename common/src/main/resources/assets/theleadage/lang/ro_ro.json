@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "O comoară mai grea",
   "theleadage.advancement.obtain_lead_ingot": "Scoate plumbul",
   "theleadage.advancement.obtain_lead_ingot.description": "Topește un lingou de plumb",
-  "theleadage.advancement.obtain_lead_chestplate": "Greutate moartă",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Obține o platoșă de plumb",
-  "theleadage.advancement.obtain_lead_horse_armor": "Cavalerie grea",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Obține o armură de plumb pentru cal",
+  "theleadage.advancement.crush_enemy": "Greutate Moartă",
+  "theleadage.advancement.crush_enemy.description": "Strivește un inamic cu o Greutate de Plumb care cade",
+  "theleadage.advancement.leaded_lights": "Vitraliu cu Plumb",
+  "theleadage.advancement.leaded_lights.description": "Obține un bloc de sticlă cu plumb",
   "tooltip.theleadage.color.clear": "Transparent",
   "item.theleadage.tinted": "%2$s %1$s"
 }

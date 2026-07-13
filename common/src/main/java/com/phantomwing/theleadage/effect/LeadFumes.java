@@ -8,13 +8,17 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * "Lead fumes" exposure. Breaking lead ore (and the lead torch's periodic bursts) immediately exposes
  * nearby <b>players</b>, with a distance-based chance (full within {@value #FULL_RANGE} blocks, falling
- * to 0 at {@value #RADIUS}). Only players breathe the fumes; other mobs ignore them.
+ * to 0 at {@value #RADIUS}) and only if nothing solid stands between them. Only players breathe the
+ * fumes; other mobs ignore them.
  *
  * <p>Built entirely from vanilla effects — no custom effect, overlay or mixin, so it reads like a
  * pufferfish. The sickness escalates in stages that <em>stack</em>: <b>Hunger → +Weakness →
@@ -39,13 +43,25 @@ public final class LeadFumes {
         AABB box = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
         for (Player player : level.getEntitiesOfClass(Player.class, box)) {
             double chance = baseChance * falloff(player.position().distanceTo(center));
-            if (chance > 0.0 && level.getRandom().nextDouble() < chance) {
+            if (chance > 0.0 && level.getRandom().nextDouble() < chance && hasClearPath(level, pos, center, player)) {
                 escalate(player);
                 // A toxic hiss the moment the fumes take hold (at the affected player).
                 level.playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
             }
         }
+    }
+
+    /**
+     * Whether the fumes can actually reach the player — a solid wall between the source and the
+     * player's head blocks them. Cast from the player's eyes toward the source (the player end sits
+     * in open air, unlike the source, which may be inside a full-cube ore block); a ray that only
+     * strikes the source block's own position counts as clear.
+     */
+    private static boolean hasClearPath(ServerLevel level, BlockPos pos, Vec3 center, Player player) {
+        BlockHitResult hit = level.clip(new ClipContext(player.getEyePosition(), center,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+        return hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(pos);
     }
 
     /**

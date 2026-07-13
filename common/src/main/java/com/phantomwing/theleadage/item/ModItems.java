@@ -172,26 +172,27 @@ public class ModItems {
 
     // Lead swings very slowly (attack speed ~0.6/s) — the heavy, high-damage half of
     // the glass cannon. -3.4 = 4.0 base attack speed - 3.4.
-    private static final float LEAD_ATTACK_SPEED = -3.4f;
+    // Each lead tool's attack speed is the matching netherite tool's speed minus 0.2 (set per tool
+    // below). Displayed speed = 4.0 + this modifier; damage matches netherite via the tier bonus (4.0).
 
     private static RegistrySupplier<Item> registerSword(String name, Tier tier) {
-        return register(name, (props) -> new SwordItem(tier, props), baseItem().attributes(SwordItem.createAttributes(tier, 3, LEAD_ATTACK_SPEED)));
+        return register(name, (props) -> new SwordItem(tier, props), baseItem().attributes(SwordItem.createAttributes(tier, 3, -2.6f))); // 8 dmg, 1.4 speed
     }
 
     private static RegistrySupplier<Item> registerPickaxe(String name, Tier tier) {
-        return register(name, (props) -> new PickaxeItem(tier, props), baseItem().attributes(PickaxeItem.createAttributes(tier, 1.0f, LEAD_ATTACK_SPEED)));
+        return register(name, (props) -> new PickaxeItem(tier, props), baseItem().attributes(PickaxeItem.createAttributes(tier, 1.0f, -3.0f))); // 6 dmg, 1.0 speed
     }
 
     private static RegistrySupplier<Item> registerAxe(String name, Tier tier) {
-        return register(name, (props) -> new AxeItem(tier, props), baseItem().attributes(AxeItem.createAttributes(tier, 4.5f, LEAD_ATTACK_SPEED)));
+        return register(name, (props) -> new AxeItem(tier, props), baseItem().attributes(AxeItem.createAttributes(tier, 5.0f, -3.2f))); // 10 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerShovel(String name, Tier tier) {
-        return register(name, (props) -> new ShovelItem(tier, props), baseItem().attributes(ShovelItem.createAttributes(tier, 1.5f, LEAD_ATTACK_SPEED)));
+        return register(name, (props) -> new ShovelItem(tier, props), baseItem().attributes(ShovelItem.createAttributes(tier, 1.5f, -3.2f))); // 6.5 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerHoe(String name, Tier tier) {
-        return register(name, (props) -> new HoeItem(tier, props), baseItem().attributes(HoeItem.createAttributes(tier, -2.5f, LEAD_ATTACK_SPEED)));
+        return register(name, (props) -> new HoeItem(tier, props), baseItem().attributes(HoeItem.createAttributes(tier, -4.0f, -0.2f))); // 1 dmg, 3.8 speed
     }
 
     private static RegistrySupplier<Item> registerArmor(String name, Holder<ArmorMaterial> material, ArmorItem.Type type, int durabilityFactor) {

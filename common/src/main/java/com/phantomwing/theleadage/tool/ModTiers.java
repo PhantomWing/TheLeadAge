@@ -10,12 +10,12 @@ import net.minecraft.world.level.block.Block;
 import java.util.function.Supplier;
 
 public class ModTiers {
-    // Lead is a glass cannon: stone-level mining, extremely low durability and very
-    // slow, but hits hard. Repaired with lead ingots.
+    // Lead: stone-level mining and extremely low durability, and 0.2 slower to swing than
+    // netherite — but hits for netherite-level damage. Repaired with lead ingots.
     public static final Tier LEAD = new LeadTier(BlockTags.INCORRECT_FOR_STONE_TOOL,
             50,    // Durability (Gold 32, Wood 59, Stone 131, Iron 250)
             2.0f,  // Mining speed (Wood 2.0, Stone 4.0, Iron 6.0)
-            5.0f,  // Attack damage bonus (Stone 1, Iron 2, Diamond 3, Netherite 4)
+            4.0f,  // Attack damage bonus (matches Netherite; Stone 1, Iron 2, Diamond 3)
             5,     // Enchantability (Stone 5, Iron 14, Gold 22)
             () -> Ingredient.of(CommonTags.Items.INGOTS_LEAD));
 

@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "更沉重的寶藏",
   "theleadage.advancement.obtain_lead_ingot": "煉出鉛來",
   "theleadage.advancement.obtain_lead_ingot.description": "冶煉一個鉛錠",
-  "theleadage.advancement.obtain_lead_chestplate": "死重",
-  "theleadage.advancement.obtain_lead_chestplate.description": "獲得一件鉛胸甲",
-  "theleadage.advancement.obtain_lead_horse_armor": "重騎兵",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "獲得鉛馬鎧",
+  "theleadage.advancement.crush_enemy": "泰山壓頂",
+  "theleadage.advancement.crush_enemy.description": "用墜落的鉛錘壓扁一個敵人",
+  "theleadage.advancement.leaded_lights": "鉛框玻璃窗",
+  "theleadage.advancement.leaded_lights.description": "獲得一塊鉛玻璃",
   "tooltip.theleadage.color.clear": "透明",
   "item.theleadage.tinted": "%1$s%2$s"
 }

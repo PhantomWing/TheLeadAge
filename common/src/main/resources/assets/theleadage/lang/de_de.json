@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Eine schwerere Art von Schatz",
   "theleadage.advancement.obtain_lead_ingot": "Blei gewinnen",
   "theleadage.advancement.obtain_lead_ingot.description": "Schmelze einen Bleibarren",
-  "theleadage.advancement.obtain_lead_chestplate": "Totes Gewicht",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Hol dir einen Bleibrustpanzer",
-  "theleadage.advancement.obtain_lead_horse_armor": "Schwere Kavallerie",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Hol dir einen bleiernen Rossharnisch",
+  "theleadage.advancement.crush_enemy": "Totgewicht",
+  "theleadage.advancement.crush_enemy.description": "Zerquetsche einen Gegner mit einem fallenden Bleigewicht",
+  "theleadage.advancement.leaded_lights": "Bleiverglasung",
+  "theleadage.advancement.leaded_lights.description": "Erhalte ein Stück Bleiglas",
   "tooltip.theleadage.color.clear": "Klar",
   "item.theleadage.tinted": "%1$s %2$s"
 }

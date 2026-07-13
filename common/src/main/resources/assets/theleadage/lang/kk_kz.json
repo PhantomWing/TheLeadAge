@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Ауырлау қазына",
   "theleadage.advancement.obtain_lead_ingot": "Қорғасынды балқыт",
   "theleadage.advancement.obtain_lead_ingot.description": "Қорғасын құймасын балқытыңыз",
-  "theleadage.advancement.obtain_lead_chestplate": "Өлі салмақ",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Қорғасын кіреуке алыңыз",
-  "theleadage.advancement.obtain_lead_horse_armor": "Ауыр атты әскер",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Қорғасын ат сауытын алыңыз",
+  "theleadage.advancement.crush_enemy": "Өлі салмақ",
+  "theleadage.advancement.crush_enemy.description": "Құлаған қорғасын салмағымен жауды жаныштаңыз",
+  "theleadage.advancement.leaded_lights": "Қорғасын шыны",
+  "theleadage.advancement.leaded_lights.description": "Қорғасын шынысын алыңыз",
   "tooltip.theleadage.color.clear": "Мөлдір",
   "item.theleadage.tinted": "%1$s %2$s"
 }

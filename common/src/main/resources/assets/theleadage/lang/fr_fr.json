@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "Un trésor plus lourd",
   "theleadage.advancement.obtain_lead_ingot": "Extraire le plomb",
   "theleadage.advancement.obtain_lead_ingot.description": "Fais fondre un lingot de plomb",
-  "theleadage.advancement.obtain_lead_chestplate": "Poids mort",
-  "theleadage.advancement.obtain_lead_chestplate.description": "Obtiens un plastron en plomb",
-  "theleadage.advancement.obtain_lead_horse_armor": "Cavalerie lourde",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "Obtiens une armure en plomb pour cheval",
+  "theleadage.advancement.crush_enemy": "Poids Mort",
+  "theleadage.advancement.crush_enemy.description": "Écrase un ennemi avec un Poids en Plomb qui tombe",
+  "theleadage.advancement.leaded_lights": "Vitrail au Plomb",
+  "theleadage.advancement.leaded_lights.description": "Obtiens un bloc de verre plombé",
   "tooltip.theleadage.color.clear": "Transparent",
   "item.theleadage.tinted": "%2$s %1$s"
 }

@@ -5,6 +5,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 
@@ -35,6 +36,18 @@ public final class ModTags {
         }
 
         private Blocks() {
+        }
+    }
+
+    public static final class Items {
+        /** Full leaded glass blocks (clear + stained) as items — mirrors {@link Blocks#LEADED_GLASS_BLOCKS}. */
+        public static final TagKey<Item> LEADED_GLASS_BLOCKS = tag("leaded_glass_blocks");
+
+        private static TagKey<Item> tag(String name) {
+            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+        }
+
+        private Items() {
         }
     }
 

@@ -1,13 +1,13 @@
-- Improve lead block placement sounds: Feel heavier, deeper.
-- Improve Lead Weight sounds: Feel heavier, deeper.
-- Improve Leaded Glass Door & Trapdoor sounds (use copper sounds)
-- Tweak Lead tools properties
-- Tweak Lead armor properties
-- Add achievements
+- REI plugin for e.g. world interaction recipes
 
-# Lead Weight
-- Achievement when killing an entity with a Lead Weight: Is it a bird?
+- Rebalance lead tools & armor
+  - No armor toughness
+  - Lower enchantability
+
+- Test armor trimming with lead.
+- Change lead ore/torch fume particle color to light gray.
+- Make lead torches repel creepers.
+- Adjust leaded glass pane models to not be centered, but instead 1px further away from your facing direction.
 
 # Bugs
-- JEI plugin recipes crash on open.
 - Lead Torch/Ore effects can go through walls. Hiding behind a wall should not trigger the effect.

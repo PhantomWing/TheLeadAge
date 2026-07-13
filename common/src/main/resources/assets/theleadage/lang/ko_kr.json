@@ -86,10 +86,10 @@
   "theleadage.advancement.root.description": "더 무거운 보물",
   "theleadage.advancement.obtain_lead_ingot": "납을 뽑아내라",
   "theleadage.advancement.obtain_lead_ingot.description": "납괴를 제련하기",
-  "theleadage.advancement.obtain_lead_chestplate": "무거운 짐",
-  "theleadage.advancement.obtain_lead_chestplate.description": "납 흉갑 획득하기",
-  "theleadage.advancement.obtain_lead_horse_armor": "중기병",
-  "theleadage.advancement.obtain_lead_horse_armor.description": "납 말 갑옷 획득하기",
+  "theleadage.advancement.crush_enemy": "죽은 무게",
+  "theleadage.advancement.crush_enemy.description": "떨어지는 납 추로 적을 짓눌러 처치하기",
+  "theleadage.advancement.leaded_lights": "납 유리창",
+  "theleadage.advancement.leaded_lights.description": "납 유리를 획득하기",
   "tooltip.theleadage.color.clear": "투명",
   "item.theleadage.tinted": "%1$s %2$s"
 }
