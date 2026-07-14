@@ -85,6 +85,13 @@ public class ModItemTagsProvider extends ItemTagsProvider {
 
         // Mirror the leaded-glass block tag onto items (used by the "Leaded Lights" advancement).
         copy(ModTags.Blocks.LEADED_GLASS_BLOCKS, ModTags.Items.LEADED_GLASS_BLOCKS);
+
+        // Item forms of the repellent tags, mirroring vanilla's #minecraft:piglin_repellents item tag.
+        // NOT a copy() of the block tags: the wall torch has no item, and one item (LEAD_TORCH) places
+        // both the standing and wall variants — so, exactly as in vanilla, this is torch + lantern.
+        Item[] burningLeadItems = {ModItems.LEAD_TORCH.get(), ModItems.LEAD_LANTERN.get()};
+        tag(ModTags.Items.CREEPER_REPELLENTS).add(burningLeadItems);
+        tag(ModTags.Items.PILLAGER_REPELLENTS).add(burningLeadItems);
     }
 
     private static TagKey<Item> c(String path) {

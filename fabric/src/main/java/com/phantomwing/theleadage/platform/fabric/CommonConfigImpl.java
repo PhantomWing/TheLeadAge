@@ -20,6 +20,16 @@ public final class CommonConfigImpl {
                 TheLeadAgeFabricConfig.ENABLE_LEAD_ORE_SICKNESS_ID);
     }
 
+    public static boolean creepersAvoidLeadFumes() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.CREEPERS_AVOID_LEAD_FUMES_ID);
+    }
+
+    public static boolean pillagersAvoidLeadFumes() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.PILLAGERS_AVOID_LEAD_FUMES_ID);
+    }
+
     public static boolean enableStructureLoot() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_STRUCTURE_LOOT_ID);

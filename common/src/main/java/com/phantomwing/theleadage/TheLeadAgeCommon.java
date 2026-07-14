@@ -2,6 +2,7 @@ package com.phantomwing.theleadage;
 
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.armor.MonsterArmorHandler;
+import com.phantomwing.theleadage.entity.LeadFumeRepellent;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
@@ -44,5 +45,6 @@ public final class TheLeadAgeCommon {
 
         // Swap naturally-spawned iron armor on certain mobs for lead armor (low chance).
         MonsterArmorHandler.register();
+        LeadFumeRepellent.register(); // lead torches repel creepers + pillagers (see the class doc)
     }
 }

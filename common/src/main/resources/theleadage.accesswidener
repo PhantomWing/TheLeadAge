@@ -8,6 +8,11 @@ accessible	field	net/minecraft/world/entity/LivingEntity	jumping	Z
 # lead BlockSetType (sounds).
 accessible	method	net/minecraft/world/level/block/state/properties/BlockSetType	register	(Lnet/minecraft/world/level/block/state/properties/BlockSetType;)Lnet/minecraft/world/level/block/state/properties/BlockSetType;
 
+# Mob.goalSelector (protected): CreeperRepellent injects the lead-torch avoidance goal into
+# every creeper as it joins the level (creepers are goal-based, so there is no brain/tag hook
+# like the one soul torches use for piglins).
+accessible	field	net/minecraft/world/entity/Mob	goalSelector	Lnet/minecraft/world/entity/ai/goal/GoalSelector;
+
 # FallingBlockEntity.blockState (private): HeavyOrbEntity subclasses FallingBlockEntity
 # and sets the carried block state in its spawn factory (the vanilla position
 # constructor that does this is private and hardcodes EntityType.FALLING_BLOCK).

@@ -26,6 +26,21 @@ public final class CommonConfig {
     }
 
     /**
+     * Gate for creepers fleeing lead torches. Read live, every time the goal considers running, so
+     * flipping it takes effect without a restart (see {@code AvoidRepellentBlockGoal}).
+     */
+    @ExpectPlatform
+    public static boolean creepersAvoidLeadFumes() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Gate for pillagers fleeing lead torches. Read live, exactly like the creeper toggle. */
+    @ExpectPlatform
+    public static boolean pillagersAvoidLeadFumes() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /**
      * Gate for structure/chest loot injection (lead horse armor replacing iron
      * horse armor). Read at loot-roll time by the NeoForge Global Loot Modifiers
      * and the Fabric loot mixin.

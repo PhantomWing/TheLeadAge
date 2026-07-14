@@ -16,6 +16,12 @@ public class Configuration {
     public static final String ENABLE_LEAD_ORE_SICKNESS_ID = "enable_lead_ore_sickness";
     public static final ModConfigSpec.BooleanValue ENABLE_LEAD_ORE_SICKNESS;
 
+    public static final String CREEPERS_AVOID_LEAD_FUMES_ID = "creepers_avoid_lead_fumes";
+    public static final ModConfigSpec.BooleanValue CREEPERS_AVOID_LEAD_FUMES;
+
+    public static final String PILLAGERS_AVOID_LEAD_FUMES_ID = "pillagers_avoid_lead_fumes";
+    public static final ModConfigSpec.BooleanValue PILLAGERS_AVOID_LEAD_FUMES;
+
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public static final ModConfigSpec.BooleanValue ENABLE_RECIPE_OVERRIDES;
 
@@ -38,6 +44,8 @@ public class Configuration {
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> GENERATE_LEAD_ORE.get();
             case ENABLE_LEAD_ORE_SICKNESS_ID -> ENABLE_LEAD_ORE_SICKNESS.get();
+            case CREEPERS_AVOID_LEAD_FUMES_ID -> CREEPERS_AVOID_LEAD_FUMES.get();
+            case PILLAGERS_AVOID_LEAD_FUMES_ID -> PILLAGERS_AVOID_LEAD_FUMES.get();
             case ENABLE_RECIPE_OVERRIDES_ID -> ENABLE_RECIPE_OVERRIDES.get();
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
@@ -59,6 +67,14 @@ public class Configuration {
                 .comment("Should mining lead ore sometimes release fumes (the Lead Sickness effect + particles)?")
                 .translation("text.autoconfig.theleadage.option.enable_lead_ore_sickness")
                 .define(ENABLE_LEAD_ORE_SICKNESS_ID, true);
+        CREEPERS_AVOID_LEAD_FUMES = builder
+                .comment("Should creepers keep away from lit lead torches? They back off rather than close in, but a creeper cornered next to you can still explode.")
+                .translation("text.autoconfig.theleadage.option.creepers_avoid_lead_fumes")
+                .define(CREEPERS_AVOID_LEAD_FUMES_ID, true);
+        PILLAGERS_AVOID_LEAD_FUMES = builder
+                .comment("Should pillagers keep away from lit lead torches? Only while wandering — raids, patrols and pillagers already shooting at you are unaffected.")
+                .translation("text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes")
+                .define(PILLAGERS_AVOID_LEAD_FUMES_ID, true);
         ENABLE_RECIPE_OVERRIDES = builder
                 .comment("Master toggle for the lead recipe overrides below. When off, none of them apply and vanilla recipes are kept.")
                 .translation("text.autoconfig.theleadage.option.enable_recipe_overrides")

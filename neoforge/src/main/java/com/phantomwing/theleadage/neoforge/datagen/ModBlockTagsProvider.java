@@ -66,6 +66,15 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
         // (vanilla lists only the standing torches here, not the wall variants).
         tag(BlockTags.WALL_POST_OVERRIDE).add(ModBlocks.LEAD_TORCH.get());
 
+        // Creepers and pillagers both give burning lead a wide berth (see LeadFumeRepellent) — the
+        // torches and the lantern alike. The lantern is enclosed, so it never doses players with fumes,
+        // but it is still a lead flame and they still want nothing to do with it. The two tags are kept
+        // separate so a pack can scare one mob without scaring the other.
+        Block[] burningLead = {
+                ModBlocks.LEAD_TORCH.get(), ModBlocks.LEAD_WALL_TORCH.get(), ModBlocks.LEAD_LANTERN.get()};
+        tag(ModTags.Blocks.CREEPER_REPELLENTS).add(burningLead);
+        tag(ModTags.Blocks.PILLAGER_REPELLENTS).add(burningLead);
+
         // The lead building set, grouped into sub-tags rolled up under #lead_blocks.
         tag(ModTags.Blocks.SOLID_LEAD_BLOCKS).add(
                 ModBlocks.LEAD_BLOCK.get(), ModBlocks.CUT_LEAD.get(), ModBlocks.LEAD_BRICKS.get(),

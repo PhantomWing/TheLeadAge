@@ -18,6 +18,14 @@ public final class CommonConfigImpl {
         return Configuration.ENABLE_LEAD_ORE_SICKNESS.get();
     }
 
+    public static boolean creepersAvoidLeadFumes() {
+        return Configuration.CREEPERS_AVOID_LEAD_FUMES.get();
+    }
+
+    public static boolean pillagersAvoidLeadFumes() {
+        return Configuration.PILLAGERS_AVOID_LEAD_FUMES.get();
+    }
+
     public static boolean enableStructureLoot() {
         return Configuration.ENABLE_STRUCTURE_LOOT.get();
     }

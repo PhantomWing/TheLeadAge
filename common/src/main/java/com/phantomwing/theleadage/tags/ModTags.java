@@ -37,6 +37,18 @@ public final class ModTags {
         public static final TagKey<Block> LEAD_LATTICE = tag("lead_lattice");
         /** Full leaded glass blocks (clear + stained), excluding panes. Mirrors vanilla glass. */
         public static final TagKey<Block> LEADED_GLASS_BLOCKS = tag("leaded_glass_blocks");
+        /**
+         * Blocks creepers flee from — the lead torches and lantern. The mod-side answer to vanilla's
+         * {@code #minecraft:piglin_repellents}: that tag only works because piglins are brain-based,
+         * and creepers are not, so this one is read by {@code AvoidRepellentBlockGoal} instead.
+         * Datapack-extensible all the same.
+         */
+        public static final TagKey<Block> CREEPER_REPELLENTS = tag("creeper_repellents");
+        /**
+         * Blocks pillagers flee from. Kept separate from {@link #CREEPER_REPELLENTS} so the two mobs can
+         * be tuned independently — a pack may well want a block that scares one but not the other.
+         */
+        public static final TagKey<Block> PILLAGER_REPELLENTS = tag("pillager_repellents");
 
         private static TagKey<Block> tag(String name) {
             return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
@@ -49,6 +61,20 @@ public final class ModTags {
     public static final class Items {
         /** Full leaded glass blocks (clear + stained) as items — mirrors {@link Blocks#LEADED_GLASS_BLOCKS}. */
         public static final TagKey<Item> LEADED_GLASS_BLOCKS = tag("leaded_glass_blocks");
+        /**
+         * The item form of {@link Blocks#CREEPER_REPELLENTS}, mirroring vanilla's
+         * {@code #minecraft:piglin_repellents} item tag (which sits alongside the block tag of the same
+         * name). Note the wall torch has no item, so — exactly as in vanilla — this holds the standing
+         * torch and the lantern only.
+         *
+         * <p>Purely declarative for now: it is the datapack/mod-facing contract for "this item is a
+         * creeper repellent". Nothing in this mod reads it yet, because the vanilla tag's one consumer
+         * ({@code PiglinAi.wantsToPickup} — piglins refuse to pick the item up) has no analogue here:
+         * creepers cannot pick up items at all.</p>
+         */
+        public static final TagKey<Item> CREEPER_REPELLENTS = tag("creeper_repellents");
+        /** The item form of {@link Blocks#PILLAGER_REPELLENTS}. See {@link #CREEPER_REPELLENTS}. */
+        public static final TagKey<Item> PILLAGER_REPELLENTS = tag("pillager_repellents");
 
         private static TagKey<Item> tag(String name) {
             return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
