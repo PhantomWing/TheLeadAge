@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "납 유리창",
   "theleadage.advancement.leaded_lights.description": "납 유리를 획득하기",
   "tooltip.theleadage.color.clear": "투명",
-  "item.theleadage.tinted": "%1$s %2$s"
+  "item.theleadage.tinted": "%1$s %2$s",
+  "theleadage.info.pane": "설치된 납 유리판은 월드에서 꾸밀 수 있습니다. 염료를 들고 유리 구역을 우클릭하면 해당 구역만 염색되고, 가위를 사용하면 다시 투명해집니다. 웅크리고 우클릭하면 무늬를 제자리에서 회전시킬 수 있습니다.",
+  "theleadage.info.door": "설치된 납 유리문에 납 유리판을 들고 웅크린 채 우클릭하면 클릭한 쪽 절반의 유리를 교체합니다. 들고 있던 판이 끼워지고 기존 판은 돌려받습니다.",
+  "theleadage.info.trapdoor": "설치된 납 유리 다락문에 납 유리판을 들고 웅크린 채 우클릭하면 유리를 교체합니다. 들고 있던 판이 끼워지고 기존 판은 돌려받습니다."
 }

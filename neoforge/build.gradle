@@ -24,7 +24,17 @@ def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().cont
 // own providers, so it must be on the DATAGEN runtime classpath too — unlike the mods above.
 //   ./gradlew :neoforge:runClient -Penable_create=false
 def loadCreate = (project.findProperty('enable_create') ?: rootProject.enable_create).toString().toBoolean()
-logger.lifecycle("[TheLeadAge] (neoforge) Create: ${loadCreate}")
+
+// Which recipe viewer to load in the dev run. The mod ships plugins for BOTH JEI and EMI; running
+// them together is just noise, so pick one:
+//   ./gradlew :neoforge:runClient -Precipe_viewer=jei|emi|both|none
+def selectedRecipeViewer = (project.findProperty('recipe_viewer') ?: rootProject.recipe_viewer).toString()
+if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
+    throw new GradleException("Invalid recipe_viewer='${selectedRecipeViewer}'. Valid values: jei, emi, both, none")
+}
+def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
+def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
+logger.lifecycle("[TheLeadAge] (neoforge) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi}), Create: ${loadCreate}")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -105,7 +115,12 @@ dependencies {
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
     //      never shipped, never a hard dependency). Skipped for the game-test run. ----
     if (!runningGameTest && !runningDataGen) {
-        modLocalRuntime("mezz.jei:jei-1.21.1-neoforge:${rootProject.jei_version}")
+        if (loadJei) {
+            modLocalRuntime("mezz.jei:jei-1.21.1-neoforge:${rootProject.jei_version}")
+        }
+        if (loadEmi) {
+            modLocalRuntime("dev.emi:emi-neoforge:${rootProject.emi_version}")
+        }
         modLocalRuntime("squeek.appleskin:appleskin-neoforge:mc1.21-${rootProject.appleskin_version}")
         // The Silver Age (sibling mod) from CurseForge, for side-by-side comparison.
         modLocalRuntime("curse.maven:the-silver-age-1355287:8190186")

@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "Vidriera Emplomada",
   "theleadage.advancement.leaded_lights.description": "Conseguí un bloque de vidrio emplomado",
   "tooltip.theleadage.color.clear": "Transparente",
-  "item.theleadage.tinted": "%2$s %1$s"
+  "item.theleadage.tinted": "%2$s %1$s",
+  "theleadage.info.pane": "Los paneles de vidrio emplomado colocados se pueden personalizar en el mundo: hacé clic derecho en una región de vidrio con un tinte para colorear solo esa región, usá tijeras para volver a dejarla transparente y agachate y hacé clic derecho para girar el patrón en el lugar.",
+  "theleadage.info.door": "Agachate y hacé clic derecho en una puerta de vidrio emplomado colocada con un panel de vidrio emplomado en la mano para volver a acristalar la mitad en la que hiciste clic: el panel entra y el viejo se te devuelve.",
+  "theleadage.info.trapdoor": "Agachate y hacé clic derecho en una trampilla de vidrio emplomado colocada con un panel de vidrio emplomado en la mano para volver a acristalarla: el panel entra y el viejo se te devuelve."
 }

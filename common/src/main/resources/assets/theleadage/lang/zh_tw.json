@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "鉛框玻璃窗",
   "theleadage.advancement.leaded_lights.description": "獲得一塊鉛玻璃",
   "tooltip.theleadage.color.clear": "透明",
-  "item.theleadage.tinted": "%1$s%2$s"
+  "item.theleadage.tinted": "%1$s%2$s",
+  "theleadage.info.pane": "放置後的鉛框玻璃板可以在世界中自訂：手持染料右鍵點擊某個玻璃區域即可只為該區域上色，使用剪刀可將其重新變回透明，潛行+右鍵可原地旋轉圖案。",
+  "theleadage.info.door": "手持鉛框玻璃板，潛行+右鍵點擊已放置的鉛框玻璃門，即可為你點擊的那一半重新鑲嵌玻璃——手中的玻璃板會裝上去，原來的會返還給你。",
+  "theleadage.info.trapdoor": "手持鉛框玻璃板，潛行+右鍵點擊已放置的鉛框玻璃活板門，即可重新鑲嵌玻璃——手中的玻璃板會裝上去，原來的會返還給你。"
 }

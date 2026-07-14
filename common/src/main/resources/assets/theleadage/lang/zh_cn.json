@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "铅框玻璃窗",
   "theleadage.advancement.leaded_lights.description": "获得一块铅玻璃",
   "tooltip.theleadage.color.clear": "透明",
-  "item.theleadage.tinted": "%1$s%2$s"
+  "item.theleadage.tinted": "%1$s%2$s",
+  "theleadage.info.pane": "放置后的铅框玻璃板可以在世界中自定义：手持染料右键点击某个玻璃区域即可只为该区域上色，使用剪刀可将其重新变回透明，潜行+右键可原地旋转图案。",
+  "theleadage.info.door": "手持铅框玻璃板，潜行+右键点击已放置的铅框玻璃门，即可为你点击的那一半重新镶嵌玻璃——手中的玻璃板会装上去，原来的会返还给你。",
+  "theleadage.info.trapdoor": "手持铅框玻璃板，潜行+右键点击已放置的铅框玻璃活板门，即可重新镶嵌玻璃——手中的玻璃板会装上去，原来的会返还给你。"
 }

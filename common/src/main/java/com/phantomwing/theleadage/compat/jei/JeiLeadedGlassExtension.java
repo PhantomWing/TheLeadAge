@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.compat.jei;
 
+import com.phantomwing.theleadage.compat.LeadedGlassDisplayRecipe;
 import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
@@ -13,26 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Renders {@link JeiLeadedGlassRecipe} in JEI's crafting category. Every colour-bearing input slot
- * and the output are focus-linked, so the 17 colour variants (clear + each dye) cycle in lockstep —
- * a red input visibly produces the red result. Constant slots (the lead ingot / door / trapdoor)
- * show a single stack and stay outside the link.
+ * Renders {@link LeadedGlassDisplayRecipe} in JEI's crafting category. Every colour-bearing input
+ * slot and the output are focus-linked, so the 17 colour variants (clear + each dye) cycle in
+ * lockstep — a red input visibly produces the red result. Constant slots (the lead ingot / door /
+ * trapdoor) show a single stack and stay outside the link.
  */
-public class JeiLeadedGlassExtension implements ICraftingCategoryExtension<JeiLeadedGlassRecipe> {
+public class JeiLeadedGlassExtension implements ICraftingCategoryExtension<LeadedGlassDisplayRecipe> {
     @Override
-    public int getWidth(RecipeHolder<JeiLeadedGlassRecipe> recipeHolder) {
+    public int getWidth(RecipeHolder<LeadedGlassDisplayRecipe> recipeHolder) {
         return recipeHolder.value().gridWidth();
     }
 
     @Override
-    public int getHeight(RecipeHolder<JeiLeadedGlassRecipe> recipeHolder) {
+    public int getHeight(RecipeHolder<LeadedGlassDisplayRecipe> recipeHolder) {
         return recipeHolder.value().gridHeight();
     }
 
     @Override
-    public void setRecipe(RecipeHolder<JeiLeadedGlassRecipe> recipeHolder, IRecipeLayoutBuilder builder,
+    public void setRecipe(RecipeHolder<LeadedGlassDisplayRecipe> recipeHolder, IRecipeLayoutBuilder builder,
                           ICraftingGridHelper craftingGridHelper, IFocusGroup focuses) {
-        JeiLeadedGlassRecipe recipe = recipeHolder.value();
+        LeadedGlassDisplayRecipe recipe = recipeHolder.value();
         int width = recipe.gridWidth();
         int height = recipe.gridHeight();
         List<List<ItemStack>> inputs = recipe.inputVariants();

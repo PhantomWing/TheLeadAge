@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "Glas-in-lood",
   "theleadage.advancement.leaded_lights.description": "Verkrijg glas-in-lood",
   "tooltip.theleadage.color.clear": "Transparant",
-  "item.theleadage.tinted": "%1$s %2$s"
+  "item.theleadage.tinted": "%1$s %2$s",
+  "theleadage.info.pane": "Geplaatste glas-in-loodpanelen kun je in de wereld aanpassen: rechtsklik met een kleurstof op een glasvak om alleen dat vak te kleuren, gebruik een schaar om het weer helder te maken, en sluip + rechtsklik om het patroon ter plekke te draaien.",
+  "theleadage.info.door": "Sluip + rechtsklik op een geplaatste glas-in-looddeur met een glas-in-loodpaneel in de hand om de aangeklikte helft opnieuw te beglazen — het paneel gaat erin en het oude krijg je terug.",
+  "theleadage.info.trapdoor": "Sluip + rechtsklik op een geplaatst glas-in-loodluik met een glas-in-loodpaneel in de hand om het opnieuw te beglazen — het paneel gaat erin en het oude krijg je terug."
 }

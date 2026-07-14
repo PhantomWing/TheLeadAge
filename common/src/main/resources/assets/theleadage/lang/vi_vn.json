@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "Kính Chì",
   "theleadage.advancement.leaded_lights.description": "Nhận được kính chì",
   "tooltip.theleadage.color.clear": "Trong suốt",
-  "item.theleadage.tinted": "%2$s %1$s"
+  "item.theleadage.tinted": "%2$s %1$s",
+  "theleadage.info.pane": "Tấm kính chì đã đặt có thể tùy chỉnh ngay trong thế giới: chuột phải vào một vùng kính bằng thuốc nhuộm để chỉ tô màu vùng đó, dùng kéo để làm nó trong trở lại, và ngồi + chuột phải để xoay hoa văn tại chỗ.",
+  "theleadage.info.door": "Ngồi và chuột phải vào cửa kính chì đã đặt khi đang cầm một tấm kính chì để lắp lại kính cho nửa bạn đã bấm — tấm kính được lắp vào và tấm cũ được trả lại cho bạn.",
+  "theleadage.info.trapdoor": "Ngồi và chuột phải vào cửa sập kính chì đã đặt khi đang cầm một tấm kính chì để lắp lại kính — tấm kính được lắp vào và tấm cũ được trả lại cho bạn."
 }

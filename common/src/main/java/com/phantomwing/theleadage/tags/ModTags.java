@@ -28,6 +28,10 @@ public final class ModTags {
         public static final TagKey<Block> LEAD_TRAPDOORS = tag("lead_trapdoors");
         /** The lead building set: solid blocks + slabs + stairs. Feeds occludes_vibration_signals. */
         public static final TagKey<Block> LEAD_BLOCKS = tag("lead_blocks");
+        /** The lead weight tiers — small but solid lead, the densest thing in the mod. */
+        public static final TagKey<Block> LEAD_WEIGHTS = tag("lead_weights");
+        /** Open-work lead (grate, bars): mostly air, so far lighter than a solid lead block. */
+        public static final TagKey<Block> LEAD_LATTICE = tag("lead_lattice");
         /** Full leaded glass blocks (clear + stained), excluding panes. Mirrors vanilla glass. */
         public static final TagKey<Block> LEADED_GLASS_BLOCKS = tag("leaded_glass_blocks");
 

@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "鉛ガラス",
   "theleadage.advancement.leaded_lights.description": "鉛ガラスを手に入れる",
   "tooltip.theleadage.color.clear": "透明",
-  "item.theleadage.tinted": "%1$s%2$s"
+  "item.theleadage.tinted": "%1$s%2$s",
+  "theleadage.info.pane": "設置した鉛ガラス板はワールド内でカスタマイズできます。染料を持ってガラス区画を右クリックするとその区画だけを着色でき、ハサミを使うと再び透明に戻せます。スニーク＋右クリックでその場で模様を回転できます。",
+  "theleadage.info.door": "設置した鉛ガラスのドアに鉛ガラス板を持ってスニーク＋右クリックすると、クリックした側の半分を入れ替えられます。持っていた板がはめ込まれ、古い板が返却されます。",
+  "theleadage.info.trapdoor": "設置した鉛ガラスのトラップドアに鉛ガラス板を持ってスニーク＋右クリックすると、ガラスを入れ替えられます。持っていた板がはめ込まれ、古い板が返却されます。"
 }

@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "Vitrail au Plomb",
   "theleadage.advancement.leaded_lights.description": "Obtiens un bloc de verre plombé",
   "tooltip.theleadage.color.clear": "Transparent",
-  "item.theleadage.tinted": "%2$s %1$s"
+  "item.theleadage.tinted": "%2$s %1$s",
+  "theleadage.info.pane": "Les vitres en verre plombé posées peuvent être personnalisées dans le monde : faites un clic droit sur une zone de verre avec une teinture pour ne colorer que cette zone, utilisez des cisailles pour la rendre à nouveau transparente, et accroupissez-vous + clic droit pour faire pivoter le motif sur place.",
+  "theleadage.info.door": "Accroupissez-vous et faites un clic droit sur une porte en verre plombé posée avec une vitre en verre plombé en main pour re-vitrer la moitié cliquée : la vitre est insérée et l’ancienne vous est rendue.",
+  "theleadage.info.trapdoor": "Accroupissez-vous et faites un clic droit sur une trappe en verre plombé posée avec une vitre en verre plombé en main pour la re-vitrer : la vitre est insérée et l’ancienne vous est rendue."
 }

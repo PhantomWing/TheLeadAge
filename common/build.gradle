@@ -32,6 +32,10 @@ dependencies {
     // JEI plugin API — compile-time only. JEI stays an optional runtime mod: the @JeiPlugin class
     // is only ever classloaded by JEI itself, so nothing breaks when JEI isn't installed.
     modCompileOnly "mezz.jei:jei-1.21.1-common-api:${rootProject.jei_version}"
+    // EMI — the xplat artifact is what lets the plugin live here in common (one class, both
+    // loaders), the same way the JEI plugin does. compileOnly: EMI is never shipped or required,
+    // and the plugin class is only ever loaded by EMI's own @EmiEntrypoint classpath scan.
+    modCompileOnly "dev.emi:emi-xplat-intermediary:${rootProject.emi_version}"
 }
 
 publishing {

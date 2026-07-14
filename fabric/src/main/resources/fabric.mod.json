@@ -21,6 +21,9 @@
     ],
     "client": [
       "com.phantomwing.theleadage.fabric.client.TheLeadAgeFabricClient"
+    ],
+    "emi": [
+      "com.phantomwing.theleadage.compat.emi.TheLeadAgeEmiPlugin"
     ]
   },
   "mixins": [

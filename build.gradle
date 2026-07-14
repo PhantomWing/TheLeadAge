@@ -81,6 +81,12 @@ allprojects {
             content { includeGroup "curse.maven" }
         }
 
+        // EMI (recipe viewer — plugin lives in common, so both loaders use it).
+        maven {
+            name = "TerraformersMC"
+            url = "https://maven.terraformersmc.com/"
+        }
+
         // Create (+ Ponder, Flywheel) — optional NeoForge compat.
         maven { url = "https://maven.createmod.net" }
 

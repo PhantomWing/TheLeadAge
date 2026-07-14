@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "Bleiverglasung",
   "theleadage.advancement.leaded_lights.description": "Erhalte ein Stück Bleiglas",
   "tooltip.theleadage.color.clear": "Klar",
-  "item.theleadage.tinted": "%1$s %2$s"
+  "item.theleadage.tinted": "%1$s %2$s",
+  "theleadage.info.pane": "Platzierte Bleiglasscheiben lassen sich in der Welt anpassen: Rechtsklicke einen Glasbereich mit einem Farbstoff, um nur diesen Bereich zu färben, benutze eine Schere, um ihn wieder klar zu machen, und schleiche + rechtsklicke, um das Muster an Ort und Stelle zu drehen.",
+  "theleadage.info.door": "Schleiche + rechtsklicke eine platzierte Bleiglastür mit einer Bleiglasscheibe in der Hand, um die angeklickte Hälfte neu zu verglasen — die Scheibe wird eingesetzt und die alte zurückgegeben.",
+  "theleadage.info.trapdoor": "Schleiche + rechtsklicke eine platzierte Bleiglasfalltür mit einer Bleiglasscheibe in der Hand, um sie neu zu verglasen — die Scheibe wird eingesetzt und die alte zurückgegeben."
 }

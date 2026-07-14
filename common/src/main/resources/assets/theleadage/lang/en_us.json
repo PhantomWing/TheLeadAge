@@ -106,9 +106,9 @@
   "theleadage.advancement.leaded_lights": "Leaded Lights",
   "theleadage.advancement.leaded_lights.description": "Obtain a piece of leaded glass",
   "tooltip.theleadage.color.clear": "Clear",
-  "jei.theleadage.info.pane": "Placed leaded glass panes can be customized in-world: right-click a glass region with a dye to colour just that region, use shears to make it clear again, and sneak-right-click to rotate the pattern in place.",
-  "jei.theleadage.info.door": "Sneak-right-click a placed leaded glass door with a leaded glass pane in hand to re-glaze the half you clicked — the pane goes in, and the old one is handed back.",
-  "jei.theleadage.info.trapdoor": "Sneak-right-click a placed leaded glass trapdoor with a leaded glass pane in hand to re-glaze it — the pane goes in, and the old one is handed back.",
+  "theleadage.info.pane": "Placed leaded glass panes can be customized in-world: right-click a glass region with a dye to colour just that region, use shears to make it clear again, and sneak-right-click to rotate the pattern in place.",
+  "theleadage.info.door": "Sneak-right-click a placed leaded glass door with a leaded glass pane in hand to re-glaze the half you clicked — the pane goes in, and the old one is handed back.",
+  "theleadage.info.trapdoor": "Sneak-right-click a placed leaded glass trapdoor with a leaded glass pane in hand to re-glaze it — the pane goes in, and the old one is handed back.",
   "tooltip.theleadage.door.top": "Top",
   "tooltip.theleadage.door.bottom": "Bottom",
   "item.theleadage.tinted": "%1$s %2$s"

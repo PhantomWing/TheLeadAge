@@ -92,5 +92,8 @@
   "theleadage.advancement.leaded_lights": "Vitraliu cu Plumb",
   "theleadage.advancement.leaded_lights.description": "Obține un bloc de sticlă cu plumb",
   "tooltip.theleadage.color.clear": "Transparent",
-  "item.theleadage.tinted": "%2$s %1$s"
+  "item.theleadage.tinted": "%2$s %1$s",
+  "theleadage.info.pane": "Panourile de sticlă cu plumb plasate pot fi personalizate în lume: dă clic dreapta pe o zonă de sticlă cu un colorant pentru a colora doar acea zonă, folosește foarfeca pentru a o face din nou transparentă și ghemuiește-te + clic dreapta pentru a roti modelul pe loc.",
+  "theleadage.info.door": "Ghemuiește-te și dă clic dreapta pe o ușă de sticlă cu plumb plasată, ținând un panou de sticlă cu plumb în mână, pentru a re-vitrifica jumătatea pe care ai dat clic — panoul intră, iar cel vechi îți este returnat.",
+  "theleadage.info.trapdoor": "Ghemuiește-te și dă clic dreapta pe o trapă de sticlă cu plumb plasată, ținând un panou de sticlă cu plumb în mână, pentru a o re-vitrifica — panoul intră, iar cel vechi îți este returnat."
 }
