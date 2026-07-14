@@ -80,6 +80,12 @@ allprojects {
             url = "https://cursemaven.com"
             content { includeGroup "curse.maven" }
         }
+
+        // Create (+ Ponder, Flywheel) — optional NeoForge compat.
+        maven { url = "https://maven.createmod.net" }
+
+        // Registrate — a transitive dependency of Create.
+        maven { url = "https://maven.ithundxr.dev/snapshots" }
     }
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(21)

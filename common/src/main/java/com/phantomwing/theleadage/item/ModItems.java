@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.compat.ModIds;
+import dev.architectury.platform.Platform;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassDoorItem;
@@ -47,6 +49,9 @@ public class ModItems {
     public static final RegistrySupplier<Item> RAW_LEAD = register("raw_lead");
     public static final RegistrySupplier<Item> LEAD_INGOT = register("lead_ingot");
     public static final RegistrySupplier<Item> LEAD_NUGGET = register("lead_nugget");
+    // Create compat: pressing a lead ingot in a Mechanical Press yields a sheet (Create's
+    // c:plates convention). Only appears in the creative tab when Create is loaded.
+    public static final RegistrySupplier<Item> LEAD_SHEET = registerWithModCompat("lead_sheet", ModIds.CREATE);
 
     // Lead tools (glass-cannon stone tier — see ModTiers.LEAD).
     public static final RegistrySupplier<Item> LEAD_SHOVEL = registerShovel("lead_shovel", ModTiers.LEAD);
@@ -201,6 +206,15 @@ public class ModItems {
 
     private static RegistrySupplier<Item> register(String name) {
         return register(name, Item::new, baseItem());
+    }
+
+    /** Register an item that only appears in the creative tab when the given mod is loaded. */
+    private static RegistrySupplier<Item> registerWithModCompat(String name, String modId) {
+        RegistrySupplier<Item> item = ITEMS.register(name, () -> new Item(baseItem()));
+        if (Platform.isModLoaded(modId)) {
+            CREATIVE_TAB_ITEMS.add(item);
+        }
+        return item;
     }
 
     private static <T extends Block> RegistrySupplier<Item> registerBlock(String name, RegistrySupplier<T> block) {

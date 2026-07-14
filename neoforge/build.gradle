@@ -20,6 +20,12 @@ def datagenExisting = rootProject.file('common/src/main/resources/').absolutePat
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
+// Create is a real (optional) integration, not a dev nicety: the compat recipe gens extend Create's
+// own providers, so it must be on the DATAGEN runtime classpath too — unlike the mods above.
+//   ./gradlew :neoforge:runClient -Penable_create=false
+def loadCreate = (project.findProperty('enable_create') ?: rootProject.enable_create).toString().toBoolean()
+logger.lifecycle("[TheLeadAge] (neoforge) Create: ${loadCreate}")
+
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 
@@ -83,6 +89,18 @@ dependencies {
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }
+
+    // ---- Create (optional compat) ----
+    // compileOnly ALWAYS so the compat datagen classes still compile with Create toggled off.
+    // Never shipped, never a hard dependency — every generated Create recipe is mod_loaded-gated.
+    modCompileOnly("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
+    modCompileOnly("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
+    if (loadCreate) {
+        modLocalRuntime("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
+        modLocalRuntime("net.createmod.ponder:ponder-neoforge:${rootProject.ponder_version}+mc${rootProject.minecraft_version}")
+        modLocalRuntime("dev.engine-room.flywheel:flywheel-neoforge-${rootProject.minecraft_version}:${rootProject.flywheel_version}")
+        modLocalRuntime("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
+    }
 
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
     //      never shipped, never a hard dependency). Skipped for the game-test run. ----

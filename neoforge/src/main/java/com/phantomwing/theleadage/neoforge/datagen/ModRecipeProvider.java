@@ -2,7 +2,10 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.item.ModItems;
+import com.simibubi.create.AllItems;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.neoforge.condition.ConfigBooleanCondition;
 import net.minecraft.core.HolderLookup;
@@ -56,6 +59,14 @@ public class ModRecipeProvider extends RecipeProvider {
         oreSmeltAndBlast(output, ModItems.RAW_LEAD.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.DEEPSLATE_LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
+
+        // Create compat: smelt/blast Create's crushed_raw_lead into our ingot. Create's Crushing Wheels
+        // already turn our ores and raw lead into crushed_raw_lead (its crushing recipes are gated on the
+        // c:ores/lead + c:raw_materials/lead tags, which we populate), but Create only bridges the crushed
+        // ore BACK to an ingot for Immersive Engineering / Mekanism / Oreganized / Thermal — so without
+        // this the crushed lead would be a dead end.
+        oreSmeltAndBlast(output.withConditions(new ModLoadedCondition(ModIds.CREATE)),
+                AllItems.CRUSHED_LEAD.get(), ModItems.LEAD_INGOT.get());
 
         // 9 <-> storage block, 9 nuggets <-> ingot.
         storage(output, ModItems.RAW_LEAD.get(), ModItems.RAW_LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);

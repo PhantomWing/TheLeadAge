@@ -1,6 +1,8 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAgeCommon;
+import com.phantomwing.theleadage.neoforge.compat.create.ModPressingRecipeGen;
+import com.phantomwing.theleadage.neoforge.compat.create.ModWashingRecipeGen;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -26,6 +28,11 @@ public class DataGenerators {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(event.includeServer(), new ModRecipeProvider(output, lookupProvider));
+        // Create compat (Mechanical Press / fan washing). These extend Create's own recipe gens, so
+        // Create must be on the datagen classpath — it is, unless -Penable_create=false. Every recipe
+        // they emit is mod_loaded-gated, so the output is inert without Create at runtime.
+        generator.addProvider(event.includeServer(), new ModPressingRecipeGen(output, lookupProvider));
+        generator.addProvider(event.includeServer(), new ModWashingRecipeGen(output, lookupProvider));
         generator.addProvider(event.includeServer(), new LootTableProvider(
                 output, Set.of(),
                 List.of(new LootTableProvider.SubProviderEntry(ModBlockLootTableProvider::new, LootContextParamSets.BLOCK)),

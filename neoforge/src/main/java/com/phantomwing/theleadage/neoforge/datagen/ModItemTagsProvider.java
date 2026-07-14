@@ -41,6 +41,10 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(c("storage_blocks/lead")).add(ModItems.LEAD_BLOCK.get());
         tag(c("storage_blocks/raw_lead")).add(ModItems.RAW_LEAD_BLOCK.get());
 
+        // Create compat: the pressed Lead Sheet, under Create's c:plates convention.
+        tag(c("plates")).add(ModItems.LEAD_SHEET.get());
+        tag(c("plates/lead")).add(ModItems.LEAD_SHEET.get());
+
         // Beacon payment, like other metal blocks.
         tag(ItemTags.BEACON_PAYMENT_ITEMS).add(ModItems.LEAD_INGOT.get());
 

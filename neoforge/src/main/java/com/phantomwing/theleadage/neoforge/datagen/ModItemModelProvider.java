@@ -19,6 +19,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.RAW_LEAD.get());
         basicItem(ModItems.LEAD_INGOT.get());
         basicItem(ModItems.LEAD_NUGGET.get());
+        basicItem(ModItems.LEAD_SHEET.get()); // Create compat
 
         // Tools use the held (3D) parent; armor uses the flat generated model.
         handheldItem("lead_sword");
