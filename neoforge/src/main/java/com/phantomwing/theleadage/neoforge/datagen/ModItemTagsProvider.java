@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.CommonTags;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -17,6 +18,10 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import java.util.concurrent.CompletableFuture;
 
 public class ModItemTagsProvider extends ItemTagsProvider {
+    /** Farmer's Delight's knife tag — the Cutting Board's accepted tool. Inert when FD is absent. */
+    private static final TagKey<Item> FARMERS_DELIGHT_KNIVES =
+            TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("farmersdelight", "tools/knives"));
+
     public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
                                CompletableFuture<TagLookup<Block>> blockTags, ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, blockTags, TheLeadAge.MOD_ID, existingFileHelper);
@@ -44,6 +49,11 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         // Create compat: the pressed Lead Sheet, under Create's c:plates convention.
         tag(c("plates")).add(ModItems.LEAD_SHEET.get());
         tag(c("plates/lead")).add(ModItems.LEAD_SHEET.get());
+
+        // Farmer's Delight compat: the Lead Knife, in FD's own knife tag (what the Cutting Board
+        // accepts) and the c: convention tag. Both unconditional — a tag nobody consults is inert.
+        tag(FARMERS_DELIGHT_KNIVES).add(ModItems.LEAD_KNIFE.get());
+        tag(CommonTags.Items.TOOLS_KNIFE).add(ModItems.LEAD_KNIFE.get());
 
         // Beacon payment, like other metal blocks.
         tag(ItemTags.BEACON_PAYMENT_ITEMS).add(ModItems.LEAD_INGOT.get());

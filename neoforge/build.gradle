@@ -25,6 +25,11 @@ def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().cont
 //   ./gradlew :neoforge:runClient -Penable_create=false
 def loadCreate = (project.findProperty('enable_create') ?: rootProject.enable_create).toString().toBoolean()
 
+// Farmer's Delight (the Lead Knife). Like Create, a real integration rather than a dev nicety: it must
+// be on the DATAGEN classpath too, so `--existing-mod farmersdelight` below can resolve FD's resources.
+//   ./gradlew :neoforge:runClient -PloadFD=false
+def loadFD = (project.findProperty('loadFD') ?: rootProject.loadFD).toString().toBoolean()
+
 // Which recipe viewer to load in the dev run. The mod ships plugins for BOTH JEI and EMI; running
 // them together is just noise, so pick one:
 //   ./gradlew :neoforge:runClient -Precipe_viewer=jei|emi|both|none
@@ -34,7 +39,7 @@ if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
 }
 def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
 def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
-logger.lifecycle("[TheLeadAge] (neoforge) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi}), Create: ${loadCreate}")
+logger.lifecycle("[TheLeadAge] (neoforge) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi}), Create: ${loadCreate}, FD: ${loadFD}")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -57,6 +62,9 @@ loom {
             data()
             name = "Data Generation"
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
+            // FD's existing resources only exist when FD is on the run classpath; asking for them
+            // otherwise fails datagen outright.
+            if (loadFD) programArgs('--existing-mod', 'farmersdelight')
         }
 
         // Headless NeoForge game-test server: runs every @GameTest in the
@@ -110,6 +118,14 @@ dependencies {
         modLocalRuntime("net.createmod.ponder:ponder-neoforge:${rootProject.ponder_version}+mc${rootProject.minecraft_version}")
         modLocalRuntime("dev.engine-room.flywheel:flywheel-neoforge-${rootProject.minecraft_version}:${rootProject.flywheel_version}")
         modLocalRuntime("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
+    }
+
+    // ---- Farmer's Delight (optional compat) ----
+    // compileOnly ALWAYS so LeadKnifeItem (which extends FD's KnifeItem) compiles with FD toggled off.
+    // Never shipped, never a hard dependency — the item falls back to a plain SwordItem without FD.
+    modCompileOnly "maven.modrinth:farmers-delight:${rootProject.farmersdelight_neoforge_version}"
+    if (loadFD) {
+        modLocalRuntime "maven.modrinth:farmers-delight:${rootProject.farmersdelight_neoforge_version}"
     }
 
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,

@@ -73,6 +73,16 @@ public class ModRecipeProvider extends RecipeProvider {
         storage(output, ModItems.LEAD_INGOT.get(), ModItems.LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);
         storage(output, ModItems.LEAD_NUGGET.get(), ModItems.LEAD_INGOT.get(), RecipeCategory.MISC);
 
+        // Farmer's Delight compat: the Lead Knife (ingot over a stick). Gated on FD — without it the
+        // item is a hidden SwordItem fallback, so it deliberately has no recipe.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.LEAD_KNIFE.get(), 1)
+                .pattern("X")
+                .pattern("I")
+                .define('X', ModItems.LEAD_INGOT.get())
+                .define('I', Items.STICK)
+                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                .save(output.withConditions(new ModLoadedCondition(ModIds.FARMERS_DELIGHT)));
+
         // Lead tools + armor, crafted from lead ingots.
         ItemLike ingot = ModItems.LEAD_INGOT.get();
         sword(output, ModItems.LEAD_SWORD.get(), ingot);

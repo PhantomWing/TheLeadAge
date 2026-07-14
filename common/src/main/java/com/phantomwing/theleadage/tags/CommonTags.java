@@ -28,6 +28,8 @@ public final class CommonTags {
         public static final TagKey<Item> INGOTS_LEAD = tag("ingots/lead");
         /** {@code c:plates/lead} — the Create-compat Lead Sheet (Create's convention for pressed metal). */
         public static final TagKey<Item> PLATES_LEAD = tag("plates/lead");
+        /** {@code c:tools/knife} — the conventional knife tag, alongside Farmer's Delight's own. */
+        public static final TagKey<Item> TOOLS_KNIFE = tag("tools/knife");
 
         private static TagKey<Item> tag(String path) {
             return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));

@@ -71,6 +71,14 @@ processResources {
 shadowJar {
     exclude 'architectury.common.json'
 
+    // Drop the compile-only Farmer's Delight Refabricated KnifeItem stub from the shipped jar. The
+    // stub (src/main/java/vectorwing/farmersdelight/common/item/KnifeItem) exists ONLY so LeadKnifeItem
+    // can `extend` FDR's KnifeItem at compile time — architectury-loom can't consume the real FDR jar.
+    // It must NOT ship: at runtime the real FDR class (same FQN) is what LeadKnifeItem binds to, and a
+    // shipped stub would shadow it. (Harmless in dev: FDR is absent, so the isModLoaded-guarded
+    // LeadKnifeItem is never loaded and the stub is never touched.)
+    exclude 'vectorwing/**'
+
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = 'dev-shadow'
 }

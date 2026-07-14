@@ -23,6 +23,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         // Tools use the held (3D) parent; armor uses the flat generated model.
         handheldItem("lead_sword");
+        handheldItem("lead_knife"); // Farmer's Delight compat
         handheldItem("lead_pickaxe");
         handheldItem("lead_axe");
         handheldItem("lead_shovel");

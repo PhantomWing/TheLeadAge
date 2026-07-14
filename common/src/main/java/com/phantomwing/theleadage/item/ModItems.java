@@ -5,7 +5,9 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
+import com.phantomwing.theleadage.platform.KnifePlatform;
 import dev.architectury.platform.Platform;
+import net.minecraft.world.item.DiggerItem;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassDoorItem;
@@ -60,6 +62,10 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_AXE = registerAxe("lead_axe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_HOE = registerHoe("lead_hoe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_SWORD = registerSword("lead_sword", ModTiers.LEAD);
+    // Farmer's Delight compat: a real FD KnifeItem when FD is present, a plain SwordItem fallback
+    // otherwise (so the mod loads standalone). Only appears in the creative tab when FD is loaded —
+    // same pattern as the Create-gated sheet.
+    public static final RegistrySupplier<Item> LEAD_KNIFE = registerKnife("lead_knife", ModTiers.LEAD, ModIds.FARMERS_DELIGHT);
 
     // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
     // (durability = factor x slot base), and 6 sits between Leather 5 and Gold 7 — so a full set is
@@ -213,6 +219,22 @@ public class ModItems {
 
     private static RegistrySupplier<Item> register(String name) {
         return register(name, Item::new, baseItem());
+    }
+
+    /**
+     * A knife: a real Farmer's Delight {@code KnifeItem} when FD is loaded, a plain sword otherwise
+     * (see {@link KnifePlatform}). Attributes are set here, in common, via the vanilla
+     * {@link DiggerItem#createAttributes}: FD's own knife damage (+0.5), but 0.2 slower to swing than a
+     * standard knife (1.8 vs 2.0) — the same 0.2 penalty the rest of the lead tools carry against
+     * netherite. Creative-tab-gated on FD.
+     */
+    private static RegistrySupplier<Item> registerKnife(String name, Tier tier, String modId) {
+        Item.Properties props = baseItem().attributes(DiggerItem.createAttributes(tier, 0.5f, -2.2f)); // 5.5 dmg, 1.8 speed
+        RegistrySupplier<Item> item = ITEMS.register(name, () -> KnifePlatform.createLeadKnife(props, tier));
+        if (Platform.isModLoaded(modId)) {
+            CREATIVE_TAB_ITEMS.add(item);
+        }
+        return item;
     }
 
     /** Register an item that only appears in the creative tab when the given mod is loaded. */
