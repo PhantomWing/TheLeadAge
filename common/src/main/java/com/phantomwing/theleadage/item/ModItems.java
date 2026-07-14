@@ -88,7 +88,17 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_PILLAR = registerBlock("lead_pillar", ModBlocks.LEAD_PILLAR);
     public static final RegistrySupplier<Item> LEAD_GRATE = registerBlock("lead_grate", ModBlocks.LEAD_GRATE);
     public static final RegistrySupplier<Item> LEAD_TRAPDOOR = registerBlock("lead_trapdoor", ModBlocks.LEAD_TRAPDOOR);
+
+    // Leaded glass trapdoor — its flap shows the glass design carried in the component.
+    public static final RegistrySupplier<Item> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor",
+            (props) -> new LeadedGlassTrapdoorItem(ModBlocks.LEADED_GLASS_TRAPDOOR.get(), props), baseItem());
+
     public static final RegistrySupplier<Item> LEAD_DOOR = registerBlock("lead_door", ModBlocks.LEAD_DOOR);
+
+    // Leaded glass door — its top half shows the glass design carried in the component.
+    public static final RegistrySupplier<Item> LEADED_GLASS_DOOR = register("leaded_glass_door",
+            (props) -> new LeadedGlassDoorItem(ModBlocks.LEADED_GLASS_DOOR.get(), props), baseItem());
+
     public static final RegistrySupplier<Item> LEAD_CHAIN = registerBlock("lead_chain", ModBlocks.LEAD_CHAIN);
     public static final RegistrySupplier<Item> LEAD_BARS = registerBlock("lead_bars", ModBlocks.LEAD_BARS);
     // One item places the standing or wall torch depending on the clicked face (like vanilla).
@@ -97,14 +107,6 @@ public class ModItems {
                     props, Direction.DOWN), baseItem());
     public static final RegistrySupplier<Item> LEAD_LANTERN = registerBlock("lead_lantern", ModBlocks.LEAD_LANTERN);
 
-    // Leaded glass: glass reinforced with lead nuggets (drops itself when mined with a pickaxe).
-    public static final RegistrySupplier<Item> LEADED_GLASS = registerBlock("leaded_glass", ModBlocks.LEADED_GLASS);
-    // 16 dyed leaded glass blocks (creative-tab order: all glass blocks together).
-    static {
-        for (DyeColor color : DyeColor.values()) {
-            registerBlock(color.getName() + "_leaded_glass", ModBlocks.STAINED_LEADED_GLASS.get(color));
-        }
-    }
     // Lead Weight — custom item: places normally (decorative / hangs), or air-drops as a falling
     // weapon when aimed at open space. Stackable; the three tiers (lead_weight / chipped / damaged)
     // are distinct stackable items, each placing its own block. Heavy, so they stack to only 16.
@@ -114,6 +116,16 @@ public class ModItems {
             (props) -> new LeadWeightItem(ModBlocks.CHIPPED_LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
     public static final RegistrySupplier<Item> DAMAGED_LEAD_WEIGHT = register("damaged_lead_weight",
             (props) -> new LeadWeightItem(ModBlocks.DAMAGED_LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
+
+    // Leaded glass: glass reinforced with lead nuggets (drops itself when mined with a pickaxe).
+    public static final RegistrySupplier<Item> LEADED_GLASS = registerBlock("leaded_glass", ModBlocks.LEADED_GLASS);
+    // 16 dyed leaded glass blocks (creative-tab order: all glass blocks together).
+    static {
+        for (DyeColor color : DyeColor.values()) {
+            registerBlock(color.getName() + "_leaded_glass", ModBlocks.STAINED_LEADED_GLASS.get(color));
+        }
+    }
+
 
     // Leaded glass panes — one item per came type (colours carried in the leaded_glass_config
     // component). Creative presets are added by ModCreativeModeTab.
@@ -138,13 +150,6 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAGONAL_BARS = register("leaded_glass_pane_diagonal_bars",
             (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get(), props), baseItem());
 
-    // Leaded glass door — its top half shows the glass design carried in the component.
-    public static final RegistrySupplier<Item> LEADED_GLASS_DOOR = register("leaded_glass_door",
-            (props) -> new LeadedGlassDoorItem(ModBlocks.LEADED_GLASS_DOOR.get(), props), baseItem());
-
-    // Leaded glass trapdoor — its flap shows the glass design carried in the component.
-    public static final RegistrySupplier<Item> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor",
-            (props) -> new LeadedGlassTrapdoorItem(ModBlocks.LEADED_GLASS_TRAPDOOR.get(), props), baseItem());
 
     /** The pane item for a given came frame (orientations of a came type share one item). */
     public static Item paneItemFor(LeadedGlassFrame frame) {

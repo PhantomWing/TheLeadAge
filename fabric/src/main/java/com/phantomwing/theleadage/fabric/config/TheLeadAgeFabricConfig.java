@@ -27,7 +27,8 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public boolean override_fishing_rod_recipe = true;
 
     public static final String OVERRIDE_HEAVY_CORE_RECIPE_ID = "override_heavy_core_recipe";
-    public boolean override_heavy_core_recipe = true;
+    /** Off by default: crafting the Heavy Core makes a Trial-Chamber-exclusive item renewable, so it is opt-in. */
+    public boolean override_heavy_core_recipe = false;
 
     public static final String ENABLE_STRUCTURE_LOOT_ID = "enable_structure_loot";
     public boolean enable_structure_loot = true;

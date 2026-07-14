@@ -68,9 +68,9 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.override_fishing_rod_recipe")
                 .define(OVERRIDE_FISHING_ROD_RECIPE_ID, true);
         OVERRIDE_HEAVY_CORE_RECIPE = builder
-                .comment("Allow crafting the otherwise-uncraftable Heavy Core from lead blocks + a netherite ingot. Requires the master toggle.")
+                .comment("Allow crafting the otherwise-uncraftable Heavy Core from lead blocks + a netherite ingot. Off by default: it makes a Trial-Chamber-exclusive item renewable, so it is opt-in. Requires the master toggle.")
                 .translation("text.autoconfig.theleadage.option.override_heavy_core_recipe")
-                .define(OVERRIDE_HEAVY_CORE_RECIPE_ID, true);
+                .define(OVERRIDE_HEAVY_CORE_RECIPE_ID, false);
         ENABLE_STRUCTURE_LOOT = builder
                 .comment("Should lead items appear in structure/chest loot? (Lead horse armor occasionally replaces iron horse armor.)")
                 .translation("text.autoconfig.theleadage.option.enable_structure_loot")

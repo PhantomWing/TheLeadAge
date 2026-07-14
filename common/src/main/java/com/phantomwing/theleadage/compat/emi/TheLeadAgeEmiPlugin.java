@@ -15,6 +15,7 @@ import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.EmiWorldInteractionRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +46,16 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
     private static final int GRID_WIDTH = 3;
     private static final int GRID_SIZE = 9;
 
+    /**
+     * A synthetic recipe id. EMI treats an id whose <em>path</em> starts with {@code /} as synthetic —
+     * a recipe with no entry in the RecipeManager. Every recipe here is display-only, so without the
+     * leading slash EMI looks each one up, fails, and warns that the recipe ID could not be found in
+     * the recipe manager (see {@code EmiRecipes.Manager}).
+     */
+    private static ResourceLocation synthetic(String path) {
+        return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "/leaded_glass/" + path);
+    }
+
     @Override
     public void register(@NotNull EmiRegistry registry) {
         for (LeadedGlassDisplayRecipe recipe : LeadedGlassDisplayRecipe.all()) {
@@ -74,7 +85,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
         // Dye a glass region — the dye is consumed.
         for (DyeColor dye : DyeColor.values()) {
             addRecipe(registry, EmiWorldInteractionRecipe.builder()
-                    .id(LeadedGlassDisplayRecipe.id("world/dye/" + dye.getName()))
+                    .id(synthetic("world/dye/" + dye.getName()))
                     .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(clear)))
                     .rightInput(EmiStack.of(DyeItem.byColor(dye)), false)
                     .output(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(dye.getId())))
@@ -87,7 +98,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
             dyedPanes.add(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(dye.getId())));
         }
         addRecipe(registry, EmiWorldInteractionRecipe.builder()
-                .id(LeadedGlassDisplayRecipe.id("world/shear"))
+                .id(synthetic("world/shear"))
                 .leftInput(EmiIngredient.of(dyedPanes))
                 .rightInput(EmiStack.of(Items.SHEARS), true)
                 .output(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(clear)))
@@ -104,7 +115,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
                 LeadedGlassFrame from = type.frame(i);
                 LeadedGlassFrame to = type.frame(i + 1); // frame() wraps, so this closes the cycle
                 addRecipe(registry, EmiWorldInteractionRecipe.builder()
-                        .id(LeadedGlassDisplayRecipe.id("world/rotate/" + frameName(from)))
+                        .id(synthetic("world/rotate/" + frameName(from)))
                         .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.pane(from, clear, 1)))
                         .output(EmiStack.of(LeadedGlassDisplayRecipe.pane(to, clear, 1)))
                         .build());
@@ -116,7 +127,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
         for (DyeColor dye : DyeColor.values()) {
             int color = dye.getId();
             addRecipe(registry, EmiWorldInteractionRecipe.builder()
-                    .id(LeadedGlassDisplayRecipe.id("world/reglaze_trapdoor/" + dye.getName()))
+                    .id(synthetic("world/reglaze_trapdoor/" + dye.getName()))
                     .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.trapdoor(clear)))
                     .rightInput(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(color)), false)
                     .output(EmiStack.of(LeadedGlassDisplayRecipe.trapdoor(color)))
@@ -124,7 +135,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
                     .build());
             // A door has two halves; only the half you clicked is re-glazed (shown here as the top).
             addRecipe(registry, EmiWorldInteractionRecipe.builder()
-                    .id(LeadedGlassDisplayRecipe.id("world/reglaze_door/" + dye.getName()))
+                    .id(synthetic("world/reglaze_door/" + dye.getName()))
                     .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.door(clear, clear)))
                     .rightInput(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(color)), false)
                     .output(EmiStack.of(LeadedGlassDisplayRecipe.door(color, clear)))
@@ -157,14 +168,14 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
                 grid.set(row * GRID_WIDTH + col, EmiStack.of(stack));
             }
             addRecipe(registry, new EmiCraftingRecipe(grid, EmiStack.of(results.get(color)),
-                    LeadedGlassDisplayRecipe.id(recipe.displayName() + "/" + color)));
+                    synthetic(recipe.displayName() + "/" + color)));
         }
     }
 
     private static void addInfo(EmiRegistry registry, String kind, List<ItemStack> stacks) {
         List<EmiIngredient> ingredients = stacks.stream().map(s -> (EmiIngredient) EmiStack.of(s)).toList();
         addRecipe(registry, new EmiInfoRecipe(ingredients, List.of(LeadedGlassInfo.text(kind)),
-                LeadedGlassDisplayRecipe.id("info/" + kind)));
+                synthetic("info/" + kind)));
     }
 
     /** Defensive: a single bad entry must not take down the whole plugin (mirrors EMI's addRecipeSafe). */
