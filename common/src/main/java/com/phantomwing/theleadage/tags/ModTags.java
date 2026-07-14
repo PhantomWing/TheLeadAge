@@ -14,7 +14,10 @@ public final class ModTags {
     }
 
     public static final class Blocks {
-        /** Solid, full-cube lead blocks (always a complete block). */
+        /**
+         * Solid, full-cube lead blocks (always a complete block). These are piston-proof — as is the
+         * raw lead block, which is not in this tag (it is raw ore, not refined lead).
+         */
         public static final TagKey<Block> SOLID_LEAD_BLOCKS = tag("solid_lead_blocks");
         /** Lead slab blocks. */
         public static final TagKey<Block> LEAD_SLABS = tag("lead_slabs");

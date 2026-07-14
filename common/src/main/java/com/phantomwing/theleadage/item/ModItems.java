@@ -53,15 +53,17 @@ public class ModItems {
     // c:plates convention). Only appears in the creative tab when Create is loaded.
     public static final RegistrySupplier<Item> LEAD_SHEET = registerWithModCompat("lead_sheet", ModIds.CREATE);
 
-    // Lead tools (glass-cannon stone tier — see ModTiers.LEAD).
+    // Lead tools: a glass cannon — netherite-level damage, but stone-level mining at wood speed and
+    // the lowest durability of any tier (28, under gold's 32). See ModTiers.LEAD.
     public static final RegistrySupplier<Item> LEAD_SHOVEL = registerShovel("lead_shovel", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_PICKAXE = registerPickaxe("lead_pickaxe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_AXE = registerAxe("lead_axe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_HOE = registerHoe("lead_hoe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_SWORD = registerSword("lead_sword", ModTiers.LEAD);
 
-    // Lead armor (very high protection, extremely low durability; weighs the wearer
-    // down via the Heaviness mechanic — see LeadArmorItem).
+    // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
+    // (durability = factor x slot base), and 6 sits between Leather 5 and Gold 7 — so a full set is
+    // 330, under a sixth of iron's 825. Weighs the wearer down via Heaviness — see LeadArmorItem.
     public static final RegistrySupplier<Item> LEAD_HELMET = registerArmor("lead_helmet", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.HELMET, 6);
     public static final RegistrySupplier<Item> LEAD_CHESTPLATE = registerArmor("lead_chestplate", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.CHESTPLATE, 6);
     public static final RegistrySupplier<Item> LEAD_LEGGINGS = registerArmor("lead_leggings", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.LEGGINGS, 6);

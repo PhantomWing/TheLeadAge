@@ -10,18 +10,23 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 /**
- * Lead horse armor: heavy plate for horses. Beyond the material's protection it
- * weighs the horse down with the same effects a full lead set gives the player —
- * slower movement, increased gravity (faster falling, and faster sinking in water
- * through the normal physics) and some knockback resistance.
+ * Lead horse armor: solid barding at protection 6, just above iron's 5.
  *
- * <p>Unlike the player armor (which hides these behind "Heaviness" and applies them
- * from {@code inventoryTick}), a horse-worn item gets no per-tick hook, so the
- * effects are added as body-slot attribute modifiers — the engine applies them to
- * the wearing horse exactly as it does the armor value. Magnitudes match a full
- * lead set (4 Heaviness).</p>
+ * <p>It deliberately does <em>not</em> follow the player armour's glass-cannon pattern. That pattern
+ * only balances because lead gear breaks almost immediately — and horse armour has no durability at
+ * all, so a diamond-tier protection value would simply be a free upgrade with no cost. Hence a plain,
+ * modest armour value instead, and none of the Heaviness penalties (no slowness, no added gravity):
+ * they made the item fiddly without a downside worth paying for.</p>
+ *
+ * <p>What survives is the one flavourful upside — the sheer mass of the plate steadies the horse, so
+ * it keeps a little knockback resistance. A horse-worn item gets no per-tick hook, so it is applied
+ * as a body-slot attribute modifier; the engine gives it to the wearing horse just like the armour
+ * value.</p>
  */
 public class LeadHorseArmorItem extends AnimalArmorItem {
+    /** Knockback resistance granted to the wearing horse — the same +10% a full lead set gives a player. */
+    private static final double KNOCKBACK_RESISTANCE = 0.1;
+
     private ItemAttributeModifiers modifiers;
 
     public LeadHorseArmorItem(Holder<ArmorMaterial> material, BodyType bodyType, boolean hasOverlay, Properties properties) {
@@ -32,19 +37,10 @@ public class LeadHorseArmorItem extends AnimalArmorItem {
     public ItemAttributeModifiers getDefaultAttributeModifiers() {
         if (modifiers == null) {
             EquipmentSlotGroup slot = EquipmentSlotGroup.bySlot(getEquipmentSlot()); // BODY
-            double heaviness = LeadArmorItem.FULL_SET_HEAVINESS;
             modifiers = super.getDefaultAttributeModifiers()
-                    .withModifierAdded(Attributes.MOVEMENT_SPEED, new AttributeModifier(
-                            TheLeadAge.resourceLocation("lead_horse_armor_slowness"),
-                            heaviness * LeadArmorItem.SPEED_PENALTY_PER_HEAVINESS,
-                            AttributeModifier.Operation.ADD_MULTIPLIED_BASE), slot)
-                    .withModifierAdded(Attributes.GRAVITY, new AttributeModifier(
-                            TheLeadAge.resourceLocation("lead_horse_armor_gravity"),
-                            heaviness * LeadArmorItem.GRAVITY_BONUS_PER_HEAVINESS,
-                            AttributeModifier.Operation.ADD_MULTIPLIED_BASE), slot)
                     .withModifierAdded(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(
                             TheLeadAge.resourceLocation("lead_horse_armor_knockback_resistance"),
-                            heaviness * LeadArmorItem.KNOCKBACK_RESISTANCE_PER_HEAVINESS,
+                            KNOCKBACK_RESISTANCE,
                             AttributeModifier.Operation.ADD_VALUE), slot);
         }
         return modifiers;

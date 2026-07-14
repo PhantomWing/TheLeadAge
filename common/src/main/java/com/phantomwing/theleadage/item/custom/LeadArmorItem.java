@@ -32,15 +32,12 @@ public class LeadArmorItem extends ArmorItem {
     /** Heaviness granted by each lead armor piece (shown as "+N Heaviness"). */
     private static final double HEAVINESS_PER_PIECE = 1.0;
 
-    // Penalties per point of Heaviness worn.
-    // Package-private so LeadHorseArmorItem can reuse them at a full-set weight.
-    static final double SPEED_PENALTY_PER_HEAVINESS = -0.025;               // -2.5% base speed (-10% full set)
-    static final double GRAVITY_BONUS_PER_HEAVINESS = 0.05;                 // +5% gravity (+20% full set)
-    static final double KNOCKBACK_RESISTANCE_PER_HEAVINESS = 0.025;         // +2.5% knockback resistance (+10% full set)
+    // Penalties per point of Heaviness worn. Player-only: the horse armor deliberately carries no
+    // Heaviness (it has no durability cost to offset it) — see LeadHorseArmorItem.
+    private static final double SPEED_PENALTY_PER_HEAVINESS = -0.025;       // -2.5% base speed (-10% full set)
+    private static final double GRAVITY_BONUS_PER_HEAVINESS = 0.05;         // +5% gravity (+20% full set)
+    private static final double KNOCKBACK_RESISTANCE_PER_HEAVINESS = 0.025; // +2.5% knockback resistance (+10% full set)
     private static final double WATER_SINK_PER_HEAVINESS = 0.01;            // extra downward velocity/tick while submerged
-
-    /** Heaviness of a full set of lead armor (4 pieces). */
-    static final double FULL_SET_HEAVINESS = 4.0;
 
     private static final ResourceLocation SPEED_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_slowness");
     private static final ResourceLocation GRAVITY_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_gravity");

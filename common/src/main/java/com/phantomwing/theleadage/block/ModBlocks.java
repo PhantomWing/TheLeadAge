@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.WaterloggedTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -48,10 +49,13 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> DEEPSLATE_LEAD_ORE = register("deepslate_lead_ore", () ->
             new LeadOreBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)));
 
+    // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)));
+            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+                    .pushReaction(PushReaction.BLOCK)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)));
+            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+                    .pushReaction(PushReaction.BLOCK)));
 
     // Decorative lead blocks (no oxidation). Order matches the creative tab.
     public static final RegistrySupplier<Block> CUT_LEAD = registerLeadBlock("cut_lead");
@@ -163,15 +167,15 @@ public class ModBlocks {
     // ---- Lead block factories (mirroring The Silver Age, without oxidation) ----
 
     private static RegistrySupplier<Block> registerLeadBlock(String name) {
-        return register(name, () -> new Block(leadProps()));
+        return register(name, () -> new Block(solidLeadProps()));
     }
 
     private static RegistrySupplier<HorizontalFacingBlock> registerLeadChiseled(String name) {
-        return register(name, () -> new HorizontalFacingBlock(leadProps()));
+        return register(name, () -> new HorizontalFacingBlock(solidLeadProps()));
     }
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadPillar(String name) {
-        return register(name, () -> new RotatedPillarBlock(leadProps()));
+        return register(name, () -> new RotatedPillarBlock(solidLeadProps()));
     }
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
@@ -236,6 +240,18 @@ public class ModBlocks {
 
     private static BlockBehaviour.Properties leadProps() {
         return leadProps(BlockBehaviour.Properties.of());
+    }
+
+    /**
+     * A full cube of solid lead — too heavy for a piston to shift. {@link PushReaction#BLOCK} stops the
+     * piston outright (obsidian's behaviour) rather than letting it break or drop the block, and it also
+     * denies slime/honey pulls. Only full cubes of lead get this — the lead and raw lead blocks set it
+     * inline above, since they copy vanilla's iron props rather than {@link #leadProps()}. The slabs,
+     * stairs, walls, doors, grate, bars and chain are not solid lead through and through, so they push
+     * normally.
+     */
+    private static BlockBehaviour.Properties solidLeadProps() {
+        return leadProps().pushReaction(PushReaction.BLOCK);
     }
 
     private static BlockBehaviour.Properties leadProps(BlockBehaviour.Properties baseProps) {
