@@ -152,6 +152,7 @@ publishMods {
         file.set(fabricRemap.flatMap { it.archiveFile })
         additionalFiles.from(neoforgeRemap.flatMap { it.archiveFile })
         requires { slug = "architectury-api" }
+        requires { slug = "cloth-config" }
         optional { slug = "fabric-api" }
     }
 
@@ -166,6 +167,10 @@ publishMods {
         file.set(fabricRemap.flatMap { it.archiveFile })
         additionalFiles.from(neoforgeRemap.flatMap { it.archiveFile })
         requires { slug = "architectury-api" }
+        requires { slug = "cloth-config" }
         optional { slug = "fabric-api" }
+        // CurseForge environment tags: the mod runs (and is required) on both sides.
+        clientRequired = true
+        serverRequired = true
     }
 }

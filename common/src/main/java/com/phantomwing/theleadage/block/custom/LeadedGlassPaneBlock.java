@@ -68,15 +68,22 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             BooleanProperty.create("clear_10"), BooleanProperty.create("clear_11")
     };
 
-    // The glass plane sits 1px off-centre, shifted toward the placement direction (away from the
-    // player) so its front face lands on a pixel edge, lining up with stairs/slabs. One shape per
-    // placement, matching the shifted model. (Floor = down, ceiling = up — the vertical "away".)
+    // The glass plane sits 1px off-centre so its front face lands on a pixel edge, lining up with
+    // stairs/slabs. One shape per placement, each matching where the ROTATED model actually ends up.
+    //
+    // The wall shapes follow the placement direction (away from the player). The floor/ceiling pair
+    // does NOT, and that is not a mistake: the model is authored offset toward -z, and the blockstate
+    // rotates it with `rotateYXZ(-y, -x, 0)` (BlockModelRotation), so the floor's xRot of 270 turns
+    // that -z offset into +y and the ceiling's xRot of 90 turns it into -y. Floor panes therefore sit
+    // HIGH (resting on the 8px half-block line) and ceiling panes sit LOW. Flipping those xRots to
+    // chase "away from the player" would also flip which side of the came design faces the viewer,
+    // showing the mirror-authored back face — so the shapes follow the model, not the other way round.
     private static final VoxelShape SHAPE_NORTH = Block.box(0.0, 0.0, 6.0, 16.0, 16.0, 8.0);
     private static final VoxelShape SHAPE_SOUTH = Block.box(0.0, 0.0, 8.0, 16.0, 16.0, 10.0);
     private static final VoxelShape SHAPE_EAST = Block.box(8.0, 0.0, 0.0, 10.0, 16.0, 16.0);
     private static final VoxelShape SHAPE_WEST = Block.box(6.0, 0.0, 0.0, 8.0, 16.0, 16.0);
-    private static final VoxelShape SHAPE_FLOOR = Block.box(0.0, 6.0, 0.0, 16.0, 8.0, 16.0);
-    private static final VoxelShape SHAPE_CEILING = Block.box(0.0, 8.0, 0.0, 16.0, 10.0, 16.0);
+    private static final VoxelShape SHAPE_FLOOR = Block.box(0.0, 8.0, 0.0, 16.0, 10.0, 16.0);
+    private static final VoxelShape SHAPE_CEILING = Block.box(0.0, 6.0, 0.0, 16.0, 8.0, 16.0);
 
     /** Set just before a {@code new}, so {@link #createBlockStateDefinition} (called from super) sees it. */
     private static CameType pendingType;
