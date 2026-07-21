@@ -85,9 +85,17 @@ public final class LeadedGlassSurface {
     private static void emit(BakedModel model, BlockState state, LeadedGlassConfig config, Direction dir,
                              VertexConsumer buffer, PoseStack pose, int light, int overlay, RandomSource random) {
         for (BakedQuad quad : model.getQuads(state, dir, random)) {
-            int color = colorFor(quad.getTintIndex(), config);
+            int tint = quad.getTintIndex();
+            // Clear regions must be drawn with the clear sprite, not the tintable white one. For most
+            // came types the block state already picked a clear-textured model and this is a no-op —
+            // but grid and lattice carry no clear_N state, and their chunk-mesh wrapper can only do the
+            // swap from a block entity, which a door has none of. Without this they render solid white.
+            BakedQuad out = tint >= 0 && config.colorAt(tint) == null
+                    ? LeadedGlassClearSprite.retexture(quad)
+                    : quad;
+            int color = colorFor(tint, config);
             float r = (color >> 16 & 0xFF) / 255.0f, g = (color >> 8 & 0xFF) / 255.0f, b = (color & 0xFF) / 255.0f;
-            buffer.putBulkData(pose.last(), quad, r, g, b, 1.0f, light, overlay);
+            buffer.putBulkData(pose.last(), out, r, g, b, 1.0f, light, overlay);
         }
     }
 

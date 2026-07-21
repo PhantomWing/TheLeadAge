@@ -113,7 +113,11 @@ dependencies {
     // Never shipped, never a hard dependency — every generated Create recipe is mod_loaded-gated.
     modCompileOnly("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
     modCompileOnly("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
-    if (loadCreate) {
+    // NOT on the game-test classpath: Create crashes the headless GameTestServer outright
+    // ("Payload create:clientbound_chain_conveyor may not be sent to the client!" — it pushes a
+    // client-only payload on a server with no client). Datagen DOES need it, hence !runningGameTest
+    // rather than the !runningDataGen guard used for the dev niceties below.
+    if (loadCreate && !runningGameTest) {
         modLocalRuntime("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
         modLocalRuntime("net.createmod.ponder:ponder-neoforge:${rootProject.ponder_version}+mc${rootProject.minecraft_version}")
         modLocalRuntime("dev.engine-room.flywheel:flywheel-neoforge-${rootProject.minecraft_version}:${rootProject.flywheel_version}")
@@ -124,7 +128,9 @@ dependencies {
     // compileOnly ALWAYS so LeadKnifeItem (which extends FD's KnifeItem) compiles with FD toggled off.
     // Never shipped, never a hard dependency — the item falls back to a plain SwordItem without FD.
     modCompileOnly "maven.modrinth:farmers-delight:${rootProject.farmersdelight_neoforge_version}"
-    if (loadFD) {
+    // Also kept off the game-test classpath: the tests cover this mod's own mechanics, so third-party
+    // mods there only add load time and failure modes (datagen still gets it).
+    if (loadFD && !runningGameTest) {
         modLocalRuntime "maven.modrinth:farmers-delight:${rootProject.farmersdelight_neoforge_version}"
     }
 

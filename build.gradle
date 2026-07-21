@@ -154,6 +154,11 @@ publishMods {
         requires { slug = "architectury-api" }
         requires { slug = "cloth-config" }
         optional { slug = "fabric-api" }
+        // Shipped integrations (never required). Dev-only runtime mods (AppleSkin) are NOT listed.
+        optional { slug = "create" }
+        optional { slug = "farmers-delight" }
+        optional { slug = "jei" }
+        optional { slug = "emi" }
     }
 
     curseforge {
@@ -169,6 +174,11 @@ publishMods {
         requires { slug = "architectury-api" }
         requires { slug = "cloth-config" }
         optional { slug = "fabric-api" }
+        // Shipped integrations (never required). Dev-only runtime mods (AppleSkin) are NOT listed.
+        optional { slug = "create" }
+        optional { slug = "farmers-delight" }
+        optional { slug = "jei" }
+        optional { slug = "emi" }
         // CurseForge environment tags: the mod runs (and is required) on both sides.
         clientRequired = true
         serverRequired = true

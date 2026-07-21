@@ -35,5 +35,10 @@
     "minecraft": ">=1.21.1 <1.21.2",
     "architectury": ">=13.0.8",
     "cloth-config": ">=15.0.140"
+  },
+  "suggests": {
+    "farmersdelight": "*",
+    "jei": "*",
+    "emi": "*"
   }
 }

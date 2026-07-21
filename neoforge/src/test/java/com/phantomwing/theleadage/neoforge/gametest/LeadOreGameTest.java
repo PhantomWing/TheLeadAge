@@ -7,6 +7,7 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
+import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
@@ -25,6 +26,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -48,50 +50,105 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy}):
- * a non-silk-touch harvest gives Nausea ~30% of the time; silk touch never does.
+ * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy} and {@link LeadFumes}):
+ * a non-silk-touch harvest sometimes doses the player with Lead Sickness; silk touch never does.
  * Run headless with {@code ./gradlew :neoforge:runGameTest}.
  *
  * <p>The fumes are random, so the tests mine many times and assert on the count.
  * With {@value #TRIALS} trials the "sometimes" bounds fail with probability ~1e-15,
  * so they're deterministic in practice.</p>
+ *
+ * <p><b>The first dose is Hunger, not Nausea.</b> Lead Sickness is a ladder — Hunger, then
+ * +Weakness, then +Poison +Nausea — so a single exposure only ever produces Hunger. These tests
+ * therefore probe for {@link MobEffects#HUNGER} as the marker that a dose landed, and
+ * {@link #leadSicknessLadderEscalates} covers the ladder itself.</p>
  */
 @GameTestHolder("theleadage")
 @PrefixGameTestTemplate(false)
 public class LeadOreGameTest {
     private static final int TRIALS = 100;
 
-    /** Lead ore gives Nausea sometimes (but not every break). */
+    /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
+    private static final List<Holder<MobEffect>> SICKNESS_EFFECTS =
+            List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, MobEffects.CONFUSION);
+
+    /** Lead ore doses the player sometimes (but not on every break). */
     @GameTest(template = "empty")
-    public static void leadOreSometimesGivesNausea(GameTestHelper helper) {
-        int count = countNausea(helper, ModBlocks.LEAD_ORE.get(), false);
+    public static void leadOreSometimesGivesLeadSickness(GameTestHelper helper) {
+        int count = countDoses(helper, ModBlocks.LEAD_ORE.get(), false);
         if (count > 0 && count < TRIALS) {
             helper.succeed();
         } else {
-            helper.fail("Expected lead ore to give Nausea sometimes but not always (got " + count + "/" + TRIALS + ")");
+            helper.fail("Expected lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
         }
     }
 
     /** Same for deepslate lead ore. */
     @GameTest(template = "empty")
-    public static void deepslateLeadOreSometimesGivesNausea(GameTestHelper helper) {
-        int count = countNausea(helper, ModBlocks.DEEPSLATE_LEAD_ORE.get(), false);
+    public static void deepslateLeadOreSometimesGivesLeadSickness(GameTestHelper helper) {
+        int count = countDoses(helper, ModBlocks.DEEPSLATE_LEAD_ORE.get(), false);
         if (count > 0 && count < TRIALS) {
             helper.succeed();
         } else {
-            helper.fail("Expected deepslate lead ore to give Nausea sometimes but not always (got " + count + "/" + TRIALS + ")");
+            helper.fail("Expected deepslate lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
         }
     }
 
     /** Silk touch yields the ore block, not raw lead, so it NEVER gives fumes. */
     @GameTest(template = "empty")
-    public static void silkTouchNeverGivesNausea(GameTestHelper helper) {
-        int count = countNausea(helper, ModBlocks.LEAD_ORE.get(), true);
+    public static void silkTouchNeverGivesLeadSickness(GameTestHelper helper) {
+        int count = countDoses(helper, ModBlocks.LEAD_ORE.get(), true);
         if (count == 0) {
             helper.succeed();
         } else {
-            helper.fail("Silk touch should never give Nausea (got " + count + "/" + TRIALS + ")");
+            helper.fail("Silk touch should never dose the player (got " + count + "/" + TRIALS + ")");
         }
+    }
+
+    /**
+     * The sickness ladder: one dose is Hunger only, a second adds Weakness, a third adds Poison and
+     * Nausea — and it stops there rather than climbing further. Exercises {@link LeadFumes#escalate}
+     * directly, so it is deterministic (no distance/chance roll involved).
+     */
+    @GameTest(template = "empty")
+    public static void leadSicknessLadderEscalates(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        clearSickness(player);
+
+        LeadFumes.escalate(player);
+        if (!player.hasEffect(MobEffects.HUNGER)) {
+            helper.fail("first dose should apply Hunger");
+            return;
+        }
+        if (player.hasEffect(MobEffects.WEAKNESS) || player.hasEffect(MobEffects.POISON)) {
+            helper.fail("first dose should be Hunger ONLY");
+            return;
+        }
+
+        LeadFumes.escalate(player);
+        if (!player.hasEffect(MobEffects.WEAKNESS)) {
+            helper.fail("second dose should add Weakness");
+            return;
+        }
+        if (player.hasEffect(MobEffects.POISON)) {
+            helper.fail("second dose should not reach Poison yet");
+            return;
+        }
+
+        LeadFumes.escalate(player);
+        if (!player.hasEffect(MobEffects.POISON) || !player.hasEffect(MobEffects.CONFUSION)) {
+            helper.fail("third dose should add Poison AND Nausea");
+            return;
+        }
+
+        // Capped: a fourth dose refreshes the stack but must not invent a new stage.
+        LeadFumes.escalate(player);
+        if (!player.hasEffect(MobEffects.HUNGER) || !player.hasEffect(MobEffects.WEAKNESS)
+                || !player.hasEffect(MobEffects.POISON) || !player.hasEffect(MobEffects.CONFUSION)) {
+            helper.fail("a dose past stage 3 should refresh the whole stack");
+            return;
+        }
+        helper.succeed();
     }
 
     /** Lead Door + a leaded glass pane must resolve to the leaded glass door recipe. */
@@ -373,26 +430,55 @@ public class LeadOreGameTest {
         }
     }
 
-    /** Mines {@code ore} {@value #TRIALS} times and returns how many breaks applied Nausea. */
-    private static int countNausea(GameTestHelper helper, Block ore, boolean silkTouch) {
+    /**
+     * Mines {@code ore} {@value #TRIALS} times and returns how many breaks actually dosed the player.
+     *
+     * <p>Hunger is the probe because it is stage 1 — every dose applies it, whatever the stage. Note
+     * that ALL of the sickness effects are cleared between trials, not just the one being probed: the
+     * stage is derived from which effects are still active, so leaving any of them on would ratchet
+     * the ladder upward and make the trials depend on each other.</p>
+     */
+    private static int countDoses(GameTestHelper helper, Block ore, boolean silkTouch) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);
         BlockPos pos = new BlockPos(1, 2, 1);
 
+        // makeMockServerPlayerInLevel does NOT position the player — it lands at the world origin,
+        // far outside the fumes' radius, so every trial would silently score zero. Stand it next to
+        // the ore, and clear the surrounding cells: the fumes also require line of sight, and the
+        // "empty" template is enclosed in barrier blocks that would otherwise block the ray.
+        BlockPos stand = pos.east();
+        for (int x = 0; x <= 2; x++) {
+            for (int y = 2; y <= 3; y++) {
+                for (int z = 0; z <= 2; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.AIR);
+                }
+            }
+        }
+        Vec3 standAt = Vec3.atBottomCenterOf(helper.absolutePos(stand));
+        player.moveTo(standAt.x, standAt.y, standAt.z, 0.0f, 0.0f);
+
         int count = 0;
         for (int i = 0; i < TRIALS; i++) {
-            // Fresh, full-durability tool + cleared effect so each trial is independent.
+            // Fresh, full-durability tool + a clean slate so each trial is independent.
             player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe(helper, silkTouch));
-            player.removeEffect(MobEffects.CONFUSION);
+            clearSickness(player);
             helper.setBlock(pos, ore);
 
             player.gameMode.destroyBlock(helper.absolutePos(pos));
 
-            if (player.hasEffect(MobEffects.CONFUSION)) {
+            if (player.hasEffect(MobEffects.HUNGER)) {
                 count++;
             }
         }
         return count;
+    }
+
+    /** Wipe every Lead Sickness effect, so the next dose starts the ladder from stage 0. */
+    private static void clearSickness(ServerPlayer player) {
+        for (Holder<MobEffect> effect : SICKNESS_EFFECTS) {
+            player.removeEffect(effect);
+        }
     }
 
     private static ItemStack pickaxe(GameTestHelper helper, boolean silkTouch) {
