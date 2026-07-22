@@ -1,8 +1,8 @@
 package com.phantomwing.theleadage.client;
 
+import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
@@ -27,16 +27,6 @@ import net.minecraft.world.phys.AABB;
  * (from the block's collision shape) decides which plane to rotate the pane sheet onto.
  */
 public final class LeadedGlassSurface {
-    /** The pane sheet is 2px thick but the door/trapdoor are 3px; stretch its thin axis to match so it
-     *  fills the slab (only the hidden side faces move — the front/back design faces are unaffected). */
-    private static final float GLASS_DEPTH = 1.5f;
-    /** Fraction of that depth the sheet actually fills, recessing the front/back faces just inside the
-     *  overlay so they don't z-fight it — even at distance, where depth precision drops. */
-    private static final float GLASS_INSET = 0.95f;
-    /** A whisker of width inset (~0.08px per edge) so the pane's thin side faces sit just inside the
-     *  window frame instead of z-fighting it — too small to shrink the visible front/back design. */
-    private static final float GLASS_EDGE_INSET = 0.99f;
-
     private LeadedGlassSurface() {
     }
 
@@ -44,34 +34,11 @@ public final class LeadedGlassSurface {
                               MultiBufferSource buffers, int light, int overlay) {
         BlockState paneState = paneStateFor(config);
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
-        Direction.Axis thin = thinAxis(slab);
 
         pose.pushPose();
-        // Centre the (canonically thin-z) pane sheet on its thin axis; the depth stretch below fills the
-        // 3px slab, so a centred sheet already reaches both faces (e.g. a flat trapdoor's top).
-        switch (thin) {
-            case X -> pose.translate((slab.minX + slab.maxX) / 2.0 - 0.5, 0, 0);
-            case Y -> pose.translate(0, (slab.minY + slab.maxY) / 2.0 - 0.5, 0);
-            case Z -> pose.translate(0, 0, (slab.minZ + slab.maxZ) / 2.0 - 0.5);
-        }
-        // ...then rotate it onto the slab's plane (thin-z needs no rotation). A flat surface (thin-y,
-        // the trapdoor flap) lays down with XP -90 so its FRONT face points up; +90 would show the
-        // mirror-authored back face (which reads flipped).
-        if (thin != Direction.Axis.Z) {
-            pose.translate(0.5, 0.5, 0.5);
-            pose.mulPose(thin == Direction.Axis.X ? Axis.YP.rotationDegrees(90) : Axis.XP.rotationDegrees(-90));
-            pose.translate(-0.5, -0.5, -0.5);
-        }
-        // Stretch the thin axis toward 3px to fill the slab, but stop just short (GLASS_INSET) so the
-        // front/back faces recess inside the overlay; a whisker of width inset (GLASS_EDGE_INSET) keeps
-        // the thin side faces off the frame too. (Applied in canonical space, where the thin axis is z.)
-        pose.translate(0.5, 0.5, 0.5);
-        pose.scale(GLASS_EDGE_INSET, GLASS_EDGE_INSET, GLASS_INSET * GLASS_DEPTH);
-        pose.translate(-0.5, -0.5, -0.5);
-        // The block-form pane models sit 1px off-centre on their thin (canonical z) axis (shifted so a
-        // placed pane lines up with stairs/slabs). The door/trapdoor window wants the design centred in
-        // its frame, so cancel that shift here — innermost, in canonical space, before the depth stretch.
-        pose.translate(0.0, 0.0, 1.0 / 16.0);
+        // Canonical pane space -> the slab. The maths lives in LeadedGlassPlacement so the dye/shear
+        // interaction can invert this exact matrix to turn a click back into a region — see its docs.
+        pose.mulPose(LeadedGlassPlacement.surface(slab));
 
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentCullBlockSheet());
         RandomSource random = RandomSource.create(42L);
@@ -126,13 +93,5 @@ public final class LeadedGlassSurface {
             }
         }
         return state;
-    }
-
-    private static Direction.Axis thinAxis(AABB box) {
-        double dx = box.maxX - box.minX, dy = box.maxY - box.minY, dz = box.maxZ - box.minZ;
-        if (dy <= dx && dy <= dz) {
-            return Direction.Axis.Y;
-        }
-        return dx <= dz ? Direction.Axis.X : Direction.Axis.Z;
     }
 }

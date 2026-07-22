@@ -6,6 +6,13 @@ import com.phantomwing.theleadage.block.entity.LeadedGlassDoorBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import net.minecraft.core.BlockPos;
+import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -38,6 +45,49 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
     @Override
     public MapCodec<? extends DoorBlock> codec() {
         return CODEC;
+    }
+
+    /**
+     * Dye or shear one region of the clicked half's glass, exactly as on a placed pane. Only a click
+     * that lands on the design does anything — clicking the lead frame still opens the door, so
+     * holding a dye doesn't stop you using it.
+     *
+     * <p>The two halves carry their own pane, but the {@link LeadedGlassDoorConfig} holding both is
+     * mirrored on each half's block entity (the renderer reads whichever half it is drawing), so an
+     * edit has to be written to both.</p>
+     */
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                              Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!LeadedGlassRecolor.isTool(stack)
+                || !(level.getBlockEntity(pos) instanceof LeadedGlassDoorBlockEntity be)) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        }
+        boolean upper = state.getValue(HALF) == DoubleBlockHalf.UPPER;
+        LeadedGlassDoorConfig door = be.getConfig();
+        LeadedGlassConfig pane = upper ? door.top() : door.bottom();
+
+        int region = LeadedGlassPlacement.regionAt(state, state.getShape(level, pos).bounds(),
+                pane.frame(), hit.getLocation().subtract(Vec3.atLowerCornerOf(pos)));
+        if (region < 0) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hit); // missed the glass
+        }
+        if (!level.isClientSide) {
+            List<Integer> colors = LeadedGlassRecolor.apply(
+                    pane.colors(), pane.frame().regions(), region, LeadedGlassRecolor.target(stack));
+            if (colors == null) {
+                return ItemInteractionResult.SUCCESS; // already that colour — eat the click, spend nothing
+            }
+            LeadedGlassConfig updated = new LeadedGlassConfig(pane.frame(), colors);
+            LeadedGlassDoorConfig both = upper
+                    ? new LeadedGlassDoorConfig(updated, door.bottom())
+                    : new LeadedGlassDoorConfig(door.top(), updated);
+            BlockPos lower = upper ? pos.below() : pos;
+            applyConfig(level, lower, both);
+            applyConfig(level, lower.above(), both);
+            LeadedGlassRecolor.consume(stack, player, hand, level, pos);
+        }
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Nullable

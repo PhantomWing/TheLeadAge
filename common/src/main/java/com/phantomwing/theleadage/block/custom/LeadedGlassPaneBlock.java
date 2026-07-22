@@ -197,8 +197,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
-        boolean shears = stack.getItem() instanceof ShearsItem;
-        if (!(stack.getItem() instanceof DyeItem) && !shears) {
+        if (!LeadedGlassRecolor.isTool(stack)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         int region = regionAt(state, pos, hit);
@@ -206,32 +205,19 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // a thin edge, not the glass face
         }
         // The colour we want this region to become: a dye's colour, or null to clear it (shears).
-        DyeColor target = shears ? null : ((DyeItem) stack.getItem()).getDyeColor();
+        DyeColor target = LeadedGlassRecolor.target(stack);
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
-            if (pane.colorAt(region) == target) {
+            List<Integer> colors = LeadedGlassRecolor.apply(pane.getColors(), type.regions, region, target);
+            if (colors == null) {
                 return ItemInteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
             }
-            List<Integer> colors = new ArrayList<>(pane.getColors());
-            while (colors.size() < type.regions) {
-                colors.add(LeadedGlassConfig.CLEAR);
-            }
-            colors.set(region, target == null ? LeadedGlassConfig.CLEAR : target.getId());
             pane.setColors(colors);
             // Dynamic (cell-based) panes carry no clear_N state — the wrapper model reads the block
             // entity, and setColors already triggered the client re-render; the others flip the state.
             if (!type.isDynamic()) {
                 level.setBlock(pos, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
             }
-            if (shears) {
-                level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0f, 1.0f);
-                stack.hurtAndBreak(1, player,
-                        hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-            } else {
-                level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
-                if (!player.getAbilities().instabuild) {
-                    stack.shrink(1);
-                }
-            }
+            LeadedGlassRecolor.consume(stack, player, hand, level, pos);
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }

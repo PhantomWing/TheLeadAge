@@ -27,29 +27,26 @@ public final class LeadLootAlgorithms {
      */
     public static void applyReplaceItem(ObjectArrayList<ItemStack> generatedLoot, LootContext lootContext,
                                         Item item, List<Item> removedItems, int minStacks, int maxStacks) {
-        ObjectArrayList<ItemStack> lootArray = new ObjectArrayList<>();
-        int numberOfStacksToAdd = maxStacks > 0
+        int budget = maxStacks > 0
                 ? UniformGenerator.between(minStacks, maxStacks).getInt(lootContext)
                 : Integer.MAX_VALUE;
-        final int[] stacksToAdd = {numberOfStacksToAdd};
 
-        if (numberOfStacksToAdd > 0) {
-            generatedLoot.forEach((stack) -> {
-                if (removedItems.stream().anyMatch(stack::is) && stacksToAdd[0] > 0) {
-                    try {
-                        ItemStack toAdd = ItemUtils.tryTransmuteStack(stack, item);
-                        generatedLoot.remove(stack);
-                        lootArray.add(toAdd);
-                    } catch (Exception ignored) {
-                        // Skip a bad replacement and keep the original stack.
-                    }
-                    stacksToAdd[0] = stacksToAdd[0] - 1;
-                }
-            });
-        }
-
-        if (!lootArray.isEmpty()) {
-            generatedLoot.addAll(lootArray);
+        // Swap in place over an index loop. Do NOT remove-while-iterating here: fastutil's
+        // ObjectArrayList.forEach is `for (i = 0; i < size; i++)` with no modCount check, so a removal
+        // shifts the tail left and the very next element is skipped — silently, with no exception. That
+        // made a chest holding two replaceable stacks convert only one of them. Replacing in place also
+        // keeps each stack where the loot table put it, instead of shuffling them to the end.
+        for (int i = 0; i < generatedLoot.size() && budget > 0; i++) {
+            ItemStack stack = generatedLoot.get(i);
+            if (removedItems.stream().noneMatch(stack::is)) {
+                continue;
+            }
+            try {
+                generatedLoot.set(i, ItemUtils.tryTransmuteStack(stack, item));
+                budget--;
+            } catch (Exception ignored) {
+                // Skip a bad replacement, keep the original stack — and don't spend the budget on it.
+            }
         }
     }
 }

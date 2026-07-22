@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.item.custom;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.attribute.ModAttributes;
+import dev.architectury.event.events.common.TickEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -65,21 +66,19 @@ public class LeadArmorItem extends ArmorItem {
         return modifiers;
     }
 
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (!(entity instanceof LivingEntity living)) {
-            return;
-        }
-
+    /**
+     * Recompute the Heaviness penalties for a wearer, adding, updating or clearing them as needed.
+     *
+     * <p>Driven from a <em>player tick</em> ({@link #register}) rather than only from
+     * {@link #inventoryTick}. That distinction is the whole point: {@code inventoryTick} runs per
+     * lead stack in the inventory, so the moment the last lead piece leaves — taken off and dropped
+     * into a chest — nothing is left to run the cleanup and the wearer keeps the slowness and extra
+     * gravity for the rest of the session. Ticking the player instead means the clear always happens.</p>
+     */
+    public static void refreshHeaviness(LivingEntity living) {
         // Heaviness is suspended while the wearer is flying (creative / spectator) so the
-        // penalties don't fight free-flight — treated as if no lead armor were worn, which
-        // clears the modifiers below.
+        // penalties don't fight free-flight — treated as if no lead armor were worn.
         boolean flying = living instanceof Player player && player.getAbilities().flying;
-
-        // Slow + gravity scale with total worn Heaviness. Idempotent, so it's fine
-        // that this runs once per worn (or carried) lead piece each tick; it also
-        // clears the effect once no lead armor is worn (or the wearer is flying).
         double heaviness = flying ? 0.0 : wornHeaviness(living);
         updateModifier(living, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_ID,
                 heaviness * SPEED_PENALTY_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
@@ -87,6 +86,26 @@ public class LeadArmorItem extends ArmorItem {
                 heaviness * GRAVITY_BONUS_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         updateModifier(living, Attributes.KNOCKBACK_RESISTANCE, KNOCKBACK_MODIFIER_ID,
                 heaviness * KNOCKBACK_RESISTANCE_PER_HEAVINESS, AttributeModifier.Operation.ADD_VALUE);
+    }
+
+    /** Drives {@link #refreshHeaviness} for players every tick, whether or not they still carry lead. */
+    public static void register() {
+        TickEvent.PLAYER_POST.register(player -> refreshHeaviness(player));
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (!(entity instanceof LivingEntity living)) {
+            return;
+        }
+
+        // Mobs get their penalties here: the player tick above does not cover them, and a mob only
+        // ever loses its armour by dying, so there is no stale-modifier case to clean up.
+        boolean flying = living instanceof Player player && player.getAbilities().flying;
+        if (!(living instanceof Player)) {
+            refreshHeaviness(living);
+        }
 
         // Faster sink while submerged — applied per worn piece. Skipped entirely
         // while the wearer is actively swimming up (holding jump), so swimming is

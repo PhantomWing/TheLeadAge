@@ -12,6 +12,15 @@ import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import net.minecraft.world.entity.item.ItemEntity;
+import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.state.properties.DoorHingeSide;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Half;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -258,6 +267,62 @@ public class LeadOreGameTest {
         assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_B, 0.35, 0.35, 2);
         assertRegion(helper, LeadedGlassFrame.DIAGONAL_BARS_B, 0.1, 0.1, 3);   // bottom-left triangle
         helper.succeed();
+    }
+
+    /**
+     * The glass sheet must land inside the door/trapdoor panel in every orientation.
+     *
+     * <p>{@link LeadedGlassPlacement} maps canonical pane space onto the block; the renderer draws with
+     * that matrix and the dye/shear interaction inverts it. Note a forward-then-inverse round trip
+     * would prove nothing (it only tests {@code invert()}), so this asserts the geometric invariant
+     * instead: the four corners and the centre of the canonical sheet all land within the block's own
+     * collision box. That catches a wrong thin axis, a missing translation or a rotation about the
+     * wrong point — the ways the sheet ends up somewhere other than in its frame.</p>
+     */
+    @GameTest(template = "empty")
+    public static void glassPlacementStaysInsidePanel(GameTestHelper helper) {
+        BlockState door = ModBlocks.LEADED_GLASS_DOOR.get().defaultBlockState();
+        for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
+            for (Direction facing : Direction.Plane.HORIZONTAL) {
+                for (boolean open : new boolean[]{false, true}) {
+                    for (DoorHingeSide hinge : DoorHingeSide.values()) {
+                        assertSheetInsidePanel(helper, door
+                                .setValue(DoorBlock.HALF, half)
+                                .setValue(DoorBlock.FACING, facing)
+                                .setValue(DoorBlock.OPEN, open)
+                                .setValue(DoorBlock.HINGE, hinge));
+                    }
+                }
+            }
+        }
+        BlockState trapdoor = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
+        for (Half half : Half.values()) {
+            for (Direction facing : Direction.Plane.HORIZONTAL) {
+                for (boolean open : new boolean[]{false, true}) {
+                    assertSheetInsidePanel(helper, trapdoor
+                            .setValue(TrapDoorBlock.HALF, half)
+                            .setValue(TrapDoorBlock.FACING, facing)
+                            .setValue(TrapDoorBlock.OPEN, open));
+                }
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertSheetInsidePanel(GameTestHelper helper, BlockState state) {
+        AABB box = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).bounds();
+        Matrix4f m = LeadedGlassPlacement.orientation(state, box).mul(LeadedGlassPlacement.surface(box));
+        // A hair of slack: the sheet is inset inside the frame, so it can only ever sit within the box.
+        AABB allowed = box.inflate(0.02);
+        double[][] corners = {{0, 0}, {1, 0}, {0, 1}, {1, 1}, {0.5, 0.5}};
+        for (double[] c : corners) {
+            Vector3f p = m.transformPosition(new Vector3f((float) c[0], (float) c[1], 0.5f));
+            if (!allowed.contains(p.x, p.y, p.z)) {
+                helper.fail("glass corner (" + c[0] + "," + c[1] + ") landed at " + p
+                        + ", outside the panel " + box + " for " + state);
+                return;
+            }
+        }
     }
 
     /** Heavy weight transforms are loaded from the mod's datapack and resolve block + (non-)matches. */

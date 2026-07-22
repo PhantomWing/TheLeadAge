@@ -5,6 +5,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Fabric-side block render-layer registration.
@@ -44,5 +46,15 @@ public final class ModRenderLayers {
                 ModBlocks.LEADED_GLASS_PANEL.get(), ModBlocks.LEADED_GLASS_PANE_SPLIT.get(),
                 ModBlocks.LEADED_GLASS_PANE_PLUS.get(), ModBlocks.LEADED_GLASS_PANE_GRID.get(),
                 ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+
+        // The full glass blocks. Clear leaded glass is cutout (like vanilla glass); the dyed ones are
+        // translucent so they tint what you see through them. Matching cutoutCube/translucentCube in
+        // ModBlockStateProvider — without these they fall back to solid and render as opaque blocks.
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(), ModBlocks.LEADED_GLASS.get());
+        Block[] stained = new Block[DyeColor.values().length];
+        for (int i = 0; i < stained.length; i++) {
+            stained[i] = ModBlocks.STAINED_LEADED_GLASS.get(DyeColor.values()[i]).get();
+        }
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(), stained);
     }
 }

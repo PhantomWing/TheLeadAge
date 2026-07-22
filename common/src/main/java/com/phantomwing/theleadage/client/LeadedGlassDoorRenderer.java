@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.client;
 
+import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.phantomwing.theleadage.block.entity.LeadedGlassDoorBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
@@ -38,17 +38,9 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
         }
         AABB box = shape.bounds();
         pose.pushPose();
-        if (state.getValue(DoorBlock.OPEN) && state.getValue(DoorBlock.HINGE) == DoorHingeSide.RIGHT) {
-            // A right-hinge door opens the other way using vanilla's MIRRORED door models; the
-            // collision box only says where the open panel is, not that the model there is the
-            // mirrored variant. Mirror the glass to match: a half-turn about the panel's vertical
-            // centre axis shows the sheet's other face (the design's horizontal mirror) and maps
-            // the box onto itself, so the position can't drift.
-            Vec3 centre = box.getCenter();
-            pose.translate(centre.x, centre.y, centre.z);
-            pose.mulPose(Axis.YP.rotationDegrees(180));
-            pose.translate(-centre.x, -centre.y, -centre.z);
-        }
+        // Which way the design faces (the mirrored right-hinge case) — shared with the dye/shear
+        // interaction, which inverts this same matrix. See LeadedGlassPlacement.
+        pose.mulPose(LeadedGlassPlacement.orientation(state, box));
         LeadedGlassSurface.render(pane, box, pose, buffers, light, overlay);
         pose.popPose();
     }
