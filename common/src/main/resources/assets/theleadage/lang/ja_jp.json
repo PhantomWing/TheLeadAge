@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "ヘビーコアのレシピ",
   "text.autoconfig.theleadage.option.enable_structure_loot": "構造物の戦利品を生成",
   "text.autoconfig.theleadage.option.enable_villager_trades": "村人の取引を有効化",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "行商人の取引を有効化",
   "death.attack.lead_weight": "%1$sは鉛の重りに押し潰された",
   "death.attack.lead_weight.player": "%1$sは%2$sが落とした鉛の重りに押し潰された",
   "theleadage.advancement.root": "The Lead Age",

@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Schwerer-Kern-Rezept",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Bauwerksbeute generieren",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Dorfbewohnerhandel aktivieren",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Fahrenden Händlerhandel aktivieren",
   "death.attack.lead_weight": "%1$s wurde von einem Bleigewicht zerquetscht",
   "death.attack.lead_weight.player": "%1$s wurde von einem Bleigewicht zerquetscht, das %2$s warf",
   "theleadage.advancement.root": "The Lead Age",

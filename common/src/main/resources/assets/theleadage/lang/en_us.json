@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Heavy Core Recipe",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Generate Structure Loot",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Enable villager trades",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Enable wandering trader trades",
   "death.attack.lead_weight": "%1$s was flattened by a Lead Weight",
   "death.attack.lead_weight.player": "%1$s was flattened by a Lead Weight thrown by %2$s",
   "theleadage.advancement.root": "The Lead Age",

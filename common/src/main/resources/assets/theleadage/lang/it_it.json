@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Ricetta del nucleo pesante",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Genera bottino nelle strutture",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Abilita gli scambi dei villici",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Abilita gli scambi del mercante errante",
   "death.attack.lead_weight": "%1$s è stato schiacciato da un Peso di piombo",
   "death.attack.lead_weight.player": "%1$s è stato schiacciato da un Peso di piombo lanciato da %2$s",
   "theleadage.advancement.root": "The Lead Age",

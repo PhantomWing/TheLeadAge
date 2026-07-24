@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Công thức lõi nặng",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Tạo chiến lợi phẩm trong công trình",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Bật giao dịch với dân làng",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Bật giao dịch với thương nhân lang thang",
   "death.attack.lead_weight": "%1$s đã bị nghiền nát bởi một Quả nặng chì",
   "death.attack.lead_weight.player": "%1$s đã bị nghiền nát bởi một Quả nặng chì do %2$s ném",
   "theleadage.advancement.root": "The Lead Age",

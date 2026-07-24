@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Rețeta nucleului greu",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Generează prada structurilor",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Activează schimburile sătenilor",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Activează schimburile Negustorului Rătăcitor",
   "death.attack.lead_weight": "%1$s a fost strivit de o Greutate de plumb",
   "death.attack.lead_weight.player": "%1$s a fost strivit de o Greutate de plumb aruncată de %2$s",
   "theleadage.advancement.root": "The Lead Age",

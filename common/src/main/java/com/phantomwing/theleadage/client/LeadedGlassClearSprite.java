@@ -55,8 +55,13 @@ public final class LeadedGlassClearSprite {
         return new BakedQuad(v, -1, quad.getDirection(), to, quad.isShade());
     }
 
+    /**
+     * The untinted clear counterpart of a tinted {@code white_*} sprite, or {@code null} if it has
+     * none. Public so the Fabric chunk-mesh wrapper can share the lookup — it does the UV swap through
+     * the Renderer API rather than on a {@link BakedQuad}, so it can't reuse {@link #retexture}.
+     */
     @Nullable
-    private static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
+    public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
         return CLEAR_SPRITE.computeIfAbsent(white, w -> {
             ResourceLocation name = w.contents().name();
             if (!name.getPath().contains("white_")) {

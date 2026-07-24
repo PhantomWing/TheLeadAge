@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "무거운 핵 제작법",
   "text.autoconfig.theleadage.option.enable_structure_loot": "구조물 전리품 생성",
   "text.autoconfig.theleadage.option.enable_villager_trades": "주민 거래 활성화",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "방랑상인 거래 활성화",
   "death.attack.lead_weight": "%1$s님이 납 추에 짓눌렸습니다",
   "death.attack.lead_weight.player": "%1$s님이 %2$s님이 떨어뜨린 납 추에 짓눌렸습니다",
   "theleadage.advancement.root": "The Lead Age",

@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.fabric.client;
 
+import com.phantomwing.theleadage.client.LeadedGlassClearSprite;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
@@ -10,13 +11,10 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -27,9 +25,6 @@ import java.util.function.Supplier;
  * per-frame cost (runs only when a section is (re)built).
  */
 public class LeadedGlassPaneModelFabric extends ForwardingBakedModel {
-    private static final Map<TextureAtlasSprite, TextureAtlasSprite> CLEAR_SPRITE = new ConcurrentHashMap<>();
-    private static SpriteFinder spriteFinder;
-
     public LeadedGlassPaneModelFabric(BakedModel wrapped) {
         this.wrapped = wrapped;
     }
@@ -67,7 +62,7 @@ public class LeadedGlassPaneModelFabric extends ForwardingBakedModel {
             return true;
         }
         TextureAtlasSprite from = spriteFinder().find(quad);
-        TextureAtlasSprite to = clearSprite(from);
+        TextureAtlasSprite to = LeadedGlassClearSprite.clearSprite(from);
         if (to != null) {
             for (int i = 0; i < 4; i++) {
                 float lu = (quad.u(i) - from.getU0()) / (from.getU1() - from.getU0());
@@ -80,22 +75,14 @@ public class LeadedGlassPaneModelFabric extends ForwardingBakedModel {
         return true;
     }
 
-    private static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
-        return CLEAR_SPRITE.computeIfAbsent(white, w -> {
-            ResourceLocation name = w.contents().name();
-            if (!name.getPath().contains("white_")) {
-                return null;
-            }
-            ResourceLocation clearLoc = ResourceLocation.fromNamespaceAndPath(
-                    name.getNamespace(), name.getPath().replace("white_", ""));
-            return Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(clearLoc);
-        });
-    }
-
+    /**
+     * Deliberately NOT cached in a field. {@code SpriteFinder.get} is already a field read on the
+     * atlas (Fabric stores the finder there via {@code SpriteFinderAccess}) and Fabric rebuilds it
+     * when the atlas re-stitches. Holding our own copy would survive that invalidation, leaving us
+     * matching quads against the previous atlas layout after any resource reload — clear grid/lattice
+     * cells would come back with the wrong sprite until the game restarted.
+     */
     private static SpriteFinder spriteFinder() {
-        if (spriteFinder == null) {
-            spriteFinder = SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS));
-        }
-        return spriteFinder;
+        return SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS));
     }
 }

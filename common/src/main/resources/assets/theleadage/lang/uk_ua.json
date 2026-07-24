@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Рецепт важкої серцевини",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Генерувати здобич у структурах",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Увімкнути обмін з селянами",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Увімкнути обмін з мандрівним торговцем",
   "death.attack.lead_weight": "%1$s розчавлений Свинцевим вантажем",
   "death.attack.lead_weight.player": "%1$s розчавлений Свинцевим вантажем, який кинув %2$s",
   "theleadage.advancement.root": "The Lead Age",

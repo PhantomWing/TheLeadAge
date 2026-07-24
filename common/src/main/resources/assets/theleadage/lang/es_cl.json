@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Receta del núcleo pesado",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Generar botín en estructuras",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Habilitar intercambios de aldeanos",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Habilitar intercambios del mercader errante",
   "death.attack.lead_weight": "%1$s fue aplastado por un Peso de plomo",
   "death.attack.lead_weight.player": "%1$s fue aplastado por un Peso de plomo lanzado por %2$s",
   "theleadage.advancement.root": "The Lead Age",

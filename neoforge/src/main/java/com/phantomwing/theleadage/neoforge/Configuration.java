@@ -37,9 +37,6 @@ public class Configuration {
     public static final String ENABLE_VILLAGER_TRADES_ID = "enable_villager_trades";
     public static final ModConfigSpec.BooleanValue ENABLE_VILLAGER_TRADES;
 
-    public static final String ENABLE_WANDERING_TRADER_TRADES_ID = "enable_wandering_trader_trades";
-    public static final ModConfigSpec.BooleanValue ENABLE_WANDERING_TRADER_TRADES;
-
     public static boolean getBooleanConfigurationValue(String id) {
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> GENERATE_LEAD_ORE.get();
@@ -51,7 +48,6 @@ public class Configuration {
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
             case ENABLE_STRUCTURE_LOOT_ID -> ENABLE_STRUCTURE_LOOT.get();
             case ENABLE_VILLAGER_TRADES_ID -> ENABLE_VILLAGER_TRADES.get();
-            case ENABLE_WANDERING_TRADER_TRADES_ID -> ENABLE_WANDERING_TRADER_TRADES.get();
             default -> throw new Error("Invalid setting ID: " + id);
         };
     }
@@ -95,10 +91,6 @@ public class Configuration {
                 .comment("Should villagers offer lead trades?")
                 .translation("text.autoconfig.theleadage.option.enable_villager_trades")
                 .define(ENABLE_VILLAGER_TRADES_ID, true);
-        ENABLE_WANDERING_TRADER_TRADES = builder
-                .comment("Should the wandering trader offer lead trades?")
-                .translation("text.autoconfig.theleadage.option.enable_wandering_trader_trades")
-                .define(ENABLE_WANDERING_TRADER_TRADES_ID, true);
 
         COMMON_CONFIG = builder.build();
     }

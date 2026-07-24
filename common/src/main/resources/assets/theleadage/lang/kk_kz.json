@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Ауыр өзек рецепті",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Құрылыс олжасын генерациялау",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Ауыл тұрғындарының саудасын қосу",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Кезбе саудагердің саудасын қосу",
   "death.attack.lead_weight": "%1$s қорғасын салмақпен басып тасталды",
   "death.attack.lead_weight.player": "%1$s %2$s лақтырған қорғасын салмақпен басып тасталды",
   "theleadage.advancement.root": "The Lead Age",

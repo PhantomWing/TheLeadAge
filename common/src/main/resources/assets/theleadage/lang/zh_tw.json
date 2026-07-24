@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "重核配方",
   "text.autoconfig.theleadage.option.enable_structure_loot": "生成結構戰利品",
   "text.autoconfig.theleadage.option.enable_villager_trades": "啟用村民交易",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "啟用流浪商人交易",
   "death.attack.lead_weight": "%1$s被鉛墜壓扁了",
   "death.attack.lead_weight.player": "%1$s被%2$s投下的鉛墜壓扁了",
   "theleadage.advancement.root": "The Lead Age",

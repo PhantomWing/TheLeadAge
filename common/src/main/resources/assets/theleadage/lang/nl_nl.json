@@ -97,7 +97,6 @@
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Recept voor zware kern",
   "text.autoconfig.theleadage.option.enable_structure_loot": "Structuurbuit genereren",
   "text.autoconfig.theleadage.option.enable_villager_trades": "Dorpelingenhandel inschakelen",
-  "text.autoconfig.theleadage.option.enable_wandering_trader_trades": "Zwervende handelaar inschakelen",
   "death.attack.lead_weight": "%1$s werd verpletterd door een Loodgewicht",
   "death.attack.lead_weight.player": "%1$s werd verpletterd door een Loodgewicht gegooid door %2$s",
   "theleadage.advancement.root": "The Lead Age",

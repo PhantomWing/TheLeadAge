@@ -7,7 +7,6 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
-import net.neoforged.neoforge.event.village.WandererTradesEvent;
 
 /**
  * NeoForge trade registrant. Trade content lives in the shared
@@ -15,8 +14,7 @@ import net.neoforged.neoforge.event.village.WandererTradesEvent;
  * events, which re-fire whenever trades are (re)built so the config checks are
  * live. The Fabric twin is {@code com.phantomwing.theleadage.fabric.villager.ModVillagerTrades}.
  *
- * <p>Auto-registered to the game event bus via {@link EventBusSubscriber} — no
- * wiring needed. No trades are added yet; the gated hooks are ready for them.</p>
+ * <p>Auto-registered to the game event bus via {@link EventBusSubscriber} — no wiring needed.</p>
  */
 @EventBusSubscriber(modid = TheLeadAge.MOD_ID)
 public class ModVillagerTrades {
@@ -36,14 +34,5 @@ public class ModVillagerTrades {
                 || type == VillagerProfession.WEAPONSMITH) {
             event.getTrades().get(2).add(LeadVillagerTrades.smithBuysLeadIngots());
         }
-    }
-
-    @SubscribeEvent
-    public static void addWanderingTraderTrades(WandererTradesEvent event) {
-        if (!Configuration.ENABLE_WANDERING_TRADER_TRADES.get()) {
-            return;
-        }
-        // TODO: add wandering-trader trades, e.g.:
-        //   event.getGenericTrades().add(LeadVillagerTrades.someTrade());
     }
 }

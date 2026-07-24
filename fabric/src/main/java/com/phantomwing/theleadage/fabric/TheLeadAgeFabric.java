@@ -30,8 +30,7 @@ public final class TheLeadAgeFabric implements ModInitializer {
         // Attach lead ore to overworld biomes (gated by config).
         ModWorldGen.register();
 
-        // Villager / wandering-trader trades (the Fabric twin of the NeoForge
-        // village-event handlers). No trades registered yet.
+        // Villager trades (the Fabric twin of the NeoForge village-event handler).
         ModVillagerTrades.register();
 
         // Once all loot tables are loaded, stamp each with its registry id so the
