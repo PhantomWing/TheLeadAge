@@ -1,7 +1,7 @@
 name: Release
 
-# Manual-dispatch only: trigger from the Actions tab. Builds both loaders and
-# publishes one version per platform to Modrinth + CurseForge.
+# Manual-dispatch only: trigger from the Actions tab. Builds both loaders and publishes two
+# versions per platform to Modrinth + CurseForge — one Fabric, one NeoForge (see build.gradle).
 #
 # Requires just TWO repository secrets (Settings → Secrets and variables → Actions):
 #   MODRINTH_TOKEN, CURSEFORGE_TOKEN  (account-wide tokens — reuse the same values
