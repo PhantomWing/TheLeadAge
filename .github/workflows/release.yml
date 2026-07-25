@@ -1,24 +1,28 @@
-name: Release
+name: Release (Modrinth + CurseForge)
 
-# Manual-dispatch only: trigger from the Actions tab. Builds both loaders and publishes two
-# versions per platform to Modrinth + CurseForge — one Fabric, one NeoForge (see build.gradle).
+# Publishes the Fabric + NeoForge jars as two separate versions per platform, each tagged with only
+# its own loader (metadata comes from gradle.properties + fabric.mod.json / neoforge.mods.toml).
 #
-# Requires just TWO repository secrets (Settings → Secrets and variables → Actions):
-#   MODRINTH_TOKEN, CURSEFORGE_TOKEN  (account-wide tokens — reuse the same values
-#   you use for your other mods; paste them into this repo's secrets).
-# Project IDs live in gradle.properties (public, not secret). Until a token is set,
-# the publish step runs in dry-run mode (see build.gradle).
+# How to use:
+#   • Manual  — Actions tab → "Release (Modrinth + CurseForge)" → Run workflow.
+#               Leave "dry_run" CHECKED to test (builds + stages, uploads nothing); UNCHECK to publish.
+#   • Tag     — push a tag matching v* (e.g. v1.0.0) on the branch you want to release.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   MODRINTH_TOKEN, CURSEFORGE_TOKEN
+# Project IDs are PUBLIC and read from gradle.properties (modrinth_project_id /
+# curseforge_project_id).
+
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Mod version (overrides gradle.properties mod_version, e.g. 1.0.0)"
-        required: false
-        type: string
-      changelog:
-        description: "Changelog for this release"
-        required: false
-        type: string
+      dry_run:
+        description: "Dry run (build + stage only, no upload)"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
@@ -34,7 +38,13 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: '21'
+
+      # The committed gradle.properties pins org.gradle.java.home to a local Windows JDK path.
+      # That absolute path doesn't exist on the Linux runner and would break the build, so remove
+      # it here — CI uses the runner's JDK 21 (from setup-java) instead.
+      - name: Drop machine-specific JDK pin
+        run: sed -i '/^org\.gradle\.java\.home/d' gradle.properties
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -42,20 +52,29 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # The committed gradle.properties pins a local Windows JDK path; override it
-      # on the Linux runner via the JAVA_HOME provisioned by setup-java.
       - name: Build
-        run: >
-          ./gradlew build
-          -Dorg.gradle.java.home="$JAVA_HOME"
-          ${{ inputs.version && format('-Pmod_version={0}', inputs.version) || '' }}
+        run: ./gradlew build --stacktrace
+
+      # Gate the release on the automated GameTests — a headless NeoForge gametest server that
+      # exits non-zero on any failure, so a broken build is never published.
+      - name: Run GameTests (NeoForge)
+        run: ./gradlew :neoforge:runGameTest --stacktrace
+
+      # If the gate fails, capture the server logs so a blocked release is easy to diagnose.
+      - name: Upload GameTest logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gametest-logs
+          path: neoforge/run/gametest/logs/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Publish to Modrinth + CurseForge
-        run: >
-          ./gradlew publishMods
-          -Dorg.gradle.java.home="$JAVA_HOME"
-          ${{ inputs.version && format('-Pmod_version={0}', inputs.version) || '' }}
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
-          CHANGELOG: ${{ inputs.changelog }}
+          # Dry-run only for a manually-dispatched run with the box left checked;
+          # tag pushes always publish for real.
+          DRY: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '-PpublishDryRun' || '' }}
+        run: ./gradlew :fabric:publishMods :neoforge:publishMods $DRY --stacktrace

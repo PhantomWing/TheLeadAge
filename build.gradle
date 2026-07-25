@@ -1,11 +1,31 @@
 plugins {
     id 'architectury-plugin' version "${architectury_plugin_version}"
     id 'dev.architectury.loom' version "${architectury_loom_version}" apply false
-    id 'me.modmuss50.mod-publish-plugin' version '0.8.4'
+    // Publishing â€” applied per loader subproject.
+    id 'me.modmuss50.mod-publish-plugin' version "${mod_publish_plugin_version}" apply false
 }
 
 tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
+}
+
+// Per-release changelog: notes under the first "# X.Y.Z" header in changelog.md, up to the next "# ".
+ext.latestChangelog = {
+    def f = rootProject.file('changelog.md')
+    if (!f.exists()) return "See changelog.md"
+    def body = new StringBuilder()
+    boolean started = false, done = false
+    f.eachLine { line ->
+        if (done) return
+        if (line.startsWith('# ')) {
+            if (started) { done = true; return }
+            started = true
+            return
+        }
+        if (started) body.append(line).append('\n')
+    }
+    def out = body.toString().trim()
+    return out.isEmpty() ? "See changelog.md" : out
 }
 
 architectury {
@@ -63,7 +83,7 @@ allprojects {
             url = "https://modmaven.dev"
         }
 
-        // Cloth Config — a real (shipped) Fabric dependency backing the Fabric
+        // Cloth Config â€” a real (shipped) Fabric dependency backing the Fabric
         // AutoConfig config screen. Scoped to the Cloth Config group so this
         // maven does not broaden resolution for anything else.
         maven {
@@ -72,7 +92,7 @@ allprojects {
             content { includeGroup "me.shedaniel.cloth" }
         }
 
-        // CurseForge mods (dev-runtime only — e.g. The Silver Age for side-by-side
+        // CurseForge mods (dev-runtime only â€” e.g. The Silver Age for side-by-side
         // comparison). Scoped to the curse.maven group so it doesn't broaden
         // resolution for anything else.
         maven {
@@ -81,22 +101,22 @@ allprojects {
             content { includeGroup "curse.maven" }
         }
 
-        // EMI (recipe viewer — plugin lives in common, so both loaders use it).
+        // EMI (recipe viewer â€” plugin lives in common, so both loaders use it).
         maven {
             name = "TerraformersMC"
             url = "https://maven.terraformersmc.com/"
         }
 
-        // Modrinth Maven — Farmer's Delight (NeoForge optional compat).
+        // Modrinth Maven â€” Farmer's Delight (NeoForge optional compat).
         maven {
             url = "https://api.modrinth.com/maven"
             content { includeGroup "maven.modrinth" }
         }
 
-        // Create (+ Ponder, Flywheel) — optional NeoForge compat.
+        // Create (+ Ponder, Flywheel) â€” optional NeoForge compat.
         maven { url = "https://maven.createmod.net" }
 
-        // Registrate — a transitive dependency of Create.
+        // Registrate â€” a transitive dependency of Create.
         maven { url = "https://maven.ithundxr.dev/snapshots" }
     }
 
@@ -116,122 +136,5 @@ allprojects {
             downloadSources = true
             downloadJavadoc = true
         }
-    }
-}
-
-// ---- Automatic deployment (Modrinth + CurseForge) ----
-//
-// Driven by the manual `.github/workflows/release.yml` (workflow_dispatch). Each release publishes
-// TWO independent versions per platform — one Fabric, one NeoForge — each a single jar tagged with
-// only its own loader, exactly like The Silver Age's pages. They differ by more than the jar: their
-// dependencies are loader-specific (see below), which a single bundled version can't express.
-// Version numbers carry a +fabric / +neoforge suffix because Modrinth requires them to be unique.
-//
-// BEFORE the first publish you must:
-//   1. Create the Modrinth + CurseForge projects.
-//   2. Fill modrinth_project_id / curseforge_project_id in gradle.properties.
-//   3. Set TWO repo secrets: MODRINTH_TOKEN, CURSEFORGE_TOKEN (account-wide tokens,
-//      reusable across all your projects).
-// Until a token is present `publishMods` runs in dry-run mode, so it never uploads
-// or fails CI accidentally.
-def fabricRemap = project(":fabric").tasks.named("remapJar")
-def neoforgeRemap = project(":neoforge").tasks.named("remapJar")
-
-// Per-loader dependency sets. FABRIC: fabric-api + cloth-config are hard dependencies (fabric.mod.json
-// depends on both), architectury on every loader. NEOFORGE: only architectury is required — cloth
-// (the Fabric config screen) and fabric-api don't exist there, and Create has a NeoForge build only.
-// Every integration otherwise is optional; dev-only runtime mods (AppleSkin) are never listed.
-def fabricRequires = ["architectury-api", "fabric-api", "cloth-config"]
-def fabricOptional = ["farmers-delight", "jei", "emi"]
-def neoforgeRequires = ["architectury-api"]
-def neoforgeOptional = ["create", "farmers-delight", "jei", "emi"]
-
-// The varargs requires()/optional() sidestep the closure-delegation of the `{ slug = ... }` form.
-def applyDeps = { platform, List<String> req, List<String> opt ->
-    if (req) platform.requires(req as String[])
-    if (opt) platform.optional(opt as String[])
-}
-
-// The body of the top-most "# <version>" section of changelog.md, header line dropped — used as the
-// version description on Modrinth/CurseForge, so a normal release just needs that file updated
-// (mirrors how The Silver Age reuses its changelog). Falls back if the file is missing/empty.
-def latestChangelog = {
-    def file = rootProject.file("changelog.md")
-    if (!file.exists()) return "See the GitHub release notes."
-    def body = new StringBuilder()
-    boolean started = false
-    for (line in file.readLines("UTF-8")) {
-        if (line.startsWith("# ")) {
-            if (started) break   // reached the next version — stop
-            started = true
-            continue             // drop the "# x.y.z" heading itself
-        }
-        if (started) body.append(line).append('\n')
-    }
-    def result = body.toString().trim()
-    return result.isEmpty() ? "See the GitHub release notes." : result
-}()
-
-publishMods {
-    type = STABLE
-    // The workflow's `changelog` input wins (via CHANGELOG); blank falls back to changelog.md's top
-    // section. filter() treats an empty input as absent — the workflow always sets the env var, so
-    // without it a blank input would publish an empty changelog.
-    changelog = providers.environmentVariable("CHANGELOG").filter { !it.isBlank() }.orElse(latestChangelog)
-    dryRun = !providers.environmentVariable("MODRINTH_TOKEN").isPresent() &&
-            !providers.environmentVariable("CURSEFORGE_TOKEN").isPresent()
-
-    // Shared per-platform settings (token, project id, MC version). The per-loader details — which
-    // jar, which version string, which loader, which dependencies — live in the four publications.
-    def modrinthShared = modrinthOptions {
-        projectId = providers.gradleProperty("modrinth_project_id")
-                .orElse(providers.environmentVariable("MODRINTH_PROJECT_ID")).orElse("PLACEHOLDER")
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN").orElse("")
-        minecraftVersions.add(minecraft_version)
-    }
-    def curseforgeShared = curseforgeOptions {
-        projectId = providers.gradleProperty("curseforge_project_id")
-                .orElse(providers.environmentVariable("CURSEFORGE_PROJECT_ID")).orElse("PLACEHOLDER")
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse("")
-        minecraftVersions.add(minecraft_version)
-        // The mod runs (and is required) on both physical sides.
-        clientRequired = true
-        serverRequired = true
-    }
-
-    // ---- Fabric version ----
-    modrinth("modrinthFabric") {
-        from(modrinthShared)
-        file = fabricRemap.flatMap { it.archiveFile }
-        version = "${mod_version}+fabric"
-        displayName = "The Lead Age ${mod_version} - Fabric (MC ${minecraft_version})"
-        modLoaders.add("fabric")
-        applyDeps(delegate, fabricRequires, fabricOptional)
-    }
-    curseforge("curseforgeFabric") {
-        from(curseforgeShared)
-        file = fabricRemap.flatMap { it.archiveFile }
-        version = "${mod_version}+fabric"
-        displayName = "The Lead Age ${mod_version} - Fabric (MC ${minecraft_version})"
-        modLoaders.add("fabric")
-        applyDeps(delegate, fabricRequires, fabricOptional)
-    }
-
-    // ---- NeoForge version ----
-    modrinth("modrinthNeoforge") {
-        from(modrinthShared)
-        file = neoforgeRemap.flatMap { it.archiveFile }
-        version = "${mod_version}+neoforge"
-        displayName = "The Lead Age ${mod_version} - NeoForge (MC ${minecraft_version})"
-        modLoaders.add("neoforge")
-        applyDeps(delegate, neoforgeRequires, neoforgeOptional)
-    }
-    curseforge("curseforgeNeoforge") {
-        from(curseforgeShared)
-        file = neoforgeRemap.flatMap { it.archiveFile }
-        version = "${mod_version}+neoforge"
-        displayName = "The Lead Age ${mod_version} - NeoForge (MC ${minecraft_version})"
-        modLoaders.add("neoforge")
-        applyDeps(delegate, neoforgeRequires, neoforgeOptional)
     }
 }

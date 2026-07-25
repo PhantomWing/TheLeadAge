@@ -170,6 +170,39 @@ remapJar {
     dependsOn shadowJar
 }
 
+// Publishing (NeoForge jar). ./gradlew :neoforge:publishMods (tokens via MODRINTH_TOKEN / CURSEFORGE_TOKEN env vars).
+apply plugin: 'me.modmuss50.mod-publish-plugin'
+
+publishMods {
+    file = remapJar.archiveFile
+    version = rootProject.mod_version
+    displayName = "The Lead Age ${rootProject.mod_version}"
+    changelog = rootProject.ext.latestChangelog()
+    type = STABLE
+    modLoaders.add("neoforge")
+    dryRun = project.hasProperty("publishDryRun")
+
+    modrinth {
+        projectId = providers.gradleProperty("modrinth_project_id")
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN").orElse(providers.gradleProperty("modrinth_token"))
+        // Tag every supported game version on the upload, not just the build target.
+        rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
+        // NeoForge only needs Architectury — fabric-api / cloth-config are Fabric-only.
+        requires("architectury-api")
+        optional("create", "farmers-delight", "jei", "emi")
+    }
+    curseforge {
+        projectId = providers.gradleProperty("curseforge_project_id")
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse(providers.gradleProperty("curseforge_token"))
+        rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
+        // CurseForge requires explicit side flags (Modrinth infers them from the jar).
+        client = true
+        server = true
+        requires("architectury-api")
+        optional("create", "farmers-delight", "jei", "emi")
+    }
+}
+
 sourcesJar {
     def commonSources = project(':common').sourcesJar
     dependsOn commonSources
