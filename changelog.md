@@ -4,6 +4,9 @@
 - Lead blocks now shield against explosions, surviving creepers and TNT — but not charged creepers. Bars, chains and grates hold up less well, and leaded glass still shatters.
 - Lead and raw lead blocks are softer to mine, matching the rest of the lead set.
 
+### Fixes
+- Fixed Toolsmiths and Weaponsmiths being able to offer the same lead ingot trade twice on Fabric
+
 # 1.0.0
 First release. A vanilla-friendly expansion that adds lead — a heavy, toxic new metal. Sister mod to The Silver Age.
 
