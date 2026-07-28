@@ -49,13 +49,30 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> DEEPSLATE_LEAD_ORE = register("deepslate_lead_ore", () ->
             new LeadOreBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)));
 
-    // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge.
+    /** Hardness shared by every lead block: lead is soft, so it mines faster than iron (5.0). */
+    private static final float LEAD_HARDNESS = 3.0F;
+
+    /**
+     * Blast resistance of lead — real lead is dense enough to be used as shielding. A block survives a
+     * blast when its resistance clears {@code 4.333 × power − 0.3}, so 17 shrugs off creepers (12.7) and
+     * TNT (17.0) while a charged creeper (25.7) still tears through it.
+     */
+    private static final float LEAD_RESISTANCE = 17.0F;
+
+    /** Bars, chains and the grate are mostly open air, so a blast passes through them far more easily. */
+    private static final float OPEN_LEAD_RESISTANCE = 10.0F;
+
+    /** Leaded glass is still glass (0.3) — the came lattice only makes it a touch tougher. */
+    private static final float LEADED_GLASS_RESISTANCE = 1.0F;
+
+    // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge. They copy
+    // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
             new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
-                    .pushReaction(PushReaction.BLOCK)));
+                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
             new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
-                    .pushReaction(PushReaction.BLOCK)));
+                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
 
     // Decorative lead blocks (no oxidation). Order matches the creative tab.
     public static final RegistrySupplier<Block> CUT_LEAD = registerLeadBlock("cut_lead");
@@ -87,7 +104,8 @@ public class ModBlocks {
     // came, not shattered, so it uses the heavy LEAD sound and a lead-gray map colour.
     public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
             new TransparentBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
-                    .sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)));
+                    .sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)
+                    .explosionResistance(LEADED_GLASS_RESISTANCE)));
 
     // Leaded glass panes — one static block per came type (LeadedGlassPaneBlock.CameType). Colours
     // live on the block entity (tinted); split is orientable (sneak-right-click toggles h/v).
@@ -118,7 +136,8 @@ public class ModBlocks {
         // rain render through it. Forcing solid keeps every orientation in the heightmap (vanilla panes
         // are wall-only, so they never hit this) without changing the actual (thin) collision shape.
         return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
-                .noOcclusion().forceSolidOn().sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY);
+                .noOcclusion().forceSolidOn().sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)
+                .explosionResistance(LEADED_GLASS_RESISTANCE);
     }
 
     /** The pane block for a came frame (the orientations of a came type share one block). */
@@ -138,15 +157,18 @@ public class ModBlocks {
     }
 
     // A lead door whose top half is a configurable leaded glass pane (design on its block entity,
-    // drawn by a renderer). See LeadedGlassDoorBlock.
+    // drawn by a renderer). See LeadedGlassDoorBlock. The glass is the weak point, so it blows up as
+    // easily as a pane rather than shielding like the plain lead door.
     public static final RegistrySupplier<Block> LEADED_GLASS_DOOR = register("leaded_glass_door", () ->
             new LeadedGlassDoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion().sound(SoundType.COPPER)));
+                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion()
+                            .sound(SoundType.COPPER).explosionResistance(LEADED_GLASS_RESISTANCE)));
 
     // A lead trapdoor whose flap is a configurable leaded glass pane. See LeadedGlassTrapdoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor", () ->
             new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion().sound(SoundType.COPPER)));
+                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()
+                            .sound(SoundType.COPPER).explosionResistance(LEADED_GLASS_RESISTANCE)));
 
     // Lead Weight: an 8³ lead ball that falls like an anvil and crushes entities (combat logic in
     // LeadWeightEntity); hangs from a chain when placed under a block. A hard landing can chip it
@@ -179,12 +201,13 @@ public class ModBlocks {
     }
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
-        return register(name, () -> new ChainBlock(
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN)).sound(SoundType.CHAIN)));
+        return register(name, () -> new ChainBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN))
+                .sound(SoundType.CHAIN).explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<IronBarsBlock> registerLeadBars(String name) {
-        return register(name, () -> new IronBarsBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BARS))));
+        return register(name, () -> new IronBarsBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BARS))
+                .explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<SlabBlock> registerLeadSlab(String name) {
@@ -201,7 +224,8 @@ public class ModBlocks {
 
     private static RegistrySupplier<Block> registerLeadGrate(String name) {
         return register(name, () -> new WaterloggedTransparentBlock(
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_GRATE)).sound(ModSoundTypes.LEAD_GRATE)));
+                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_GRATE))
+                        .sound(ModSoundTypes.LEAD_GRATE).explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<TrapDoorBlock> registerLeadTrapdoor(String name) {
@@ -217,7 +241,8 @@ public class ModBlocks {
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
         return register(color.getName() + "_leaded_glass", () ->
                 new StainedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
-                        .mapColor(color.getMapColor()).requiresCorrectToolForDrops().sound(ModSoundTypes.LEAD)));
+                        .mapColor(color.getMapColor()).requiresCorrectToolForDrops().sound(ModSoundTypes.LEAD)
+                        .explosionResistance(LEADED_GLASS_RESISTANCE)));
     }
 
     private static RegistrySupplier<Block> registerLeadWeight(String name) {
@@ -243,12 +268,12 @@ public class ModBlocks {
     }
 
     /**
-     * A full cube of solid lead — too heavy for a piston to shift. {@link PushReaction#BLOCK} stops the
-     * piston outright (obsidian's behaviour) rather than letting it break or drop the block, and it also
-     * denies slime/honey pulls. Only full cubes of lead get this — the lead and raw lead blocks set it
-     * inline above, since they copy vanilla's iron props rather than {@link #leadProps()}. The slabs,
-     * stairs, walls, doors, grate, bars and chain are not solid lead through and through, so they push
-     * normally.
+     * A full cube of solid lead — too heavy for a piston to shift.
+     * {@link PushReaction#BLOCK} stops the piston outright (obsidian's behaviour) rather than
+     * letting it break or drop the block, and it also denies slime/honey pulls. Only full cubes of lead
+     * get this — the lead and raw lead blocks set it inline above, since they copy vanilla's iron props
+     * rather than {@link #leadProps()}. The slabs, stairs, walls, doors, grate, bars and chain are not
+     * solid lead through and through, so they push normally.
      */
     private static BlockBehaviour.Properties solidLeadProps() {
         return leadProps().pushReaction(PushReaction.BLOCK);
@@ -256,7 +281,7 @@ public class ModBlocks {
 
     private static BlockBehaviour.Properties leadProps(BlockBehaviour.Properties baseProps) {
         return baseProps
-                .strength(3.0F, 6.0F)
+                .strength(LEAD_HARDNESS, LEAD_RESISTANCE)
                 .requiresCorrectToolForDrops()
                 .sound(ModSoundTypes.LEAD)
                 .mapColor(MapColor.COLOR_GRAY)
