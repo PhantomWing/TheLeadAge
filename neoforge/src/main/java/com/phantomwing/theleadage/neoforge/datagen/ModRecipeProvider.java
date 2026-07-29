@@ -161,8 +161,9 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(ModItems.LEAD_TORCH.get()), has(ModItems.LEAD_TORCH.get()))
                 .save(output);
 
-        // Lead Bulb: vanilla's copper bulb pattern, with lead blocks in place of copper.
-        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ModItems.LEAD_BULB.get())
+        // Lead Bulb: vanilla's copper bulb recipe, with lead blocks in place of copper — including
+        // its yield of 4.
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ModItems.LEAD_BULB.get(), 4)
                 .pattern(" L ").pattern("LBL").pattern(" R ")
                 .define('L', ModItems.LEAD_BLOCK.get())
                 .define('B', Items.BLAZE_ROD)
