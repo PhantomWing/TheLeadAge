@@ -11,6 +11,7 @@ import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import net.minecraft.world.level.EmptyBlockGetter;
@@ -49,6 +50,8 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.IronBarsBlock;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -394,6 +397,37 @@ public class LeadOreGameTest {
                         helper.fail("weight placed itself as a block on the hopper instead of being collected");
                     }
                 })
+                .thenSucceed();
+    }
+
+    /** A dispenser sets a Lead Weight down in the cell it faces rather than throwing it as an item. */
+    @GameTest(template = "empty", timeoutTicks = 200)
+    public static void dispenserPlacesLeadWeight(GameTestHelper helper) {
+        // The template is enclosed in barriers; clear the working layer but leave y=1 as the floor,
+        // so the placed weight has something to rest on and never turns into a falling entity.
+        for (int x = 0; x <= 2; x++) {
+            for (int y = 2; y <= 3; y++) {
+                for (int z = 0; z <= 2; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.AIR);
+                }
+            }
+        }
+
+        BlockPos dispenser = new BlockPos(1, 2, 1);
+        BlockPos target = new BlockPos(2, 2, 1);
+        helper.setBlock(dispenser, Blocks.DISPENSER.defaultBlockState()
+                .setValue(DispenserBlock.FACING, Direction.EAST));
+        if (!(helper.getBlockEntity(dispenser) instanceof DispenserBlockEntity contents)) {
+            helper.fail("dispenser block entity missing");
+            return;
+        }
+        contents.setItem(0, new ItemStack(ModItems.LEAD_WEIGHT.get()));
+        helper.setBlock(new BlockPos(0, 2, 1), Blocks.REDSTONE_BLOCK); // powers the dispenser
+
+        helper.startSequence()
+                // Poll rather than guess the dispenser's fire delay.
+                .thenWaitUntil(() -> helper.assertBlockPresent(ModBlocks.LEAD_WEIGHT.get(), target))
+                .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
                 .thenSucceed();
     }
 

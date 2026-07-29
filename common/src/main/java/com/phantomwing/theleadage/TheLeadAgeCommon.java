@@ -9,6 +9,7 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
 import com.phantomwing.theleadage.component.ModDataComponents;
+import com.phantomwing.theleadage.dispenser.ModDispenserBehaviors;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.particle.ModParticles;
@@ -43,6 +44,7 @@ public final class TheLeadAgeCommon {
         ModParticles.register();
         ModCreativeModeTab.register();
         LeadWeightTransforms.register(); // datapack loader for heavy-weight impact block transforms
+        ModDispenserBehaviors.register(); // dispensers set a Lead Weight down instead of spitting it out
 
         // Swap naturally-spawned iron armor on certain mobs for lead armor (low chance).
         MonsterArmorHandler.register();
