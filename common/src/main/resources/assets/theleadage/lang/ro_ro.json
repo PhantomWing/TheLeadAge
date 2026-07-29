@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Torță de plumb",
   "block.theleadage.lead_wall_torch": "Torță de plumb",
   "block.theleadage.lead_lantern": "Felinar de plumb",
+  "block.theleadage.lead_bulb": "Bec de plumb",
   "block.theleadage.leaded_glass": "Sticlă cu plumb",
   "tooltip.theleadage.frame.plain": "Simplu",
   "tooltip.theleadage.frame.split_h": "Divizat (vertical)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Are minereu de plumb suplimentar",
   "tag.block.theleadage.pillager_repellents": "Repelenți pentru prădători",
   "tag.item.theleadage.creeper_repellents": "Repelenți pentru creeperi",
-  "tag.item.theleadage.pillager_repellents": "Repelenți pentru prădători"
+  "tag.item.theleadage.pillager_repellents": "Repelenți pentru prădători",
+  "tag.item.theleadage.lead_equipment": "Echipament de plumb"
 }

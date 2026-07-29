@@ -56,6 +56,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.LEAD_DOOR.get());
         // leaded_glass_door item model is hand-authored (a per-came-pattern texture via overrides).
 
+        // Bulb: the unlit, unpowered block model.
+        blockItem("lead_bulb");
+
         blockItem("leaded_glass");
         // Lead Weight (+ chipped/damaged tiers): 3D item from each hand-authored block model.
         blockItem("lead_weight");

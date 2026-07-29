@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Antorcha de plomo",
   "block.theleadage.lead_wall_torch": "Antorcha de plomo",
   "block.theleadage.lead_lantern": "Farol de plomo",
+  "block.theleadage.lead_bulb": "Bombilla de plomo",
   "block.theleadage.leaded_glass": "Vidrio plomado",
   "tooltip.theleadage.frame.plain": "Simple",
   "tooltip.theleadage.frame.split_h": "División (vertical)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Tiene mineral de plomo adicional",
   "tag.block.theleadage.pillager_repellents": "Repelentes de saqueadores",
   "tag.item.theleadage.creeper_repellents": "Repelentes de creeper",
-  "tag.item.theleadage.pillager_repellents": "Repelentes de saqueadores"
+  "tag.item.theleadage.pillager_repellents": "Repelentes de saqueadores",
+  "tag.item.theleadage.lead_equipment": "Equipo de plomo"
 }

@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Свинцовый факел",
   "block.theleadage.lead_wall_torch": "Свинцовый факел",
   "block.theleadage.lead_lantern": "Свинцовый фонарь",
+  "block.theleadage.lead_bulb": "Свинцовая лампа",
   "block.theleadage.leaded_glass": "Свинцовое стекло",
   "tooltip.theleadage.frame.plain": "Простой",
   "tooltip.theleadage.frame.split_h": "Деление (вертикальное)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Есть дополнительная свинцовая руда",
   "tag.block.theleadage.pillager_repellents": "Отпугиватели разбойников",
   "tag.item.theleadage.creeper_repellents": "Отпугиватели криперов",
-  "tag.item.theleadage.pillager_repellents": "Отпугиватели разбойников"
+  "tag.item.theleadage.pillager_repellents": "Отпугиватели разбойников",
+  "tag.item.theleadage.lead_equipment": "Свинцовое снаряжение"
 }

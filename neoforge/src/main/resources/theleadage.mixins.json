@@ -4,7 +4,8 @@
   "package": "com.phantomwing.theleadage.neoforge.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "IronBarsBlockMixin"
+    "IronBarsBlockMixin",
+    "LivingEntityMixin"
   ],
   "client": [
     "StonecutterScreenMixin"

@@ -83,6 +83,7 @@ public class ModItems {
             (props) -> new StandingAndWallBlockItem(ModBlocks.LEAD_TORCH.get(), ModBlocks.LEAD_WALL_TORCH.get(),
                     props, Direction.DOWN), baseItem());
     public static final RegistrySupplier<Item> LEAD_LANTERN = registerBlock("lead_lantern", ModBlocks.LEAD_LANTERN);
+    public static final RegistrySupplier<Item> LEAD_BULB = registerBlock("lead_bulb", ModBlocks.LEAD_BULB);
 
     // Lead Weight — custom item: places normally (decorative / hangs), or air-drops as a falling
     // weapon when aimed at open space. Stackable; the three tiers (lead_weight / chipped / damaged)

@@ -17,6 +17,8 @@ public class ModSoundTypes {
     // Lead Weight: dense netherite-block sounds pitched down so placing/breaking it reads
     // as a weighty hunk of lead. (The falling/landing sounds are played in code.)
     public static final SoundType LEAD_WEIGHT = ofCopy(SoundType.NETHERITE_BLOCK, 1.0f, 0.5f);
+    // Lead Bulb: the copper bulb's click, pitched down to sit with the rest of the lead set.
+    public static final SoundType LEAD_BULB = ofCopy(SoundType.COPPER_BULB, 1.1f, 0.5f);
 
     private static SoundType ofCopy(SoundType soundType, float volume, float pitch) {
         return new SoundType(

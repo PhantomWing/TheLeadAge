@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Đuốc Chì",
   "block.theleadage.lead_wall_torch": "Đuốc Chì",
   "block.theleadage.lead_lantern": "Đèn Lồng Chì",
+  "block.theleadage.lead_bulb": "Bóng Đèn Chì",
   "block.theleadage.leaded_glass": "Kính chì",
   "tooltip.theleadage.frame.plain": "Trơn",
   "tooltip.theleadage.frame.split_h": "Chia (dọc)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Có thêm quặng chì",
   "tag.block.theleadage.pillager_repellents": "Vật xua đuổi cướp",
   "tag.item.theleadage.creeper_repellents": "Vật xua đuổi creeper",
-  "tag.item.theleadage.pillager_repellents": "Vật xua đuổi cướp"
+  "tag.item.theleadage.pillager_repellents": "Vật xua đuổi cướp",
+  "tag.item.theleadage.lead_equipment": "Trang bị chì"
 }

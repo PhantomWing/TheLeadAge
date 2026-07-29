@@ -44,6 +44,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.LEAD_GRATE.get(),
                 ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get(),
                 ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(), ModBlocks.LEAD_LANTERN.get(),
+                ModBlocks.LEAD_BULB.get(),
                 ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get(),
                 ModBlocks.LEAD_WEIGHT.get(), ModBlocks.CHIPPED_LEAD_WEIGHT.get(),
                 ModBlocks.DAMAGED_LEAD_WEIGHT.get()};

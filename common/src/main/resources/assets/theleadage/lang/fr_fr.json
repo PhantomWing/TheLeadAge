@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Torche en plomb",
   "block.theleadage.lead_wall_torch": "Torche en plomb",
   "block.theleadage.lead_lantern": "Lanterne en plomb",
+  "block.theleadage.lead_bulb": "Ampoule en plomb",
   "block.theleadage.leaded_glass": "Verre au plomb",
   "tooltip.theleadage.frame.plain": "Simple",
   "tooltip.theleadage.frame.split_h": "Division (verticale)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Possède du minerai de plomb supplémentaire",
   "tag.block.theleadage.pillager_repellents": "Répulsifs à pillards",
   "tag.item.theleadage.creeper_repellents": "Répulsifs à creepers",
-  "tag.item.theleadage.pillager_repellents": "Répulsifs à pillards"
+  "tag.item.theleadage.pillager_repellents": "Répulsifs à pillards",
+  "tag.item.theleadage.lead_equipment": "Équipement en plomb"
 }

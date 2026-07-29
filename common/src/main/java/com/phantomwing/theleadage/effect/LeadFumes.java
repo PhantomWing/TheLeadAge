@@ -1,6 +1,8 @@
 package com.phantomwing.theleadage.effect;
 
+import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -8,11 +10,13 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * "Lead fumes" exposure. Breaking lead ore (and the lead torch's periodic bursts) immediately exposes
@@ -34,16 +38,27 @@ public final class LeadFumes {
     private static final int POISON_TICKS = 160;    // 8s — stage 3 (Poison won't kill on its own)
     private static final int NAUSEA_TICKS = 200;    // 10s — stage 3
 
+    private static final double GEAR_DOSE_CHANCE = 1.0; // crumbling gear is point-blank: always a dose
+
     private LeadFumes() {
     }
 
-    /** Immediately expose nearby players to the fumes (distance-based chance per player). */
+    /** Immediately expose nearby players to fumes released by a block (distance-based chance per player). */
     public static void expose(ServerLevel level, BlockPos pos, double baseChance) {
-        Vec3 center = Vec3.atCenterOf(pos);
+        expose(level, Vec3.atCenterOf(pos), pos, baseChance);
+    }
+
+    /** As {@link #expose(ServerLevel, BlockPos, double)}, for fumes released in open air rather than at a block. */
+    public static void expose(ServerLevel level, Vec3 center, double baseChance) {
+        expose(level, center, null, baseChance);
+    }
+
+    private static void expose(ServerLevel level, Vec3 center, @Nullable BlockPos sourceBlock, double baseChance) {
         AABB box = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
         for (Player player : level.getEntitiesOfClass(Player.class, box)) {
             double chance = baseChance * falloff(player.position().distanceTo(center));
-            if (chance > 0.0 && level.getRandom().nextDouble() < chance && hasClearPath(level, pos, center, player)) {
+            if (chance > 0.0 && level.getRandom().nextDouble() < chance
+                    && hasClearPath(level, sourceBlock, center, player)) {
                 escalate(player);
                 // A toxic hiss the moment the fumes take hold (at the affected player).
                 level.playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -53,15 +68,43 @@ public final class LeadFumes {
     }
 
     /**
+     * A piece of lead gear has crumbled: lead dust and fumes at the wearer, dosing them point-blank and
+     * anyone standing close. Applies to every {@link LivingEntity}, so a mob's lead armour failing gasses
+     * the players around it too.
+     */
+    public static void equipmentBroken(LivingEntity wearer, Item item) {
+        if (!(wearer.level() instanceof ServerLevel level)
+                || !item.builtInRegistryHolder().is(ModTags.Items.LEAD_EQUIPMENT)) {
+            return;
+        }
+        Vec3 at = wearer.getEyePosition().subtract(0.0, 0.3, 0.0); // chest height — where the gear sat
+        plume(level, at.x, at.y, at.z);
+        expose(level, at, GEAR_DOSE_CHANCE);
+    }
+
+    /** The big release: a dense pale core plus a wider, slower halo, so it billows rather than puffs. */
+    public static void plume(ServerLevel level, double x, double y, double z) {
+        level.sendParticles(ParticleTypes.WHITE_SMOKE, x, y, z, 14, 0.18, 0.06, 0.18, 0.01);
+        level.sendParticles(ParticleTypes.WHITE_SMOKE, x, y + 0.15, z, 10, 0.34, 0.14, 0.34, 0.004);
+    }
+
+    /** The small release: a faint wisp. */
+    public static void wisp(ServerLevel level, double x, double y, double z) {
+        level.sendParticles(ParticleTypes.WHITE_SMOKE, x, y, z, 4, 0.16, 0.05, 0.16, 0.006);
+    }
+
+    /**
      * Whether the fumes can actually reach the player — a solid wall between the source and the
      * player's head blocks them. Cast from the player's eyes toward the source (the player end sits
      * in open air, unlike the source, which may be inside a full-cube ore block); a ray that only
-     * strikes the source block's own position counts as clear.
+     * strikes the source block's own position counts as clear. {@code sourceBlock} is null when the
+     * fumes come from open air, where there is no block to exempt.
      */
-    private static boolean hasClearPath(ServerLevel level, BlockPos pos, Vec3 center, Player player) {
+    private static boolean hasClearPath(ServerLevel level, @Nullable BlockPos sourceBlock, Vec3 center, Player player) {
         BlockHitResult hit = level.clip(new ClipContext(player.getEyePosition(), center,
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-        return hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(pos);
+        return hit.getType() == HitResult.Type.MISS
+                || (sourceBlock != null && hit.getBlockPos().equals(sourceBlock));
     }
 
     /**

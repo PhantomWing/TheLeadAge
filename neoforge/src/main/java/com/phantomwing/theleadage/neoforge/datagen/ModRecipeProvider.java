@@ -161,6 +161,15 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(ModItems.LEAD_TORCH.get()), has(ModItems.LEAD_TORCH.get()))
                 .save(output);
 
+        // Lead Bulb: vanilla's copper bulb pattern, with lead blocks in place of copper.
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ModItems.LEAD_BULB.get())
+                .pattern(" L ").pattern("LBL").pattern(" R ")
+                .define('L', ModItems.LEAD_BLOCK.get())
+                .define('B', Items.BLAZE_ROD)
+                .define('R', Items.REDSTONE)
+                .unlockedBy(getHasName(ModItems.LEAD_BLOCK.get()), has(ModItems.LEAD_BLOCK.get()))
+                .save(output);
+
         // Lead Weight: 8 lead ingots around a lead block.
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
                 .pattern("III").pattern("ILI").pattern("III")

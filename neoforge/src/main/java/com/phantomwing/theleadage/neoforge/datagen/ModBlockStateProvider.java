@@ -12,6 +12,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CopperBulbBlock;
 import net.minecraft.world.level.block.CrossCollisionBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -65,6 +66,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         leadChain();
         leadBars();
         leadTorchAndLantern();
+        leadBulb();
         leadWeight();
 
         // Leaded glass blocks. Plain = cutout (like vanilla glass), dyed = translucent
@@ -364,6 +366,24 @@ public class ModBlockStateProvider extends BlockStateProvider {
     private void pillar(RegistrySupplier<RotatedPillarBlock> block) {
         String name = blockName(block);
         axisBlock(block.get(), modLoc("block/" + name), modLoc("block/" + name + "_top"));
+    }
+
+    /**
+     * The bulb's four looks, one cube per lit/powered combination — same layout vanilla uses for the
+     * copper bulb, so the textures are {@code lead_bulb}, {@code _lit}, {@code _powered} and
+     * {@code _lit_powered}.
+     */
+    private void leadBulb() {
+        RegistrySupplier<Block> block = ModBlocks.LEAD_BULB;
+        getVariantBuilder(block.get()).forAllStates(state -> {
+            boolean lit = state.getValue(CopperBulbBlock.LIT);
+            boolean powered = state.getValue(CopperBulbBlock.POWERED);
+            String suffix = lit && powered ? "_lit_powered" : lit ? "_lit" : powered ? "_powered" : "";
+
+            String name = blockName(block) + suffix;
+            ModelFile model = models().cubeAll(name, modLoc("block/" + name));
+            return ConfiguredModel.builder().modelFile(model).build();
+        });
     }
 
     private void cutoutCube(RegistrySupplier<Block> block) {

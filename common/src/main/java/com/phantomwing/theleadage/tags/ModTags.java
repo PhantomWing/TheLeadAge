@@ -75,6 +75,13 @@ public final class ModTags {
         public static final TagKey<Item> CREEPER_REPELLENTS = tag("creeper_repellents");
         /** The item form of {@link Blocks#PILLAGER_REPELLENTS}. See {@link #CREEPER_REPELLENTS}. */
         public static final TagKey<Item> PILLAGER_REPELLENTS = tag("pillager_repellents");
+        /**
+         * Gear worked from solid lead — the lead tools, armour and knife. When one of these wears out it
+         * crumbles into lead dust, releasing the same fumes as a freshly broken ore
+         * ({@link com.phantomwing.theleadage.effect.LeadFumes#equipmentBroken}). Datapack-extensible, so
+         * another mod's lead gear can opt in.
+         */
+        public static final TagKey<Item> LEAD_EQUIPMENT = tag("lead_equipment");
 
         private static TagKey<Item> tag(String name) {
             return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));

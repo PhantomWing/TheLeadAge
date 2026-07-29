@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Қорғасын алау",
   "block.theleadage.lead_wall_torch": "Қорғасын алау",
   "block.theleadage.lead_lantern": "Қорғасын шам",
+  "block.theleadage.lead_bulb": "Қорғасын шамы",
   "block.theleadage.leaded_glass": "Қорғасынды шыны",
   "tooltip.theleadage.frame.plain": "Қарапайым",
   "tooltip.theleadage.frame.split_h": "Бөлінген (тік)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Қосымша қорғасын кені бар",
   "tag.block.theleadage.pillager_repellents": "Тонаушы қорғаныштары",
   "tag.item.theleadage.creeper_repellents": "Крипер қорғаныштары",
-  "tag.item.theleadage.pillager_repellents": "Тонаушы қорғаныштары"
+  "tag.item.theleadage.pillager_repellents": "Тонаушы қорғаныштары",
+  "tag.item.theleadage.lead_equipment": "Қорғасын жабдығы"
 }

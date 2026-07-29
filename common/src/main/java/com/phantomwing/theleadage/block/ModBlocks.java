@@ -3,11 +3,13 @@ package com.phantomwing.theleadage.block;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.custom.LeadTorchBlock;
 import com.phantomwing.theleadage.block.custom.LeadWallTorchBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassTrapdoorBlock;
+import com.phantomwing.theleadage.block.custom.StainedLeadedGlassBlock;
 import com.phantomwing.theleadage.block.custom.LeadOreBlock;
 import com.phantomwing.theleadage.sound.ModSoundTypes;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -17,16 +19,15 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChainBlock;
+import net.minecraft.world.level.block.CopperBulbBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
-import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.WaterloggedTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -65,6 +66,9 @@ public class ModBlocks {
     /** Leaded glass is still glass (0.3) — the came lattice only makes it a touch tougher. */
     private static final float LEADED_GLASS_RESISTANCE = 1.0F;
 
+    /** Vanilla glass's hardness, restated for the leaded glass door and trapdoor (they start from iron). */
+    private static final float LEADED_GLASS_HARDNESS = 0.3F;
+
     // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge. They copy
     // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
@@ -99,11 +103,20 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEAD_LANTERN = register("lead_lantern", () ->
             new LanternBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LANTERN)));
 
+    // Lead Bulb: the copper bulb's redstone toggle — a pulse flips it on or off and it keeps that state,
+    // readable by a comparator — but lead does not weather, so there is a single, non-oxidizing block.
+    // Vanilla's CopperBulbBlock is itself the non-weathering class (WeatheringCopperBulbBlock adds the
+    // oxidation), so it drops straight in. Full lead cube, so it takes the solid lead strength.
+    public static final RegistrySupplier<Block> LEAD_BULB = register("lead_bulb", () ->
+            new CopperBulbBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BULB)
+                    .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
+                    .strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+
     // Leaded glass: renders/behaves like glass, but requires a pickaxe to drop itself
     // (requiresCorrectToolForDrops + the mineable/pickaxe tag). It's pried from its lead
     // came, not shattered, so it uses the heavy LEAD sound and a lead-gray map colour.
     public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
-            new TransparentBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
+            new LeadedGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
                     .sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)
                     .explosionResistance(LEADED_GLASS_RESISTANCE)));
 
@@ -157,18 +170,18 @@ public class ModBlocks {
     }
 
     // A lead door whose top half is a configurable leaded glass pane (design on its block entity,
-    // drawn by a renderer). See LeadedGlassDoorBlock. The glass is the weak point, so it blows up as
-    // easily as a pane rather than shielding like the plain lead door.
+    // drawn by a renderer). See LeadedGlassDoorBlock. The glass is the weak point, so it mines and blows
+    // up like a pane rather than shielding like the plain lead door.
     public static final RegistrySupplier<Block> LEADED_GLASS_DOOR = register("leaded_glass_door", () ->
             new LeadedGlassDoorBlock(ModBlockSetTypes.LEADED_GLASS,
                     leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion()
-                            .sound(SoundType.COPPER).explosionResistance(LEADED_GLASS_RESISTANCE)));
+                            .sound(SoundType.COPPER).strength(LEADED_GLASS_HARDNESS, LEADED_GLASS_RESISTANCE)));
 
     // A lead trapdoor whose flap is a configurable leaded glass pane. See LeadedGlassTrapdoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor", () ->
             new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
                     leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()
-                            .sound(SoundType.COPPER).explosionResistance(LEADED_GLASS_RESISTANCE)));
+                            .sound(SoundType.COPPER).strength(LEADED_GLASS_HARDNESS, LEADED_GLASS_RESISTANCE)));
 
     // Lead Weight: an 8³ lead ball that falls like an anvil and crushes entities (combat logic in
     // LeadWeightEntity); hangs from a chain when placed under a block. A hard landing can chip it
@@ -240,7 +253,7 @@ public class ModBlocks {
 
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
         return register(color.getName() + "_leaded_glass", () ->
-                new StainedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
+                new StainedLeadedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
                         .mapColor(color.getMapColor()).requiresCorrectToolForDrops().sound(ModSoundTypes.LEAD)
                         .explosionResistance(LEADED_GLASS_RESISTANCE)));
     }

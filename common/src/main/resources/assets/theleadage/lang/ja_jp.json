@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "鉛の松明",
   "block.theleadage.lead_wall_torch": "鉛の松明",
   "block.theleadage.lead_lantern": "鉛のランタン",
+  "block.theleadage.lead_bulb": "鉛の電球",
   "block.theleadage.leaded_glass": "鉛ガラス",
   "tooltip.theleadage.frame.plain": "プレーン",
   "tooltip.theleadage.frame.split_h": "分割（縦）",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "鉛鉱石が豊富に存在する",
   "tag.block.theleadage.pillager_repellents": "ピリジャー忌避ブロック",
   "tag.item.theleadage.creeper_repellents": "クリーパー忌避ブロック",
-  "tag.item.theleadage.pillager_repellents": "ピリジャー忌避ブロック"
+  "tag.item.theleadage.pillager_repellents": "ピリジャー忌避ブロック",
+  "tag.item.theleadage.lead_equipment": "鉛の装備"
 }

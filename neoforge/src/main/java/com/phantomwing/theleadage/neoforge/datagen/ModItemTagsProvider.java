@@ -92,6 +92,14 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         Item[] burningLeadItems = {ModItems.LEAD_TORCH.get(), ModItems.LEAD_LANTERN.get()};
         tag(ModTags.Items.CREEPER_REPELLENTS).add(burningLeadItems);
         tag(ModTags.Items.PILLAGER_REPELLENTS).add(burningLeadItems);
+
+        // Gear made of solid lead: it gasses everyone nearby when it finally wears out. Unconditional
+        // like the knife's other tags — the FD-only knife is simply inert when FD is absent.
+        tag(ModTags.Items.LEAD_EQUIPMENT).add(
+                ModItems.LEAD_SWORD.get(), ModItems.LEAD_PICKAXE.get(), ModItems.LEAD_AXE.get(),
+                ModItems.LEAD_SHOVEL.get(), ModItems.LEAD_HOE.get(), ModItems.LEAD_KNIFE.get(),
+                ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
+                ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get());
     }
 
     private static TagKey<Item> c(String path) {

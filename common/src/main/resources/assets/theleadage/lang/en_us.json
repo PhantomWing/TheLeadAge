@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Lead Torch",
   "block.theleadage.lead_wall_torch": "Lead Torch",
   "block.theleadage.lead_lantern": "Lead Lantern",
+  "block.theleadage.lead_bulb": "Lead Bulb",
   "block.theleadage.leaded_glass": "Leaded Glass",
   "tooltip.theleadage.frame.plain": "Plain",
   "tooltip.theleadage.frame.split_h": "Split (vertical)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Has Extra Lead Ore",
   "tag.block.theleadage.pillager_repellents": "Pillager Repellents",
   "tag.item.theleadage.creeper_repellents": "Creeper Repellents",
-  "tag.item.theleadage.pillager_repellents": "Pillager Repellents"
+  "tag.item.theleadage.pillager_repellents": "Pillager Repellents",
+  "tag.item.theleadage.lead_equipment": "Lead Equipment"
 }

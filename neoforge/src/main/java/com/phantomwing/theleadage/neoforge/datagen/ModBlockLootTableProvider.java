@@ -44,6 +44,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         // The wall torch drops the (standing) torch item, like vanilla.
         dropOther(ModBlocks.LEAD_WALL_TORCH.get(), ModItems.LEAD_TORCH.get());
         dropSelf(ModBlocks.LEAD_LANTERN.get());
+        dropSelf(ModBlocks.LEAD_BULB.get());
         dropSelf(ModBlocks.LEAD_BARS.get());
         // Slabs drop two when double; doors only drop once (from the lower half).
         add(ModBlocks.LEAD_BRICK_SLAB.get(), this::createSlabItemTable);

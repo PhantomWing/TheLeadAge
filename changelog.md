@@ -1,8 +1,13 @@
-# 1.0.1
+# 1.1.0
+
+### Additions
+- Lead tools and armor release toxic fumes when break, dosing players standing nearby.
+- **Lead Bulb** — a redstone lamp that latches: a pulse toggles it on or off, and a comparator reads its state. Like the copper bulb, but lead doesn't tarnish, so there's just the one.
 
 ### Changes
 - Lead blocks now shield against explosions, surviving creepers and TNT — but not charged creepers. Bars, chains and grates hold up less well, and leaded glass still shatters.
 - Lead and raw lead blocks are softer to mine, matching the rest of the lead set.
+- Leaded glass and its panes now shatter — glass sound, glass shards — when broken without a pickaxe. Pried out properly, they keep the heavy lead sound.
 
 ### Fixes
 - Fixed Toolsmiths and Weaponsmiths being able to offer the same lead ingot trade twice on Fabric

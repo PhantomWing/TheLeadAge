@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "IronBarsBlockMixin",
+    "LivingEntityMixin",
     "LootTableMixin",
     "PersistentEntitySectionManagerMixin"
   ],

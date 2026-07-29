@@ -23,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -346,6 +347,16 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             case CEILING -> Direction.DOWN;
         };
         return hit.getDirection() == back;
+    }
+
+    /**
+     * A pane pried out with a pickaxe sounds like lead; knocked out with anything else it shatters.
+     * Reports plain glass rather than a colour-matched pane, since a pane's colours live per-region on
+     * its block entity and no single vanilla state matches them. See {@link LeadedGlassShatter}.
+     */
+    @Override
+    protected void spawnDestroyParticles(Level level, Player player, BlockPos pos, BlockState state) {
+        LeadedGlassShatter.spawnDestroyEffect(level, player, pos, state, Blocks.GLASS_PANE.defaultBlockState());
     }
 
     @Override

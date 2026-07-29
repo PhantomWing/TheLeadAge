@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Свинцевий смолоскип",
   "block.theleadage.lead_wall_torch": "Свинцевий смолоскип",
   "block.theleadage.lead_lantern": "Свинцевий ліхтар",
+  "block.theleadage.lead_bulb": "Свинцева лампа",
   "block.theleadage.leaded_glass": "Свинцеве скло",
   "tooltip.theleadage.frame.plain": "Простий",
   "tooltip.theleadage.frame.split_h": "Поділ (вертикальний)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Має додаткову свинцеву руду",
   "tag.block.theleadage.pillager_repellents": "Відлякувачі розбійників",
   "tag.item.theleadage.creeper_repellents": "Відлякувачі кріперів",
-  "tag.item.theleadage.pillager_repellents": "Відлякувачі розбійників"
+  "tag.item.theleadage.pillager_repellents": "Відлякувачі розбійників",
+  "tag.item.theleadage.lead_equipment": "Свинцеве спорядження"
 }

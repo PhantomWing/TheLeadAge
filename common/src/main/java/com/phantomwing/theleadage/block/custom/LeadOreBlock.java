@@ -5,7 +5,6 @@ import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -69,15 +68,13 @@ public class LeadOreBlock extends Block {
         // immediately expose nearby living entities (LeadFumes) — keep clear of the block to dodge them.
         double cx = pos.getX() + 0.5, cy = pos.getY() + 0.6, cz = pos.getZ() + 0.5;
         if (serverLevel.getRandom().nextFloat() < FUMES_CHANCE) {
-            // Big release: a pale lead-oxide plume — a dense core, then a wider, slower halo drifting
-            // off it, which reads as smoke billowing rather than one flat puff. Guaranteed dose up
-            // close. The hiss plays when the fumes actually take hold (see LeadFumes), not here.
-            serverLevel.sendParticles(ParticleTypes.WHITE_SMOKE, cx, cy, cz, 14, 0.18, 0.06, 0.18, 0.01);
-            serverLevel.sendParticles(ParticleTypes.WHITE_SMOKE, cx, cy + 0.15, cz, 10, 0.34, 0.14, 0.34, 0.004);
+            // Big release: a pale lead-oxide plume, guaranteed dose up close. The hiss plays when the
+            // fumes actually take hold (see LeadFumes), not here.
+            LeadFumes.plume(serverLevel, cx, cy, cz);
             LeadFumes.expose(serverLevel, pos, BIG_DOSE_CHANCE);
         } else {
             // Small wisp: raw lead is still toxic, but only a small chance to dose anyone close.
-            serverLevel.sendParticles(ParticleTypes.WHITE_SMOKE, cx, cy - 0.05, cz, 4, 0.16, 0.05, 0.16, 0.006);
+            LeadFumes.wisp(serverLevel, cx, cy - 0.05, cz);
             LeadFumes.expose(serverLevel, pos, SMALL_DOSE_CHANCE);
         }
     }

@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "납 횃불",
   "block.theleadage.lead_wall_torch": "납 횃불",
   "block.theleadage.lead_lantern": "납 랜턴",
+  "block.theleadage.lead_bulb": "납 전구",
   "block.theleadage.leaded_glass": "납 유리",
   "tooltip.theleadage.frame.plain": "기본",
   "tooltip.theleadage.frame.split_h": "분할 (수직)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "추가 납 광석 있음",
   "tag.block.theleadage.pillager_repellents": "약탈자 기피 블록",
   "tag.item.theleadage.creeper_repellents": "크리퍼 기피 블록",
-  "tag.item.theleadage.pillager_repellents": "약탈자 기피 블록"
+  "tag.item.theleadage.pillager_repellents": "약탈자 기피 블록",
+  "tag.item.theleadage.lead_equipment": "납 장비"
 }

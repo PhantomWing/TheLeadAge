@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Torcia di piombo",
   "block.theleadage.lead_wall_torch": "Torcia di piombo",
   "block.theleadage.lead_lantern": "Lanterna di piombo",
+  "block.theleadage.lead_bulb": "Lampadina di piombo",
   "block.theleadage.leaded_glass": "Vetro piombato",
   "tooltip.theleadage.frame.plain": "Semplice",
   "tooltip.theleadage.frame.split_h": "Divisione (verticale)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Ha minerale di piombo extra",
   "tag.block.theleadage.pillager_repellents": "Repellenti per predoni",
   "tag.item.theleadage.creeper_repellents": "Repellenti per creeper",
-  "tag.item.theleadage.pillager_repellents": "Repellenti per predoni"
+  "tag.item.theleadage.pillager_repellents": "Repellenti per predoni",
+  "tag.item.theleadage.lead_equipment": "Equipaggiamento di piombo"
 }

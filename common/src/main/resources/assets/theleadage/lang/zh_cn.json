@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "铅火把",
   "block.theleadage.lead_wall_torch": "铅火把",
   "block.theleadage.lead_lantern": "铅灯笼",
+  "block.theleadage.lead_bulb": "铅灯泡",
   "block.theleadage.leaded_glass": "铅玻璃",
   "tooltip.theleadage.frame.plain": "纯色",
   "tooltip.theleadage.frame.split_h": "分割（竖向）",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "拥有额外铅矿石",
   "tag.block.theleadage.pillager_repellents": "掠夺者驱避物",
   "tag.item.theleadage.creeper_repellents": "苦力怕驱避物",
-  "tag.item.theleadage.pillager_repellents": "掠夺者驱避物"
+  "tag.item.theleadage.pillager_repellents": "掠夺者驱避物",
+  "tag.item.theleadage.lead_equipment": "铅装备"
 }

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "lit=false,powered=false": {
+      "model": "theleadage:block/lead_bulb"
+    },
+    "lit=false,powered=true": {
+      "model": "theleadage:block/lead_bulb_powered"
+    },
+    "lit=true,powered=false": {
+      "model": "theleadage:block/lead_bulb_lit"
+    },
+    "lit=true,powered=true": {
+      "model": "theleadage:block/lead_bulb_lit_powered"
+    }
+  }
+}

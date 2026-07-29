@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Loden fakkel",
   "block.theleadage.lead_wall_torch": "Loden fakkel",
   "block.theleadage.lead_lantern": "Loden lantaarn",
+  "block.theleadage.lead_bulb": "Loden lamp",
   "block.theleadage.leaded_glass": "Loodglas",
   "tooltip.theleadage.frame.plain": "Effen",
   "tooltip.theleadage.frame.split_h": "Gesplitst (verticaal)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Heeft extra looderts",
   "tag.block.theleadage.pillager_repellents": "Plunderaarafweermiddelen",
   "tag.item.theleadage.creeper_repellents": "Creeperafweermiddelen",
-  "tag.item.theleadage.pillager_repellents": "Plunderaarafweermiddelen"
+  "tag.item.theleadage.pillager_repellents": "Plunderaarafweermiddelen",
+  "tag.item.theleadage.lead_equipment": "Loden uitrusting"
 }

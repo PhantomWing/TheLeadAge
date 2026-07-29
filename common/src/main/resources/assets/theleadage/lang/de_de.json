@@ -21,6 +21,7 @@
   "block.theleadage.lead_torch": "Bleifackel",
   "block.theleadage.lead_wall_torch": "Bleifackel",
   "block.theleadage.lead_lantern": "Bleilaterne",
+  "block.theleadage.lead_bulb": "Bleilampe",
   "block.theleadage.leaded_glass": "Bleiglas",
   "tooltip.theleadage.frame.plain": "Einfach",
   "tooltip.theleadage.frame.split_h": "Geteilt (vertikal)",
@@ -141,5 +142,6 @@
   "tag.biome.theleadage.has_extra_lead_ore": "Hat zusätzliches Bleierz",
   "tag.block.theleadage.pillager_repellents": "Plünderer-Abschreckmittel",
   "tag.item.theleadage.creeper_repellents": "Creeper-Abschreckmittel",
-  "tag.item.theleadage.pillager_repellents": "Plünderer-Abschreckmittel"
+  "tag.item.theleadage.pillager_repellents": "Plünderer-Abschreckmittel",
+  "tag.item.theleadage.lead_equipment": "Bleiausrüstung"
 }
