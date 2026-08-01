@@ -1,16 +1,18 @@
 # 1.1.0
 
 ### Additions
-- Lead tools and armor release toxic fumes when break, dosing players standing nearby.
-- **Lead Bulb** — a redstone lamp that latches: a pulse toggles it on or off, and a comparator reads its state. Like the copper bulb, but lead doesn't tarnish, so there's just the one.
+- Lead tools and armor release toxic fumes when they break, dosing players standing nearby.
+- Added **Lead Bulb** (variant of the Copper Bulb)
 
 ### Changes
-- Lead blocks now shield against explosions, surviving creepers and TNT — but not charged creepers. Bars, chains and grates hold up less well, and leaded glass still shatters.
+- Lead blocks now shield against explosions (except charged creepers).
 - Lead and raw lead blocks are softer to mine, matching the rest of the lead set.
-- Leaded glass and its panes now shatter — glass sound, glass shards — when broken without a pickaxe. Pried out properly, they keep the heavy lead sound.
+- Leaded glass and its panes now visibly shatter when broken without a pickaxe.
+- Lead Weight can now be placed by a dispenser.
 
 ### Fixes
 - Fixed Toolsmiths and Weaponsmiths being able to offer the same lead ingot trade twice on Fabric
+
 
 # 1.0.0
 First release. A vanilla-friendly expansion that adds lead — a heavy, toxic new metal. Sister mod to The Silver Age.
