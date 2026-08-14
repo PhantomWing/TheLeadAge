@@ -13,7 +13,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
  * {@link FallingBlockRenderer} (the weight is a {@code FallingBlockEntity}), so the
  * falling weight draws its block model automatically.
  */
-@EventBusSubscriber(modid = TheLeadAge.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = TheLeadAge.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ModEntityRenderers {
     private ModEntityRenderers() {
     }

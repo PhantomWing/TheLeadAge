@@ -4,23 +4,23 @@ import com.phantomwing.theleadage.TheLeadAge;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
+import net.minecraft.world.item.crafting.CustomRecipe;
 
 public class ModRecipes {
     public static final DeferredRegister<net.minecraft.world.item.crafting.RecipeSerializer<?>> SERIALIZERS =
             DeferredRegister.create(TheLeadAge.MOD_ID, Registries.RECIPE_SERIALIZER);
 
-    public static final RegistrySupplier<SimpleCraftingRecipeSerializer<LeadedGlassCombineRecipe>> LEADED_GLASS_COMBINE =
+    public static final RegistrySupplier<CustomRecipe.Serializer<LeadedGlassCombineRecipe>> LEADED_GLASS_COMBINE =
             SERIALIZERS.register("leaded_glass_combine",
-                    () -> new SimpleCraftingRecipeSerializer<>(LeadedGlassCombineRecipe::new));
+                    () -> new CustomRecipe.Serializer<>(LeadedGlassCombineRecipe::new));
 
-    public static final RegistrySupplier<SimpleCraftingRecipeSerializer<LeadedGlassDoorRecipe>> LEADED_GLASS_DOOR =
+    public static final RegistrySupplier<CustomRecipe.Serializer<LeadedGlassDoorRecipe>> LEADED_GLASS_DOOR =
             SERIALIZERS.register("leaded_glass_door",
-                    () -> new SimpleCraftingRecipeSerializer<>(LeadedGlassDoorRecipe::new));
+                    () -> new CustomRecipe.Serializer<>(LeadedGlassDoorRecipe::new));
 
-    public static final RegistrySupplier<SimpleCraftingRecipeSerializer<LeadedGlassTrapdoorRecipe>> LEADED_GLASS_TRAPDOOR =
+    public static final RegistrySupplier<CustomRecipe.Serializer<LeadedGlassTrapdoorRecipe>> LEADED_GLASS_TRAPDOOR =
             SERIALIZERS.register("leaded_glass_trapdoor",
-                    () -> new SimpleCraftingRecipeSerializer<>(LeadedGlassTrapdoorRecipe::new));
+                    () -> new CustomRecipe.Serializer<>(LeadedGlassTrapdoorRecipe::new));
 
     // Stonecutter recipe that carries the input plain pane's colour onto the cut pattern. Reuses
     // the vanilla minecraft:stonecutting recipe type; only the serializer (this) is custom.
@@ -28,9 +28,9 @@ public class ModRecipes {
             SERIALIZERS.register("colored_pane_stonecutting", ColoredPaneStonecutterRecipe.Serializer::new);
 
     // Crafts plain leaded glass panes from vanilla glass panes (+ a lead ingot), keeping the pane colour.
-    public static final RegistrySupplier<SimpleCraftingRecipeSerializer<LeadedGlassPaneCraftRecipe>> LEADED_GLASS_PANE_CRAFT =
+    public static final RegistrySupplier<CustomRecipe.Serializer<LeadedGlassPaneCraftRecipe>> LEADED_GLASS_PANE_CRAFT =
             SERIALIZERS.register("leaded_glass_pane_craft",
-                    () -> new SimpleCraftingRecipeSerializer<>(LeadedGlassPaneCraftRecipe::new));
+                    () -> new CustomRecipe.Serializer<>(LeadedGlassPaneCraftRecipe::new));
 
     public static void register() {
         SERIALIZERS.register();

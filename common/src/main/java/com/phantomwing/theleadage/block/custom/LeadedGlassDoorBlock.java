@@ -7,8 +7,8 @@ import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import net.minecraft.core.BlockPos;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
@@ -57,7 +57,7 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
      * edit has to be written to both.</p>
      */
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
         if (!LeadedGlassRecolor.isTool(stack)
                 || !(level.getBlockEntity(pos) instanceof LeadedGlassDoorBlockEntity be)) {
@@ -76,7 +76,7 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
             List<Integer> colors = LeadedGlassRecolor.apply(
                     pane.colors(), pane.frame().regions(), region, LeadedGlassRecolor.target(stack));
             if (colors == null) {
-                return ItemInteractionResult.SUCCESS; // already that colour — eat the click, spend nothing
+                return InteractionResult.SUCCESS; // already that colour — eat the click, spend nothing
             }
             LeadedGlassConfig updated = new LeadedGlassConfig(pane.frame(), colors);
             LeadedGlassDoorConfig both = upper
@@ -87,7 +87,7 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
             applyConfig(level, lower.above(), both);
             LeadedGlassRecolor.consume(stack, player, hand, level, pos);
         }
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable

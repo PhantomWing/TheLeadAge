@@ -4,7 +4,6 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.item.ModItems;
-import com.simibubi.create.AllItems;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.neoforge.condition.ConfigBooleanCondition;
@@ -27,6 +26,9 @@ import com.phantomwing.theleadage.recipe.LeadedGlassDoorRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorRecipe;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
@@ -49,24 +51,46 @@ import java.util.concurrent.CompletableFuture;
 public class ModRecipeProvider extends RecipeProvider {
     private static final float ORE_XP = 0.7f; // iron-like
 
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    // 1.21.2 reworked RecipeProvider: shaped/shapeless/has/... are now instance methods that inject
+    // the provider's item HolderGetter, and buildRecipes() takes no args. The RecipeOutput is kept as
+    // a field so the conditional (config/mod-gated) recipes can still wrap it via withConditions(...).
+    private final RecipeOutput output;
+
+    protected ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
+        this.output = output;
+    }
+
+    /**
+     * DataProvider runner. 1.21.2 split RecipeProvider into the builder (this class) and a
+     * {@link RecipeProvider.Runner} that the DataGenerator registers; the runner constructs the
+     * provider once the registries future resolves.
+     */
+    public static final class Runner extends RecipeProvider.Runner {
+        public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
+            super(packOutput, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new ModRecipeProvider(registries, output);
+        }
+
+        @Override
+        public String getName() {
+            return "The Lead Age Recipes";
+        }
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput output) {
+    protected void buildRecipes() {
+        RecipeOutput output = this.output;
         // Raw lead + both ores smelt/blast into ingots.
         oreSmeltAndBlast(output, ModItems.RAW_LEAD.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.DEEPSLATE_LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
-
-        // Create compat: smelt/blast Create's crushed_raw_lead into our ingot. Create's Crushing Wheels
-        // already turn our ores and raw lead into crushed_raw_lead (its crushing recipes are gated on the
-        // c:ores/lead + c:raw_materials/lead tags, which we populate), but Create only bridges the crushed
-        // ore BACK to an ingot for Immersive Engineering / Mekanism / Oreganized / Thermal — so without
-        // this the crushed lead would be a dead end.
-        oreSmeltAndBlast(output.withConditions(new ModLoadedCondition(ModIds.CREATE)),
-                AllItems.CRUSHED_LEAD.get(), ModItems.LEAD_INGOT.get());
+        // Create compat (crushed lead -> ingot) is absent on this branch: Create publishes no
+        // 1.21.2/1.21.3 build. Re-add with the ModLoadedCondition when it returns.
 
         // 9 <-> storage block, 9 nuggets <-> ingot.
         storage(output, ModItems.RAW_LEAD.get(), ModItems.RAW_LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);
@@ -75,7 +99,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         // Farmer's Delight compat: the Lead Knife (ingot over a stick). Gated on FD — without it the
         // item is a hidden SwordItem fallback, so it deliberately has no recipe.
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.LEAD_KNIFE.get(), 1)
+        shaped(RecipeCategory.TOOLS, ModItems.LEAD_KNIFE.get(), 1)
                 .pattern("X")
                 .pattern("I")
                 .define('X', ModItems.LEAD_INGOT.get())
@@ -135,7 +159,7 @@ public class ModRecipeProvider extends RecipeProvider {
         trapdoor(output, ModItems.LEAD_TRAPDOOR.get(), ingot);
 
         // Leaded glass: 8 glass blocks around a lead ingot -> 8 leaded glass (matches the pane recipe).
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.LEADED_GLASS.get(), 8)
+        shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.LEADED_GLASS.get(), 8)
                 .pattern("GGG").pattern("GIG").pattern("GGG")
                 .define('G', Items.GLASS)
                 .define('I', ModItems.LEAD_INGOT.get())
@@ -145,7 +169,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         // Lead torch: a torch column (stick + coal) tipped with a lead nugget — the salts burn
         // grayish-white (and toxic). Charcoal works too, like the vanilla torch.
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_TORCH.get())
+        shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_TORCH.get())
                 .pattern("N").pattern("C").pattern("S")
                 .define('N', ModItems.LEAD_NUGGET.get())
                 .define('C', Ingredient.of(Items.COAL, Items.CHARCOAL))
@@ -154,7 +178,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
         // Lead lantern: 8 lead nuggets around a lead torch (the vanilla lantern pattern) — the
         // enclosure makes it safe to stand beside.
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_LANTERN.get())
+        shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_LANTERN.get())
                 .pattern("NNN").pattern("NTN").pattern("NNN")
                 .define('N', ModItems.LEAD_NUGGET.get())
                 .define('T', ModItems.LEAD_TORCH.get())
@@ -163,7 +187,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         // Lead Bulb: vanilla's copper bulb recipe, with lead blocks in place of copper — including
         // its yield of 4.
-        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ModItems.LEAD_BULB.get(), 4)
+        shaped(RecipeCategory.REDSTONE, ModItems.LEAD_BULB.get(), 4)
                 .pattern(" L ").pattern("LBL").pattern(" R ")
                 .define('L', ModItems.LEAD_BLOCK.get())
                 .define('B', Items.BLAZE_ROD)
@@ -172,7 +196,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
 
         // Lead Weight: 8 lead ingots around a lead block.
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
+        shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
                 .pattern("III").pattern("ILI").pattern("III")
                 .define('I', ModItems.LEAD_INGOT.get())
                 .define('L', ModItems.LEAD_BLOCK.get())
@@ -180,14 +204,14 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
 
         // Lead Chain: nugget / ingot / nugget (vanilla chain ratio).
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_CHAIN.get())
+        shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_CHAIN.get())
                 .pattern("N").pattern("I").pattern("N")
                 .define('N', ModItems.LEAD_NUGGET.get())
                 .define('I', ModItems.LEAD_INGOT.get())
                 .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
                 .save(output);
         // Lead Bars: 6 lead ingots -> 16 (vanilla iron-bars ratio).
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_BARS.get(), 16)
+        shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_BARS.get(), 16)
                 .pattern("III").pattern("III")
                 .define('I', ModItems.LEAD_INGOT.get())
                 .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
@@ -226,7 +250,7 @@ public class ModRecipeProvider extends RecipeProvider {
 
         // Fishing Rod: the bottom-right string becomes a lead nugget. Saved at
         // minecraft:fishing_rod so it replaces the vanilla recipe when enabled.
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.FISHING_ROD)
+        shaped(RecipeCategory.TOOLS, Items.FISHING_ROD)
                 .pattern("  #")
                 .pattern(" #X")
                 .pattern("# N")
@@ -236,7 +260,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
                 .save(fishingRodOutput);
         // Original vanilla recipe, kept (as a _fallback) when the override is off.
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.FISHING_ROD)
+        shaped(RecipeCategory.TOOLS, Items.FISHING_ROD)
                 .pattern("  #")
                 .pattern(" #X")
                 .pattern("# X")
@@ -248,7 +272,7 @@ public class ModRecipeProvider extends RecipeProvider {
         // Heavy Core: uncraftable in vanilla, so this is an ADD (no fallback) — a
         // dense lead construct around a netherite core. Unlocked once the player
         // has picked up a Heavy Core.
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.HEAVY_CORE)
+        shaped(RecipeCategory.MISC, Items.HEAVY_CORE)
                 .pattern("LLL")
                 .pattern("LNL")
                 .pattern("LLL")
@@ -267,14 +291,14 @@ public class ModRecipeProvider extends RecipeProvider {
             ItemLike leaded = ModBlocks.STAINED_LEADED_GLASS.get(color).get();
 
             // Dye plain leaded glass: 8 leaded glass + 1 dye -> 8 dyed (vanilla stained-glass ratio).
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
+            shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
                     .pattern("###").pattern("#D#").pattern("###")
                     .define('#', ModItems.LEADED_GLASS.get())
                     .define('D', dye)
                     .unlockedBy(getHasName(ModItems.LEADED_GLASS.get()), has(ModItems.LEADED_GLASS.get()))
                     .save(output);
             // "Lead" vanilla stained glass: 8 stained glass around a lead ingot -> 8 of that colour.
-            ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
+            shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
                     .pattern("GGG").pattern("GIG").pattern("GGG")
                     .define('G', stainedGlass)
                     .define('I', ModItems.LEAD_INGOT.get())
@@ -284,15 +308,17 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private static ItemLike vanillaItem(String path) {
-        return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(path));
+        return BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace(path));
     }
 
     private static String name(ItemLike item) {
         return BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
     }
 
-    private static String id(String path) {
-        return TheLeadAge.MOD_ID + ":" + path;
+    private static ResourceKey<Recipe<?>> id(String path) {
+        // 1.21.2: RecipeBuilder#save keys on a ResourceKey<Recipe<?>> rather than an id string.
+        return ResourceKey.create(Registries.RECIPE,
+                ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, path));
     }
 
     private void oreSmeltAndBlast(RecipeOutput output, ItemLike material, ItemLike result) {
@@ -302,14 +328,13 @@ public class ModRecipeProvider extends RecipeProvider {
 
     private <T extends AbstractCookingRecipe> void cook(RecipeOutput output, ItemLike material, ItemLike result, int time,
                                                         RecipeSerializer<T> serializer, AbstractCookingRecipe.Factory<T> factory, String suffix) {
-        SimpleCookingRecipeBuilder
-                .generic(Ingredient.of(material), RecipeCategory.MISC, result, ORE_XP, time, serializer, factory)
+        SimpleCookingRecipeBuilder.generic(Ingredient.of(material), RecipeCategory.MISC, result, ORE_XP, time, serializer, factory)
                 .unlockedBy(getHasName(material), has(material))
                 .save(output, id(name(result) + "_from_" + name(material) + "_" + suffix));
     }
 
     private void sword(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
+        shaped(RecipeCategory.COMBAT, result)
                 .pattern("M").pattern("M").pattern("S")
                 .define('M', material).define('S', Items.STICK)
                 .unlockedBy(getHasName(material), has(material))
@@ -317,7 +342,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void pickaxe(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
+        shaped(RecipeCategory.TOOLS, result)
                 .pattern("MMM").pattern(" S ").pattern(" S ")
                 .define('M', material).define('S', Items.STICK)
                 .unlockedBy(getHasName(material), has(material))
@@ -325,7 +350,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void axe(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
+        shaped(RecipeCategory.TOOLS, result)
                 .pattern("MM").pattern("MS").pattern(" S")
                 .define('M', material).define('S', Items.STICK)
                 .unlockedBy(getHasName(material), has(material))
@@ -333,7 +358,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void shovel(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
+        shaped(RecipeCategory.TOOLS, result)
                 .pattern("M").pattern("S").pattern("S")
                 .define('M', material).define('S', Items.STICK)
                 .unlockedBy(getHasName(material), has(material))
@@ -341,7 +366,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void hoe(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
+        shaped(RecipeCategory.TOOLS, result)
                 .pattern("MM").pattern(" S").pattern(" S")
                 .define('M', material).define('S', Items.STICK)
                 .unlockedBy(getHasName(material), has(material))
@@ -349,7 +374,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void helmet(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
+        shaped(RecipeCategory.COMBAT, result)
                 .pattern("MMM").pattern("M M")
                 .define('M', material)
                 .unlockedBy(getHasName(material), has(material))
@@ -357,7 +382,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void chestplate(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
+        shaped(RecipeCategory.COMBAT, result)
                 .pattern("M M").pattern("MMM").pattern("MMM")
                 .define('M', material)
                 .unlockedBy(getHasName(material), has(material))
@@ -365,7 +390,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void leggings(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
+        shaped(RecipeCategory.COMBAT, result)
                 .pattern("MMM").pattern("M M").pattern("M M")
                 .define('M', material)
                 .unlockedBy(getHasName(material), has(material))
@@ -373,7 +398,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void boots(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
+        shaped(RecipeCategory.COMBAT, result)
                 .pattern("M M").pattern("M M")
                 .define('M', material)
                 .unlockedBy(getHasName(material), has(material))
@@ -381,7 +406,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void twoBytwo(RecipeOutput output, RecipeCategory category, ItemLike result, ItemLike material, int count) {
-        ShapedRecipeBuilder.shaped(category, result, count)
+        shaped(category, result, count)
                 .pattern("##").pattern("##")
                 .define('#', material)
                 .unlockedBy(getHasName(material), has(material))
@@ -389,7 +414,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void oneBytwo(RecipeOutput output, RecipeCategory category, ItemLike result, ItemLike material, int count) {
-        ShapedRecipeBuilder.shaped(category, result, count)
+        shaped(category, result, count)
                 .pattern("#").pattern("#")
                 .define('#', material)
                 .unlockedBy(getHasName(material), has(material))
@@ -421,7 +446,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void grateWithCutting(RecipeOutput output, ItemLike result, ItemLike material) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, result, 4)
+        shaped(RecipeCategory.BUILDING_BLOCKS, result, 4)
                 .pattern(" # ").pattern("# #").pattern(" # ")
                 .define('#', material)
                 .unlockedBy(getHasName(material), has(material))
@@ -458,21 +483,20 @@ public class ModRecipeProvider extends RecipeProvider {
         ItemStack result = new ItemStack(ModItems.paneItemFor(frame));
         result.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame,
                 Collections.nCopies(frame.regions(), LeadedGlassConfig.CLEAR)));
-        output.accept(ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID,
-                        "leaded_glass_pane_" + frame.getSerializedName() + "_from_stonecutting"),
+        output.accept(id("leaded_glass_pane_" + frame.getSerializedName() + "_from_stonecutting"),
                 new ColoredPaneStonecutterRecipe("leaded_glass_pane",
                         Ingredient.of(ModItems.LEADED_GLASS_PANEL.get()), result), null);
     }
 
     private void storage(RecipeOutput output, ItemLike item, ItemLike block, RecipeCategory packedCategory) {
         // 9 item -> block
-        ShapedRecipeBuilder.shaped(packedCategory, block)
+        shaped(packedCategory, block)
                 .pattern("###").pattern("###").pattern("###")
                 .define('#', item)
                 .unlockedBy(getHasName(item), has(item))
                 .save(output, id(name(block) + "_from_" + name(item)));
         // block -> 9 item
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item, 9)
+        shapeless(RecipeCategory.MISC, item, 9)
                 .requires(block)
                 .unlockedBy(getHasName(block), has(block))
                 .save(output, id(name(item) + "_from_" + name(block)));

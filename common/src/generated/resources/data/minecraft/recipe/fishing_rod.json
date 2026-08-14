@@ -32,15 +32,9 @@
     }
   ],
   "key": {
-    "#": {
-      "item": "minecraft:stick"
-    },
-    "N": {
-      "item": "theleadage:lead_nugget"
-    },
-    "X": {
-      "item": "minecraft:string"
-    }
+    "#": "minecraft:stick",
+    "N": "theleadage:lead_nugget",
+    "X": "minecraft:string"
   },
   "pattern": [
     "  #",

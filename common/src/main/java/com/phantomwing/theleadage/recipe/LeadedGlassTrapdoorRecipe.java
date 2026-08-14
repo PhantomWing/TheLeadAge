@@ -68,12 +68,7 @@ public class LeadedGlassTrapdoorRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<LeadedGlassTrapdoorRecipe> getSerializer() {
         return ModRecipes.LEADED_GLASS_TRAPDOOR.get();
     }
 }

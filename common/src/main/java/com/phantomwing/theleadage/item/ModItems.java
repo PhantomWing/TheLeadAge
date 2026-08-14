@@ -7,7 +7,6 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.platform.KnifePlatform;
 import dev.architectury.platform.Platform;
-import net.minecraft.world.item.DiggerItem;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassDoorItem;
@@ -17,12 +16,12 @@ import com.phantomwing.theleadage.item.custom.LeadHorseArmorItem;
 import com.phantomwing.theleadage.tool.ModTiers;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.AnimalArmorItem;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.HoeItem;
@@ -34,7 +33,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.block.Block;
 
 import java.util.LinkedHashSet;
@@ -70,18 +69,18 @@ public class ModItems {
     // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
     // (durability = factor x slot base), and 6 sits between Leather 5 and Gold 7 — so a full set is
     // 330, under a sixth of iron's 825. Weighs the wearer down via Heaviness — see LeadArmorItem.
-    public static final RegistrySupplier<Item> LEAD_HELMET = registerArmor("lead_helmet", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.HELMET, 6);
-    public static final RegistrySupplier<Item> LEAD_CHESTPLATE = registerArmor("lead_chestplate", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.CHESTPLATE, 6);
-    public static final RegistrySupplier<Item> LEAD_LEGGINGS = registerArmor("lead_leggings", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.LEGGINGS, 6);
-    public static final RegistrySupplier<Item> LEAD_BOOTS = registerArmor("lead_boots", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.BOOTS, 6);
+    public static final RegistrySupplier<Item> LEAD_HELMET = registerArmor("lead_helmet", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorType.HELMET);
+    public static final RegistrySupplier<Item> LEAD_CHESTPLATE = registerArmor("lead_chestplate", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorType.CHESTPLATE);
+    public static final RegistrySupplier<Item> LEAD_LEGGINGS = registerArmor("lead_leggings", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorType.LEGGINGS);
+    public static final RegistrySupplier<Item> LEAD_BOOTS = registerArmor("lead_boots", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorType.BOOTS);
     public static final RegistrySupplier<Item> LEAD_HORSE_ARMOR = register("lead_horse_armor",
-            (props) -> new LeadHorseArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, AnimalArmorItem.BodyType.EQUESTRIAN, false, props),
+            (props) -> new LeadHorseArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, AnimalArmorItem.BodyType.EQUESTRIAN, props),
             baseItem().stacksTo(1));
 
     // One item places the standing or wall torch depending on the clicked face (like vanilla).
     public static final RegistrySupplier<Item> LEAD_TORCH = register("lead_torch",
             (props) -> new StandingAndWallBlockItem(ModBlocks.LEAD_TORCH.get(), ModBlocks.LEAD_WALL_TORCH.get(),
-                    props, Direction.DOWN), baseItem());
+                    Direction.DOWN, props), blockItem());
     public static final RegistrySupplier<Item> LEAD_LANTERN = registerBlock("lead_lantern", ModBlocks.LEAD_LANTERN);
     public static final RegistrySupplier<Item> LEAD_BULB = registerBlock("lead_bulb", ModBlocks.LEAD_BULB);
 
@@ -89,11 +88,11 @@ public class ModItems {
     // weapon when aimed at open space. Stackable; the three tiers (lead_weight / chipped / damaged)
     // are distinct stackable items, each placing its own block. Heavy, so they stack to only 16.
     public static final RegistrySupplier<Item> LEAD_WEIGHT = register("lead_weight",
-            (props) -> new LeadWeightItem(ModBlocks.LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
+            (props) -> new LeadWeightItem(ModBlocks.LEAD_WEIGHT.get(), props), blockItem().stacksTo(16));
     public static final RegistrySupplier<Item> CHIPPED_LEAD_WEIGHT = register("chipped_lead_weight",
-            (props) -> new LeadWeightItem(ModBlocks.CHIPPED_LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
+            (props) -> new LeadWeightItem(ModBlocks.CHIPPED_LEAD_WEIGHT.get(), props), blockItem().stacksTo(16));
     public static final RegistrySupplier<Item> DAMAGED_LEAD_WEIGHT = register("damaged_lead_weight",
-            (props) -> new LeadWeightItem(ModBlocks.DAMAGED_LEAD_WEIGHT.get(), props), baseItem().stacksTo(16));
+            (props) -> new LeadWeightItem(ModBlocks.DAMAGED_LEAD_WEIGHT.get(), props), blockItem().stacksTo(16));
 
     public static final RegistrySupplier<Item> LEAD_CHAIN = registerBlock("lead_chain", ModBlocks.LEAD_CHAIN);
     public static final RegistrySupplier<Item> LEAD_BARS = registerBlock("lead_bars", ModBlocks.LEAD_BARS);
@@ -103,11 +102,11 @@ public class ModItems {
 
     // Leaded glass door — its top half shows the glass design carried in the component.
     public static final RegistrySupplier<Item> LEADED_GLASS_DOOR = register("leaded_glass_door",
-            (props) -> new LeadedGlassDoorItem(ModBlocks.LEADED_GLASS_DOOR.get(), props), baseItem());
+            (props) -> new LeadedGlassDoorItem(ModBlocks.LEADED_GLASS_DOOR.get(), props), blockItem());
 
     // Leaded glass trapdoor — its flap shows the glass design carried in the component.
     public static final RegistrySupplier<Item> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor",
-            (props) -> new LeadedGlassTrapdoorItem(ModBlocks.LEADED_GLASS_TRAPDOOR.get(), props), baseItem());
+            (props) -> new LeadedGlassTrapdoorItem(ModBlocks.LEADED_GLASS_TRAPDOOR.get(), props), blockItem());
 
     // Ores + raw storage block
     public static final RegistrySupplier<Item> LEAD_ORE = registerBlock("lead_ore", ModBlocks.LEAD_ORE);
@@ -140,25 +139,25 @@ public class ModItems {
     // Leaded glass panes — one item per came type (colours carried in the leaded_glass_config
     // component). Creative presets are added by ModCreativeModeTab.
     public static final RegistrySupplier<Item> LEADED_GLASS_PANEL = register("leaded_glass_pane",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANEL.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANEL.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_SPLIT = register("leaded_glass_pane_split",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_PLUS = register("leaded_glass_pane_plus",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_PLUS.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_PLUS.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_GRID = register("leaded_glass_pane_grid",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_GRID.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_GRID.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAGONAL = register("leaded_glass_pane_diagonal",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_CROSS = register("leaded_glass_pane_cross",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_CROSS.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_CROSS.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAMOND = register("leaded_glass_pane_diamond",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_LATTICE = register("leaded_glass_pane_lattice",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_BARS = register("leaded_glass_pane_bars",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_BARS.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_BARS.get(), props), blockItem());
     public static final RegistrySupplier<Item> LEADED_GLASS_PANE_DIAGONAL_BARS = register("leaded_glass_pane_diagonal_bars",
-            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get(), props), baseItem());
+            (props) -> new LeadedGlassPanelItem(ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get(), props), blockItem());
 
 
     /** The pane item for a given came frame (orientations of a came type share one item). */
@@ -190,33 +189,50 @@ public class ModItems {
         return new Item.Properties();
     }
 
+    /**
+     * Properties for a BlockItem. 1.21.2 made translation keys explicit: an item derives its
+     * description id from its OWN registry key ({@code item.<ns>.<path>}) unless it opts in here, and
+     * BlockItem no longer overrides {@code getDescriptionId()}. Without this every block shows a raw
+     * {@code item.theleadage.*} key in place of its {@code block.theleadage.*} name.
+     */
+    public static Item.Properties blockItem() {
+        return baseItem().useBlockDescriptionPrefix();
+    }
+
     // Lead swings very slowly (attack speed ~0.6/s) — the heavy, high-damage half of
     // the glass cannon. -3.4 = 4.0 base attack speed - 3.4.
     // Each lead tool's attack speed is the matching netherite tool's speed minus 0.2 (set per tool
     // below). Displayed speed = 4.0 + this modifier; damage matches netherite via the tier bonus (4.0).
 
-    private static RegistrySupplier<Item> registerSword(String name, Tier tier) {
-        return register(name, (props) -> new SwordItem(tier, props), baseItem().attributes(SwordItem.createAttributes(tier, 3, -2.6f))); // 8 dmg, 1.4 speed
+    // 1.21.2 moved attack damage/speed out of Item.Properties#attributes and into the item
+    // constructors (applied via ToolMaterial#applyToolProperties).
+    private static RegistrySupplier<Item> registerSword(String name, ToolMaterial material) {
+        return register(name, (props) -> new SwordItem(material, 3, -2.6f, props), baseItem()); // 8 dmg, 1.4 speed
     }
 
-    private static RegistrySupplier<Item> registerPickaxe(String name, Tier tier) {
-        return register(name, (props) -> new PickaxeItem(tier, props), baseItem().attributes(PickaxeItem.createAttributes(tier, 1.0f, -3.0f))); // 6 dmg, 1.0 speed
+    private static RegistrySupplier<Item> registerPickaxe(String name, ToolMaterial material) {
+        return register(name, (props) -> new PickaxeItem(material, 1.0f, -3.0f, props), baseItem()); // 6 dmg, 1.0 speed
     }
 
-    private static RegistrySupplier<Item> registerAxe(String name, Tier tier) {
-        return register(name, (props) -> new AxeItem(tier, props), baseItem().attributes(AxeItem.createAttributes(tier, 5.0f, -3.2f))); // 10 dmg, 0.8 speed
+    private static RegistrySupplier<Item> registerAxe(String name, ToolMaterial material) {
+        return register(name, (props) -> new AxeItem(material, 5.0f, -3.2f, props), baseItem()); // 10 dmg, 0.8 speed
     }
 
-    private static RegistrySupplier<Item> registerShovel(String name, Tier tier) {
-        return register(name, (props) -> new ShovelItem(tier, props), baseItem().attributes(ShovelItem.createAttributes(tier, 1.5f, -3.2f))); // 6.5 dmg, 0.8 speed
+    private static RegistrySupplier<Item> registerShovel(String name, ToolMaterial material) {
+        return register(name, (props) -> new ShovelItem(material, 1.5f, -3.2f, props), baseItem()); // 6.5 dmg, 0.8 speed
     }
 
-    private static RegistrySupplier<Item> registerHoe(String name, Tier tier) {
-        return register(name, (props) -> new HoeItem(tier, props), baseItem().attributes(HoeItem.createAttributes(tier, -4.0f, -0.2f))); // 1 dmg, 3.8 speed
+    private static RegistrySupplier<Item> registerHoe(String name, ToolMaterial material) {
+        return register(name, (props) -> new HoeItem(material, -4.0f, -0.2f, props), baseItem()); // 1 dmg, 3.8 speed
     }
 
-    private static RegistrySupplier<Item> registerArmor(String name, Holder<ArmorMaterial> material, ArmorItem.Type type, int durabilityFactor) {
-        return register(name, (props) -> new LeadArmorItem(material, type, props), baseItem().durability(type.getDurability(durabilityFactor)));
+    /**
+     * 1.21.2: ArmorItem's ctor applies {@code material.humanoidProperties(props, type)}, which sets
+     * durability (the material's factor × {@link ArmorType#getDurability}), defense, toughness,
+     * knockback resistance and the equip sound — so none of that is set on the Properties here.
+     */
+    private static RegistrySupplier<Item> registerArmor(String name, ArmorMaterial material, ArmorType type) {
+        return register(name, (props) -> new LeadArmorItem(material, type, props), baseItem());
     }
 
     private static RegistrySupplier<Item> register(String name) {
@@ -230,9 +246,11 @@ public class ModItems {
      * standard knife (1.8 vs 2.0) — the same 0.2 penalty the rest of the lead tools carry against
      * netherite. Creative-tab-gated on FD.
      */
-    private static RegistrySupplier<Item> registerKnife(String name, Tier tier, String modId) {
-        Item.Properties props = baseItem().attributes(DiggerItem.createAttributes(tier, 0.5f, -2.2f)); // 5.5 dmg, 1.8 speed
-        RegistrySupplier<Item> item = ITEMS.register(name, () -> KnifePlatform.createLeadKnife(props, tier));
+    private static RegistrySupplier<Item> registerKnife(String name, ToolMaterial material, String modId) {
+        // Knife attack stats are applied per loader inside KnifePlatform / its SwordItem fallback
+        // (1.21.2 moved them out of Item.Properties#attributes): 5.5 dmg, 1.8 speed.
+        Item.Properties props = baseItem().setId(itemKey(name));
+        RegistrySupplier<Item> item = ITEMS.register(name, () -> KnifePlatform.createLeadKnife(props, material));
         if (Platform.isModLoaded(modId)) {
             CREATIVE_TAB_ITEMS.add(item);
         }
@@ -241,7 +259,7 @@ public class ModItems {
 
     /** Register an item that only appears in the creative tab when the given mod is loaded. */
     private static RegistrySupplier<Item> registerWithModCompat(String name, String modId) {
-        RegistrySupplier<Item> item = ITEMS.register(name, () -> new Item(baseItem()));
+        RegistrySupplier<Item> item = ITEMS.register(name, () -> new Item(baseItem().setId(itemKey(name))));
         if (Platform.isModLoaded(modId)) {
             CREATIVE_TAB_ITEMS.add(item);
         }
@@ -249,13 +267,21 @@ public class ModItems {
     }
 
     private static <T extends Block> RegistrySupplier<Item> registerBlock(String name, RegistrySupplier<T> block) {
-        return register(name, (props) -> new BlockItem(block.get(), props), baseItem());
+        return register(name, (props) -> new BlockItem(block.get(), props), blockItem());
     }
 
     private static RegistrySupplier<Item> register(String name, Function<Item.Properties, Item> function, Item.Properties props) {
-        RegistrySupplier<Item> item = ITEMS.register(name, () -> function.apply(props));
+        RegistrySupplier<Item> item = ITEMS.register(name, () -> function.apply(props.setId(itemKey(name))));
         CREATIVE_TAB_ITEMS.add(item);
         return item;
+    }
+
+    /**
+     * 1.21.2 requires the registry id on the item Properties before construction; Architectury's
+     * DeferredRegister does not set it for us.
+     */
+    private static ResourceKey<Item> itemKey(String name) {
+        return ResourceKey.create(Registries.ITEM, TheLeadAge.resourceLocation(name));
     }
 
     public static void register() {

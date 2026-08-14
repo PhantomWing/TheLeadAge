@@ -36,7 +36,7 @@ import java.util.Map;
  * Registers the leaded glass client hooks on NeoForge: pane tint providers (per came-type block /
  * item), the leaded glass door + trapdoor renderers, and the item-model override predicates.
  */
-@EventBusSubscriber(modid = TheLeadAge.MOD_ID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = TheLeadAge.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ModColorHandlersNeoForge {
     private ModColorHandlersNeoForge() {
     }

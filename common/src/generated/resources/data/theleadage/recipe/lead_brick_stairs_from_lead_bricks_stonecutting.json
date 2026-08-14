@@ -1,8 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "theleadage:lead_bricks"
-  },
+  "ingredient": "theleadage:lead_bricks",
   "result": {
     "count": 1,
     "id": "theleadage:lead_brick_stairs"

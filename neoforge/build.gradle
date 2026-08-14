@@ -14,32 +14,15 @@ def datagenModId = rootProject.property('mod_id').toString()
 def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
 def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
 
-// Client HUD niceties (JEI, AppleSkin) + the side-by-side comparison mod (The
-// Silver Age) are useless — and can hang/crash — in the headless game-test and
-// data-generation runs. Only load them for runClient/runServer.
+// Dev-runtime niceties (AppleSkin) + the side-by-side comparison mod (The Silver Age)
+// are useless — and can hang/crash — in the headless game-test and data-generation
+// runs. Only load them for runClient/runServer.
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
-// Create is a real (optional) integration, not a dev nicety: the compat recipe gens extend Create's
-// own providers, so it must be on the DATAGEN runtime classpath too — unlike the mods above.
-//   ./gradlew :neoforge:runClient -Penable_create=false
-def loadCreate = (project.findProperty('enable_create') ?: rootProject.enable_create).toString().toBoolean()
-
-// Farmer's Delight (the Lead Knife). Like Create, a real integration rather than a dev nicety: it must
-// be on the DATAGEN classpath too, so `--existing-mod farmersdelight` below can resolve FD's resources.
-//   ./gradlew :neoforge:runClient -PloadFD=false
-def loadFD = (project.findProperty('loadFD') ?: rootProject.loadFD).toString().toBoolean()
-
-// Which recipe viewer to load in the dev run. The mod ships plugins for BOTH JEI and EMI; running
-// them together is just noise, so pick one:
-//   ./gradlew :neoforge:runClient -Precipe_viewer=jei|emi|both|none
-def selectedRecipeViewer = (project.findProperty('recipe_viewer') ?: rootProject.recipe_viewer).toString()
-if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
-    throw new GradleException("Invalid recipe_viewer='${selectedRecipeViewer}'. Valid values: jei, emi, both, none")
-}
-def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
-def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
-logger.lifecycle("[TheLeadAge] (neoforge) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi}), Create: ${loadCreate}, FD: ${loadFD}")
+// Create, Farmer's Delight, JEI and EMI publish no 1.21.2/1.21.3 build, so their compat and the
+// recipe_viewer switch are absent on this branch. See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.3 branch — no Create/FD/JEI/EMI compat on this line")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -62,9 +45,6 @@ loom {
             data()
             name = "Data Generation"
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
-            // FD's existing resources only exist when FD is on the run classpath; asking for them
-            // otherwise fails datagen outright.
-            if (loadFD) programArgs('--existing-mod', 'farmersdelight')
         }
 
         // Headless NeoForge game-test server: runs every @GameTest in the
@@ -108,44 +88,10 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }
 
-    // ---- Create (optional compat) ----
-    // compileOnly ALWAYS so the compat datagen classes still compile with Create toggled off.
-    // Never shipped, never a hard dependency — every generated Create recipe is mod_loaded-gated.
-    modCompileOnly("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
-    modCompileOnly("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
-    // NOT on the game-test classpath: Create crashes the headless GameTestServer outright
-    // ("Payload create:clientbound_chain_conveyor may not be sent to the client!" — it pushes a
-    // client-only payload on a server with no client). Datagen DOES need it, hence !runningGameTest
-    // rather than the !runningDataGen guard used for the dev niceties below.
-    if (loadCreate && !runningGameTest) {
-        modLocalRuntime("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
-        modLocalRuntime("net.createmod.ponder:ponder-neoforge:${rootProject.ponder_version}+mc${rootProject.minecraft_version}")
-        modLocalRuntime("dev.engine-room.flywheel:flywheel-neoforge-${rootProject.minecraft_version}:${rootProject.flywheel_version}")
-        modLocalRuntime("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
-    }
-
-    // ---- Farmer's Delight (optional compat) ----
-    // compileOnly ALWAYS so LeadKnifeItem (which extends FD's KnifeItem) compiles with FD toggled off.
-    // Never shipped, never a hard dependency — the item falls back to a plain SwordItem without FD.
-    modCompileOnly "maven.modrinth:farmers-delight:${rootProject.farmersdelight_neoforge_version}"
-    // Also kept off the game-test classpath: the tests cover this mod's own mechanics, so third-party
-    // mods there only add load time and failure modes (datagen still gets it).
-    if (loadFD && !runningGameTest) {
-        modLocalRuntime "maven.modrinth:farmers-delight:${rootProject.farmersdelight_neoforge_version}"
-    }
-
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
     //      never shipped, never a hard dependency). Skipped for the game-test run. ----
     if (!runningGameTest && !runningDataGen) {
-        if (loadJei) {
-            modLocalRuntime("mezz.jei:jei-1.21.1-neoforge:${rootProject.jei_version}")
-        }
-        if (loadEmi) {
-            modLocalRuntime("dev.emi:emi-neoforge:${rootProject.emi_version}")
-        }
-        modLocalRuntime("squeek.appleskin:appleskin-neoforge:mc1.21-${rootProject.appleskin_version}")
-        // The Silver Age (sibling mod) from CurseForge, for side-by-side comparison.
-        modLocalRuntime("curse.maven:the-silver-age-1355287:8190186")
+        modLocalRuntime("squeek.appleskin:appleskin-neoforge:${rootProject.appleskin_neoforge_version}")
     }
 }
 
@@ -189,7 +135,6 @@ publishMods {
         rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
         // NeoForge only needs Architectury — fabric-api / cloth-config are Fabric-only.
         requires("architectury-api")
-        optional("create", "farmers-delight", "jei", "emi")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -199,7 +144,6 @@ publishMods {
         client = true
         server = true
         requires("architectury-api")
-        optional("create", "farmers-delight", "jei", "emi")
     }
 }
 

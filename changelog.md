@@ -1,5 +1,9 @@
 # 1.1.0
 
+### Minecraft 1.21.2 / 1.21.3
+- Ported to 1.21.2 and 1.21.3.
+- Create, Farmer's Delight, JEI and EMI have no 1.21.2/1.21.3 release, so their integrations are unavailable on this version: no Create recipes or Sable weights, no Lead Knife, and no recipe viewer support. They return as soon as those mods do; the 1.21.1 build keeps all of them.
+
 ### Additions
 - Lead tools and armor release toxic fumes when they break, dosing players standing nearby.
 - Added **Lead Bulb** (variant of the Copper Bulb)

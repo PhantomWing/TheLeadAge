@@ -52,7 +52,7 @@ public final class LeadedGlassClearSprite {
             v[o] = Float.floatToRawIntBits(to.getU0() + lu * (to.getU1() - to.getU0()));
             v[o + 1] = Float.floatToRawIntBits(to.getV0() + lw * (to.getV1() - to.getV0()));
         }
-        return new BakedQuad(v, -1, quad.getDirection(), to, quad.isShade());
+        return new BakedQuad(v, -1, quad.getDirection(), to, quad.isShade(), quad.getLightEmission());
     }
 
     /**

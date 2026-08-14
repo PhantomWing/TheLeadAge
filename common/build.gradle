@@ -29,13 +29,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     // Architectury API (common).
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
-    // JEI plugin API — compile-time only. JEI stays an optional runtime mod: the @JeiPlugin class
-    // is only ever classloaded by JEI itself, so nothing breaks when JEI isn't installed.
-    modCompileOnly "mezz.jei:jei-1.21.1-common-api:${rootProject.jei_version}"
-    // EMI — the xplat artifact is what lets the plugin live here in common (one class, both
-    // loaders), the same way the JEI plugin does. compileOnly: EMI is never shipped or required,
-    // and the plugin class is only ever loaded by EMI's own @EmiEntrypoint classpath scan.
-    modCompileOnly "dev.emi:emi-xplat-intermediary:${rootProject.emi_version}"
+    // No JEI/EMI plugin APIs on this branch: neither ships a 1.21.2/1.21.3 build, so the recipe
+    // viewer plugins are absent here. See the port notes in gradle.properties.
 }
 
 publishing {

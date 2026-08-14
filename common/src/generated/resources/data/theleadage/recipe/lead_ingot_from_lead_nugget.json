@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "theleadage:lead_nugget"
-    }
+    "#": "theleadage:lead_nugget"
   },
   "pattern": [
     "###",

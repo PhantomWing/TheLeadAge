@@ -141,7 +141,10 @@ public class LeadWeightEntity extends FallingBlockEntity {
             return;
         }
         level().removeBlock(pos, false);
-        spawnAtLocation(getBlockState().getBlock()); // the same-tier weight item the hopper collects
+        // 1.21.2: spawnAtLocation takes the ServerLevel explicitly.
+        if (level() instanceof ServerLevel server) {
+            spawnAtLocation(server, getBlockState().getBlock()); // the same-tier weight item the hopper collects
+        }
     }
 
     /**
@@ -198,7 +201,7 @@ public class LeadWeightEntity extends FallingBlockEntity {
             if (momentum < MIN_MOMENTUM) {
                 break; // spent: the weight has shed too much momentum to keep hurting things
             }
-            if (target.hurt(source, baseDamage * momentum)) {
+            if (target.hurtOrSimulate(source, baseDamage * momentum)) {
                 applyKnockback(target);
                 // The crush bleeds the weight's momentum, so the next entity takes less — and it
                 // physically slows, lengthening the fall and easing off the fall-height bonus too.
@@ -231,8 +234,8 @@ public class LeadWeightEntity extends FallingBlockEntity {
 
     private DamageSource orbDamageSource(@Nullable Player owner) {
         Holder<DamageType> type = level().registryAccess()
-                .registryOrThrow(Registries.DAMAGE_TYPE)
-                .getHolderOrThrow(ModDamageTypes.LEAD_WEIGHT);
+                .lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(ModDamageTypes.LEAD_WEIGHT);
         return owner != null ? new DamageSource(type, this, owner) : new DamageSource(type, this);
     }
 

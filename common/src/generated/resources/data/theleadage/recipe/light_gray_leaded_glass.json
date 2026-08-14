@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "#": {
-      "item": "theleadage:leaded_glass"
-    },
-    "D": {
-      "item": "minecraft:light_gray_dye"
-    }
+    "#": "theleadage:leaded_glass",
+    "D": "minecraft:light_gray_dye"
   },
   "pattern": [
     "###",

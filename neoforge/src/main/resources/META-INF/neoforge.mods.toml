@@ -20,21 +20,21 @@ A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod 
 [[dependencies.theleadage]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1.218,)"
+versionRange = "[21.3,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.1,1.21.2)"
+versionRange = "[1.21.2,1.21.4)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "architectury"
 type = "required"
-versionRange = "[13.0.8,)"
+versionRange = "[14.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
@@ -48,31 +48,3 @@ side = "BOTH"
 # "farmers-delight-1.21.1-1.3.1.jar" but declares version "1.3.1" — so a range written from the
 # filename rejects the very build it was meant to allow, and FML then refuses to load at all. An
 # optional dep gains nothing from a lower bound anyway: these are advertising + load-order hints.
-
-[[dependencies.theleadage]]
-modId = "create"
-type = "optional"
-versionRange = "[0,)"
-ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.theleadage]]
-modId = "farmersdelight"
-type = "optional"
-versionRange = "[0,)"
-ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.theleadage]]
-modId = "jei"
-type = "optional"
-versionRange = "[0,)"
-ordering = "AFTER"
-side = "CLIENT"
-
-[[dependencies.theleadage]]
-modId = "emi"
-type = "optional"
-versionRange = "[0,)"
-ordering = "AFTER"
-side = "CLIENT"

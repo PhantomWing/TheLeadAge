@@ -14,8 +14,9 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
@@ -29,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
  * total Heaviness of the lead armor worn, so they don't clutter the tooltip with
  * raw numbers.
  */
-public class LeadArmorItem extends ArmorItem {
+public class LeadArmorItem extends Item {
     /** Heaviness granted by each lead armor piece (shown as "+N Heaviness"). */
     private static final double HEAVINESS_PER_PIECE = 1.0;
 
@@ -46,24 +47,29 @@ public class LeadArmorItem extends ArmorItem {
     private static final EquipmentSlot[] ARMOR_SLOTS =
             {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
-    private ItemAttributeModifiers modifiers;
+    private final ArmorType armorType;
 
-    public LeadArmorItem(Holder<ArmorMaterial> material, Type type, Properties properties) {
-        super(material, type, properties);
+    /**
+     * 1.21.2 removed {@code Item#getDefaultAttributeModifiers}: the attribute set is baked onto the
+     * Properties at construction. {@code ArmorItem}'s constructor applies
+     * {@link ArmorMaterial#humanoidProperties} — which REPLACES the attribute component — so this
+     * applies the material itself and then overwrites the set with base + Heaviness. Extending
+     * {@link Item} rather than {@code ArmorItem} costs nothing: in 1.21.2 that class is only this
+     * constructor, and all armor behaviour comes from the EQUIPPABLE component it sets.
+     */
+    public LeadArmorItem(ArmorMaterial material, ArmorType type, Properties properties) {
+        super(material.humanoidProperties(properties, type).attributes(withHeaviness(material, type)));
+        this.armorType = type;
     }
 
-    @Override
-    public ItemAttributeModifiers getDefaultAttributeModifiers() {
-        if (modifiers == null) {
-            EquipmentSlot equipmentSlot = getEquipmentSlot();
-            // Material protection (armor/toughness) + a single visible Heaviness line.
-            modifiers = super.getDefaultAttributeModifiers().withModifierAdded(
-                    ModAttributes.HEAVINESS,
-                    new AttributeModifier(TheLeadAge.resourceLocation("lead_heaviness_" + equipmentSlot.getName()),
-                            HEAVINESS_PER_PIECE, AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.bySlot(equipmentSlot));
-        }
-        return modifiers;
+    private static ItemAttributeModifiers withHeaviness(ArmorMaterial material, ArmorType type) {
+        EquipmentSlot slot = type.getSlot();
+        // Material protection (armor/toughness) + a single visible Heaviness line.
+        return material.createAttributes(type).withModifierAdded(
+                ModAttributes.HEAVINESS,
+                new AttributeModifier(TheLeadAge.resourceLocation("lead_heaviness_" + slot.getName()),
+                        HEAVINESS_PER_PIECE, AttributeModifier.Operation.ADD_VALUE),
+                EquipmentSlotGroup.bySlot(slot));
     }
 
     /**
@@ -113,7 +119,7 @@ public class LeadArmorItem extends ArmorItem {
         // that owns the entity's movement (client for players, server for mobs) so
         // the local player's swim input is read correctly and there's no desync.
         if (!flying
-                && living.getItemBySlot(getEquipmentSlot()) == stack
+                && living.getItemBySlot(armorType.getSlot()) == stack
                 && living.isInWater()
                 && !living.jumping
                 && (living instanceof Player) == level.isClientSide()) {

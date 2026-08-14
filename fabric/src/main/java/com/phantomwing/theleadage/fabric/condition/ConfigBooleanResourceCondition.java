@@ -7,9 +7,8 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.fabric.config.TheLeadAgeFabricConfig;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Fabric parity twin of the NeoForge
@@ -36,7 +35,7 @@ public record ConfigBooleanResourceCondition(String settingId) implements Resour
     }
 
     @Override
-    public boolean test(@Nullable HolderLookup.Provider registryLookup) {
+    public boolean test(RegistryOps.RegistryInfoLookup registryLookup) {
         // Resolve straight off the Fabric config; setting ids are kept 1:1 with the
         // NeoForge side and only generated (known) ids ever reach here.
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(settingId);

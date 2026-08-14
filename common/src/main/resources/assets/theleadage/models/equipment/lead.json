@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "horse_body": [
+      {
+        "texture": "theleadage:lead"
+      }
+    ],
+    "humanoid": [
+      {
+        "texture": "theleadage:lead"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "theleadage:lead"
+      }
+    ]
+  }
+}

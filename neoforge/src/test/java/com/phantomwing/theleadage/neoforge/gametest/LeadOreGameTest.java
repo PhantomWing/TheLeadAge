@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Half;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -429,6 +430,25 @@ public class LeadOreGameTest {
                 .thenWaitUntil(() -> helper.assertBlockPresent(ModBlocks.LEAD_WEIGHT.get(), target))
                 .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
                 .thenSucceed();
+    }
+
+    /**
+     * The door/trapdoor glass renderer resolves the pane's baked model from a block state. Grid and
+     * lattice go through a MULTIPART blockstate whose floor parts carry x=270/y=90 — a 90 degree
+     * lay-down — so if that state is not WALL the design renders horizontally instead of upright.
+     */
+    @GameTest(template = "empty")
+    public static void dynamicPanesDefaultToUpright(GameTestHelper helper) {
+        for (RegistrySupplier<Block> pane : List.of(ModBlocks.LEADED_GLASS_PANE_GRID,
+                ModBlocks.LEADED_GLASS_PANE_LATTICE, ModBlocks.LEADED_GLASS_PANE_CROSS)) {
+            BlockState state = pane.get().defaultBlockState();
+            AttachFace face = state.getValue(LeadedGlassPaneBlock.FACE);
+            if (face != AttachFace.WALL) {
+                helper.fail(pane.getId() + " default face is " + face + ", expected WALL "
+                        + "(the door would render its glass lying flat)");
+            }
+        }
+        helper.succeed();
     }
 
     private static boolean hopperHasOrb(GameTestHelper helper) {

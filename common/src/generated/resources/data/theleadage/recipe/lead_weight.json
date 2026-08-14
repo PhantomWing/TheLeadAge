@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "I": {
-      "item": "theleadage:lead_ingot"
-    },
-    "L": {
-      "item": "theleadage:lead_block"
-    }
+    "I": "theleadage:lead_ingot",
+    "L": "theleadage:lead_block"
   },
   "pattern": [
     "III",

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "G": {
-      "item": "minecraft:cyan_stained_glass"
-    },
-    "I": {
-      "item": "theleadage:lead_ingot"
-    }
+    "G": "minecraft:cyan_stained_glass",
+    "I": "theleadage:lead_ingot"
   },
   "pattern": [
     "GGG",

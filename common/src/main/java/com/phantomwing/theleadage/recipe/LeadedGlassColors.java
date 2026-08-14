@@ -46,8 +46,7 @@ public final class LeadedGlassColors {
             Map<Item, Integer> built = new HashMap<>();
             built.put(Items.GLASS_PANE, LeadedGlassConfig.CLEAR);
             for (DyeColor dye : DyeColor.values()) {
-                Item pane = BuiltInRegistries.ITEM.get(
-                        ResourceLocation.withDefaultNamespace(dye.getName() + "_stained_glass_pane"));
+                Item pane = BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace(dye.getName() + "_stained_glass_pane"));
                 built.put(pane, dye.getId());
             }
             glassPaneMap = built;

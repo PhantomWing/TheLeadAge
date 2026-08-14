@@ -9,7 +9,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +19,8 @@ import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +33,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
@@ -58,7 +58,8 @@ import java.util.List;
  */
 public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWaterloggedBlock {
     public static final EnumProperty<AttachFace> FACE = BlockStateProperties.ATTACH_FACE;
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    // 1.21.2 removed DirectionProperty; HORIZONTAL_FACING is now a plain EnumProperty<Direction>.
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty[] CLEAR = {
             BooleanProperty.create("clear_0"), BooleanProperty.create("clear_1"),
@@ -163,12 +164,14 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
-                                     LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess,
+                                     BlockPos pos, Direction direction, BlockPos neighborPos,
+                                     BlockState neighborState, RandomSource random) {
         if (state.getValue(WATERLOGGED)) {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            // 1.21.2 moved scheduleTick off LevelAccessor onto the new ScheduledTickAccess param.
+            tickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, tickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
@@ -196,21 +199,21 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
 
     /** Right-clicking a region with a dye recolours just that region; with shears, clears it (front/back faces only). */
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
         if (!LeadedGlassRecolor.isTool(stack)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
         int region = regionAt(state, pos, hit);
         if (region < 0) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // a thin edge, not the glass face
+            return InteractionResult.TRY_WITH_EMPTY_HAND; // a thin edge, not the glass face
         }
         // The colour we want this region to become: a dye's colour, or null to clear it (shears).
         DyeColor target = LeadedGlassRecolor.target(stack);
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
             List<Integer> colors = LeadedGlassRecolor.apply(pane.getColors(), type.regions, region, target);
             if (colors == null) {
-                return ItemInteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
+                return InteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
             }
             pane.setColors(colors);
             // Dynamic (cell-based) panes carry no clear_N state — the wrapper model reads the block
@@ -220,7 +223,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             }
             LeadedGlassRecolor.consume(stack, player, hand, level, pos);
         }
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     /** Which colourable region a click landed on, or {@code -1} if it wasn't on a front/back glass face. */
@@ -332,7 +335,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             }
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 0.7f, 1.1f);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     /**

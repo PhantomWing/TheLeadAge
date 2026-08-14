@@ -19,6 +19,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -102,12 +103,14 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
-                                     LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess,
+                                     BlockPos pos, Direction direction, BlockPos neighborPos,
+                                     BlockState neighborState, RandomSource random) {
         if (state.getValue(WATERLOGGED)) {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            // 1.21.2 moved scheduleTick off LevelAccessor onto the new ScheduledTickAccess param.
+            tickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, tickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
     /** True when something directly above can anchor the weight: a sturdy ceiling, another weight, or a vertical chain. */
@@ -129,10 +132,10 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(HANGING)) {
             // Hangs until the block it is attached to is gone, then the chain snaps.
-            if (!canHang(level, pos) && pos.getY() >= level.getMinBuildHeight()) {
+            if (!canHang(level, pos) && pos.getY() >= level.getMinY()) {
                 detach(level, pos, state);
             }
-        } else if (isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
+        } else if (isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinY()) {
             LeadWeightEntity.fromBlock(level, pos, state, null);
         }
     }
@@ -151,7 +154,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         if (!level.isClientSide) {
             detach(level, pos, state);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     /** A projectile (e.g. an arrow) hitting a hanging weight snaps its chain too, crediting the shooter. */
@@ -176,7 +179,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         // Drop if there's nothing under it — or if the thing under it is itself a lead weight, which is no
         // real floor (it may be hanging/falling too), so a detached stack of orbs all drops together.
         boolean falls = isFree(below) || below.getBlock() instanceof LeadWeightBlock;
-        if (falls && pos.getY() >= level.getMinBuildHeight()) {
+        if (falls && pos.getY() >= level.getMinY()) {
             LeadWeightEntity.fromBlock(level, pos, detached, owner);
         } else {
             level.setBlock(pos, detached, Block.UPDATE_ALL); // a floor holds it — just settle (no fall thud)

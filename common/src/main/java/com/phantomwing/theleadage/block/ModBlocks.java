@@ -15,6 +15,7 @@ import com.phantomwing.theleadage.sound.ModSoundTypes;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -46,9 +47,9 @@ public class ModBlocks {
     // Lead ore generates like iron, drops no experience, and emits a brief
     // Nausea ("lead fumes") effect when mined for its raw drops (see LeadOreBlock).
     public static final RegistrySupplier<Block> LEAD_ORE = register("lead_ore", () ->
-            new LeadOreBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_ORE)));
+            new LeadOreBlock(copyOf(Blocks.IRON_ORE)));
     public static final RegistrySupplier<Block> DEEPSLATE_LEAD_ORE = register("deepslate_lead_ore", () ->
-            new LeadOreBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)));
+            new LeadOreBlock(copyOf(Blocks.DEEPSLATE_IRON_ORE)));
 
     /** Hardness shared by every lead block: lead is soft, so it mines faster than iron (5.0). */
     private static final float LEAD_HARDNESS = 3.0F;
@@ -72,10 +73,10 @@ public class ModBlocks {
     // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge. They copy
     // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+            new Block(copyOf(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
                     .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+            new Block(copyOf(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
                     .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
 
     // Decorative lead blocks (no oxidation). Order matches the creative tab.
@@ -97,18 +98,18 @@ public class ModBlocks {
     // Lead torch: burns a grayish-white lead-salt flame and slowly sickens anyone lingering
     // beside it (LeadTorchBlockEntity). The lead lantern is the enclosed — and safe — version.
     public static final RegistrySupplier<Block> LEAD_TORCH = register("lead_torch", () ->
-            new LeadTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TORCH)));
+            new LeadTorchBlock(copyOf(Blocks.TORCH)));
     public static final RegistrySupplier<Block> LEAD_WALL_TORCH = register("lead_wall_torch", () ->
-            new LeadWallTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WALL_TORCH)));
+            new LeadWallTorchBlock(copyOf(Blocks.WALL_TORCH)));
     public static final RegistrySupplier<Block> LEAD_LANTERN = register("lead_lantern", () ->
-            new LanternBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LANTERN)));
+            new LanternBlock(copyOf(Blocks.LANTERN)));
 
     // Lead Bulb: the copper bulb's redstone toggle — a pulse flips it on or off and it keeps that state,
     // readable by a comparator — but lead does not weather, so there is a single, non-oxidizing block.
     // Vanilla's CopperBulbBlock is itself the non-weathering class (WeatheringCopperBulbBlock adds the
     // oxidation), so it drops straight in. Full lead cube, so it takes the solid lead strength.
     public static final RegistrySupplier<Block> LEAD_BULB = register("lead_bulb", () ->
-            new CopperBulbBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BULB)
+            new CopperBulbBlock(copyOf(Blocks.COPPER_BULB)
                     .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
                     .strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
 
@@ -116,7 +117,7 @@ public class ModBlocks {
     // (requiresCorrectToolForDrops + the mineable/pickaxe tag). It's pried from its lead
     // came, not shattered, so it uses the heavy LEAD sound and a lead-gray map colour.
     public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
-            new LeadedGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
+            new LeadedGlassBlock(copyOf(Blocks.GLASS).requiresCorrectToolForDrops()
                     .sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)
                     .explosionResistance(LEADED_GLASS_RESISTANCE)));
 
@@ -148,7 +149,7 @@ public class ModBlocks {
         // floor/ceiling-mounted pane would otherwise drop out of the MOTION_BLOCKING heightmap and let
         // rain render through it. Forcing solid keeps every orientation in the heightmap (vanilla panes
         // are wall-only, so they never hit this) without changing the actual (thin) collision shape.
-        return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
+        return copyOf(Blocks.GLASS).requiresCorrectToolForDrops()
                 .noOcclusion().forceSolidOn().sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)
                 .explosionResistance(LEADED_GLASS_RESISTANCE);
     }
@@ -174,13 +175,13 @@ public class ModBlocks {
     // up like a pane rather than shielding like the plain lead door.
     public static final RegistrySupplier<Block> LEADED_GLASS_DOOR = register("leaded_glass_door", () ->
             new LeadedGlassDoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion()
+                    leadProps(copyOf(Blocks.IRON_DOOR)).noOcclusion()
                             .sound(SoundType.COPPER).strength(LEADED_GLASS_HARDNESS, LEADED_GLASS_RESISTANCE)));
 
     // A lead trapdoor whose flap is a configurable leaded glass pane. See LeadedGlassTrapdoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor", () ->
             new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()
+                    leadProps(copyOf(Blocks.IRON_TRAPDOOR)).noOcclusion()
                             .sound(SoundType.COPPER).strength(LEADED_GLASS_HARDNESS, LEADED_GLASS_RESISTANCE)));
 
     // Lead Weight: an 8³ lead ball that falls like an anvil and crushes entities (combat logic in
@@ -214,12 +215,12 @@ public class ModBlocks {
     }
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
-        return register(name, () -> new ChainBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN))
+        return register(name, () -> new ChainBlock(leadProps(copyOf(Blocks.CHAIN))
                 .sound(SoundType.CHAIN).explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<IronBarsBlock> registerLeadBars(String name) {
-        return register(name, () -> new IronBarsBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BARS))
+        return register(name, () -> new IronBarsBlock(leadProps(copyOf(Blocks.IRON_BARS))
                 .explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
@@ -237,23 +238,23 @@ public class ModBlocks {
 
     private static RegistrySupplier<Block> registerLeadGrate(String name) {
         return register(name, () -> new WaterloggedTransparentBlock(
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_GRATE))
+                leadProps(copyOf(Blocks.COPPER_GRATE))
                         .sound(ModSoundTypes.LEAD_GRATE).explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<TrapDoorBlock> registerLeadTrapdoor(String name) {
         return register(name, () -> new TrapDoorBlock(ModBlockSetTypes.LEAD,
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR))));
+                leadProps(copyOf(Blocks.IRON_TRAPDOOR))));
     }
 
     private static RegistrySupplier<DoorBlock> registerLeadDoor(String name) {
         return register(name, () -> new DoorBlock(ModBlockSetTypes.LEAD,
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR))));
+                leadProps(copyOf(Blocks.IRON_DOOR))));
     }
 
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
         return register(color.getName() + "_leaded_glass", () ->
-                new StainedLeadedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
+                new StainedLeadedGlassBlock(color, copyOf(Blocks.WHITE_STAINED_GLASS)
                         .mapColor(color.getMapColor()).requiresCorrectToolForDrops().sound(ModSoundTypes.LEAD)
                         .explosionResistance(LEADED_GLASS_RESISTANCE)));
     }
@@ -277,7 +278,7 @@ public class ModBlocks {
     }
 
     private static BlockBehaviour.Properties leadProps() {
-        return leadProps(BlockBehaviour.Properties.of());
+        return leadProps(freshProps());
     }
 
     /**
@@ -301,8 +302,29 @@ public class ModBlocks {
                 .instrument(NoteBlockInstrument.BELL);
     }
 
+    /**
+     * 1.21.2 requires the registry id on the block Properties BEFORE construction, and Architectury's
+     * DeferredRegister does not set it. The properties are built inside each {@code block} supplier, so
+     * the key is stashed here and stamped on by {@link #copyOf}/{@link #freshProps}. Registration is
+     * single-threaded, and the supplier runs before the next register() call, so the handoff is safe.
+     */
+    private static ResourceKey<Block> pendingKey;
+
+    /** Vanilla properties copied from {@code source}, carrying the block being registered right now. */
+    private static BlockBehaviour.Properties copyOf(Block source) {
+        return BlockBehaviour.Properties.ofFullCopy(source).setId(pendingKey);
+    }
+
+    /** Empty properties carrying the block being registered right now. */
+    private static BlockBehaviour.Properties freshProps() {
+        return BlockBehaviour.Properties.of().setId(pendingKey);
+    }
+
     private static <T extends Block> RegistrySupplier<T> register(String name, Supplier<T> block) {
-        return BLOCKS.register(name, block);
+        return BLOCKS.register(name, () -> {
+            pendingKey = ResourceKey.create(Registries.BLOCK, TheLeadAge.resourceLocation(name));
+            return block.get();
+        });
     }
 
     public static void register() {

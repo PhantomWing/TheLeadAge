@@ -1,9 +1,7 @@
 {
   "type": "theleadage:colored_pane_stonecutting",
   "group": "leaded_glass_pane",
-  "ingredient": {
-    "item": "theleadage:leaded_glass_pane"
-  },
+  "ingredient": "theleadage:leaded_glass_pane",
   "result": {
     "components": {
       "theleadage:leaded_glass_config": {

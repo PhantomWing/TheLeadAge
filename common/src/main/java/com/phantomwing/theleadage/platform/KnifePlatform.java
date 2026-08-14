@@ -2,7 +2,7 @@ package com.phantomwing.theleadage.platform;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 
 /**
  * {@code @ExpectPlatform} bridge that builds the Lead Knife.
@@ -29,7 +29,7 @@ public final class KnifePlatform {
     }
 
     @ExpectPlatform
-    public static Item createLeadKnife(Item.Properties properties, Tier tier) {
+    public static Item createLeadKnife(Item.Properties properties, ToolMaterial material) {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 }

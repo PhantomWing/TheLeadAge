@@ -48,12 +48,7 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<LeadedGlassCombineRecipe> getSerializer() {
         return ModRecipes.LEADED_GLASS_COMBINE.get();
     }
 

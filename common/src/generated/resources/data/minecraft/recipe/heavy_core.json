@@ -32,12 +32,8 @@
     }
   ],
   "key": {
-    "L": {
-      "item": "theleadage:lead_block"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
-    }
+    "L": "theleadage:lead_block",
+    "N": "minecraft:netherite_ingot"
   },
   "pattern": [
     "LLL",

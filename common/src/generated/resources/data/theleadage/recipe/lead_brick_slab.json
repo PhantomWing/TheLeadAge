@@ -3,9 +3,7 @@
   "category": "building",
   "group": "lead_bricks",
   "key": {
-    "#": {
-      "item": "theleadage:lead_bricks"
-    }
+    "#": "theleadage:lead_bricks"
   },
   "pattern": [
     "###"

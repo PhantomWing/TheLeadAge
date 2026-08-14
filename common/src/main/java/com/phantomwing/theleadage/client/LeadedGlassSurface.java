@@ -17,6 +17,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -40,7 +41,7 @@ public final class LeadedGlassSurface {
         // interaction can invert this exact matrix to turn a click back into a region — see its docs.
         pose.mulPose(LeadedGlassPlacement.surface(slab));
 
-        VertexConsumer buffer = buffers.getBuffer(Sheets.translucentCullBlockSheet());
+        VertexConsumer buffer = buffers.getBuffer(Sheets.translucentItemSheet());
         RandomSource random = RandomSource.create(42L);
         emit(model, paneState, config, null, buffer, pose, light, overlay, random);
         for (Direction dir : Direction.values()) {
@@ -79,7 +80,14 @@ public final class LeadedGlassSurface {
     private static BlockState paneStateFor(LeadedGlassConfig config) {
         LeadedGlassFrame frame = config.frame();
         Block block = ModBlocks.paneBlockFor(frame);
-        BlockState state = block.defaultBlockState();
+        // Ask for the upright wall-mounted pane explicitly rather than trusting the block's default
+        // state. Grid and lattice resolve through a MULTIPART blockstate (came + one model per cell),
+        // where the face/facing pair decides which parts apply and how they are rotated; every other
+        // came type is a single variants entry. Leaving it implicit means the door's canonical space
+        // silently depends on the default, which is exactly where the two paths can diverge.
+        BlockState state = block.defaultBlockState()
+                .setValue(LeadedGlassPaneBlock.FACE, AttachFace.WALL)
+                .setValue(LeadedGlassPaneBlock.FACING, Direction.NORTH);
         if (block instanceof LeadedGlassPaneBlock pane) {
             if (pane.cameType().orientation != null) {
                 state = state.setValue(pane.cameType().orientation, pane.cameType().orientationOf(frame));

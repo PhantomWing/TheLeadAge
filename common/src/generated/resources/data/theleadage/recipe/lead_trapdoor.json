@@ -3,9 +3,7 @@
   "category": "redstone",
   "group": "lead_ingot",
   "key": {
-    "#": {
-      "item": "theleadage:lead_ingot"
-    }
+    "#": "theleadage:lead_ingot"
   },
   "pattern": [
     "###",

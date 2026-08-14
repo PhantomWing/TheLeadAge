@@ -69,7 +69,7 @@ public class LeadedGlassPanelItem extends BlockItem {
                 be.setConfig(held);
                 handOver(player, context.getItemInHand(), old, level, pos);
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         if (state.getBlock() instanceof LeadedGlassDoorBlock
@@ -86,7 +86,7 @@ public class LeadedGlassPanelItem extends BlockItem {
                 applyToDoor(level, lower.above(), updated);
                 handOver(player, context.getItemInHand(), old, level, pos);
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.PASS;

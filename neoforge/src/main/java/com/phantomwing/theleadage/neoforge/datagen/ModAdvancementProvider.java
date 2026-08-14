@@ -15,6 +15,7 @@ import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -46,7 +47,7 @@ public class ModAdvancementProvider implements AdvancementProvider.AdvancementGe
                 .save(consumer, id("root"));
 
         AdvancementHolder ingot = obtain(consumer, root, ModItems.LEAD_INGOT.get());
-        crushEnemy(consumer, ingot);
+        crushEnemy(provider, consumer, ingot);
         leadedLights(consumer, ingot);
     }
 
@@ -70,10 +71,10 @@ public class ModAdvancementProvider implements AdvancementProvider.AdvancementGe
     }
 
     /** A challenge: kill an entity with a falling Lead Weight (its damage source's direct entity). */
-    private static void crushEnemy(Consumer<AdvancementHolder> consumer, AdvancementHolder parent) {
+    private static void crushEnemy(HolderLookup.Provider provider, Consumer<AdvancementHolder> consumer, AdvancementHolder parent) {
         DamageSourcePredicate source = DamageSourcePredicate.Builder.damageType()
                 .direct(EntityPredicate.Builder.entity().entityType(
-                        EntityTypePredicate.of(ModEntities.LEAD_WEIGHT.get())))
+                        EntityTypePredicate.of(provider.lookupOrThrow(Registries.ENTITY_TYPE), ModEntities.LEAD_WEIGHT.get())))
                 .build();
         Advancement.Builder.advancement().parent(parent)
                 .display(ModBlocks.LEAD_WEIGHT.get(), title("crush_enemy"), description("crush_enemy"),

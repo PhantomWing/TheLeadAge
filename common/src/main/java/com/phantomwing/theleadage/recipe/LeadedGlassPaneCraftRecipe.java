@@ -46,12 +46,7 @@ public class LeadedGlassPaneCraftRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width == 3 && height == 3;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<LeadedGlassPaneCraftRecipe> getSerializer() {
         return ModRecipes.LEADED_GLASS_PANE_CRAFT.get();
     }
 

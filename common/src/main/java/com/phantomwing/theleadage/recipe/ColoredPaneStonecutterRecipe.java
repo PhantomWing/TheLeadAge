@@ -61,9 +61,15 @@ public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
         return config.colors().get(0);
     }
 
+    /**
+     * 1.21.2 declares {@code StonecutterRecipe#getSerializer} as the invariant
+     * {@code RecipeSerializer<StonecutterRecipe>}, so a subclass serializer cannot match the
+     * parameterisation directly. The cast is sound: this serializer only ever produces this subclass.
+     */
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipes.COLORED_PANE_STONECUTTING.get();
+    @SuppressWarnings("unchecked")
+    public RecipeSerializer<StonecutterRecipe> getSerializer() {
+        return (RecipeSerializer<StonecutterRecipe>) (RecipeSerializer<?>) ModRecipes.COLORED_PANE_STONECUTTING.get();
     }
 
     /** Reuses the vanilla single-item codec (group + ingredient + result); only the class differs. */

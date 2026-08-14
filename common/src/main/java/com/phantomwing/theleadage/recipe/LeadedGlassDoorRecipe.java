@@ -79,12 +79,7 @@ public class LeadedGlassDoorRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 3;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<LeadedGlassDoorRecipe> getSerializer() {
         return ModRecipes.LEADED_GLASS_DOOR.get();
     }
 }

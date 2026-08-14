@@ -17,3 +17,12 @@ accessible	field	net/minecraft/world/entity/Mob	goalSelector	Lnet/minecraft/worl
 # and sets the carried block state in its spawn factory (the vanilla position
 # constructor that does this is private and hardcodes EntityType.FALLING_BLOCK).
 accessible	field	net/minecraft/world/entity/item/FallingBlockEntity	blockState	Lnet/minecraft/world/level/block/state/BlockState;
+
+# BlockEntityType constructor (package-private): 1.21.2 removed BlockEntityType.Builder, so
+# ModBlockEntities constructs the types directly.
+accessible	method	net/minecraft/world/level/block/entity/BlockEntityType	<init>	(Lnet/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier;Ljava/util/Set;)V
+
+# ArmorMaterial.createAttributes (private): 1.21.2 bakes armor attributes onto the Properties at
+# construction, so LeadArmorItem / LeadHorseArmorItem need the material's base set to append
+# Heaviness (resp. knockback resistance) to it.
+accessible	method	net/minecraft/world/item/equipment/ArmorMaterial	createAttributes	(Lnet/minecraft/world/item/equipment/ArmorType;)Lnet/minecraft/world/item/component/ItemAttributeModifiers;

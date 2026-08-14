@@ -10,9 +10,9 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
 
 import java.util.Map;
 
@@ -38,11 +38,9 @@ public class ModTrimMaterials {
     public static final ResourceKey<TrimMaterial> LEAD = trimMaterialKey("lead");
 
     public static void bootstrap(BootstrapContext<TrimMaterial> context) {
-        // Resolve the lead armor material through the bootstrap lookup (a proper
-        // reference holder) rather than the Architectury RegistrySupplier — the
-        // latter isn't a serialization-safe Holder during datapack-registry gen.
-        Holder<ArmorMaterial> leadArmor = context.lookup(Registries.ARMOR_MATERIAL)
-                .getOrThrow(ResourceKey.create(Registries.ARMOR_MATERIAL, TheLeadAge.resourceLocation("lead")));
+        // 1.21.2 removed Registries.ARMOR_MATERIAL: the override map is now keyed by the equipment
+        // asset id (the ArmorMaterial's modelId), so no registry lookup is needed at all.
+        ResourceLocation leadArmor = TheLeadAge.resourceLocation("lead");
 
         registerMaterial(context, LEAD,
                 ModItems.LEAD_INGOT.get(),
@@ -58,7 +56,7 @@ public class ModTrimMaterials {
         return ResourceKey.create(Registries.TRIM_MATERIAL, TheLeadAge.resourceLocation(name));
     }
 
-    private static void registerMaterial(BootstrapContext<TrimMaterial> context, ResourceKey<TrimMaterial> trimKey, Item item, Style style, float itemModelIndex, Map<Holder<ArmorMaterial>, String> overrideArmorMaterials) {
+    private static void registerMaterial(BootstrapContext<TrimMaterial> context, ResourceKey<TrimMaterial> trimKey, Item item, Style style, float itemModelIndex, Map<ResourceLocation, String> overrideArmorMaterials) {
         TrimMaterial trimMaterial = TrimMaterial.create(trimKey.location().getPath(), item, itemModelIndex,
                 Component.translatable(Util.makeDescriptionId("trim_material", trimKey.location())).withStyle(style), overrideArmorMaterials);
         context.register(trimKey, trimMaterial);

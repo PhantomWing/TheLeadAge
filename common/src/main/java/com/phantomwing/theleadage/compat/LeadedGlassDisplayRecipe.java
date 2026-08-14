@@ -10,6 +10,8 @@ import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.recipe.ModRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -190,7 +192,7 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
     public static List<RecipeHolder<CraftingRecipe>> displayRecipes() {
         List<RecipeHolder<CraftingRecipe>> holders = new ArrayList<>();
         for (LeadedGlassDisplayRecipe recipe : all()) {
-            holders.add(new RecipeHolder<>(id(recipe.name), recipe));
+            holders.add(new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, id(recipe.name)), recipe));
         }
         return holders;
     }
@@ -231,8 +233,8 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
 
     private static ItemStack vanillaGlassPane(int color) {
         return new ItemStack(color < 0
-                ? BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace("glass_pane"))
-                : BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(
+                ? BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace("glass_pane"))
+                : BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace(
                         DyeColor.byId(color).getName() + "_stained_glass_pane")));
     }
 
@@ -258,12 +260,7 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int gridWidth, int gridHeight) {
-        return gridWidth >= width && gridHeight >= height;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends CustomRecipe> getSerializer() {
         // Never serialized (these are handed straight to the viewers); any serializer satisfies the API.
         return ModRecipes.LEADED_GLASS_COMBINE.get();
     }

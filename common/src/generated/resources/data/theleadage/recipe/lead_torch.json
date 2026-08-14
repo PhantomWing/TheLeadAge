@@ -3,19 +3,11 @@
   "category": "misc",
   "key": {
     "C": [
-      {
-        "item": "minecraft:coal"
-      },
-      {
-        "item": "minecraft:charcoal"
-      }
+      "minecraft:coal",
+      "minecraft:charcoal"
     ],
-    "N": {
-      "item": "theleadage:lead_nugget"
-    },
-    "S": {
-      "item": "minecraft:stick"
-    }
+    "N": "theleadage:lead_nugget",
+    "S": "minecraft:stick"
   },
   "pattern": [
     "N",

@@ -11,15 +11,9 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// Which recipe viewer to load in the dev run (same property as NeoForge; the mod ships plugins
-// for both). ./gradlew :fabric:runClient -Precipe_viewer=jei|emi|both|none
-def selectedRecipeViewer = (project.findProperty('recipe_viewer') ?: rootProject.recipe_viewer).toString()
-if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
-    throw new GradleException("Invalid recipe_viewer='${selectedRecipeViewer}'. Valid values: jei, emi, both, none")
-}
-def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
-def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
-logger.lifecycle("[TheLeadAge] (fabric) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi})")
+// Create, Farmer's Delight, JEI and EMI publish no 1.21.2/1.21.3 build, so their compat and the
+// recipe_viewer switch are absent on this branch. See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (fabric) 1.21.3 branch — no FD/JEI/EMI compat on this line")
 
 configurations {
     common
@@ -47,17 +41,7 @@ dependencies {
 
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
     //      never shipped, never a hard dependency). ----
-    // Recipe viewer: both the JEI and EMI plugins live in :common, so both work on Fabric too.
-    //   ./gradlew :fabric:runClient -Precipe_viewer=jei|emi|both|none
-    if (loadJei) {
-        modLocalRuntime("mezz.jei:jei-1.21.1-fabric:${rootProject.jei_version}")
-    }
-    if (loadEmi) {
-        modLocalRuntime("dev.emi:emi-fabric:${rootProject.emi_version}")
-    }
-    modLocalRuntime("squeek.appleskin:appleskin-fabric:mc1.21-3.0.6")
-    // The Silver Age (sibling mod) from CurseForge, for side-by-side comparison.
-    modLocalRuntime("curse.maven:the-silver-age-1355287:8174931")
+    modLocalRuntime("squeek.appleskin:appleskin-fabric:${rootProject.appleskin_fabric_version}")
 }
 
 processResources {
@@ -110,7 +94,6 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
-        optional("farmers-delight", "jei", "emi")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -122,7 +105,6 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
-        optional("farmers-delight", "jei", "emi")
     }
 }
 

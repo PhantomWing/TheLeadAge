@@ -6,7 +6,8 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.AnimalArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 /**
@@ -27,22 +28,21 @@ public class LeadHorseArmorItem extends AnimalArmorItem {
     /** Knockback resistance granted to the wearing horse — the same +10% a full lead set gives a player. */
     private static final double KNOCKBACK_RESISTANCE = 0.1;
 
-    private ItemAttributeModifiers modifiers;
-
-    public LeadHorseArmorItem(Holder<ArmorMaterial> material, BodyType bodyType, boolean hasOverlay, Properties properties) {
-        super(material, bodyType, hasOverlay, properties);
+    /**
+     * 1.21.2 bakes attributes onto the Properties at construction ({@code getDefaultAttributeModifiers}
+     * is gone), so the knockback line is appended to the material's own BODY set here. See
+     * {@link LeadArmorItem} for why this applies the material directly instead of via
+     * {@code AnimalArmorItem}'s constructor.
+     */
+    public LeadHorseArmorItem(ArmorMaterial material, BodyType bodyType, Properties properties) {
+        super(material, bodyType, properties.attributes(withKnockbackResistance(material)));
     }
 
-    @Override
-    public ItemAttributeModifiers getDefaultAttributeModifiers() {
-        if (modifiers == null) {
-            EquipmentSlotGroup slot = EquipmentSlotGroup.bySlot(getEquipmentSlot()); // BODY
-            modifiers = super.getDefaultAttributeModifiers()
-                    .withModifierAdded(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(
-                            TheLeadAge.resourceLocation("lead_horse_armor_knockback_resistance"),
-                            KNOCKBACK_RESISTANCE,
-                            AttributeModifier.Operation.ADD_VALUE), slot);
-        }
-        return modifiers;
+    private static ItemAttributeModifiers withKnockbackResistance(ArmorMaterial material) {
+        return material.createAttributes(ArmorType.BODY).withModifierAdded(
+                Attributes.KNOCKBACK_RESISTANCE,
+                new AttributeModifier(TheLeadAge.resourceLocation("lead_horse_armor_knockback_resistance"),
+                        KNOCKBACK_RESISTANCE, AttributeModifier.Operation.ADD_VALUE),
+                EquipmentSlotGroup.bySlot(ArmorType.BODY.getSlot()));
     }
 }

@@ -3,9 +3,7 @@
   "category": "misc",
   "cookingtime": 200,
   "experience": 0.7,
-  "ingredient": {
-    "item": "theleadage:lead_ore"
-  },
+  "ingredient": "theleadage:lead_ore",
   "result": {
     "count": 1,
     "id": "theleadage:lead_ingot"

@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.fabric.compat.farmersdelight;
 
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import vectorwing.farmersdelight.common.item.KnifeItem;
 
 /**
@@ -14,8 +14,8 @@ import vectorwing.farmersdelight.common.item.KnifeItem;
  * (which is stripped from the shipped jar); at runtime it binds to the real FDR class.</p>
  */
 public class LeadKnifeItem extends KnifeItem {
-    public LeadKnifeItem(Tier tier, Item.Properties properties) {
-        super(tier, properties);
+    public LeadKnifeItem(ToolMaterial material, Item.Properties properties) {
+        super(material, properties);
     }
 
     /**
@@ -26,7 +26,7 @@ public class LeadKnifeItem extends KnifeItem {
      * when FDR is absent (the compile-time stub is stripped from the jar). Reached via
      * {@code invokestatic}, this only loads when the call actually executes.
      */
-    public static Item create(Tier tier, Item.Properties properties) {
-        return new LeadKnifeItem(tier, properties);
+    public static Item create(ToolMaterial material, Item.Properties properties) {
+        return new LeadKnifeItem(material, properties);
     }
 }

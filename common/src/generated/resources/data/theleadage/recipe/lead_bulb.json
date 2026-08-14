@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "B": {
-      "item": "minecraft:blaze_rod"
-    },
-    "L": {
-      "item": "theleadage:lead_block"
-    },
-    "R": {
-      "item": "minecraft:redstone"
-    }
+    "B": "minecraft:blaze_rod",
+    "L": "theleadage:lead_block",
+    "R": "minecraft:redstone"
   },
   "pattern": [
     " L ",

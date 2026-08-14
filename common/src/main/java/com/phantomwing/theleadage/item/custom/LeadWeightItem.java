@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -73,11 +73,11 @@ public class LeadWeightItem extends BlockItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         BlockPos cell = targetCell(level, player, player.getViewVector(1.0f));
         if (cell == null) {
-            return InteractionResultHolder.pass(stack); // no free adjacent cell at eye level / one above
+            return InteractionResult.PASS; // no free adjacent cell at eye level / one above
         }
 
         if (level instanceof ServerLevel serverLevel) {
@@ -99,8 +99,8 @@ public class LeadWeightItem extends BlockItem {
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }
-        player.getCooldowns().addCooldown(this, DROP_COOLDOWN);
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        player.getCooldowns().addCooldown(stack, DROP_COOLDOWN);
+        return InteractionResult.SUCCESS;
     }
 
     /** Places a resting weight directly in {@code cell}, no fall (so no chip roll), with a block-place sound. */

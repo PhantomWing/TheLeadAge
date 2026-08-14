@@ -1,12 +1,11 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.phantomwing.theleadage.TheLeadAge;
 import dev.architectury.registry.ReloadListenerRegistry;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +13,6 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,11 +40,27 @@ import java.util.Map;
  * {@code input} is a block id, or a block tag when prefixed with {@code #}; {@code output} is a
  * block id (its default state). Direct-block entries win over tag entries; among tags, the first
  * match (in load order) is used.
+ *
+ * <p>1.21.2 made {@link SimpleJsonResourceReloadListener} generic over a {@link Codec} rather than
+ * handing subclasses raw Gson, so parsing happens through {@link #FILE_CODEC} and {@code apply}
+ * receives already-decoded records.</p>
  */
-public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener {
+public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener<List<LeadWeightTransforms.Transform>> {
     public static final String DIRECTORY = "lead_weight_transforms";
-    private static final Gson GSON = new Gson();
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    /** One datapack entry, still stringly-typed so a "#tag" input stays expressible. */
+    protected record Transform(String input, String output) {
+        static final Codec<Transform> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.STRING.fieldOf("input").forGetter(Transform::input),
+                Codec.STRING.fieldOf("output").forGetter(Transform::output)
+        ).apply(instance, Transform::new));
+    }
+
+    /** A file is either an array of transforms or a single bare object. */
+    private static final Codec<List<Transform>> FILE_CODEC = Codec.withAlternative(
+            Transform.CODEC.listOf(),
+            Transform.CODEC.xmap(List::of, single -> single.get(0)));
 
     private record TagRule(TagKey<Block> tag, BlockState output) {
     }
@@ -56,7 +70,7 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     private static volatile List<TagRule> byTag = List.of();
 
     public LeadWeightTransforms() {
-        super(GSON, DIRECTORY);
+        super(FILE_CODEC, DIRECTORY);
     }
 
     /** Wire the datapack loader on both loaders. Call once from common init. */
@@ -81,18 +95,13 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> files, ResourceManager manager, ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, List<Transform>> files, ResourceManager manager, ProfilerFiller profiler) {
         Map<Block, BlockState> blocks = new HashMap<>();
         List<TagRule> tags = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, JsonElement> file : files.entrySet()) {
+        for (Map.Entry<ResourceLocation, List<Transform>> file : files.entrySet()) {
             try {
-                JsonElement root = file.getValue();
-                if (root.isJsonArray()) {
-                    for (JsonElement element : root.getAsJsonArray()) {
-                        parse(GsonHelper.convertToJsonObject(element, "transform"), blocks, tags);
-                    }
-                } else {
-                    parse(GsonHelper.convertToJsonObject(root, "transform"), blocks, tags);
+                for (Transform entry : file.getValue()) {
+                    parse(entry, blocks, tags);
                 }
             } catch (Exception e) {
                 LOGGER.error("Skipping invalid lead weight transform file {}: {}", file.getKey(), e.getMessage());
@@ -103,9 +112,9 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
         LOGGER.debug("Loaded {} lead weight block transforms + {} tag rules from {} file(s)", blocks.size(), tags.size(), files.size());
     }
 
-    private static void parse(JsonObject obj, Map<Block, BlockState> blocks, List<TagRule> tags) {
-        String input = GsonHelper.getAsString(obj, "input");
-        BlockState output = blockOrThrow(GsonHelper.getAsString(obj, "output")).defaultBlockState();
+    private static void parse(Transform entry, Map<Block, BlockState> blocks, List<TagRule> tags) {
+        BlockState output = blockOrThrow(entry.output()).defaultBlockState();
+        String input = entry.input();
         if (input.startsWith("#")) {
             TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.parse(input.substring(1)));
             tags.add(new TagRule(tag, output));
@@ -115,10 +124,10 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     }
 
     private static Block blockOrThrow(String id) {
+        // 1.21.2: Registry#get returns an Optional<Holder.Reference<T>> rather than the value.
         ResourceLocation key = ResourceLocation.parse(id);
-        if (!BuiltInRegistries.BLOCK.containsKey(key)) {
-            throw new JsonSyntaxException("Unknown block '" + id + "'");
-        }
-        return BuiltInRegistries.BLOCK.get(key);
+        return BuiltInRegistries.BLOCK.get(key)
+                .map(Holder::value)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown block '" + id + "'"));
     }
 }

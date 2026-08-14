@@ -34,14 +34,9 @@
   ],
   "depends": {
     "fabricloader": ">=0.16.14",
-    "fabric-api": ">=0.116.12+1.21.1",
-    "minecraft": ">=1.21.1 <1.21.2",
-    "architectury": ">=13.0.8",
-    "cloth-config": ">=15.0.140"
-  },
-  "suggests": {
-    "farmersdelight": "*",
-    "jei": "*",
-    "emi": "*"
+    "fabric-api": ">=0.114.1+1.21.3",
+    "minecraft": ">=1.21.2 <1.21.4",
+    "architectury": ">=14.0.4",
+    "cloth-config": ">=16.0.143"
   }
 }
