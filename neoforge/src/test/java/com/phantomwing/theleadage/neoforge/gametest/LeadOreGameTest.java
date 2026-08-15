@@ -9,8 +9,14 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
+import com.phantomwing.theleadage.attribute.ModAttributes;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
@@ -608,5 +614,32 @@ public class LeadOreGameTest {
             pick.enchant(silk, 1);
         }
         return pick;
+    }
+
+    /**
+     * 1.21.2 bakes attribute modifiers onto the item at construction, where a careless Properties
+     * handoff silently drops custom lines (ArmorItem/AnimalArmorItem ctors re-apply the material's
+     * set over whatever was passed in). Locks both custom sets: armor Heaviness + horse knockback.
+     */
+    @GameTest(template = "empty")
+    public static void armorKeepsCustomAttributeModifiers(GameTestHelper helper) {
+        if (!hasModifier(ModItems.LEAD_HELMET.get().components(), ModAttributes.HEAVINESS.get())) {
+            helper.fail("lead helmet lost its Heaviness modifier");
+        }
+        if (!hasModifier(ModItems.LEAD_HELMET.get().components(), Attributes.ARMOR.value())) {
+            helper.fail("lead helmet lost the material's armor modifier");
+        }
+        if (!hasModifier(ModItems.LEAD_HORSE_ARMOR.get().components(), Attributes.KNOCKBACK_RESISTANCE.value())) {
+            helper.fail("lead horse armor lost its knockback resistance modifier");
+        }
+        if (!hasModifier(ModItems.LEAD_HORSE_ARMOR.get().components(), Attributes.ARMOR.value())) {
+            helper.fail("lead horse armor lost the material's armor modifier");
+        }
+        helper.succeed();
+    }
+
+    private static boolean hasModifier(DataComponentMap components, Attribute attribute) {
+        ItemAttributeModifiers modifiers = components.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        return modifiers != null && modifiers.modifiers().stream().anyMatch(e -> e.attribute().value() == attribute);
     }
 }

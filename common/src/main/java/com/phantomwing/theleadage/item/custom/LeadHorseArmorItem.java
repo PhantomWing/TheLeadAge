@@ -1,11 +1,12 @@
 package com.phantomwing.theleadage.item.custom;
 
 import com.phantomwing.theleadage.TheLeadAge;
-import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.AnimalArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -24,18 +25,19 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
  * as a body-slot attribute modifier; the engine gives it to the wearing horse just like the armour
  * value.</p>
  */
-public class LeadHorseArmorItem extends AnimalArmorItem {
+public class LeadHorseArmorItem extends Item {
     /** Knockback resistance granted to the wearing horse — the same +10% a full lead set gives a player. */
     private static final double KNOCKBACK_RESISTANCE = 0.1;
 
     /**
-     * 1.21.2 bakes attributes onto the Properties at construction ({@code getDefaultAttributeModifiers}
-     * is gone), so the knockback line is appended to the material's own BODY set here. See
-     * {@link LeadArmorItem} for why this applies the material directly instead of via
-     * {@code AnimalArmorItem}'s constructor.
+     * Extends {@link Item}, not {@code AnimalArmorItem}: that ctor re-applies the material's BODY
+     * attributes to the passed Properties, wiping any custom set (same clobber {@link LeadArmorItem}
+     * dodges). All equip behaviour lives in the EQUIPPABLE component {@code animalProperties} builds;
+     * the only thing lost is EQUESTRIAN's breaking sound, which is the default ITEM_BREAK anyway.
      */
-    public LeadHorseArmorItem(ArmorMaterial material, BodyType bodyType, Properties properties) {
-        super(material, bodyType, properties.attributes(withKnockbackResistance(material)));
+    public LeadHorseArmorItem(ArmorMaterial material, Properties properties) {
+        super(material.animalProperties(properties, HolderSet.direct(EntityType.HORSE.builtInRegistryHolder()))
+                .attributes(withKnockbackResistance(material)));
     }
 
     private static ItemAttributeModifiers withKnockbackResistance(ArmorMaterial material) {
