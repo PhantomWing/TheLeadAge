@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Supplier;
 
 /**
  * EMI integration. Mirrors the JEI plugin: the leaded-glass crafting recipes are code-matched (the
@@ -84,7 +85,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
 
         // Dye a glass region — the dye is consumed.
         for (DyeColor dye : DyeColor.values()) {
-            addRecipe(registry, EmiWorldInteractionRecipe.builder()
+            addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
                     .id(synthetic("world/dye/" + dye.getName()))
                     .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(clear)))
                     .rightInput(EmiStack.of(DyeItem.byColor(dye)), false)
@@ -97,14 +98,16 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
         for (DyeColor dye : DyeColor.values()) {
             dyedPanes.add(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(dye.getId())));
         }
-        addRecipe(registry, EmiWorldInteractionRecipe.builder()
+        addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
                 .id(synthetic("world/shear"))
                 .leftInput(EmiIngredient.of(dyedPanes))
                 .rightInput(EmiStack.of(Items.SHEARS), true)
                 .output(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(clear)))
                 .build());
 
-        // Sneak-right-click with an empty hand turns the came a quarter turn (hence no right input).
+        // Sneak-right-click with an empty hand turns the came a quarter turn. EMI rejects a world
+        // interaction with no right input, so the empty hand is an empty slot (never a catalyst:
+        // that flag stamps a remainder onto EmiStack.EMPTY, which is a shared singleton).
         // Only the orientable patterns change shape; the symmetric ones just cycle their colours,
         // which would render as an identical before/after here — the info entry covers those.
         for (LeadedGlassPaneBlock.CameType type : LeadedGlassPaneBlock.CameType.values()) {
@@ -114,10 +117,12 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
             for (int i = 0; i < type.orientations; i++) {
                 LeadedGlassFrame from = type.frame(i);
                 LeadedGlassFrame to = type.frame(i + 1); // frame() wraps, so this closes the cycle
-                addRecipe(registry, EmiWorldInteractionRecipe.builder()
+                addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
                         .id(synthetic("world/rotate/" + frameName(from)))
                         .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.pane(from, clear, 1)))
+                        .rightInput(EmiStack.EMPTY, false)
                         .output(EmiStack.of(LeadedGlassDisplayRecipe.pane(to, clear, 1)))
+                        .supportsRecipeTree(false)
                         .build());
             }
         }
@@ -126,7 +131,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
         // goes in and the old one is handed back — hence the second output.
         for (DyeColor dye : DyeColor.values()) {
             int color = dye.getId();
-            addRecipe(registry, EmiWorldInteractionRecipe.builder()
+            addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
                     .id(synthetic("world/reglaze_trapdoor/" + dye.getName()))
                     .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.trapdoor(clear)))
                     .rightInput(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(color)), false)
@@ -134,7 +139,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
                     .output(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(clear)))
                     .build());
             // A door has two halves; only the half you clicked is re-glazed (shown here as the top).
-            addRecipe(registry, EmiWorldInteractionRecipe.builder()
+            addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
                     .id(synthetic("world/reglaze_door/" + dye.getName()))
                     .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.door(clear, clear)))
                     .rightInput(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(color)), false)
@@ -184,6 +189,15 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
             registry.addRecipe(recipe);
         } catch (Throwable t) {
             TheLeadAge.LOGGER.warn("Failed to register EMI recipe {}", recipe.getId(), t);
+        }
+    }
+
+    /** Same, for EMI's builders: they validate in {@code build()}, so construction has to be inside the try. */
+    private static void addRecipe(EmiRegistry registry, Supplier<EmiRecipe> recipe) {
+        try {
+            registry.addRecipe(recipe.get());
+        } catch (Throwable t) {
+            TheLeadAge.LOGGER.warn("Failed to build an EMI recipe", t);
         }
     }
 }

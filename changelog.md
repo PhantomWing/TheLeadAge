@@ -1,3 +1,11 @@
+# 1.1.1
+
+### Fixes
+- Fixed a crash on NeoForge when a Lead Weight started to fall.
+- Fixed a crash on NeoForge when wearing lead armor underwater.
+- Fixed the EMI integration failing to load, which hid all leaded glass recipes and in-world interactions.
+
+
 # 1.1.0
 
 ### Additions
