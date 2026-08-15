@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ModBlocks {
@@ -312,7 +313,13 @@ public class ModBlocks {
 
     /** Vanilla properties copied from {@code source}, carrying the block being registered right now. */
     private static BlockBehaviour.Properties copyOf(Block source) {
-        return BlockBehaviour.Properties.ofFullCopy(source).setId(pendingKey);
+        return BlockBehaviour.Properties.ofFullCopy(source)
+                .setId(pendingKey)
+                // ofFullCopy also copies the source's loot table id, and some vanilla blocks point at
+                // another block's (the wall torch drops through minecraft:blocks/torch). Left alone,
+                // datagen writes our drops into that vanilla file. Name our own, as pre-1.21.2 did.
+                .overrideLootTable(Optional.of(ResourceKey.create(Registries.LOOT_TABLE,
+                        pendingKey.location().withPrefix("blocks/"))));
     }
 
     /** Empty properties carrying the block being registered right now. */

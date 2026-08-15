@@ -36,6 +36,24 @@
       "trigger": "minecraft:recipe_unlocked"
     }
   },
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:and",
+        "values": [
+          {
+            "condition": "theleadage:config_boolean",
+            "settingId": "enable_recipe_overrides"
+          },
+          {
+            "condition": "theleadage:config_boolean",
+            "settingId": "override_fishing_rod_recipe"
+          }
+        ]
+      }
+    }
+  ],
   "requirements": [
     [
       "has_the_recipe",

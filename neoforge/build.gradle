@@ -95,7 +95,32 @@ dependencies {
     }
 }
 
+// A widened member missing from the access transformer still compiles and runs in dev, then throws
+// IllegalAccessError on a user's machine. Fail the build instead.
+def verifyAccessTransformer = tasks.register('verifyAccessTransformer') {
+    def widener = project(':common').loom.accessWidenerPath.get().asFile
+    def transformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    inputs.files(widener, transformer)
+    doLast {
+        def at = transformer.text
+        def missing = widener.readLines()
+                .findAll { it =~ /^\s*(accessible|extendable|mutable)\s/ }
+                .collect { it.trim().split('\\s+') }
+                .findAll { parts ->
+                    def owner = parts[2].replace('/', '.')
+                    def member = parts.size() > 3 ? "\\s+\\Q${parts[3]}\\E(?=[\\s(]|\$)" : ''
+                    !(at =~ /(?m)^\s*\S+\s+\Q${owner}\E${member}/)
+                }
+                .collect { it.join(' ') }
+        if (missing) {
+            throw new GradleException("${transformer.name} is missing access widener entries, so these "
+                    + "would throw IllegalAccessError in production:\n  " + missing.join('\n  '))
+        }
+    }
+}
+
 processResources {
+    dependsOn verifyAccessTransformer
     inputs.property 'version', project.version
 
     filesMatching('META-INF/neoforge.mods.toml') {

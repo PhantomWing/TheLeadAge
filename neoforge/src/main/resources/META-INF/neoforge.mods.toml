@@ -38,13 +38,5 @@ versionRange = "[14.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-# ---- Optional integrations. All are `type = "optional"`, so the mod loads happily without any of
-# them; `ordering = "AFTER"` only asks the loader to place them before us when they ARE present.
-# Farmer's Delight matters most here: LeadKnifeItem extends its KnifeItem, so FD must be loaded
-# before our items are constructed. (Dev-only runtime mods such as AppleSkin are NOT listed.)
-#
-# versionRange is deliberately "[0,)" (any version) on all of them. These mods declare a plain
-# semver internally that does NOT match their download filename — Farmer's Delight ships as
-# "farmers-delight-1.21.1-1.3.1.jar" but declares version "1.3.1" — so a range written from the
-# filename rejects the very build it was meant to allow, and FML then refuses to load at all. An
-# optional dep gains nothing from a lower bound anyway: these are advertising + load-order hints.
+# No optional integration dependencies on this line: Create, Farmer's Delight, JEI and EMI publish
+# no 1.21.2/1.21.3 build. They come back with their compat (see the port notes in gradle.properties).

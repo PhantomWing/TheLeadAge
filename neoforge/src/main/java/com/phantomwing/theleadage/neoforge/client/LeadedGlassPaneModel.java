@@ -46,6 +46,16 @@ public class LeadedGlassPaneModel extends BakedModelWrapper<BakedModel> {
         return data;
     }
 
+    /**
+     * The wrapper's 3-arg getQuads passes straight through, and on NeoForge a multipart model answers
+     * that overload with its FIRST selector (for these panes, the floor-mounted came) rather than the
+     * parts matching the state. Route it to the overload that actually selects.
+     */
+    @Override
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
+        return getQuads(state, side, rand, ModelData.EMPTY, null);
+    }
+
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand,
                                     ModelData data, @Nullable RenderType renderType) {
