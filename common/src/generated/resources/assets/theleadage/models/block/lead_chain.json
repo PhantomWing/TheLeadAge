@@ -1,6 +1,5 @@
 {
   "parent": "minecraft:block/chain",
-  "render_type": "minecraft:cutout",
   "textures": {
     "all": "theleadage:block/lead_chain",
     "particle": "theleadage:block/lead_chain"

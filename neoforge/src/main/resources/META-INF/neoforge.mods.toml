@@ -20,23 +20,23 @@ A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod 
 [[dependencies.theleadage]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.3,)"
+versionRange = "[21.4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.2,1.21.4)"
+versionRange = "[1.21.4,1.21.5)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "architectury"
 type = "required"
-versionRange = "[14.0,)"
+versionRange = "[15.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
 # No optional integration dependencies on this line: Create, Farmer's Delight, JEI and EMI publish
-# no 1.21.2/1.21.3 build. They come back with their compat (see the port notes in gradle.properties).
+# no 1.21.4 build (JEI has one; its plugin is not yet restored). They come back with their compat (see the port notes in gradle.properties).

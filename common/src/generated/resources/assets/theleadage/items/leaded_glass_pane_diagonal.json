@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "theleadage:item/leaded_glass_pane_diagonal",
+    "model": {
+      "type": "theleadage:leaded_glass_pane"
+    }
+  }
+}

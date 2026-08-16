@@ -70,7 +70,8 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     private static volatile List<TagRule> byTag = List.of();
 
     public LeadWeightTransforms() {
-        super(FILE_CODEC, DIRECTORY);
+        // 1.21.4: the ctor takes a FileToIdConverter instead of a bare directory string.
+        super(FILE_CODEC, net.minecraft.resources.FileToIdConverter.json(DIRECTORY));
     }
 
     /** Wire the datapack loader on both loaders. Call once from common init. */

@@ -33,21 +33,29 @@ public final class LeadedGlassSurface {
 
     public static void render(LeadedGlassConfig config, AABB slab, PoseStack pose,
                               MultiBufferSource buffers, int light, int overlay) {
-        BlockState paneState = paneStateFor(config);
-        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
-
         pose.pushPose();
         // Canonical pane space -> the slab. The maths lives in LeadedGlassPlacement so the dye/shear
         // interaction can invert this exact matrix to turn a click back into a region — see its docs.
         pose.mulPose(LeadedGlassPlacement.surface(slab));
+        renderUpright(config, pose, buffers, light, overlay);
+        pose.popPose();
+    }
 
+    /**
+     * The design in canonical (upright wall, facing north) pane space, no surface transform.
+     * Used directly by the pane item renderer: an item stack has no block entity, so the dynamic
+     * (grid/lattice) clear-cell swap must happen here rather than in the chunk-mesh wrapper.
+     */
+    public static void renderUpright(LeadedGlassConfig config, PoseStack pose,
+                                     MultiBufferSource buffers, int light, int overlay) {
+        BlockState paneState = paneStateFor(config);
+        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentItemSheet());
         RandomSource random = RandomSource.create(42L);
         emit(model, paneState, config, null, buffer, pose, light, overlay, random);
         for (Direction dir : Direction.values()) {
             emit(model, paneState, config, dir, buffer, pose, light, overlay, random);
         }
-        pose.popPose();
     }
 
     private static void emit(BakedModel model, BlockState state, LeadedGlassConfig config, Direction dir,

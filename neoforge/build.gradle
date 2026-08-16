@@ -41,8 +41,11 @@ loom {
         // NeoForge data generation. Output + existing-resource paths point at the
         // common source set (datagen output is shared across loaders).
         //   ./gradlew :neoforge:runData
+        // NeoForge 21.4 split the old `data` run template into clientData + serverData; loom 1.10's
+        // data() maps to the removed template. clientData() is a superset environment, so one run
+        // with --all emits both the client model providers and the server data providers.
         data {
-            data()
+            clientData()
             name = "Data Generation"
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
         }

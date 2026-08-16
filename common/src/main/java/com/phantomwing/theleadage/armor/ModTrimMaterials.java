@@ -10,7 +10,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
 
@@ -38,14 +39,13 @@ public class ModTrimMaterials {
     public static final ResourceKey<TrimMaterial> LEAD = trimMaterialKey("lead");
 
     public static void bootstrap(BootstrapContext<TrimMaterial> context) {
-        // 1.21.2 removed Registries.ARMOR_MATERIAL: the override map is now keyed by the equipment
-        // asset id (the ArmorMaterial's modelId), so no registry lookup is needed at all.
-        ResourceLocation leadArmor = TheLeadAge.resourceLocation("lead");
+        // The override map is keyed by the armor's ResourceKey<EquipmentAsset> since 1.21.4.
+        ResourceKey<EquipmentAsset> leadArmor =
+                ResourceKey.create(EquipmentAssets.ROOT_ID, TheLeadAge.resourceLocation("lead"));
 
         registerMaterial(context, LEAD,
                 ModItems.LEAD_INGOT.get(),
                 Style.EMPTY.withColor(TextColor.parseColor("#6E737D").getOrThrow()),
-                LEAD_INDEX,
                 // Use the darker palette when lead trim is applied to lead armor, else
                 // it nearly disappears against the same colour (vanilla does the same,
                 // e.g. iron trim → iron_darker on iron armor).
@@ -56,8 +56,9 @@ public class ModTrimMaterials {
         return ResourceKey.create(Registries.TRIM_MATERIAL, TheLeadAge.resourceLocation(name));
     }
 
-    private static void registerMaterial(BootstrapContext<TrimMaterial> context, ResourceKey<TrimMaterial> trimKey, Item item, Style style, float itemModelIndex, Map<ResourceLocation, String> overrideArmorMaterials) {
-        TrimMaterial trimMaterial = TrimMaterial.create(trimKey.location().getPath(), item, itemModelIndex,
+    /** 1.21.4: TrimMaterial.create dropped the itemModelIndex float (item models are data-driven now). */
+    private static void registerMaterial(BootstrapContext<TrimMaterial> context, ResourceKey<TrimMaterial> trimKey, Item item, Style style, Map<ResourceKey<EquipmentAsset>, String> overrideArmorMaterials) {
+        TrimMaterial trimMaterial = TrimMaterial.create(trimKey.location().getPath(), item,
                 Component.translatable(Util.makeDescriptionId("trim_material", trimKey.location())).withStyle(style), overrideArmorMaterials);
         context.register(trimKey, trimMaterial);
     }

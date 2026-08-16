@@ -21,8 +21,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.common.data.AdvancementProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.data.advancements.AdvancementSubProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -35,9 +34,9 @@ import java.util.function.Consumer;
  * (mirrors The Silver Age's setup). Titles/descriptions are translation keys
  * {@code theleadage.advancement.<id>[.description]}, resolved from the lang files.
  */
-public class ModAdvancementProvider implements AdvancementProvider.AdvancementGenerator {
+public class ModAdvancementProvider implements AdvancementSubProvider {
     @Override
-    public void generate(HolderLookup.@NotNull Provider provider, @NotNull Consumer<AdvancementHolder> consumer, @NotNull ExistingFileHelper existingFileHelper) {
+    public void generate(HolderLookup.@NotNull Provider provider, @NotNull Consumer<AdvancementHolder> consumer) {
         AdvancementHolder root = Advancement.Builder.advancement()
                 .display(ModItems.RAW_LEAD.get(),
                         title("root"), description("root"),

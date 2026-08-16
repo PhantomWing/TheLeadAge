@@ -26,3 +26,7 @@ accessible	method	net/minecraft/world/level/block/entity/BlockEntityType	<init>	
 # construction, so LeadArmorItem / LeadHorseArmorItem need the material's base set to append
 # Heaviness (resp. knockback resistance) to it.
 accessible	method	net/minecraft/world/item/equipment/ArmorMaterial	createAttributes	(Lnet/minecraft/world/item/equipment/ArmorType;)Lnet/minecraft/world/item/component/ItemAttributeModifiers;
+
+# 1.21.4 item-model system: the pane + trapdoor special renderers register into this private
+# late-bound mapper (LeadedGlassItemModels). Mirrored by a `public` field entry in the NeoForge AT.
+accessible	field	net/minecraft/client/renderer/special/SpecialModelRenderers	ID_MAPPER	Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;

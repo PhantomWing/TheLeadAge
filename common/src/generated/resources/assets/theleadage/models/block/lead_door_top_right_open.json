@@ -1,6 +1,5 @@
 {
   "parent": "minecraft:block/door_top_right_open",
-  "render_type": "minecraft:cutout",
   "textures": {
     "bottom": "theleadage:block/lead_door_bottom",
     "top": "theleadage:block/lead_door_top"

@@ -1,6 +1,5 @@
 {
   "parent": "theleadage:block/lead_weight",
-  "render_type": "minecraft:cutout",
   "textures": {
     "all": "theleadage:block/damaged_lead_weight",
     "particle": "theleadage:block/damaged_lead_weight"

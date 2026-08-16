@@ -3,11 +3,13 @@ package com.phantomwing.theleadage.armor;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.tags.CommonTags;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.EquipmentAssets;
 
 import java.util.Map;
 
@@ -49,13 +51,16 @@ public class ModArmorMaterials {
                 ArmorType.BODY, bodyDefense // Body is for Horse/Wolf armor
         );
         Holder<SoundEvent> equipSound = SoundEvents.ARMOR_EQUIP_IRON;
-        ResourceLocation modelId = TheLeadAge.resourceLocation(name);
+        // 1.21.4: the equipment model id is a typed ResourceKey<EquipmentAsset>, resolving to
+        // assets/<ns>/equipment/<path>.json (the models/ segment was dropped from the lookup).
+        ResourceKey<EquipmentAsset> assetId =
+                ResourceKey.create(EquipmentAssets.ROOT_ID, TheLeadAge.resourceLocation(name));
 
         // ArmorMaterial(int durability, Map<ArmorType,Integer> defense, int enchantmentValue,
         //   Holder<SoundEvent> equipSound, float toughness, float knockbackResistance,
-        //   TagKey<Item> repairIngredient, ResourceLocation modelId)
+        //   TagKey<Item> repairIngredient, ResourceKey<EquipmentAsset> assetId)
         return new ArmorMaterial(durability, defense, enchantmentValue, equipSound,
-                toughness, knockbackResistance, CommonTags.Items.INGOTS_LEAD, modelId);
+                toughness, knockbackResistance, CommonTags.Items.INGOTS_LEAD, assetId);
     }
 
     /**

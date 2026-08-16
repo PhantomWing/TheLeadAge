@@ -5,12 +5,12 @@ import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.DelegateBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.BakedModelWrapper;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
@@ -25,12 +25,12 @@ import java.util.List;
  * (no 2^regions explosion) while preserving the exact clear-vs-coloured look. It only runs when a
  * section is (re)built, so it adds no per-frame cost; the quads bake into the static chunk mesh.
  */
-public class LeadedGlassPaneModel extends BakedModelWrapper<BakedModel> {
+public class LeadedGlassPaneModel extends DelegateBakedModel {
     /** Per-region clear flags, read from the block entity in {@link #getModelData} and used in {@link #getQuads}. */
     public static final ModelProperty<boolean[]> CLEAR = new ModelProperty<>();
 
     public LeadedGlassPaneModel(BakedModel base) {
-        super(base);
+        super(base); // 1.21.4: NeoForge's BakedModelWrapper is gone; vanilla DelegateBakedModel forwards everything.
     }
 
     @Override
@@ -59,7 +59,7 @@ public class LeadedGlassPaneModel extends BakedModelWrapper<BakedModel> {
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand,
                                     ModelData data, @Nullable RenderType renderType) {
-        List<BakedQuad> quads = originalModel.getQuads(state, side, rand, data, renderType);
+        List<BakedQuad> quads = parent.getQuads(state, side, rand, data, renderType);
         boolean[] clear = data.get(CLEAR);
         if (clear == null) {
             return quads; // no block entity (e.g. inventory) -> render as authored (all coloured)

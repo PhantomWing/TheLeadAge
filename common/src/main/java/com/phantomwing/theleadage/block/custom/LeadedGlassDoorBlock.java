@@ -113,8 +113,8 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
-        ItemStack stack = super.getCloneItemStack(level, pos, state);
+    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state, includeData);
         if (level.getBlockEntity(pos) instanceof LeadedGlassDoorBlockEntity door) {
             stack.set(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(), door.getConfig());
         }
