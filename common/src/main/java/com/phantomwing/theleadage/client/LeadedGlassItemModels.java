@@ -47,20 +47,23 @@ public final class LeadedGlassItemModels {
         RenderTypeRegistry.register(RenderType.translucent(), TRANSLUCENT_BLOCKS);
     }
 
-    private static final Block[] CUTOUT_BLOCKS = Stream.concat(
-            Stream.of(ModBlocks.LEADED_GLASS, ModBlocks.LEAD_GRATE, ModBlocks.LEAD_CHAIN, ModBlocks.LEAD_BARS,
-                    ModBlocks.LEAD_TORCH, ModBlocks.LEAD_WALL_TORCH, ModBlocks.LEAD_LANTERN,
-                    ModBlocks.LEAD_DOOR, ModBlocks.LEAD_TRAPDOOR,
-                    ModBlocks.LEADED_GLASS_DOOR, ModBlocks.LEADED_GLASS_TRAPDOOR,
-                    ModBlocks.LEAD_WEIGHT, ModBlocks.CHIPPED_LEAD_WEIGHT, ModBlocks.DAMAGED_LEAD_WEIGHT),
+    private static final Block[] CUTOUT_BLOCKS = Stream.of(
+            ModBlocks.LEADED_GLASS, ModBlocks.LEAD_GRATE, ModBlocks.LEAD_CHAIN, ModBlocks.LEAD_BARS,
+            ModBlocks.LEAD_TORCH, ModBlocks.LEAD_WALL_TORCH, ModBlocks.LEAD_LANTERN,
+            ModBlocks.LEAD_DOOR, ModBlocks.LEAD_TRAPDOOR,
+            ModBlocks.LEADED_GLASS_DOOR, ModBlocks.LEADED_GLASS_TRAPDOOR,
+            ModBlocks.LEAD_WEIGHT, ModBlocks.CHIPPED_LEAD_WEIGHT, ModBlocks.DAMAGED_LEAD_WEIGHT
+    ).map(s -> (Block) s.get()).toArray(Block[]::new);
+
+    /** The pane glass is translucent (tinted), like the dyed full blocks — matching pre-1.21.4 layers. */
+    private static final Block[] TRANSLUCENT_BLOCKS = Stream.concat(
             Stream.of(ModBlocks.LEADED_GLASS_PANEL, ModBlocks.LEADED_GLASS_PANE_SPLIT,
                     ModBlocks.LEADED_GLASS_PANE_PLUS, ModBlocks.LEADED_GLASS_PANE_GRID,
                     ModBlocks.LEADED_GLASS_PANE_DIAGONAL, ModBlocks.LEADED_GLASS_PANE_CROSS,
                     ModBlocks.LEADED_GLASS_PANE_DIAMOND, ModBlocks.LEADED_GLASS_PANE_LATTICE,
                     ModBlocks.LEADED_GLASS_PANE_BARS, ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS)
-    ).map(s -> (Block) s.get()).toArray(Block[]::new);
-
-    private static final Block[] TRANSLUCENT_BLOCKS = Stream.of(DyeColor.values())
-            .map(c -> (Block) ModBlocks.STAINED_LEADED_GLASS.get(c).get()).toArray(Block[]::new);
+                    .map(s -> (Block) s.get()),
+            Stream.of(DyeColor.values()).map(c -> (Block) ModBlocks.STAINED_LEADED_GLASS.get(c).get())
+    ).toArray(Block[]::new);
 
 }

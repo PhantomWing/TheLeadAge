@@ -52,6 +52,29 @@ public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
         return output;
     }
 
+    /**
+     * Recolours a recipe-list preview stack from the live stonecutter input — the static twin of
+     * {@link #assemble} for the screen mixin. 1.21.4's stonecutter screen resolves previews from
+     * synced SlotDisplays (which never see the input and don't carry the recipe object on servers),
+     * so the mixin post-processes the resolved stack: any configured-pane preview gets every region
+     * filled with the input pane's colour. Non-pane previews and clear inputs pass through.
+     */
+    public static ItemStack colorPreview(ItemStack preview, ItemStack input) {
+        LeadedGlassConfig target = preview.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        if (target == null) {
+            return preview;
+        }
+        int color = primaryColor(input);
+        if (color == LeadedGlassConfig.CLEAR) {
+            return preview;
+        }
+        ItemStack colored = preview.copy();
+        colored.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
+                new LeadedGlassConfig(target.frame(),
+                        Collections.nCopies(target.frame().regions(), color)));
+        return colored;
+    }
+
     /** The plain input pane's single region colour, or {@link LeadedGlassConfig#CLEAR} if unset. */
     private static int primaryColor(ItemStack input) {
         LeadedGlassConfig config = input.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
