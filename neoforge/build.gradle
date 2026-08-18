@@ -20,9 +20,10 @@ def datagenExisting = rootProject.file('common/src/main/resources/').absolutePat
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
-// Create, Farmer's Delight, JEI and EMI publish no 1.21.2/1.21.3 build, so their compat and the
-// recipe_viewer switch are absent on this branch. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.3 branch — no Create/FD/JEI/EMI compat on this line")
+// 1.21.5: Farmer's Delight (Refabricated) ships Fabric-only; Create, FD-NeoForge and EMI publish
+// no 1.21.5 build, so their compat and the recipe_viewer switch are absent on this branch.
+// See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.5 branch: FDR on Fabric only; no Create/FD-NeoForge/EMI compat")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -50,17 +51,21 @@ loom {
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
         }
 
-        // Headless NeoForge game-test server: runs every @GameTest in the
-        // `theleadage` namespace, prints PASS/FAIL, and exits.
+        // Headless NeoForge game-test server: runs every registered test instance,
+        // prints PASS/FAIL, and exits.
         //   ./gradlew :neoforge:runGameTest
+        // 21.5: the old neoforge.gameTestServer / enabledGameTestNamespaces properties are dead.
+        // The run must use the userdev gameTestServer template (launch target
+        // neoforgegametestserverdev), which both enables and auto-runs the tests; with server()
+        // it boots as a plain dedicated server and idles instead.
         gameTest {
-            server()
+            // The environment name selects the <env>Args section of loom's launch.cfg, so it must
+            // match the template name (the way clientData() pairs with dataClient).
+            environment('gameTestServer')
+            forgeTemplate('gameTestServer')
             name = "Game Test"
             runDir "run/gametest"
             source sourceSets.test
-            property 'neoforge.enableGameTest', 'true'
-            property 'neoforge.gameTestServer', 'true'
-            property 'neoforge.enabledGameTestNamespaces', 'theleadage'
         }
     }
 }
@@ -91,11 +96,8 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }
 
-    // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
-    //      never shipped, never a hard dependency). Skipped for the game-test run. ----
-    if (!runningGameTest && !runningDataGen) {
-        modLocalRuntime("squeek.appleskin:appleskin-neoforge:${rootProject.appleskin_neoforge_version}")
-    }
+    // NOTE (1.21.5 branch): no dev-runtime niceties — AppleSkin has no 1.21.4/1.21.5 build.
+    // Re-add here (gated on !runningGameTest && !runningDataGen) when one ships.
 }
 
 // A widened member missing from the access transformer still compiles and runs in dev, then throws

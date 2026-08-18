@@ -1,10 +1,12 @@
 package com.phantomwing.theleadage.item.custom;
 
 import net.minecraft.network.chat.Component;
+import java.util.function.Consumer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
@@ -24,7 +26,7 @@ public class LeadedGlassTrapdoorItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         LeadedGlassTooltip.append(stack, tooltip);
     }
 }

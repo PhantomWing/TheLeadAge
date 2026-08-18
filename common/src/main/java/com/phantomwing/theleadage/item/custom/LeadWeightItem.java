@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import java.util.function.Consumer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
@@ -54,15 +56,15 @@ public class LeadWeightItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         // Combat-style tooltip: a guaranteed base hit, then a flat amount per block fallen (the smash
         // damage from LeadWeightEntity). Same on all three tiers — wear doesn't change the hit.
-        tooltip.add(CommonComponents.EMPTY); // blank line before the section, like vanilla weapon tooltips
-        tooltip.add(Component.translatable("tooltip.theleadage.lead_weight.when_dropped").withStyle(ChatFormatting.GRAY));
-        tooltip.add(CommonComponents.space()
+        tooltip.accept(CommonComponents.EMPTY); // blank line before the section, like vanilla weapon tooltips
+        tooltip.accept(Component.translatable("tooltip.theleadage.lead_weight.when_dropped").withStyle(ChatFormatting.GRAY));
+        tooltip.accept(CommonComponents.space()
                 .append(Component.translatable("tooltip.theleadage.lead_weight.base_damage", fmt(LeadWeightEntity.BASE_DAMAGE)))
                 .withStyle(ChatFormatting.DARK_GREEN));
-        tooltip.add(CommonComponents.space()
+        tooltip.accept(CommonComponents.space()
                 .append(Component.translatable("tooltip.theleadage.lead_weight.per_block", fmt(LeadWeightEntity.DAMAGE_PER_BLOCK)))
                 .withStyle(ChatFormatting.DARK_GREEN));
     }

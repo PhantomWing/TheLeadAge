@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Shared rendering of a leaded glass item's design (frame + colours), used by the pane, door and
@@ -26,18 +27,18 @@ public final class LeadedGlassTooltip {
     }
 
     /** Appends the frame line + the distinct colours applied. No-op for plain (see {@link #name}). */
-    public static void append(ItemStack stack, List<Component> tooltip) {
+    public static void append(ItemStack stack, Consumer<Component> tooltip) {
         LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
         if (config == null || config.frame() == LeadedGlassFrame.PLAIN) {
             return;
         }
-        tooltip.add(Component.translatable("tooltip.theleadage.frame." + config.frame().getSerializedName())
+        tooltip.accept(Component.translatable("tooltip.theleadage.frame." + config.frame().getSerializedName())
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(colorSummary(config));
+        tooltip.accept(colorSummary(config));
     }
 
     /** A door lists both of its panes (top then bottom), each labelled with its half. */
-    public static void appendDoor(ItemStack stack, List<Component> tooltip) {
+    public static void appendDoor(ItemStack stack, Consumer<Component> tooltip) {
         LeadedGlassDoorConfig config = stack.get(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get());
         if (config == null) {
             return;
@@ -47,16 +48,16 @@ public final class LeadedGlassTooltip {
     }
 
     /** One door half: "<label>: <frame or colour>", then the distinct colours for patterned panes. */
-    private static void appendHalf(List<Component> tooltip, String labelKey, LeadedGlassConfig config) {
+    private static void appendHalf(Consumer<Component> tooltip, String labelKey, LeadedGlassConfig config) {
         MutableComponent label = Component.translatable(labelKey).withStyle(ChatFormatting.GRAY)
                 .append(Component.literal(": ").withStyle(ChatFormatting.GRAY));
         if (config.frame() == LeadedGlassFrame.PLAIN) {
-            tooltip.add(label.append(colorName(config, 0)));
+            tooltip.accept(label.append(colorName(config, 0)));
             return;
         }
-        tooltip.add(label.append(Component.translatable(
+        tooltip.accept(label.append(Component.translatable(
                 "tooltip.theleadage.frame." + config.frame().getSerializedName()).withStyle(ChatFormatting.GRAY)));
-        tooltip.add(colorSummary(config));
+        tooltip.accept(colorSummary(config));
     }
 
     /** The distinct region colours (in first-applied order, including "Clear"), comma-separated. */

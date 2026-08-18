@@ -19,8 +19,9 @@ import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Lead armor: heavy plate. Keeps the material's (very high) protection and adds a
@@ -58,7 +59,7 @@ public class LeadArmorItem extends Item {
      * constructor, and all armor behaviour comes from the EQUIPPABLE component it sets.
      */
     public LeadArmorItem(ArmorMaterial material, ArmorType type, Properties properties) {
-        super(material.humanoidProperties(properties, type).attributes(withHeaviness(material, type)));
+        super(properties.humanoidArmor(material, type).attributes(withHeaviness(material, type)));
         this.armorType = type;
     }
 
@@ -96,36 +97,44 @@ public class LeadArmorItem extends Item {
 
     /** Drives {@link #refreshHeaviness} for players every tick, whether or not they still carry lead. */
     public static void register() {
-        TickEvent.PLAYER_POST.register(player -> refreshHeaviness(player));
+        TickEvent.PLAYER_POST.register(player -> {
+            refreshHeaviness(player);
+            // The player water-sink runs on the CLIENT tick — the side that owns player movement,
+            // so the local swim input is read correctly. (It lived in inventoryTick before 1.21.5;
+            // that hook is server-only now.)
+            if (player.level().isClientSide()) {
+                applyWaterSink(player, wornHeaviness(player));
+            }
+        });
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (!(entity instanceof LivingEntity living)) {
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+        super.inventoryTick(stack, level, entity, slot);
+        if (!(entity instanceof LivingEntity living) || living instanceof Player) {
+            return; // players are handled by the (both-sides) player tick in register()
+        }
+        // Mobs get their penalties here: the player tick above does not cover them, and a mob only
+        // ever loses its armour by dying, so there is no stale-modifier case to clean up. The server
+        // owns mob movement, so their water-sink applies here too (per worn piece, as before).
+        refreshHeaviness(living);
+        if (living.getItemBySlot(armorType.getSlot()) == stack) {
+            applyWaterSink(living, HEAVINESS_PER_PIECE);
+        }
+    }
+
+    /**
+     * Faster sink while submerged, scaled by {@code heaviness}. Skipped entirely while flying or
+     * actively swimming up (holding jump), so swimming is unaffected; the wearer just sinks fast
+     * the rest of the time.
+     */
+    private static void applyWaterSink(LivingEntity living, double heaviness) {
+        boolean flying = living instanceof Player player && player.getAbilities().flying;
+        if (flying || heaviness <= 0.0 || !living.isInWater() || living.jumping) {
             return;
         }
-
-        // Mobs get their penalties here: the player tick above does not cover them, and a mob only
-        // ever loses its armour by dying, so there is no stale-modifier case to clean up.
-        boolean flying = living instanceof Player player && player.getAbilities().flying;
-        if (!(living instanceof Player)) {
-            refreshHeaviness(living);
-        }
-
-        // Faster sink while submerged — applied per worn piece. Skipped entirely
-        // while the wearer is actively swimming up (holding jump), so swimming is
-        // unaffected; they just sink fast the rest of the time. Applied on the side
-        // that owns the entity's movement (client for players, server for mobs) so
-        // the local player's swim input is read correctly and there's no desync.
-        if (!flying
-                && living.getItemBySlot(armorType.getSlot()) == stack
-                && living.isInWater()
-                && !living.jumping
-                && (living instanceof Player) == level.isClientSide()) {
-            Vec3 motion = living.getDeltaMovement();
-            living.setDeltaMovement(motion.x, motion.y - HEAVINESS_PER_PIECE * WATER_SINK_PER_HEAVINESS, motion.z);
-        }
+        Vec3 motion = living.getDeltaMovement();
+        living.setDeltaMovement(motion.x, motion.y - heaviness * WATER_SINK_PER_HEAVINESS, motion.z);
     }
 
     /** Total Heaviness from the lead armor pieces this entity is wearing. */

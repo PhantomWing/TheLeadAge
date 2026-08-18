@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "theleadage:lead_weight_drops_into_hopper",
+  "environment": "theleadage:default",
+  "structure": "theleadage:empty",
+  "max_ticks": 200,
+  "setup_ticks": 0,
+  "required": true
+}

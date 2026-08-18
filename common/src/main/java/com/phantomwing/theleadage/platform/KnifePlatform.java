@@ -2,7 +2,6 @@ package com.phantomwing.theleadage.platform;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ToolMaterial;
 
 /**
  * {@code @ExpectPlatform} bridge that builds the Lead Knife.
@@ -14,7 +13,8 @@ import net.minecraft.world.item.ToolMaterial;
  * <ul>
  *   <li>FD loaded → the loader's {@code LeadKnifeItem}, which extends
  *       {@code vectorwing.farmersdelight.common.item.KnifeItem}.</li>
- *   <li>FD absent → a plain {@link net.minecraft.world.item.SwordItem} fallback, so the item still
+ *   <li>FD absent → a plain {@link Item} fallback (1.21.5: SwordItem is gone; the Properties
+ *       already carry the sword components), so the item still
  *       exists (registry-consistent, multiplayer-safe), is still a usable weapon, and the mod loads
  *       standalone.</li>
  * </ul>
@@ -29,7 +29,7 @@ public final class KnifePlatform {
     }
 
     @ExpectPlatform
-    public static Item createLeadKnife(Item.Properties properties, ToolMaterial material) {
+    public static Item createLeadKnife(Item.Properties properties) {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 }

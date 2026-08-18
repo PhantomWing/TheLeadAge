@@ -46,7 +46,7 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.config = new LeadedGlassDoorConfig(
-                loadPane(tag.getCompound("Top")), loadPane(tag.getCompound("Bottom")));
+                loadPane(tag.getCompoundOrEmpty("Top")), loadPane(tag.getCompoundOrEmpty("Bottom")));
     }
 
     @Override
@@ -58,9 +58,9 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
 
     private static LeadedGlassConfig loadPane(CompoundTag tag) {
         LeadedGlassFrame frame = LeadedGlassFrame.values()[
-                Math.floorMod(tag.getInt("Frame"), LeadedGlassFrame.values().length)];
+                Math.floorMod(tag.getIntOr("Frame", 0), LeadedGlassFrame.values().length)];
         List<Integer> colors = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors")) {
+        for (int id : tag.getIntArray("Colors").orElse(new int[0])) {
             colors.add(id);
         }
         if (colors.isEmpty()) {

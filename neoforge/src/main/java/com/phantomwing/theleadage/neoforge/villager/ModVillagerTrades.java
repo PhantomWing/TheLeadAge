@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge.villager;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.villager.LeadVillagerTrades;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -28,7 +29,8 @@ public class ModVillagerTrades {
         }
         // Mirror vanilla: Armorer, Toolsmith and Weaponsmith all buy 4 lead ingots for
         // an emerald at apprentice (level 2), exactly as they do iron ingots.
-        VillagerProfession type = event.getType();
+        // 1.21.5: professions are addressed by ResourceKey (the VillagerProfession constants are keys now).
+        ResourceKey<VillagerProfession> type = event.getType();
         if (type == VillagerProfession.ARMORER
                 || type == VillagerProfession.TOOLSMITH
                 || type == VillagerProfession.WEAPONSMITH) {

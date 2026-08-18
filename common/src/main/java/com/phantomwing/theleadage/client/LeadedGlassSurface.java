@@ -11,7 +11,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
@@ -49,19 +50,22 @@ public final class LeadedGlassSurface {
     public static void renderUpright(LeadedGlassConfig config, PoseStack pose,
                                      MultiBufferSource buffers, int light, int overlay) {
         BlockState paneState = paneStateFor(config);
-        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
+        // 1.21.5: block models are BlockStateModels — quads come per-part via collectParts,
+        // which also replaces the old per-direction getQuads(state, dir, random) calls.
+        BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentItemSheet());
-        RandomSource random = RandomSource.create(42L);
-        emit(model, paneState, config, null, buffer, pose, light, overlay, random);
-        for (Direction dir : Direction.values()) {
-            emit(model, paneState, config, dir, buffer, pose, light, overlay, random);
+        for (BlockModelPart part : model.collectParts(RandomSource.create(42L))) {
+            emit(part, config, null, buffer, pose, light, overlay);
+            for (Direction dir : Direction.values()) {
+                emit(part, config, dir, buffer, pose, light, overlay);
+            }
         }
     }
 
-    private static void emit(BakedModel model, BlockState state, LeadedGlassConfig config, Direction dir,
-                             VertexConsumer buffer, PoseStack pose, int light, int overlay, RandomSource random) {
-        for (BakedQuad quad : model.getQuads(state, dir, random)) {
-            int tint = quad.getTintIndex();
+    private static void emit(BlockModelPart part, LeadedGlassConfig config, Direction dir,
+                             VertexConsumer buffer, PoseStack pose, int light, int overlay) {
+        for (BakedQuad quad : part.getQuads(dir)) {
+            int tint = quad.tintIndex();
             // Clear regions must be drawn with the clear sprite, not the tintable white one. For most
             // came types the block state already picked a clear-textured model and this is a no-op —
             // but grid and lattice carry no clear_N state, and their chunk-mesh wrapper can only do the

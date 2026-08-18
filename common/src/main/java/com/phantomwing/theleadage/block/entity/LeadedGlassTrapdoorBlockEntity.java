@@ -39,9 +39,9 @@ public class LeadedGlassTrapdoorBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        LeadedGlassFrame frame = LeadedGlassFrame.values()[Math.floorMod(tag.getInt("Frame"), LeadedGlassFrame.values().length)];
+        LeadedGlassFrame frame = LeadedGlassFrame.values()[Math.floorMod(tag.getIntOr("Frame", 0), LeadedGlassFrame.values().length)];
         List<Integer> colors = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors")) {
+        for (int id : tag.getIntArray("Colors").orElse(new int[0])) {
             colors.add(id);
         }
         if (colors.isEmpty()) {

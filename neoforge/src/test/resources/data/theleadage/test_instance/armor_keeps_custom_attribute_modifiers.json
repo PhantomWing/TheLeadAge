@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "theleadage:armor_keeps_custom_attribute_modifiers",
+  "environment": "theleadage:default",
+  "structure": "theleadage:empty",
+  "max_ticks": 100,
+  "setup_ticks": 0,
+  "required": true
+}

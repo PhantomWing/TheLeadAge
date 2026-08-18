@@ -55,7 +55,8 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         List<Integer> loaded = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors")) {
+        // 1.21.5: NBT getters return Optionals; an absent key reads as an empty array.
+        for (int id : tag.getIntArray("Colors").orElse(new int[0])) {
             loaded.add(id);
         }
         this.colors = loaded.isEmpty() ? List.of(LeadedGlassConfig.CLEAR) : List.copyOf(loaded);

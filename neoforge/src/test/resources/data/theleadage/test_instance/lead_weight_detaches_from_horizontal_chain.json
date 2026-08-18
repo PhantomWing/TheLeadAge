@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "theleadage:lead_weight_detaches_from_horizontal_chain",
+  "environment": "theleadage:default",
+  "structure": "theleadage:empty",
+  "max_ticks": 100,
+  "setup_ticks": 0,
+  "required": true
+}

@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.fabric.villager;
 import com.phantomwing.theleadage.fabric.config.TheLeadAgeFabricConfig;
 import com.phantomwing.theleadage.villager.LeadVillagerTrades;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 
@@ -42,12 +43,13 @@ public final class ModVillagerTrades {
         // Mirror vanilla: Armorer, Toolsmith and Weaponsmith all buy lead ingots at
         // level 2, exactly like iron ingots. Parity with the NeoForge event branch;
         // the config gate is pushed into the listing (null = no offer, vanilla skips it).
-        VillagerProfession[] smiths = {
+        // 1.21.5: professions are addressed by ResourceKey (the constants are keys now).
+        ResourceKey<VillagerProfession>[] smiths = new ResourceKey[]{
                 VillagerProfession.ARMORER,
                 VillagerProfession.TOOLSMITH,
                 VillagerProfession.WEAPONSMITH
         };
-        for (VillagerProfession smith : smiths) {
+        for (ResourceKey<VillagerProfession> smith : smiths) {
             registerGated(smith, 2, smithTrade);
         }
     }
@@ -61,7 +63,7 @@ public final class ModVillagerTrades {
      * rebalanced pool — as it does for the armorer — the listing is added to both, so the trade is
      * never missing from a rebalanced world.</p>
      */
-    private static void registerGated(VillagerProfession profession, int level,
+    private static void registerGated(ResourceKey<VillagerProfession> profession, int level,
                                       VillagerTrades.ItemListing listing) {
         TradeOfferHelper.registerVillagerOffers(profession, level, (factories, rebalanced) -> {
             // Checked INSIDE the callback: TradeOfferHelper only sets up its trade maps when
@@ -79,7 +81,7 @@ public final class ModVillagerTrades {
     }
 
     /** True when the profession's normal and rebalanced trade pools are the same object. */
-    private static boolean sharesRebalancedPool(VillagerProfession profession) {
+    private static boolean sharesRebalancedPool(ResourceKey<VillagerProfession> profession) {
         var normal = VillagerTrades.TRADES.get(profession);
         var rebalanced = VillagerTrades.EXPERIMENTAL_TRADES.get(profession);
         // A null rebalanced entry means Fabric will create a fresh map for it, so the

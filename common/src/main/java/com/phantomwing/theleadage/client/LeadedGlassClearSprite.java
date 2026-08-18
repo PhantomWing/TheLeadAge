@@ -38,13 +38,13 @@ public final class LeadedGlassClearSprite {
      * texture, so callers can apply this to every clear region without checking first.
      */
     public static BakedQuad retexture(BakedQuad quad) {
-        TextureAtlasSprite from = quad.getSprite();
+        TextureAtlasSprite from = quad.sprite();
         TextureAtlasSprite to = clearSprite(from);
         if (to == null) {
             return quad;
         }
         // Remap each vertex's atlas UV from the old sprite's bounds onto the new sprite's.
-        int[] v = quad.getVertices().clone();
+        int[] v = quad.vertices().clone();
         for (int i = 0; i < 4; i++) {
             int o = i * STRIDE + UV0;
             float lu = (Float.intBitsToFloat(v[o]) - from.getU0()) / (from.getU1() - from.getU0());
@@ -52,7 +52,7 @@ public final class LeadedGlassClearSprite {
             v[o] = Float.floatToRawIntBits(to.getU0() + lu * (to.getU1() - to.getU0()));
             v[o + 1] = Float.floatToRawIntBits(to.getV0() + lw * (to.getV1() - to.getV0()));
         }
-        return new BakedQuad(v, -1, quad.getDirection(), to, quad.isShade(), quad.getLightEmission());
+        return new BakedQuad(v, -1, quad.direction(), to, quad.shade(), quad.lightEmission());
     }
 
     /**

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "theleadage:dispenser_places_lead_weight",
+  "environment": "theleadage:default",
+  "structure": "theleadage:empty",
+  "max_ticks": 200,
+  "setup_ticks": 0,
+  "required": true
+}

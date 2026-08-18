@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "theleadage:dynamic_panes_default_to_upright",
+  "environment": "theleadage:default",
+  "structure": "theleadage:empty",
+  "max_ticks": 100,
+  "setup_ticks": 0,
+  "required": true
+}

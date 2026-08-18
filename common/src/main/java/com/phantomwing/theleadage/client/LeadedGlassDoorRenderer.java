@@ -23,7 +23,7 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
 
     @Override
     public void render(LeadedGlassDoorBlockEntity be, float partialTick, PoseStack pose,
-                       MultiBufferSource buffers, int light, int overlay) {
+                       MultiBufferSource buffers, int light, int overlay, Vec3 cameraPos) {
         BlockState state = be.getBlockState();
         if (be.getLevel() == null || !(state.getBlock() instanceof DoorBlock)) {
             return;

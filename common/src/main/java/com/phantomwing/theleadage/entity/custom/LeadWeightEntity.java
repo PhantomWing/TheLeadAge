@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -251,20 +252,15 @@ public class LeadWeightEntity extends FallingBlockEntity {
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        if (ownerUUID != null) {
-            tag.putUUID("Owner", ownerUUID);
-        }
+        // 1.21.5: the UUID helpers are gone — UUIDs round-trip through their codec.
+        tag.storeNullable("Owner", UUIDUtil.CODEC, ownerUUID);
         tag.putFloat("Momentum", momentum);
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("Owner")) {
-            ownerUUID = tag.getUUID("Owner");
-        }
-        if (tag.contains("Momentum")) {
-            momentum = tag.getFloat("Momentum");
-        }
+        ownerUUID = tag.read("Owner", UUIDUtil.CODEC).orElse(null);
+        momentum = tag.getFloatOr("Momentum", 1.0f);
     }
 }

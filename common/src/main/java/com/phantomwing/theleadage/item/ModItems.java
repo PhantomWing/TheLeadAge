@@ -3,6 +3,9 @@ package com.phantomwing.theleadage.item;
 import com.google.common.collect.Sets;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
+import com.phantomwing.theleadage.armor.ModTrimMaterials;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.ProvidesTrimMaterial;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.platform.KnifePlatform;
@@ -21,17 +24,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.HoeItem;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.block.Block;
 
@@ -47,7 +45,11 @@ public class ModItems {
 
     // Materials
     public static final RegistrySupplier<Item> RAW_LEAD = register("raw_lead");
-    public static final RegistrySupplier<Item> LEAD_INGOT = register("lead_ingot");
+    // 1.21.5: the ingredient->trim-material link moved off TrimMaterial (which dropped its
+    // ingredient field) onto the ingredient item, via the PROVIDES_TRIM_MATERIAL component.
+    // Without this a smithing table can't apply the lead trim with a lead ingot.
+    public static final RegistrySupplier<Item> LEAD_INGOT = register("lead_ingot", Item::new,
+            baseItem().component(DataComponents.PROVIDES_TRIM_MATERIAL, new ProvidesTrimMaterial(ModTrimMaterials.LEAD)));
     public static final RegistrySupplier<Item> LEAD_NUGGET = register("lead_nugget");
     // Create compat: pressing a lead ingot in a Mechanical Press yields a sheet (Create's
     // c:plates convention). Only appears in the creative tab when Create is loaded.
@@ -206,23 +208,23 @@ public class ModItems {
     // 1.21.2 moved attack damage/speed out of Item.Properties#attributes and into the item
     // constructors (applied via ToolMaterial#applyToolProperties).
     private static RegistrySupplier<Item> registerSword(String name, ToolMaterial material) {
-        return register(name, (props) -> new SwordItem(material, 3, -2.6f, props), baseItem()); // 8 dmg, 1.4 speed
+        return register(name, (props) -> new Item(props.sword(material, 3, -2.6f)), baseItem()); // 8 dmg, 1.4 speed
     }
 
     private static RegistrySupplier<Item> registerPickaxe(String name, ToolMaterial material) {
-        return register(name, (props) -> new PickaxeItem(material, 1.0f, -3.0f, props), baseItem()); // 6 dmg, 1.0 speed
+        return register(name, (props) -> new Item(props.pickaxe(material, 1.0f, -3.0f)), baseItem()); // 6 dmg, 1.0 speed
     }
 
     private static RegistrySupplier<Item> registerAxe(String name, ToolMaterial material) {
-        return register(name, (props) -> new AxeItem(material, 5.0f, -3.2f, props), baseItem()); // 10 dmg, 0.8 speed
+        return register(name, (props) -> new Item(props.axe(material, 5.0f, -3.2f)), baseItem()); // 10 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerShovel(String name, ToolMaterial material) {
-        return register(name, (props) -> new ShovelItem(material, 1.5f, -3.2f, props), baseItem()); // 6.5 dmg, 0.8 speed
+        return register(name, (props) -> new Item(props.shovel(material, 1.5f, -3.2f)), baseItem()); // 6.5 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerHoe(String name, ToolMaterial material) {
-        return register(name, (props) -> new HoeItem(material, -4.0f, -0.2f, props), baseItem()); // 1 dmg, 3.8 speed
+        return register(name, (props) -> new Item(props.hoe(material, -4.0f, -0.2f)), baseItem()); // 1 dmg, 3.8 speed
     }
 
     /**
@@ -240,16 +242,17 @@ public class ModItems {
 
     /**
      * A knife: a real Farmer's Delight {@code KnifeItem} when FD is loaded, a plain sword otherwise
-     * (see {@link KnifePlatform}). Attributes are set here, in common, via the vanilla
-     * {@link DiggerItem#createAttributes}: FD's own knife damage (+0.5), but 0.2 slower to swing than a
+     * (see {@link KnifePlatform}): FD's own knife damage (+0.5), but 0.2 slower to swing than a
      * standard knife (1.8 vs 2.0) — the same 0.2 penalty the rest of the lead tools carry against
      * netherite. Creative-tab-gated on FD.
      */
     private static RegistrySupplier<Item> registerKnife(String name, ToolMaterial material, String modId) {
-        // Knife attack stats are applied per loader inside KnifePlatform / its SwordItem fallback
-        // (1.21.2 moved them out of Item.Properties#attributes): 5.5 dmg, 1.8 speed.
-        Item.Properties props = baseItem().setId(itemKey(name));
-        RegistrySupplier<Item> item = ITEMS.register(name, () -> KnifePlatform.createLeadKnife(props, material));
+        // 1.21.5: knife attack stats bake into the Properties (FDR's KnifeItem now takes only
+        // Properties): 5.5 dmg, 1.8 speed, 0.2 slower than FD's own knives, like the rest of the
+        // lead tools against netherite. Built inside the supplier: Properties#sword touches the
+        // item registry, which is only writable during registration.
+        RegistrySupplier<Item> item = ITEMS.register(name,
+                () -> KnifePlatform.createLeadKnife(baseItem().setId(itemKey(name)).sword(material, 0.5f, -2.2f)));
         if (Platform.isModLoaded(modId)) {
             CREATIVE_TAB_ITEMS.add(item);
         }

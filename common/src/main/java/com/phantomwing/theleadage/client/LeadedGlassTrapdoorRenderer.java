@@ -35,7 +35,7 @@ public class LeadedGlassTrapdoorRenderer implements BlockEntityRenderer<LeadedGl
 
     @Override
     public void render(LeadedGlassTrapdoorBlockEntity be, float partialTick, PoseStack pose,
-                       MultiBufferSource buffers, int light, int overlay) {
+                       MultiBufferSource buffers, int light, int overlay, Vec3 cameraPos) {
         if (be.getLevel() == null) {
             return;
         }

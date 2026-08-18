@@ -138,7 +138,7 @@ public final class LeadFumes {
         }
         if (stage >= 3) {
             entity.addEffect(new MobEffectInstance(MobEffects.POISON, POISON_TICKS, 0));
-            entity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, NAUSEA_TICKS, 0)); // Nausea
+            entity.addEffect(new MobEffectInstance(MobEffects.NAUSEA, NAUSEA_TICKS, 0)); // Nausea
         }
     }
 

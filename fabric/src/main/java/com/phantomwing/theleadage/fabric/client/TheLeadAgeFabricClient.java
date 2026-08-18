@@ -16,8 +16,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Fabric client entrypoint (registered as the {@code "client"} entrypoint in
@@ -45,15 +44,13 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
                 ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
                 ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
 
-        // Dynamic (grid/lattice) panes: wrap their baked models so clear cells are retextured from the
-        // block entity at mesh time (Fabric twin of the NeoForge ModelEvent.ModifyBakingResult wrap).
-        ResourceLocation gridId = BuiltInRegistries.BLOCK.getKey(ModBlocks.LEADED_GLASS_PANE_GRID.get());
-        ResourceLocation latticeId = BuiltInRegistries.BLOCK.getKey(ModBlocks.LEADED_GLASS_PANE_LATTICE.get());
-        // 1.21.4: block-state models get their own modifier phase (modifyBlockModelAfterBake),
-        // whose context id is the ModelResourceLocation the old topLevelId() used to expose.
+        // Dynamic (grid/lattice) panes: wrap their block-state models so clear cells are retextured
+        // from the block entity at mesh time (Fabric twin of the NeoForge ModifyBakingResult wrap).
+        // 1.21.5: the after-bake context identifies the model by its BlockState directly.
         ModelLoadingPlugin.register(ctx -> ctx.modifyBlockModelAfterBake().register((model, context) -> {
+            Block block = context.state().getBlock();
             if (model != null && !(model instanceof LeadedGlassPaneModelFabric)
-                    && (context.id().id().equals(gridId) || context.id().id().equals(latticeId))) {
+                    && (block == ModBlocks.LEADED_GLASS_PANE_GRID.get() || block == ModBlocks.LEADED_GLASS_PANE_LATTICE.get())) {
                 return new LeadedGlassPaneModelFabric(model);
             }
             return model;

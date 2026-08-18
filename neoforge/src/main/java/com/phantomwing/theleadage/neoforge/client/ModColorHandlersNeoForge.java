@@ -11,10 +11,8 @@ import com.phantomwing.theleadage.client.LeadedGlassTrapdoorSpecialRenderer;
 import com.phantomwing.theleadage.client.ModColorHandlers;
 import com.phantomwing.theleadage.particle.ModParticles;
 import net.minecraft.client.particle.FlameParticle;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -61,10 +59,9 @@ public final class ModColorHandlersNeoForge {
     }
 
     private static void wrapPane(ModelEvent.ModifyBakingResult event, Block block) {
-        // 1.21.4: the event exposes the whole BakingResult; block-state models live in its map.
-        ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
-        for (Map.Entry<ModelResourceLocation, BakedModel> e : event.getBakingResult().blockStateModels().entrySet()) {
-            if (e.getKey().id().equals(id) && !(e.getValue() instanceof LeadedGlassPaneModel)) {
+        // 1.21.5: block-state models are keyed by BlockState directly.
+        for (Map.Entry<BlockState, BlockStateModel> e : event.getBakingResult().blockStateModels().entrySet()) {
+            if (e.getKey().getBlock() == block && !(e.getValue() instanceof LeadedGlassPaneModel)) {
                 e.setValue(new LeadedGlassPaneModel(e.getValue()));
             }
         }

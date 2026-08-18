@@ -1,8 +1,6 @@
 package com.phantomwing.theleadage.item.custom;
 
 import com.phantomwing.theleadage.TheLeadAge;
-import net.minecraft.core.HolderSet;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -36,8 +34,9 @@ public class LeadHorseArmorItem extends Item {
      * the only thing lost is EQUESTRIAN's breaking sound, which is the default ITEM_BREAK anyway.
      */
     public LeadHorseArmorItem(ArmorMaterial material, Properties properties) {
-        super(material.animalProperties(properties, HolderSet.direct(EntityType.HORSE.builtInRegistryHolder()))
-                .attributes(withKnockbackResistance(material)));
+        // 1.21.5: Properties#horseArmor replaces the old animalProperties + HolderSet dance;
+        // the custom attribute set still overwrites the material's afterwards, as before.
+        super(properties.horseArmor(material).attributes(withKnockbackResistance(material)));
     }
 
     private static ItemAttributeModifiers withKnockbackResistance(ArmorMaterial material) {

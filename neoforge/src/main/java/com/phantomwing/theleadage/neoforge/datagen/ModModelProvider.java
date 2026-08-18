@@ -14,7 +14,9 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
-import net.minecraft.client.data.models.blockstates.BlockStateGenerator;
+import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
+import net.minecraft.client.renderer.block.model.BlockModelDefinition;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
@@ -31,16 +33,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Unified block + item model datagen for 1.21.4 (vanilla {@link ModelProvider}).
+ * Unified block + item model datagen for 1.21.4+ (vanilla {@link ModelProvider}).
  *
  * <p>Standard shapes (cubes, slab/stairs/wall, chiseled, pillar, doors, trapdoors) use the vanilla
  * generators. The mod-specific shapes (torch/lantern/chain/bars, lead weight tiers, the leaded
  * glass pane families and their dynamic multiparts) are emitted as raw JSON mirroring the output
  * this mod shipped on 1.21.1/1.21.3, since their state layouts exceed what PropertyDispatch can
- * express. Generated model JSON no longer carries render_type — 1.21.4 registers render layers in
- * code (see LeadedGlassItemModels#registerRenderLayers).</p>
+ * express. Generated model JSON no longer carries render_type: since 1.21.4 render layers are
+ * registered in code (see LeadedGlassItemModels#registerRenderLayers).</p>
  *
- * <p>Item models are 1.21.4 data-driven definitions ({@code items/*.json}): every pane renders via
+ * <p>Item models are data-driven definitions ({@code items/*.json}, since 1.21.4): every pane renders via
  * the {@code theleadage:leaded_glass_pane} special renderer (config-driven frame, tints and
  * clear-sprite swap), the trapdoor via {@code theleadage:leaded_glass_trapdoor}.</p>
  */
@@ -87,18 +89,18 @@ public class ModModelProvider extends ModelProvider {
         // Leaded glass door/trapdoor: hand-authored block models; only the blockstate is generated.
         // Their item models are handled in the items section below.
         bmg.blockStateOutput.accept(BlockModelGenerators.createDoor(ModBlocks.LEADED_GLASS_DOOR.get(),
-                modBlock("leaded_glass_door_bottom_left"),
-                modBlock("leaded_glass_door_bottom_left_open"),
-                modBlock("leaded_glass_door_bottom_right"),
-                modBlock("leaded_glass_door_bottom_right_open"),
-                modBlock("leaded_glass_door_top_left"),
-                modBlock("leaded_glass_door_top_left_open"),
-                modBlock("leaded_glass_door_top_right"),
-                modBlock("leaded_glass_door_top_right_open")));
+                pv("leaded_glass_door_bottom_left"),
+                pv("leaded_glass_door_bottom_left_open"),
+                pv("leaded_glass_door_bottom_right"),
+                pv("leaded_glass_door_bottom_right_open"),
+                pv("leaded_glass_door_top_left"),
+                pv("leaded_glass_door_top_left_open"),
+                pv("leaded_glass_door_top_right"),
+                pv("leaded_glass_door_top_right_open")));
         bmg.blockStateOutput.accept(BlockModelGenerators.createOrientableTrapdoor(ModBlocks.LEADED_GLASS_TRAPDOOR.get(),
-                modBlock("leaded_glass_trapdoor_top"),
-                modBlock("leaded_glass_trapdoor_bottom"),
-                modBlock("leaded_glass_trapdoor_open")));
+                pv("leaded_glass_trapdoor_top"),
+                pv("leaded_glass_trapdoor_bottom"),
+                pv("leaded_glass_trapdoor_open")));
 
         // ---------- Torch / lantern / chain / bars / bulb / weights (raw JSON) ----------
         leadTorchAndLantern(bmg);
@@ -177,6 +179,11 @@ public class ModModelProvider extends ModelProvider {
 
     // ---------------- simple helpers ----------------
 
+    /** plainVariant of a mod block model — the 1.21.5 statics take MultiVariant, not raw ids. */
+    private static net.minecraft.client.data.models.MultiVariant pv(String path) {
+        return BlockModelGenerators.plainVariant(modBlock(path));
+    }
+
     private static ResourceLocation modBlock(String path) {
         return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "block/" + path);
     }
@@ -204,8 +211,8 @@ public class ModModelProvider extends ModelProvider {
                 .put(TextureSlot.END, TextureMapping.getBlockTexture(block, "_top"));
         ResourceLocation model = ModelTemplates.CUBE_COLUMN.create(block, mapping, bmg.modelOutput);
         ResourceLocation horizontal = ModelTemplates.CUBE_COLUMN_HORIZONTAL.create(block, mapping, bmg.modelOutput);
-        bmg.blockStateOutput.accept(
-                BlockModelGenerators.createRotatedPillarWithHorizontalVariant(block, model, horizontal));
+        bmg.blockStateOutput.accept(BlockModelGenerators.createRotatedPillarWithHorizontalVariant(block,
+                BlockModelGenerators.plainVariant(model), BlockModelGenerators.plainVariant(horizontal)));
     }
 
     private static void orientableTrapdoor(BlockModelGenerators bmg, Block block) {
@@ -213,22 +220,19 @@ public class ModModelProvider extends ModelProvider {
         ResourceLocation top = ModelTemplates.ORIENTABLE_TRAPDOOR_TOP.create(block, mapping, bmg.modelOutput);
         ResourceLocation bottom = ModelTemplates.ORIENTABLE_TRAPDOOR_BOTTOM.create(block, mapping, bmg.modelOutput);
         ResourceLocation open = ModelTemplates.ORIENTABLE_TRAPDOOR_OPEN.create(block, mapping, bmg.modelOutput);
-        bmg.blockStateOutput.accept(BlockModelGenerators.createOrientableTrapdoor(block, top, bottom, open));
+        bmg.blockStateOutput.accept(BlockModelGenerators.createOrientableTrapdoor(block,
+                BlockModelGenerators.plainVariant(top), BlockModelGenerators.plainVariant(bottom),
+                BlockModelGenerators.plainVariant(open)));
         bmg.registerSimpleItemModel(block.asItem(), bottom);
     }
 
     // ---------------- raw JSON emission (shapes beyond PropertyDispatch) ----------------
 
-    /** A blockstate emitted as raw JSON, mirroring this mod's committed 1.21.3 output. */
-    private record RawBlockState(Block block, JsonElement json) implements BlockStateGenerator {
+    /** A blockstate emitted as raw JSON (parsed through the vanilla codec), mirroring committed output. */
+    private record RawBlockState(Block block, JsonElement json) implements BlockModelDefinitionGenerator {
         @Override
-        public Block getBlock() {
-            return block;
-        }
-
-        @Override
-        public JsonElement get() {
-            return json;
+        public BlockModelDefinition create() {
+            return BlockModelDefinition.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
         }
     }
 

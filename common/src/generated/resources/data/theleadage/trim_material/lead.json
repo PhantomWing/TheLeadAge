@@ -4,7 +4,6 @@
     "color": "#6E737D",
     "translate": "trim_material.theleadage.lead"
   },
-  "ingredient": "theleadage:lead_ingot",
   "override_armor_assets": {
     "theleadage:lead": "lead_darker"
   }

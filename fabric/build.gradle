@@ -11,9 +11,9 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// Create, Farmer's Delight, JEI and EMI publish no 1.21.2/1.21.3 build, so their compat and the
-// recipe_viewer switch are absent on this branch. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 1.21.3 branch — no FD/JEI/EMI compat on this line")
+// 1.21.5: Farmer's Delight Refabricated exists for Fabric again (Lead Knife via the KnifeItem
+// stub); JEI-Fabric and EMI publish no 1.21.5 build. See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (fabric) 1.21.5 branch: FDR compat via stub; no JEI-Fabric/EMI")
 
 configurations {
     common
@@ -39,9 +39,7 @@ dependencies {
         exclude group: "net.fabricmc.fabric-api"
     }
 
-    // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
-    //      never shipped, never a hard dependency). ----
-    modLocalRuntime("squeek.appleskin:appleskin-fabric:${rootProject.appleskin_fabric_version}")
+    // NOTE (1.21.5 branch): no dev-runtime niceties — AppleSkin has no 1.21.4/1.21.5 build.
 }
 
 processResources {

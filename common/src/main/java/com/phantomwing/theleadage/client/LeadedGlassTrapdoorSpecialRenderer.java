@@ -14,7 +14,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -48,22 +49,24 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
     public void render(@Nullable LeadedGlassConfig config, ItemDisplayContext context, PoseStack pose,
                        MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
-        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
+        // 1.21.5: block models are BlockStateModels — quads come per-part via collectParts.
+        BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
 
         // The trapdoor frame (the cut-window overlay texture, cutout).
         VertexConsumer cutout = buffers.getBuffer(RenderType.cutout());
-        RandomSource random = RandomSource.create(42L);
-        emit(model, frame, null, cutout, pose, light, overlay, random);
-        for (Direction dir : Direction.values()) {
-            emit(model, frame, dir, cutout, pose, light, overlay, random);
+        for (BlockModelPart part : model.collectParts(RandomSource.create(42L))) {
+            emit(part, null, cutout, pose, light, overlay);
+            for (Direction dir : Direction.values()) {
+                emit(part, dir, cutout, pose, light, overlay);
+            }
         }
 
         LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, buffers, light, overlay);
     }
 
-    private static void emit(BakedModel model, BlockState state, Direction dir, VertexConsumer buffer,
-                             PoseStack pose, int light, int overlay, RandomSource random) {
-        for (BakedQuad quad : model.getQuads(state, dir, random)) {
+    private static void emit(BlockModelPart part, Direction dir, VertexConsumer buffer,
+                             PoseStack pose, int light, int overlay) {
+        for (BakedQuad quad : part.getQuads(dir)) {
             buffer.putBulkData(pose.last(), quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
         }
     }
