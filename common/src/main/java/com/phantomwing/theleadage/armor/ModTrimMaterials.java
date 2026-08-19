@@ -47,9 +47,9 @@ public class ModTrimMaterials {
             MaterialAssetGroup.create("lead", Map.of(LEAD_EQUIPMENT_ASSET, "lead_darker"));
 
     public static void bootstrap(BootstrapContext<TrimMaterial> context) {
-        // 1.21.5: TrimMaterial is a record(MaterialAssetGroup assets, Component description) —
-        // the ingredient item moved onto the item's PROVIDES_TRIM_MATERIAL component, and the
-        // per-asset override map lives on the MaterialAssetGroup.
+        // 1.21.5: TrimMaterial is a record(MaterialAssetGroup assets, Component description). The
+        // ingredient item moved onto the item's PROVIDES_TRIM_MATERIAL component, and the per-asset
+        // override map lives on the MaterialAssetGroup.
         context.register(LEAD, new TrimMaterial(LEAD_ASSETS,
                 Component.translatable(Util.makeDescriptionId("trim_material", LEAD.location()))
                         .withStyle(Style.EMPTY.withColor(TextColor.parseColor("#6E737D").getOrThrow()))));

@@ -21,6 +21,9 @@
     ],
     "client": [
       "com.phantomwing.theleadage.fabric.client.TheLeadAgeFabricClient"
+    ],
+    "jei_mod_plugin": [
+      "com.phantomwing.theleadage.compat.jei.TheLeadAgeJeiPlugin"
     ]
   },
   "mixins": [
@@ -34,6 +37,7 @@
     "cloth-config": ">=18.0.145"
   },
   "suggests": {
-    "farmersdelight": "*"
+    "farmersdelight": "*",
+    "jei": "*"
   }
 }

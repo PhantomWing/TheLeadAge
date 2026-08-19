@@ -30,7 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Item form of the configurable leaded glass panel. Carries the design in the

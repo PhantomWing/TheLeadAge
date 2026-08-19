@@ -8,8 +8,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -33,6 +35,7 @@ public final class GameTestRegistration {
         TESTS.put("silk_touch_never_gives_lead_sickness", LeadOreGameTest::silkTouchNeverGivesLeadSickness);
         TESTS.put("lead_sickness_ladder_escalates", LeadOreGameTest::leadSicknessLadderEscalates);
         TESTS.put("door_recipe_combines", LeadOreGameTest::doorRecipeCombines);
+        TESTS.put("lead_bricks_recipe_yields_one", LeadOreGameTest::leadBricksRecipeYieldsOne);
         TESTS.put("bars_connect_to_leaded_glass", LeadOreGameTest::barsConnectToLeadedGlass);
         TESTS.put("frame_region_mapping", LeadOreGameTest::frameRegionMapping);
         TESTS.put("glass_placement_stays_inside_panel", LeadOreGameTest::glassPlacementStaysInsidePanel);
@@ -47,9 +50,16 @@ public final class GameTestRegistration {
         TESTS.put("lead_weight_aim_direction", LeadOreGameTest::leadWeightAimDirection);
         TESTS.put("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset);
         TESTS.put("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers);
+        TESTS.put("lead_knife_fallback_keeps_sword_properties", LeadOreGameTest::leadKnifeFallbackKeepsSwordProperties);
+        TESTS.put("every_test_function_has_an_instance", LeadOreGameTest::everyTestFunctionHasAnInstance);
     }
 
     private GameTestRegistration() {
+    }
+
+    /** The registered test-function names, so a test can check each one has its test_instance JSON. */
+    public static Set<String> testNames() {
+        return Collections.unmodifiableSet(TESTS.keySet());
     }
 
     @SubscribeEvent

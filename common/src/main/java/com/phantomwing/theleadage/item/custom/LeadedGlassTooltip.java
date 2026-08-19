@@ -11,7 +11,6 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**

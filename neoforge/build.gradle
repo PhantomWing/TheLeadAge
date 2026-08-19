@@ -14,16 +14,16 @@ def datagenModId = rootProject.property('mod_id').toString()
 def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
 def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
 
-// Dev-runtime niceties (AppleSkin) + the side-by-side comparison mod (The Silver Age)
-// are useless — and can hang/crash — in the headless game-test and data-generation
-// runs. Only load them for runClient/runServer.
+// A recipe viewer is useless in the headless game-test and data-generation runs and can hang or
+// crash them, so the dev-runtime JEI below is skipped for those task names.
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
-// 1.21.5: Farmer's Delight (Refabricated) ships Fabric-only; Create, FD-NeoForge and EMI publish
-// no 1.21.5 build, so their compat and the recipe_viewer switch are absent on this branch.
+// 1.21.5: JEI is back, so the recipe-viewer plugin ships again. Farmer's Delight (Refabricated) is
+// Fabric-only, and Create, FD-NeoForge and EMI publish no 1.21.5 build, so their compat stays
+// dropped along with the recipe_viewer switch (JEI is the only viewer here).
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.5 branch: FDR on Fabric only; no Create/FD-NeoForge/EMI compat")
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.5 branch: JEI restored; no Create/FD-NeoForge/EMI compat")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -96,8 +96,13 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }
 
-    // NOTE (1.21.5 branch): no dev-runtime niceties — AppleSkin has no 1.21.4/1.21.5 build.
-    // Re-add here (gated on !runningGameTest && !runningDataGen) when one ships.
+    // JEI, dev runtime only, so the plugin can actually be exercised in runClient. Kept out of the
+    // headless game-test and data-generation runs, where a recipe viewer is useless and can hang them.
+    if (!runningGameTest && !runningDataGen) {
+        modLocalRuntime "mezz.jei:jei-1.21.5-neoforge:${rootProject.jei_version}"
+    }
+
+    // NOTE (1.21.5 branch): no other dev-runtime niceties, since AppleSkin has no 1.21.4/1.21.5 build.
 }
 
 // A widened member missing from the access transformer still compiles and runs in dev, then throws
@@ -165,6 +170,7 @@ publishMods {
         rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
         // NeoForge only needs Architectury — fabric-api / cloth-config are Fabric-only.
         requires("architectury-api")
+        optional("jei")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -174,6 +180,7 @@ publishMods {
         client = true
         server = true
         requires("architectury-api")
+        optional("jei")
     }
 }
 

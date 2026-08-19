@@ -252,7 +252,7 @@ public class LeadWeightEntity extends FallingBlockEntity {
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        // 1.21.5: the UUID helpers are gone — UUIDs round-trip through their codec.
+        // 1.21.5: the UUID helpers are gone, so UUIDs round-trip through their codec.
         tag.storeNullable("Owner", UUIDUtil.CODEC, ownerUUID);
         tag.putFloat("Momentum", momentum);
     }

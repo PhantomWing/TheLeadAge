@@ -29,6 +29,9 @@ import net.minecraft.world.phys.AABB;
  * (from the block's collision shape) decides which plane to rotate the pane sheet onto.
  */
 public final class LeadedGlassSurface {
+    /** Cached: {@code Direction.values()} clones its array per call, and this is a per-frame path. */
+    private static final Direction[] DIRECTIONS = Direction.values();
+
     private LeadedGlassSurface() {
     }
 
@@ -50,13 +53,13 @@ public final class LeadedGlassSurface {
     public static void renderUpright(LeadedGlassConfig config, PoseStack pose,
                                      MultiBufferSource buffers, int light, int overlay) {
         BlockState paneState = paneStateFor(config);
-        // 1.21.5: block models are BlockStateModels — quads come per-part via collectParts,
-        // which also replaces the old per-direction getQuads(state, dir, random) calls.
+        // 1.21.5: block models are BlockStateModels, so quads come per-part via collectParts, which
+        // also replaces the old per-direction getQuads(state, dir, random) calls.
         BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentItemSheet());
         for (BlockModelPart part : model.collectParts(RandomSource.create(42L))) {
             emit(part, config, null, buffer, pose, light, overlay);
-            for (Direction dir : Direction.values()) {
+            for (Direction dir : DIRECTIONS) {
                 emit(part, config, dir, buffer, pose, light, overlay);
             }
         }
@@ -67,7 +70,7 @@ public final class LeadedGlassSurface {
         for (BakedQuad quad : part.getQuads(dir)) {
             int tint = quad.tintIndex();
             // Clear regions must be drawn with the clear sprite, not the tintable white one. For most
-            // came types the block state already picked a clear-textured model and this is a no-op —
+            // came types the block state already picked a clear-textured model and this is a no-op,
             // but grid and lattice carry no clear_N state, and their chunk-mesh wrapper can only do the
             // swap from a block entity, which a door has none of. Without this they render solid white.
             BakedQuad out = tint >= 0 && config.colorAt(tint) == null

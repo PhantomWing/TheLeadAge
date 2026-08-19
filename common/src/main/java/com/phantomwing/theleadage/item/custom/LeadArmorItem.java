@@ -82,9 +82,9 @@ public class LeadArmorItem extends Item {
      * into a chest — nothing is left to run the cleanup and the wearer keeps the slowness and extra
      * gravity for the rest of the session. Ticking the player instead means the clear always happens.</p>
      */
-    public static void refreshHeaviness(LivingEntity living) {
+    public static double refreshHeaviness(LivingEntity living) {
         // Heaviness is suspended while the wearer is flying (creative / spectator) so the
-        // penalties don't fight free-flight — treated as if no lead armor were worn.
+        // penalties don't fight free-flight, i.e. treated as if no lead armor were worn.
         boolean flying = living instanceof Player player && player.getAbilities().flying;
         double heaviness = flying ? 0.0 : wornHeaviness(living);
         updateModifier(living, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_ID,
@@ -93,17 +93,21 @@ public class LeadArmorItem extends Item {
                 heaviness * GRAVITY_BONUS_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         updateModifier(living, Attributes.KNOCKBACK_RESISTANCE, KNOCKBACK_MODIFIER_ID,
                 heaviness * KNOCKBACK_RESISTANCE_PER_HEAVINESS, AttributeModifier.Operation.ADD_VALUE);
+        return heaviness;
     }
 
     /** Drives {@link #refreshHeaviness} for players every tick, whether or not they still carry lead. */
     public static void register() {
         TickEvent.PLAYER_POST.register(player -> {
-            refreshHeaviness(player);
-            // The player water-sink runs on the CLIENT tick — the side that owns player movement,
-            // so the local swim input is read correctly. (It lived in inventoryTick before 1.21.5;
-            // that hook is server-only now.)
-            if (player.level().isClientSide()) {
-                applyWaterSink(player, wornHeaviness(player));
+            double heaviness = refreshHeaviness(player);
+            // The water-sink runs on the client for the LOCAL player only: that is the side, and the
+            // entity, whose movement and swim input this client owns. PLAYER_POST fires for every
+            // ticking player, remote ones included, and their motion is packet-driven, so sinking
+            // them here would only corrupt the interpolated pose. `jumping` is never set on a remote
+            // player either, so the swim-up exemption below could not filter them out.
+            // (This lived in inventoryTick before 1.21.5; that hook is server-only now.)
+            if (player.level().isClientSide() && player.isLocalPlayer()) {
+                applyWaterSink(player, heaviness);
             }
         });
     }

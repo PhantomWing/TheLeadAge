@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.neoforge.client;
 
 import com.phantomwing.theleadage.client.LeadedGlassClearSprite;
-import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
@@ -19,14 +20,14 @@ import java.util.List;
 
 /**
  * Wraps a dynamic (grid / lattice) pane's block-state model and, at chunk-mesh time, retextures
- * whichever glass cells are CLEAR — swapping the tinted white sprite for its untinted clear
- * counterpart — from the block entity's per-region colours. This keeps the design out of
- * block-state properties (no 2^regions explosion) while preserving the exact clear-vs-coloured
- * look. It only runs when a section is (re)built, so it adds no per-frame cost.
+ * whichever glass cells are CLEAR (the tinted white sprite is swapped for its untinted clear
+ * counterpart) from the block entity's per-region colours. This keeps the design out of block-state
+ * properties, avoiding a 2^regions explosion, while preserving the exact clear-vs-coloured look.
+ * It only runs when a section is (re)built, so it adds no per-frame cost.
  *
- * <p>1.21.5: the BakedModel/ModelData pipeline is gone — this extends NeoForge's
- * {@link DelegateBlockStateModel} and does the swap in the level-aware {@code collectParts},
- * which can read the block entity directly (no ModelData round-trip).</p>
+ * <p>1.21.5: the BakedModel/ModelData pipeline is gone. This extends NeoForge's
+ * {@link DelegateBlockStateModel} and does the swap in the level-aware {@code collectParts}, which
+ * reads the block entity directly with no ModelData round-trip.</p>
  */
 public class LeadedGlassPaneModel extends DelegateBlockStateModel {
     public LeadedGlassPaneModel(BlockStateModel base) {
@@ -38,26 +39,16 @@ public class LeadedGlassPaneModel extends DelegateBlockStateModel {
                              RandomSource random, List<BlockModelPart> parts) {
         int start = parts.size();
         super.collectParts(level, pos, state, random, parts);
-        boolean[] clear = clearFlags(level, pos);
-        if (clear == null) {
-            return; // no block entity -> render as authored (all coloured)
+        boolean[] clear = LeadedGlassClearSprite.clearFlags(level, pos);
+        // No block entity, or no clear cell: leave the authored parts alone. 1.21.5 splits the model
+        // into one part per cell, so wrapping them all for a swap that can never fire would cost the
+        // common (fully dyed) pane a wrapper per cell on every rebuild.
+        if (clear == null || !LeadedGlassClearSprite.hasClear(clear)) {
+            return;
         }
         for (int i = start; i < parts.size(); i++) {
             parts.set(i, new RetexturedPart(parts.get(i), clear));
         }
-    }
-
-    @Nullable
-    private static boolean[] clearFlags(BlockAndTintGetter level, BlockPos pos) {
-        if (!(level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane)) {
-            return null;
-        }
-        int n = pane.getColors().size();
-        boolean[] clear = new boolean[n];
-        for (int i = 0; i < n; i++) {
-            clear[i] = pane.colorAt(i) == null;
-        }
-        return clear;
     }
 
     /** A part whose clear cells are retextured to the untinted clear sprite; everything else forwards. */
@@ -65,14 +56,21 @@ public class LeadedGlassPaneModel extends DelegateBlockStateModel {
         @Override
         public List<BakedQuad> getQuads(@Nullable Direction side) {
             List<BakedQuad> quads = part.getQuads(side);
-            List<BakedQuad> out = new ArrayList<>(quads.size());
-            for (BakedQuad quad : quads) {
-                int tint = quad.tintIndex();
-                out.add(tint >= 0 && tint < clear.length && clear[tint]
-                        ? LeadedGlassClearSprite.retexture(quad)
-                        : quad);
+            // The mesher asks each part for all six faces plus the unculled list, and most of those
+            // lists contain no clear cell, so copy lazily: only once a quad actually changes.
+            List<BakedQuad> out = null;
+            for (int i = 0; i < quads.size(); i++) {
+                BakedQuad quad = quads.get(i);
+                BakedQuad swapped = LeadedGlassClearSprite.retexture(quad, clear);
+                if (swapped == quad) {
+                    continue;
+                }
+                if (out == null) {
+                    out = new ArrayList<>(quads);
+                }
+                out.set(i, swapped);
             }
-            return out;
+            return out == null ? quads : out;
         }
 
         @Override
@@ -83,6 +81,19 @@ public class LeadedGlassPaneModel extends DelegateBlockStateModel {
         @Override
         public TextureAtlasSprite particleIcon() {
             return part.particleIcon();
+        }
+
+        // NeoForge adds these two to BlockModelPart. Their interface defaults answer from the global
+        // ItemBlockRenderTypes map and from useAmbientOcclusion, so without forwarding a wrapped
+        // part's own render layer or forced AO would be dropped for exactly the wrapped positions.
+        @Override
+        public RenderType getRenderType(BlockState state) {
+            return part.getRenderType(state);
+        }
+
+        @Override
+        public TriState ambientOcclusion() {
+            return part.ambientOcclusion();
         }
     }
 }

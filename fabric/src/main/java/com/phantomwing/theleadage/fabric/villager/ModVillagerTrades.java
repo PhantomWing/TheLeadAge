@@ -7,6 +7,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 
+import java.util.List;
+
 /**
  * Fabric parity for the NeoForge {@code ModVillagerTrades}. NeoForge adds trades from
  * {@code VillagerTradesEvent}, which re-fires on every rebuild, so its config checks are live;
@@ -44,11 +46,10 @@ public final class ModVillagerTrades {
         // level 2, exactly like iron ingots. Parity with the NeoForge event branch;
         // the config gate is pushed into the listing (null = no offer, vanilla skips it).
         // 1.21.5: professions are addressed by ResourceKey (the constants are keys now).
-        ResourceKey<VillagerProfession>[] smiths = new ResourceKey[]{
+        List<ResourceKey<VillagerProfession>> smiths = List.of(
                 VillagerProfession.ARMORER,
                 VillagerProfession.TOOLSMITH,
-                VillagerProfession.WEAPONSMITH
-        };
+                VillagerProfession.WEAPONSMITH);
         for (ResourceKey<VillagerProfession> smith : smiths) {
             registerGated(smith, 2, smithTrade);
         }

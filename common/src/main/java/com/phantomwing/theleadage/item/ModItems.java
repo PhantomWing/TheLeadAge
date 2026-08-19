@@ -62,9 +62,9 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_AXE = registerAxe("lead_axe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_HOE = registerHoe("lead_hoe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_SWORD = registerSword("lead_sword", ModTiers.LEAD);
-    // Farmer's Delight compat: a real FD KnifeItem when FD is present, a plain SwordItem fallback
-    // otherwise (so the mod loads standalone). Only appears in the creative tab when FD is loaded —
-    // same pattern as the Create-gated sheet.
+    // Farmer's Delight compat: a real FD KnifeItem when FD is present, a plain sword-statted Item
+    // otherwise (so the mod loads standalone). Only appears in the creative tab when FD is loaded,
+    // the same pattern as the Create-gated sheet.
     public static final RegistrySupplier<Item> LEAD_KNIFE = registerKnife("lead_knife", ModTiers.LEAD, ModIds.FARMERS_DELIGHT);
 
     // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
@@ -247,12 +247,12 @@ public class ModItems {
      * netherite. Creative-tab-gated on FD.
      */
     private static RegistrySupplier<Item> registerKnife(String name, ToolMaterial material, String modId) {
-        // 1.21.5: knife attack stats bake into the Properties (FDR's KnifeItem now takes only
-        // Properties): 5.5 dmg, 1.8 speed, 0.2 slower than FD's own knives, like the rest of the
-        // lead tools against netherite. Built inside the supplier: Properties#sword touches the
-        // item registry, which is only writable during registration.
+        // 1.21.5: the weapon/tool components moved onto the Properties, so each branch of
+        // KnifePlatform applies its own: FD's knife properties when FD is loaded, vanilla's sword
+        // properties otherwise. Built inside the supplier because both touch the item registry,
+        // which is only writable during registration.
         RegistrySupplier<Item> item = ITEMS.register(name,
-                () -> KnifePlatform.createLeadKnife(baseItem().setId(itemKey(name)).sword(material, 0.5f, -2.2f)));
+                () -> KnifePlatform.createLeadKnife(baseItem().setId(itemKey(name)), material));
         if (Platform.isModLoaded(modId)) {
             CREATIVE_TAB_ITEMS.add(item);
         }

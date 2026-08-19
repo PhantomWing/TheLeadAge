@@ -1,10 +1,13 @@
 package com.phantomwing.theleadage.client;
 
+import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.BlockAndTintGetter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -52,13 +55,56 @@ public final class LeadedGlassClearSprite {
             v[o] = Float.floatToRawIntBits(to.getU0() + lu * (to.getU1() - to.getU0()));
             v[o + 1] = Float.floatToRawIntBits(to.getV0() + lw * (to.getV1() - to.getV0()));
         }
+        // This is vanilla BakedQuad's full constructor (6 components). NeoForge patches on a 7th,
+        // hasAmbientOcclusion, which this defaults to true because common cannot see the accessor
+        // that would read it back. Harmless as long as the pane models keep their AO decision at
+        // model level, which the mesher consults first; revisit if a per-quad AO=false ever ships.
         return new BakedQuad(v, -1, quad.direction(), to, quad.shade(), quad.lightEmission());
+    }
+
+    /** {@link #retexture(BakedQuad)} when the quad's region is clear; every other quad passes through. */
+    public static BakedQuad retexture(BakedQuad quad, boolean @Nullable [] clear) {
+        return isClear(clear, quad.tintIndex()) ? retexture(quad) : quad;
+    }
+
+    /**
+     * Per-region clear flags for the pane at {@code pos}, or {@code null} when no pane block entity
+     * lives there (the model then renders exactly as authored). Shared by both loaders' chunk-mesh
+     * wrappers so "this region is clear" has one definition rather than one per loader.
+     */
+    @Nullable
+    public static boolean[] clearFlags(BlockAndTintGetter level, BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane)) {
+            return null;
+        }
+        int regions = pane.getColors().size();
+        boolean[] clear = new boolean[regions];
+        for (int i = 0; i < regions; i++) {
+            clear[i] = pane.colorAt(i) == null;
+        }
+        return clear;
+    }
+
+    /** Whether any region is clear. A fully coloured pane needs no retexturing at all. */
+    public static boolean hasClear(boolean[] clear) {
+        for (boolean region : clear) {
+            if (region) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Whether a quad's tint index addresses a clear region. */
+    public static boolean isClear(boolean @Nullable [] clear, int tintIndex) {
+        return clear != null && tintIndex >= 0 && tintIndex < clear.length && clear[tintIndex];
     }
 
     /**
      * The untinted clear counterpart of a tinted {@code white_*} sprite, or {@code null} if it has
-     * none. Public so the Fabric chunk-mesh wrapper can share the lookup — it does the UV swap through
-     * the Renderer API rather than on a {@link BakedQuad}, so it can't reuse {@link #retexture}.
+     * none. Public so the Fabric chunk-mesh wrapper can share the lookup: it swaps the UVs in place
+     * on the emitter's mutable quad through the Renderer API rather than rebuilding a
+     * {@link BakedQuad}, so it cannot reuse {@link #retexture}.
      */
     @Nullable
     public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {

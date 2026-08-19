@@ -1,7 +1,6 @@
 package com.phantomwing.theleadage.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
@@ -12,12 +11,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,26 +45,14 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
     public void render(@Nullable LeadedGlassConfig config, ItemDisplayContext context, PoseStack pose,
                        MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
-        // 1.21.5: block models are BlockStateModels — quads come per-part via collectParts.
         BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
 
-        // The trapdoor frame (the cut-window overlay texture, cutout).
-        VertexConsumer cutout = buffers.getBuffer(RenderType.cutout());
-        for (BlockModelPart part : model.collectParts(RandomSource.create(42L))) {
-            emit(part, null, cutout, pose, light, overlay);
-            for (Direction dir : Direction.values()) {
-                emit(part, dir, cutout, pose, light, overlay);
-            }
-        }
+        // The trapdoor frame (the cut-window overlay texture, cutout). Untinted, so vanilla's own
+        // whole-model emission does exactly what is needed here.
+        ModelBlockRenderer.renderModel(pose.last(), buffers.getBuffer(RenderType.cutout()), model,
+                1.0f, 1.0f, 1.0f, light, overlay);
 
         LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, buffers, light, overlay);
-    }
-
-    private static void emit(BlockModelPart part, Direction dir, VertexConsumer buffer,
-                             PoseStack pose, int light, int overlay) {
-        for (BakedQuad quad : part.getQuads(dir)) {
-            buffer.putBulkData(pose.last(), quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
-        }
     }
 
     /** The data-driven side: {@code {"type": "theleadage:leaded_glass_trapdoor"}} in an items/ definition. */

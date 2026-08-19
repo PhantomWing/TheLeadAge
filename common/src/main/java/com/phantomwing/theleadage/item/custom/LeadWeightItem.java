@@ -28,7 +28,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 
 /**
  * Block item for the Lead Weight — a drop-from-above weapon. {@code useOn} keeps normal block

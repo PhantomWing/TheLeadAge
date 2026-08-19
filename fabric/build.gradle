@@ -11,9 +11,10 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// 1.21.5: Farmer's Delight Refabricated exists for Fabric again (Lead Knife via the KnifeItem
-// stub); JEI-Fabric and EMI publish no 1.21.5 build. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 1.21.5 branch: FDR compat via stub; no JEI-Fabric/EMI")
+// 1.21.5: Farmer's Delight Refabricated and JEI both publish for Fabric again, so the Lead Knife and
+// the recipe-viewer plugin are back; EMI still has no 1.21.5 build.
+// See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (fabric) 1.21.5 branch: FDR + JEI restored; no EMI")
 
 configurations {
     common
@@ -39,7 +40,21 @@ dependencies {
         exclude group: "net.fabricmc.fabric-api"
     }
 
-    // NOTE (1.21.5 branch): no dev-runtime niceties — AppleSkin has no 1.21.4/1.21.5 build.
+    // Farmer's Delight Refabricated, COMPILE-ONLY: LeadKnifeItem extends its KnifeItem, and taking
+    // the real artifact here means javac verifies that superclass shape. The alternative, a
+    // hand-written stub, type-checks against our own guess and only fails on a player's machine
+    // (NoSuchMethodError at item registration, never in a dev run, since FDR is absent here and the
+    // isModLoaded guard keeps the path cold). Not shipped and not in the dev runtime: at runtime the
+    // class binds to the real FDR jar when the player has it installed.
+    modCompileOnly("maven.modrinth:farmers-delight-refabricated:${rootProject.fdr_version}") {
+        transitive = false
+    }
+
+    // JEI, dev runtime only, so the plugin can actually be exercised in runClient. JEI publishes a
+    // 1.21.5 Fabric build again on this line, so both loaders can test the integration.
+    modLocalRuntime "mezz.jei:jei-1.21.5-fabric:${rootProject.jei_version}"
+
+    // NOTE (1.21.5 branch): no other dev-runtime niceties, since AppleSkin has no 1.21.4/1.21.5 build.
 }
 
 processResources {
@@ -53,12 +68,10 @@ processResources {
 shadowJar {
     exclude 'architectury.common.json'
 
-    // Drop the compile-only Farmer's Delight Refabricated KnifeItem stub from the shipped jar. The
-    // stub (src/main/java/vectorwing/farmersdelight/common/item/KnifeItem) exists ONLY so LeadKnifeItem
-    // can `extend` FDR's KnifeItem at compile time — architectury-loom can't consume the real FDR jar.
-    // It must NOT ship: at runtime the real FDR class (same FQN) is what LeadKnifeItem binds to, and a
-    // shipped stub would shadow it. (Harmless in dev: FDR is absent, so the isModLoaded-guarded
-    // LeadKnifeItem is never loaded and the stub is never touched.)
+    // Belt and braces: nothing under vectorwing/ may ship. LeadKnifeItem binds to the real FDR class
+    // (same FQN) at runtime, so any copy of ours in the jar would shadow it. Farmer's Delight is a
+    // modCompileOnly dependency, which already keeps it out of the shipped jar; this stays as a guard
+    // against a stray class under that package sneaking back in.
     exclude 'vectorwing/**'
 
     configurations = [project.configurations.shadowCommon]
@@ -92,6 +105,7 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
+        optional("jei")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -103,6 +117,7 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
+        optional("jei")
     }
 }
 

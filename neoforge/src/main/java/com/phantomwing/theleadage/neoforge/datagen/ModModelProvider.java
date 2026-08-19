@@ -14,6 +14,7 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
 import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import com.mojang.serialization.JsonOps;
@@ -179,8 +180,8 @@ public class ModModelProvider extends ModelProvider {
 
     // ---------------- simple helpers ----------------
 
-    /** plainVariant of a mod block model — the 1.21.5 statics take MultiVariant, not raw ids. */
-    private static net.minecraft.client.data.models.MultiVariant pv(String path) {
+    /** plainVariant of a mod block model: the 1.21.5 statics take MultiVariant, not raw ids. */
+    private static MultiVariant pv(String path) {
         return BlockModelGenerators.plainVariant(modBlock(path));
     }
 

@@ -41,3 +41,10 @@ side = "BOTH"
 # No optional integration dependencies on this line: FD (NeoForge), Create and EMI publish no
 # 1.21.5 build (JEI has one; its plugin is not yet restored). FD Refabricated exists on the
 # FABRIC side only. See the port notes in gradle.properties.
+
+[[dependencies.theleadage]]
+modId = "jei"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"

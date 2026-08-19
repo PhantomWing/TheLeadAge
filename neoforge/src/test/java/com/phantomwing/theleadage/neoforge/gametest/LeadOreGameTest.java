@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.entity.EntityType;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import net.minecraft.world.level.EmptyBlockGetter;
@@ -34,8 +36,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.gametest.framework.GameTestInstance;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -181,12 +186,39 @@ public class LeadOreGameTest {
         }
     }
 
+    /**
+     * A 2x2 of lead ingots yields ONE Lead Bricks block, the vanilla bricks / nether-bricks ratio for
+     * an item-to-block recipe. It read 4 for a long time (copied from the block-to-block cut-lead line
+     * above it), which made bricks as cheap as the ingots themselves.
+     */
+    public static void leadBricksRecipeYieldsOne(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ItemStack ingot = new ItemStack(ModItems.LEAD_INGOT.get());
+        CraftingInput input = CraftingInput.of(2, 2, List.of(ingot, ingot, ingot, ingot));
+        Optional<RecipeHolder<CraftingRecipe>> match =
+                level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
+        if (match.isEmpty()) {
+            helper.fail(Component.literal("no crafting recipe matched a 2x2 of lead ingots"));
+            return;
+        }
+        ItemStack result = match.get().value().assemble(input, level.registryAccess());
+        if (!result.is(ModItems.LEAD_BRICKS.get())) {
+            helper.fail(Component.literal("2x2 lead ingots produced " + result + ", expected lead bricks"));
+            return;
+        }
+        if (result.getCount() != 1) {
+            helper.fail(Component.literal("expected 1 lead bricks from 4 ingots, got " + result.getCount()));
+            return;
+        }
+        helper.succeed();
+    }
+
     /** The IronBarsBlock mixin: bars/panes attach to a wall leaded glass pane, but not floor panes, and vanilla still works. */
     public static void barsConnectToLeadedGlass(GameTestHelper helper) {
         IronBarsBlock bars = (IronBarsBlock) ModBlocks.LEAD_BARS.get();
         BlockState wallPane = ModBlocks.LEADED_GLASS_PANEL.get().defaultBlockState(); // FACE = WALL by default
         if (!bars.attachsTo(wallPane, false)) {
-            helper.fail(Component.literal("bars don't attach to a wall leaded glass pane — the IronBarsBlock mixin didn't apply"));
+            helper.fail(Component.literal("bars don't attach to a wall leaded glass pane, so the IronBarsBlock mixin didn't apply"));
         }
         // Only wall panes anchor; a floor-mounted pane must not connect.
         if (bars.attachsTo(wallPane.setValue(LeadedGlassPaneBlock.FACE, AttachFace.FLOOR), false)) {
@@ -194,7 +226,7 @@ public class LeadOreGameTest {
         }
         // Vanilla behaviour intact: bars still attach to other bars.
         if (!bars.attachsTo(Blocks.IRON_BARS.defaultBlockState(), false)) {
-            helper.fail(Component.literal("bars no longer attach to iron bars — the mixin broke vanilla connection"));
+            helper.fail(Component.literal("bars no longer attach to iron bars, so the mixin broke vanilla connection"));
         }
         helper.succeed();
     }
@@ -603,6 +635,50 @@ public class LeadOreGameTest {
         }
         if (!hasModifier(ModItems.LEAD_HORSE_ARMOR.get().components(), Attributes.ARMOR.value())) {
             helper.fail(Component.literal("lead horse armor lost the material's armor modifier"));
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Guards the one desync that fails silently: a test function registered with no matching
+     * {@code test_instance} JSON simply never runs, and the suite still reports all-pass. (The other
+     * direction, a JSON naming a function that does not exist, already fails registry load loudly.)
+     */
+    public static void everyTestFunctionHasAnInstance(GameTestHelper helper) {
+        Registry<GameTestInstance> instances = helper.getLevel().registryAccess()
+                .lookupOrThrow(Registries.TEST_INSTANCE);
+        List<String> missing = GameTestRegistration.testNames().stream()
+                .filter(name -> !instances.containsKey(
+                        ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name)))
+                .toList();
+        if (!missing.isEmpty()) {
+            helper.fail(Component.literal("test functions with no test_instance JSON, so they never run: " + missing));
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Without Farmer's Delight the Lead Knife falls back to vanilla sword properties, and that is what
+     * ships on NeoForge (FD publishes no 1.21.5 build) and on Fabric without FDR. 1.21.5 moved these
+     * onto the Properties, so the fallback and the FD branch each apply their own set: this pins the
+     * fallback, and would fail if the FD-only knife properties ever leaked into the default path.
+     */
+    public static void leadKnifeFallbackKeepsSwordProperties(GameTestHelper helper) {
+        DataComponentMap components = ModItems.LEAD_KNIFE.get().components();
+        if (!hasModifier(components, Attributes.ATTACK_DAMAGE.value())
+                || !hasModifier(components, Attributes.ATTACK_SPEED.value())) {
+            helper.fail(Component.literal("lead knife lost its attack attributes"));
+            return;
+        }
+        Weapon weapon = components.get(DataComponents.WEAPON);
+        if (weapon == null || weapon.itemDamagePerAttack() != 1) {
+            helper.fail(Component.literal("expected the vanilla sword weapon cost (1 durability per attack), got " + weapon));
+            return;
+        }
+        if (components.get(DataComponents.TOOL) == null) {
+            helper.fail(Component.literal("lead knife lost its tool component"));
+            return;
         }
         helper.succeed();
     }

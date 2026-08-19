@@ -128,7 +128,9 @@ public class ModRecipeProvider extends RecipeProvider {
         twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, cut, block, 4);
         stoneCutting(output, cut, block, 4);
 
-        twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, bricks, ingot, 4);
+        // Bricks are made from ingots, not from blocks, so 4 ingots -> 1 (the vanilla
+        // bricks / nether-bricks ratio) rather than the 4 -> 4 used for block-to-block cuts.
+        twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, bricks, ingot, 1);
         stoneCutting(output, bricks, block, 4);
 
         stairsWithCutting(output, ModItems.LEAD_BRICK_STAIRS.get(), bricks);
