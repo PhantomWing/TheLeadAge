@@ -1,18 +1,22 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.tags.CommonTags;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
+// 1.21.6: vanilla net.minecraft.data.tags.ItemTagsProvider was removed; NeoForge's replaces it,
+// and its constructor dropped the block-tag TagLookup (block-to-item tag copying is separate now,
+// and this provider only adds item tags directly).
+import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,9 +25,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
     private static final TagKey<Item> FARMERS_DELIGHT_KNIVES =
             TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("farmersdelight", "tools/knives"));
 
-    public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
-                               CompletableFuture<TagLookup<Block>> blockTags) {
-        super(output, lookupProvider, blockTags, TheLeadAge.MOD_ID);
+    public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, TheLeadAge.MOD_ID);
     }
 
     @Override
@@ -83,7 +86,13 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.TRAPDOORS).add(ModItems.LEAD_TRAPDOOR.get());
 
         // Mirror the leaded-glass block tag onto items (used by the "Leaded Lights" advancement).
-        copy(ModTags.Blocks.LEADED_GLASS_BLOCKS, ModTags.Items.LEADED_GLASS_BLOCKS);
+        // 1.21.6: ItemTagsProvider.copy(blockTag, itemTag) is gone, so the item forms are listed
+        // directly. Kept in step with the block tag in ModBlockTagsProvider by construction: both
+        // are leaded glass plus every dyed variant.
+        tag(ModTags.Items.LEADED_GLASS_BLOCKS).add(ModBlocks.LEADED_GLASS.get().asItem());
+        for (DyeColor color : DyeColor.values()) {
+            tag(ModTags.Items.LEADED_GLASS_BLOCKS).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get().asItem());
+        }
 
         // Item forms of the repellent tags, mirroring vanilla's #minecraft:piglin_repellents item tag.
         // NOT a copy() of the block tags: the wall torch has no item, and one item (LEAD_TORCH) places

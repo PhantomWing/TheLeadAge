@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  * with the datapack registries already frozen (21.5.97), so code registration crashes. Vanilla
  * ships no test_instance data, so the game-test server runs exactly the mod's tests.
  */
-@EventBusSubscriber(modid = TheLeadAge.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = TheLeadAge.MOD_ID)
 public final class GameTestRegistration {
     /** Keep in sync with the JSONs in {@code data/theleadage/test_instance/}. */
     private static final Map<String, Consumer<GameTestHelper>> TESTS = new LinkedHashMap<>();

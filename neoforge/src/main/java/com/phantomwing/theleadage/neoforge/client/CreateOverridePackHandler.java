@@ -35,7 +35,7 @@ import java.util.Optional;
  * <p>Only registered when Create is actually loaded; otherwise the pack is pointless (the item it
  * retextures does not exist). NeoForge-only, because Create has no Fabric 1.21.1 build.</p>
  */
-@EventBusSubscriber(modid = TheLeadAge.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = TheLeadAge.MOD_ID, value = Dist.CLIENT)
 public final class CreateOverridePackHandler {
     private static final String PACK_ID = "builtin/" + TheLeadAge.MOD_ID + "/create_overrides";
     private static final String PACK_RESOURCE_ROOT = "resourcepacks/create_overrides";

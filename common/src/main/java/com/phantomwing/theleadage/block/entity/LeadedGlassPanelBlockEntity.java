@@ -1,6 +1,8 @@
 package com.phantomwing.theleadage.block.entity;
 
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -52,11 +54,11 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         List<Integer> loaded = new ArrayList<>();
-        // 1.21.5: NBT getters return Optionals; an absent key reads as an empty array.
-        for (int id : tag.getIntArray("Colors").orElse(new int[0])) {
+        // An absent key reads as an empty array.
+        for (int id : input.getIntArray("Colors").orElse(new int[0])) {
             loaded.add(id);
         }
         this.colors = loaded.isEmpty() ? List.of(LeadedGlassConfig.CLEAR) : List.copyOf(loaded);
@@ -69,18 +71,17 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putIntArray("Colors", colors.stream().mapToInt(Integer::intValue).toArray());
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putIntArray("Colors", colors.stream().mapToInt(Integer::intValue).toArray());
     }
 
     // ---- Client sync (colours must reach the client for tinting) ----
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
-        return tag;
+        // 1.21.6: saveCustomOnly does the ValueOutput plumbing and runs saveAdditional for us.
+        return saveCustomOnly(registries);
     }
 
     @Nullable

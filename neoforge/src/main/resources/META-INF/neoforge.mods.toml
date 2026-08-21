@@ -20,31 +20,24 @@ A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod 
 [[dependencies.theleadage]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.5,)"
+versionRange = "[21.6,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.5,1.21.6)"
+versionRange = "[1.21.6,1.21.7)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "architectury"
 type = "required"
-versionRange = "[16.0,)"
+versionRange = "[17.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-# No optional integration dependencies on this line: FD (NeoForge), Create and EMI publish no
-# 1.21.5 build (JEI has one; its plugin is not yet restored). FD Refabricated exists on the
-# FABRIC side only. See the port notes in gradle.properties.
-
-[[dependencies.theleadage]]
-modId = "jei"
-type = "optional"
-versionRange = "[0,)"
-ordering = "AFTER"
-side = "CLIENT"
+# No optional integration dependencies on this line: JEI publishes no 1.21.6 build at all (its
+# maven skips 1.21.5 to 1.21.7), and FD (NeoForge), Create and EMI have nothing either. FD
+# Refabricated exists on the FABRIC side only. See the port notes in gradle.properties.

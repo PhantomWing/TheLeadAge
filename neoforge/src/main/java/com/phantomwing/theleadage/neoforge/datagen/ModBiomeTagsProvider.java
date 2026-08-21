@@ -4,17 +4,17 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.tags.CommonTags;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.TagsProvider;
+// 1.21.6: the generic TagsProvider no longer exposes tag(); vanilla's dedicated BiomeTagsProvider
+// (a KeyTagProvider) does, and it takes the mod id directly.
+import net.minecraft.data.tags.BiomeTagsProvider;
 import net.minecraft.tags.BiomeTags;
-import net.minecraft.world.level.biome.Biome;
 
 import java.util.concurrent.CompletableFuture;
 
-public class ModBiomeTagsProvider extends TagsProvider<Biome> {
+public class ModBiomeTagsProvider extends BiomeTagsProvider {
     public ModBiomeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, Registries.BIOME, lookupProvider, TheLeadAge.MOD_ID);
+        super(output, lookupProvider, TheLeadAge.MOD_ID);
     }
 
     @Override

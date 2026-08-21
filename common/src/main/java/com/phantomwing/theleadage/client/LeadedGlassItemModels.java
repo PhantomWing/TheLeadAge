@@ -5,7 +5,7 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import dev.architectury.registry.client.rendering.RenderTypeRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
@@ -43,8 +43,8 @@ public final class LeadedGlassItemModels {
      * Fabric-only ModRenderLayers).
      */
     public static void registerRenderLayers() {
-        RenderTypeRegistry.register(RenderType.cutout(), CUTOUT_BLOCKS);
-        RenderTypeRegistry.register(RenderType.translucent(), TRANSLUCENT_BLOCKS);
+        RenderTypeRegistry.register(ChunkSectionLayer.CUTOUT, CUTOUT_BLOCKS);
+        RenderTypeRegistry.register(ChunkSectionLayer.TRANSLUCENT, TRANSLUCENT_BLOCKS);
     }
 
     private static final Block[] CUTOUT_BLOCKS = Stream.of(

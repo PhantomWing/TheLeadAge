@@ -2,6 +2,8 @@ package com.phantomwing.theleadage.block.entity;
 
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -37,11 +39,11 @@ public class LeadedGlassTrapdoorBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        LeadedGlassFrame frame = LeadedGlassFrame.values()[Math.floorMod(tag.getIntOr("Frame", 0), LeadedGlassFrame.values().length)];
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        LeadedGlassFrame frame = LeadedGlassFrame.values()[Math.floorMod(input.getIntOr("Frame", 0), LeadedGlassFrame.values().length)];
         List<Integer> colors = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors").orElse(new int[0])) {
+        for (int id : input.getIntArray("Colors").orElse(new int[0])) {
             colors.add(id);
         }
         if (colors.isEmpty()) {
@@ -51,17 +53,16 @@ public class LeadedGlassTrapdoorBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("Frame", config.frame().ordinal());
-        tag.putIntArray("Colors", config.colors().stream().mapToInt(Integer::intValue).toArray());
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Frame", config.frame().ordinal());
+        output.putIntArray("Colors", config.colors().stream().mapToInt(Integer::intValue).toArray());
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
-        return tag;
+        // 1.21.6: saveCustomOnly does the ValueOutput plumbing and runs saveAdditional for us.
+        return saveCustomOnly(registries);
     }
 
     @Nullable

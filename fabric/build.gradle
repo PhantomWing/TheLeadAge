@@ -11,10 +11,10 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// 1.21.5: Farmer's Delight Refabricated and JEI both publish for Fabric again, so the Lead Knife and
-// the recipe-viewer plugin are back; EMI still has no 1.21.5 build.
+// 1.21.6: Farmer's Delight Refabricated publishes 1.21.6-3.2.3, so the Lead Knife stays. JEI has no
+// 1.21.6 build (its maven skips 1.21.5 -> 1.21.7) and EMI nothing past 1.21.1, so no recipe viewer.
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 1.21.5 branch: FDR + JEI restored; no EMI")
+logger.lifecycle("[TheLeadAge] (fabric) 1.21.6 branch: FDR compat; no recipe viewer")
 
 configurations {
     common
@@ -50,11 +50,7 @@ dependencies {
         transitive = false
     }
 
-    // JEI, dev runtime only, so the plugin can actually be exercised in runClient. JEI publishes a
-    // 1.21.5 Fabric build again on this line, so both loaders can test the integration.
-    modLocalRuntime "mezz.jei:jei-1.21.5-fabric:${rootProject.jei_version}"
-
-    // NOTE (1.21.5 branch): no other dev-runtime niceties, since AppleSkin has no 1.21.4/1.21.5 build.
+    // NOTE (1.21.6 branch): no dev-runtime niceties, since AppleSkin has no build past 1.21.3.
 }
 
 processResources {
@@ -105,7 +101,6 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
-        optional("jei")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -117,7 +112,6 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
-        optional("jei")
     }
 }
 

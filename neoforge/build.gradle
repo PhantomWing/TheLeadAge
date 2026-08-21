@@ -14,16 +14,10 @@ def datagenModId = rootProject.property('mod_id').toString()
 def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
 def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
 
-// A recipe viewer is useless in the headless game-test and data-generation runs and can hang or
-// crash them, so the dev-runtime JEI below is skipped for those task names.
-def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
-def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
-
-// 1.21.5: JEI is back, so the recipe-viewer plugin ships again. Farmer's Delight (Refabricated) is
-// Fabric-only, and Create, FD-NeoForge and EMI publish no 1.21.5 build, so their compat stays
-// dropped along with the recipe_viewer switch (JEI is the only viewer here).
-// See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.5 branch: JEI restored; no Create/FD-NeoForge/EMI compat")
+// 1.21.6: JEI publishes no build for this version (its maven skips 1.21.5 -> 1.21.7), so the
+// recipe-viewer plugin is dropped here and returns on 1.21.7. Create, FD-NeoForge and EMI still
+// have no build either. See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.6 branch: no recipe viewer; no Create/FD-NeoForge/EMI compat")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -96,13 +90,7 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }
 
-    // JEI, dev runtime only, so the plugin can actually be exercised in runClient. Kept out of the
-    // headless game-test and data-generation runs, where a recipe viewer is useless and can hang them.
-    if (!runningGameTest && !runningDataGen) {
-        modLocalRuntime "mezz.jei:jei-1.21.5-neoforge:${rootProject.jei_version}"
-    }
-
-    // NOTE (1.21.5 branch): no other dev-runtime niceties, since AppleSkin has no 1.21.4/1.21.5 build.
+    // NOTE (1.21.6 branch): no dev-runtime niceties, since AppleSkin has no build past 1.21.3.
 }
 
 // A widened member missing from the access transformer still compiles and runs in dev, then throws
@@ -142,6 +130,11 @@ shadowJar {
     exclude 'fabric.mod.json'
     exclude 'architectury.common.json'
 
+    // The compile-only Farmer's Delight KnifeItem stub must NOT ship: LeadKnifeItem binds to the
+    // real FD class (same FQN) at runtime, and a copy of ours in the jar would shadow it for every
+    // player who has FD installed. Mirrors the same exclude on the Fabric side.
+    exclude 'vectorwing/**'
+
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = 'dev-shadow'
 }
@@ -170,7 +163,6 @@ publishMods {
         rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
         // NeoForge only needs Architectury — fabric-api / cloth-config are Fabric-only.
         requires("architectury-api")
-        optional("jei")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -180,7 +172,6 @@ publishMods {
         client = true
         server = true
         requires("architectury-api")
-        optional("jei")
     }
 }
 

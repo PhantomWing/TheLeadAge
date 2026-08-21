@@ -3,12 +3,13 @@ package com.phantomwing.theleadage.entity.custom;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.damage.ModDamageTypes;
 import com.phantomwing.theleadage.entity.ModEntities;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -250,17 +251,17 @@ public class LeadWeightEntity extends FallingBlockEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        // 1.21.5: the UUID helpers are gone, so UUIDs round-trip through their codec.
-        tag.storeNullable("Owner", UUIDUtil.CODEC, ownerUUID);
-        tag.putFloat("Momentum", momentum);
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        // UUIDs round-trip through their codec (the direct UUID helpers went away in 1.21.5).
+        output.storeNullable("Owner", UUIDUtil.CODEC, ownerUUID);
+        output.putFloat("Momentum", momentum);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        ownerUUID = tag.read("Owner", UUIDUtil.CODEC).orElse(null);
-        momentum = tag.getFloatOr("Momentum", 1.0f);
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        ownerUUID = input.read("Owner", UUIDUtil.CODEC).orElse(null);
+        momentum = input.getFloatOr("Momentum", 1.0f);
     }
 }

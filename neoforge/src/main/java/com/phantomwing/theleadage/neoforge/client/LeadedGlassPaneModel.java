@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.neoforge.client;
 
 import com.phantomwing.theleadage.client.LeadedGlassClearSprite;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -87,7 +87,7 @@ public class LeadedGlassPaneModel extends DelegateBlockStateModel {
         // ItemBlockRenderTypes map and from useAmbientOcclusion, so without forwarding a wrapped
         // part's own render layer or forced AO would be dropped for exactly the wrapped positions.
         @Override
-        public RenderType getRenderType(BlockState state) {
+        public ChunkSectionLayer getRenderType(BlockState state) {
             return part.getRenderType(state);
         }
 

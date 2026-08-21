@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 // The event is abstract now; subscribe to the concrete Client subclass (fired by the clientData
 // run), whose environment is a full client, so the server data providers run fine alongside the
 // model providers.
-@EventBusSubscriber(modid = TheLeadAgeCommon.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = TheLeadAgeCommon.MOD_ID)
 public class DataGenerators {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent.Client event) {
@@ -32,8 +32,8 @@ public class DataGenerators {
                 List.of(new LootTableProvider.SubProviderEntry(ModBlockLootTableProvider::new, LootContextParamSets.BLOCK)),
                 lookupProvider));
 
-        ModBlockTagsProvider blockTags = event.addProvider(new ModBlockTagsProvider(output, lookupProvider));
-        event.addProvider(new ModItemTagsProvider(output, lookupProvider, blockTags.contentsGetter()));
+        event.addProvider(new ModBlockTagsProvider(output, lookupProvider));
+        event.addProvider(new ModItemTagsProvider(output, lookupProvider));
         event.addProvider(new ModBiomeTagsProvider(output, lookupProvider));
         event.addProvider(new ModEntityTypeTagsProvider(output, lookupProvider));
         event.addProvider(new ModDatapackProvider(output, lookupProvider));

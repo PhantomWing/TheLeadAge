@@ -31,7 +31,7 @@ import java.util.Map;
  * (registered via NeoForge's mod-bus event, which fires before item models are parsed), the door +
  * trapdoor renderers, and particles.
  */
-@EventBusSubscriber(modid = TheLeadAge.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = TheLeadAge.MOD_ID, value = Dist.CLIENT)
 public final class ModColorHandlersNeoForge {
     private ModColorHandlersNeoForge() {
     }

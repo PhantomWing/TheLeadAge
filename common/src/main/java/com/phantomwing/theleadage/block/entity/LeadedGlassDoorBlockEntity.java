@@ -3,6 +3,8 @@ package com.phantomwing.theleadage.block.entity;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -43,20 +45,20 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         this.config = new LeadedGlassDoorConfig(
-                loadPane(tag.getCompoundOrEmpty("Top")), loadPane(tag.getCompoundOrEmpty("Bottom")));
+                loadPane(input.childOrEmpty("Top")), loadPane(input.childOrEmpty("Bottom")));
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put("Top", savePane(config.top()));
-        tag.put("Bottom", savePane(config.bottom()));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        savePane(output.child("Top"), config.top());
+        savePane(output.child("Bottom"), config.bottom());
     }
 
-    private static LeadedGlassConfig loadPane(CompoundTag tag) {
+    private static LeadedGlassConfig loadPane(ValueInput tag) {
         LeadedGlassFrame frame = LeadedGlassFrame.values()[
                 Math.floorMod(tag.getIntOr("Frame", 0), LeadedGlassFrame.values().length)];
         List<Integer> colors = new ArrayList<>();
@@ -69,20 +71,18 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
         return new LeadedGlassConfig(frame, colors);
     }
 
-    private static CompoundTag savePane(LeadedGlassConfig pane) {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("Frame", pane.frame().ordinal());
-        tag.putIntArray("Colors", pane.colors().stream().mapToInt(Integer::intValue).toArray());
-        return tag;
+    /** 1.21.6: a nested compound is written by asking the parent for a child to fill in. */
+    private static void savePane(ValueOutput out, LeadedGlassConfig pane) {
+        out.putInt("Frame", pane.frame().ordinal());
+        out.putIntArray("Colors", pane.colors().stream().mapToInt(Integer::intValue).toArray());
     }
 
     // ---- Client sync (the design must reach the client for the renderer) ----
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
-        return tag;
+        // 1.21.6: saveCustomOnly does the ValueOutput plumbing and runs saveAdditional for us.
+        return saveCustomOnly(registries);
     }
 
     @Nullable
