@@ -21,19 +21,23 @@
     ],
     "client": [
       "com.phantomwing.theleadage.fabric.client.TheLeadAgeFabricClient"
+    ],
+    "jei_mod_plugin": [
+      "com.phantomwing.theleadage.compat.jei.TheLeadAgeJeiPlugin"
     ]
   },
   "mixins": [
     "theleadage.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16.14",
-    "fabric-api": ">=0.128.2+1.21.6",
-    "minecraft": ">=1.21.6 <1.21.7",
-    "architectury": ">=17.0",
-    "cloth-config": ">=19.0.147"
+    "fabricloader": "${dep_fabricloader}",
+    "fabric-api": "${dep_fabric_api}",
+    "minecraft": "${dep_minecraft_fabric}",
+    "architectury": "${dep_architectury_fabric}",
+    "cloth-config": "${dep_cloth}"
   },
   "suggests": {
-    "farmersdelight": "*"
+    "farmersdelight": "*",
+    "jei": "*"
   }
 }

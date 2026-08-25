@@ -5,8 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.joml.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
@@ -25,8 +23,13 @@ import java.util.List;
  * clear cell as the untinted white texture. This renderer draws the pane's canonical (wall, north)
  * state model with the stack's config supplying both region tints and the clear-sprite swap
  * (see {@link LeadedGlassSurface#renderUpright}).
+ *
+ * <p><b>Client-only by call-site isolation.</b> Referenced only from the loaders' client entrypoints,
+ * a Dist.CLIENT subscriber and datagen, never from server-reachable code, which is what keeps it off
+ * a dedicated server. Deliberately not marked {@code @Environment(CLIENT)}: Architectury rewrites
+ * that to NeoForge {@code @OnlyIn}, and TheSilverAge dropped it for the same reason. Keep new call
+ * sites client-side.</p>
  */
-@Environment(EnvType.CLIENT)
 public class LeadedGlassPaneItemSpecialRenderer implements SpecialModelRenderer<LeadedGlassConfig> {
     /**
      * 1.21.6: special renderers report what they draw, which vanilla turns into the item's cached

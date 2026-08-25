@@ -6,8 +6,6 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.joml.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -29,8 +27,13 @@ import java.util.List;
  * 1.21.4 replaced BEWLR ({@code builtin/entity} models) with data-driven {@code special} item
  * models; this is the renderer behind {@code theleadage:leaded_glass_trapdoor}, one instance per
  * bake, carrying the stack's design via {@link #extractArgument}.
+ *
+ * <p><b>Client-only by call-site isolation.</b> Referenced only from the loaders' client entrypoints,
+ * a Dist.CLIENT subscriber and datagen, never from server-reachable code, which is what keeps it off
+ * a dedicated server. Deliberately not marked {@code @Environment(CLIENT)}: Architectury rewrites
+ * that to NeoForge {@code @OnlyIn}, and TheSilverAge dropped it for the same reason. Keep new call
+ * sites client-side.</p>
  */
-@Environment(EnvType.CLIENT)
 public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<LeadedGlassConfig> {
     /** A closed, bottom-half trapdoor's flap (3px slab) — the design's canonical north-facing pose. */
     private static final AABB FLAP = new AABB(0.0, 0.0, 0.0, 1.0, 3.0 / 16.0, 1.0);

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "${dep_loader_neoforge}"
 issueTrackerURL = "https://github.com/PhantomWing/TheLeadAge/issues"
 license = "MIT License"
 
@@ -20,24 +20,32 @@ A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod 
 [[dependencies.theleadage]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.6,)"
+versionRange = "${dep_neoforge}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.6,1.21.7)"
+versionRange = "${dep_minecraft_neoforge}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "architectury"
 type = "required"
-versionRange = "[17.0,)"
+versionRange = "${dep_architectury_neoforge}"
 ordering = "AFTER"
 side = "BOTH"
 
-# No optional integration dependencies on this line: JEI publishes no 1.21.6 build at all (its
-# maven skips 1.21.5 to 1.21.7), and FD (NeoForge), Create and EMI have nothing either. FD
-# Refabricated exists on the FABRIC side only. See the port notes in gradle.properties.
+# JEI is back on this line (24.2.0.6, both loaders); Create, FD (NeoForge) and EMI still
+# publish no 1.21.8 build. FD Refabricated exists on the FABRIC side only.
+# See the port notes in gradle.properties.
+
+
+[[dependencies.theleadage]]
+modId = "jei"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"

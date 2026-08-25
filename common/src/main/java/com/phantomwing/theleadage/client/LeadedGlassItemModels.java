@@ -3,8 +3,6 @@ package com.phantomwing.theleadage.client;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import dev.architectury.registry.client.rendering.RenderTypeRegistry;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.resources.ResourceLocation;
@@ -22,8 +20,13 @@ import java.util.stream.Stream;
  * draw the design from the stack's config. Their types live in vanilla's private late-bound
  * {@code SpecialModelRenderers.ID_MAPPER}, widened via the access widener (+ NeoForge AT mirror)
  * so registration is byte-identical on both loaders.</p>
+ *
+ * <p><b>Client-only by call-site isolation.</b> Referenced only from the loaders' client entrypoints,
+ * a Dist.CLIENT subscriber and datagen, never from server-reachable code, which is what keeps it off
+ * a dedicated server. Deliberately not marked {@code @Environment(CLIENT)}: Architectury rewrites
+ * that to NeoForge {@code @OnlyIn}, and TheSilverAge dropped it for the same reason. Keep new call
+ * sites client-side.</p>
  */
-@Environment(EnvType.CLIENT)
 public final class LeadedGlassItemModels {
     public static final ResourceLocation TRAPDOOR_SPECIAL_ID = TheLeadAge.resourceLocation("leaded_glass_trapdoor");
     public static final ResourceLocation PANE_SPECIAL_ID = TheLeadAge.resourceLocation("leaded_glass_pane");

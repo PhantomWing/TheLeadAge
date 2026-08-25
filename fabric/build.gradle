@@ -11,10 +11,10 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// 1.21.6: Farmer's Delight Refabricated publishes 1.21.6-3.2.3, so the Lead Knife stays. JEI has no
-// 1.21.6 build (its maven skips 1.21.5 -> 1.21.7) and EMI nothing past 1.21.1, so no recipe viewer.
+// 1.21.8: Farmer's Delight Refabricated (1.21.8-3.3.3) and JEI (24.2.0.6) both publish, so the
+// Lead Knife and the recipe-viewer plugin are both live; EMI still has nothing past 1.21.1.
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 1.21.6 branch: FDR compat; no recipe viewer")
+logger.lifecycle("[TheLeadAge] (fabric) 1.21.8 branch: FDR + JEI compat; no EMI")
 
 configurations {
     common
@@ -50,14 +50,20 @@ dependencies {
         transitive = false
     }
 
-    // NOTE (1.21.6 branch): no dev-runtime niceties, since AppleSkin has no build past 1.21.3.
+    // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
+    modLocalRuntime "mezz.jei:jei-1.21.8-fabric:${rootProject.jei_version}"
+
+    // NOTE (1.21.8 branch): no other dev-runtime niceties, AppleSkin has no build past 1.21.3.
 }
 
 processResources {
-    inputs.property 'version', project.version
+    // Single-sourced manifest values (version + dependency ranges) derived from
+    // gradle.properties, see rootProject.ext.manifestProps in the root build.gradle.
+    def manifest = rootProject.ext.manifestProps()
+    inputs.properties(manifest)
 
     filesMatching('fabric.mod.json') {
-        expand 'version': project.version
+        expand(manifest)
     }
 }
 
@@ -101,6 +107,7 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
+        optional("jei")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -112,6 +119,7 @@ publishMods {
         requires("architectury-api")
         requires("fabric-api")
         requires("cloth-config")
+        optional("jei")
     }
 }
 
