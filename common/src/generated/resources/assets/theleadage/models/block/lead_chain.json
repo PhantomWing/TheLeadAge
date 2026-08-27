@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/chain",
+  "parent": "minecraft:block/template_chain",
   "textures": {
     "all": "theleadage:block/lead_chain",
     "particle": "theleadage:block/lead_chain"

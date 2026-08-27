@@ -31,7 +31,7 @@ dependencies {
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
     // JEI plugin API, compile-time only. JEI stays an optional runtime mod: the @JeiPlugin class
     // is only ever classloaded by JEI itself, so nothing breaks when JEI isn't installed.
-    modCompileOnly "mezz.jei:jei-1.21.8-common-api:${rootProject.jei_version}"
+    modCompileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
     // EMI still has no build past 1.21.1, so its plugin stays absent.
 }
 

@@ -49,7 +49,14 @@ public final class CreateOverridePackHandler {
             return;
         }
 
-        Path packRoot = ModList.get().getModFileById(TheLeadAge.MOD_ID).getFile().findResource(PACK_RESOURCE_ROOT);
+        // 1.21.9: IModFile.findResource(String) was removed; resolve the pack root against the mod
+        // file's content roots (its JarContents) instead.
+        Path packRoot = ModList.get().getModFileById(TheLeadAge.MOD_ID).getFile()
+                .getContents().getContentRoots().stream()
+                .map(root -> root.resolve(PACK_RESOURCE_ROOT))
+                .filter(Files::exists)
+                .findFirst()
+                .orElse(null);
         if (packRoot == null || !Files.exists(packRoot)) {
             TheLeadAge.LOGGER.warn("Create-override pack root '{}' not found in the mod file; skipping.", PACK_RESOURCE_ROOT);
             return;

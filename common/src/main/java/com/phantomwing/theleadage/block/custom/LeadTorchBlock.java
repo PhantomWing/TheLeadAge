@@ -55,7 +55,7 @@ public class LeadTorchBlock extends TorchBlock implements EntityBlock {
     @Nullable
     @SuppressWarnings("unchecked")
     static <T extends BlockEntity> BlockEntityTicker<T> exposureTicker(Level level, BlockEntityType<T> type) {
-        if (level.isClientSide || type != ModBlockEntities.LEAD_TORCH.get()) {
+        if (level.isClientSide() || type != ModBlockEntities.LEAD_TORCH.get()) {
             return null;
         }
         return (BlockEntityTicker<T>) (BlockEntityTicker<LeadTorchBlockEntity>) LeadTorchBlockEntity::serverTick;

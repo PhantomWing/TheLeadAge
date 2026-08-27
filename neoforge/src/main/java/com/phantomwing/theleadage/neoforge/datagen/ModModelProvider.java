@@ -296,7 +296,9 @@ public class ModModelProvider extends ModelProvider {
 
     private void leadChain(BlockModelGenerators bmg) {
         String tex = "theleadage:block/lead_chain";
-        rawModel(bmg, modBlock("lead_chain"), childModel(ResourceLocation.withDefaultNamespace("block/chain"),
+        // 1.21.9 renamed the vanilla chain to iron_chain; block/template_chain is the shared geometry
+        // both it and the copper chains parent to.
+        rawModel(bmg, modBlock("lead_chain"), childModel(ResourceLocation.withDefaultNamespace("block/template_chain"),
                 new String[][]{{"particle", tex}, {"all", tex}}));
         JsonObject chain = new JsonObject();
         chain.add("axis=x", variant("theleadage:block/lead_chain", 90, 90));

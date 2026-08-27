@@ -48,7 +48,7 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     public void setColors(List<Integer> colors) {
         this.colors = colors.isEmpty() ? List.of(LeadedGlassConfig.CLEAR) : List.copyOf(colors);
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
@@ -65,7 +65,7 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
         // A live colour update (e.g. dyeing in place) arrives here on the client; the tints are baked
         // into the chunk mesh, so force a re-render. setBlocksDirty is gated by requiresRender(old,new),
         // which is false for the same state — so pass a sentinel old state to force the section re-mesh.
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
         }
     }

@@ -115,7 +115,7 @@ public final class LeadedGlassClearSprite {
             }
             ResourceLocation clearLoc = ResourceLocation.fromNamespaceAndPath(
                     name.getNamespace(), name.getPath().replace("white_", ""));
-            return Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(clearLoc);
+            return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(clearLoc);
         });
     }
 }

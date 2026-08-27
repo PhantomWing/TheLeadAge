@@ -19,9 +19,9 @@ def datagenExisting = rootProject.file('common/src/main/resources/').absolutePat
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
-// 1.21.8: JEI publishes again (24.2.0.6, both loaders), so the recipe-viewer plugin is back.
+// 1.21.10: JEI publishes for both loaders (26.3.0.31), so the recipe-viewer plugin stays.
 // Create, FD-NeoForge and EMI still have no build. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.8 branch: JEI restored; no Create/FD-NeoForge/EMI compat")
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.10 branch: JEI kept; no Create/FD-NeoForge/EMI compat")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -96,10 +96,11 @@ dependencies {
 
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
     if (!runningGameTest && !runningDataGen) {
-        modLocalRuntime "mezz.jei:jei-1.21.8-neoforge:${rootProject.jei_version}"
+        modLocalRuntime "mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}"
     }
 
-    // NOTE (1.21.8 branch): no other dev-runtime niceties, AppleSkin has no build past 1.21.3.
+    // NOTE (1.21.10 branch): no other dev-runtime niceties. AppleSkin has a 1.21.9 build again
+    // (3.0.8+mc1.21.9) but stays out; it is dev-only and was dropped back on the 1.21.4 line.
 }
 
 // A widened member missing from the access transformer still compiles and runs in dev, then throws

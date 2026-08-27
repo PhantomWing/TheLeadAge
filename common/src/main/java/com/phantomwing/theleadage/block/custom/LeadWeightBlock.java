@@ -151,7 +151,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         if (!player.getMainHandItem().isEmpty()) {
             return InteractionResult.PASS;
         }
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             detach(level, pos, state);
         }
         return InteractionResult.SUCCESS;
@@ -161,7 +161,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     @Override
     protected void onProjectileHit(Level level, BlockState state, BlockHitResult hit, Projectile projectile) {
         super.onProjectileHit(level, state, hit, projectile);
-        if (!level.isClientSide && state.getValue(HANGING)) {
+        if (!level.isClientSide() && state.getValue(HANGING)) {
             Player shooter = projectile.getOwner() instanceof Player player ? player : null;
             detach(level, hit.getBlockPos(), state, shooter);
         }

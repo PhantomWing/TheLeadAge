@@ -90,6 +90,6 @@ public class LeadedGlassPaneModelFabric extends WrapperBlockStateModel {
      * previous atlas layout after any resource reload.
      */
     private static SpriteFinder spriteFinder() {
-        return SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS));
+        return SpriteFinder.get(Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS));
     }
 }

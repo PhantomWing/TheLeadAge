@@ -3,13 +3,15 @@ package com.phantomwing.theleadage.client;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.phantomwing.theleadage.block.entity.LeadedGlassTrapdoorBlockEntity;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.Direction;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -28,32 +30,56 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  *   <li><b>Open:</b> the upright design reads like that flat design lifted about its hinge — from
  *       the room side it shows a half-turn from as-authored.</li>
  * </ul>
+ *
+ * <p>1.21.9: split into extract (reads the block entity and the level) and submit (geometry only).</p>
  */
-public class LeadedGlassTrapdoorRenderer implements BlockEntityRenderer<LeadedGlassTrapdoorBlockEntity> {
+public class LeadedGlassTrapdoorRenderer implements BlockEntityRenderer<LeadedGlassTrapdoorBlockEntity, LeadedGlassSurfaceRenderState> {
     public LeadedGlassTrapdoorRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(LeadedGlassTrapdoorBlockEntity be, float partialTick, PoseStack pose,
-                       MultiBufferSource buffers, int light, int overlay, Vec3 cameraPos) {
+    public LeadedGlassSurfaceRenderState createRenderState() {
+        return new LeadedGlassSurfaceRenderState();
+    }
+
+    @Override
+    public void extractRenderState(LeadedGlassTrapdoorBlockEntity be, LeadedGlassSurfaceRenderState state,
+                                   float partialTick, Vec3 cameraPos,
+                                   ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(be, state, partialTick, cameraPos, breakProgress);
+        // Render states are pooled, so clear before every early return — a stale config from the
+        // previous occupant of this state would otherwise keep drawing.
+        state.config = null;
+        state.box = null;
+
         if (be.getLevel() == null) {
             return;
         }
-        BlockState state = be.getBlockState();
-        if (!state.hasProperty(BlockStateProperties.OPEN)) {
+        BlockState blockState = be.getBlockState();
+        if (!blockState.hasProperty(BlockStateProperties.OPEN)) {
             return;
         }
-        VoxelShape shape = state.getShape(be.getLevel(), be.getBlockPos());
+        VoxelShape shape = blockState.getShape(be.getLevel(), be.getBlockPos());
         if (shape.isEmpty()) {
             return;
         }
-        AABB box = shape.bounds();
+        state.config = be.getConfig();
+        state.box = shape.bounds();
+    }
 
+    @Override
+    public void submit(LeadedGlassSurfaceRenderState state, PoseStack pose,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        LeadedGlassConfig config = state.config;
+        AABB box = state.box;
+        if (config == null || box == null) {
+            return;
+        }
         pose.pushPose();
         // Which way the design faces (closed yaw / lifted-from-floor / swung-from-ceiling) — shared
         // with the dye/shear interaction, which inverts this same matrix. See LeadedGlassPlacement.
-        pose.mulPose(LeadedGlassPlacement.orientation(state, box));
-        LeadedGlassSurface.render(be.getConfig(), box, pose, buffers, light, overlay);
+        pose.mulPose(LeadedGlassPlacement.orientation(state.blockState, box));
+        LeadedGlassSurface.render(config, box, pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY);
         pose.popPose();
     }
 }

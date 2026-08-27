@@ -8,9 +8,8 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import org.joml.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -57,18 +56,23 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
         return config != null ? config : DEFAULT;
     }
 
+    /**
+     * 1.21.9: {@code render} became {@code submit} — geometry is queued and drawn later. The frame
+     * goes through {@code submitBlockModel}, which carries exactly the arguments the old
+     * {@code ModelBlockRenderer.renderModel} call did plus the outline colour.
+     */
     @Override
-    public void render(@Nullable LeadedGlassConfig config, ItemDisplayContext context, PoseStack pose,
-                       MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
+    public void submit(@Nullable LeadedGlassConfig config, ItemDisplayContext context, PoseStack pose,
+                       SubmitNodeCollector collector, int light, int overlay, boolean hasFoil, int outlineColor) {
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
         BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
 
         // The trapdoor frame (the cut-window overlay texture, cutout). Untinted, so vanilla's own
         // whole-model emission does exactly what is needed here.
-        ModelBlockRenderer.renderModel(pose.last(), buffers.getBuffer(RenderType.cutout()), model,
-                1.0f, 1.0f, 1.0f, light, overlay);
+        collector.submitBlockModel(pose, RenderType.cutout(), model, 1.0f, 1.0f, 1.0f,
+                light, overlay, outlineColor);
 
-        LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, buffers, light, overlay);
+        LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, collector, light, overlay);
     }
 
     /** The data-driven side: {@code {"type": "theleadage:leaded_glass_trapdoor"}} in an items/ definition. */
@@ -76,7 +80,7 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(new Unbaked());
 
         @Override
-        public SpecialModelRenderer<?> bake(net.minecraft.client.model.geom.EntityModelSet entityModels) {
+        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
             return new LeadedGlassTrapdoorSpecialRenderer();
         }
 

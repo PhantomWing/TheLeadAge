@@ -38,8 +38,8 @@ versionRange = "${dep_architectury_neoforge}"
 ordering = "AFTER"
 side = "BOTH"
 
-# JEI is back on this line (24.2.0.6, both loaders); Create, FD (NeoForge) and EMI still
-# publish no 1.21.8 build. FD Refabricated exists on the FABRIC side only.
+# JEI publishes for both loaders on this line (26.3.0.31); Create, FD (NeoForge) and EMI still
+# publish no 1.21.9/1.21.10 build. FD Refabricated exists on the FABRIC side only.
 # See the port notes in gradle.properties.
 
 

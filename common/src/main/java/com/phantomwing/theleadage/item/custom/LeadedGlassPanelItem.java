@@ -66,7 +66,7 @@ public class LeadedGlassPanelItem extends BlockItem {
         if (state.getBlock() instanceof LeadedGlassTrapdoorBlock
                 && level.getBlockEntity(pos) instanceof LeadedGlassTrapdoorBlockEntity be) {
             LeadedGlassConfig old = be.getConfig();
-            if (!old.equals(held) && !level.isClientSide) {
+            if (!old.equals(held) && !level.isClientSide()) {
                 be.setConfig(held);
                 handOver(player, context.getItemInHand(), old, level, pos);
             }
@@ -78,7 +78,7 @@ public class LeadedGlassPanelItem extends BlockItem {
             boolean upper = state.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER;
             LeadedGlassDoorConfig door = be.getConfig();
             LeadedGlassConfig old = upper ? door.top() : door.bottom();
-            if (!old.equals(held) && !level.isClientSide) {
+            if (!old.equals(held) && !level.isClientSide()) {
                 LeadedGlassDoorConfig updated = upper
                         ? new LeadedGlassDoorConfig(held, door.bottom())
                         : new LeadedGlassDoorConfig(door.top(), held);

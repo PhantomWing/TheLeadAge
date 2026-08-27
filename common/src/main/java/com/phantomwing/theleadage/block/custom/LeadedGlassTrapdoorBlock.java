@@ -62,7 +62,7 @@ public class LeadedGlassTrapdoorBlock extends TrapDoorBlock implements EntityBlo
         if (region < 0) {
             return super.useItemOn(stack, state, level, pos, player, hand, hit); // missed the glass
         }
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             List<Integer> colors = LeadedGlassRecolor.apply(
                     config.colors(), config.frame().regions(), region, LeadedGlassRecolor.target(stack));
             if (colors == null) {

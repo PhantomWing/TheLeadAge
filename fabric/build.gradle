@@ -11,10 +11,10 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// 1.21.8: Farmer's Delight Refabricated (1.21.8-3.3.3) and JEI (24.2.0.6) both publish, so the
-// Lead Knife and the recipe-viewer plugin are both live; EMI still has nothing past 1.21.1.
-// See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 1.21.8 branch: FDR + JEI compat; no EMI")
+// 1.21.10: Farmer's Delight Refabricated (1.21.10-3.4.2, covers 1.21.9 too) and JEI (26.3.0.31)
+// both publish, so the Lead Knife and the recipe-viewer plugin are both live; EMI still has
+// nothing past 1.21.1. See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (fabric) 1.21.10 branch: FDR + JEI compat; no EMI")
 
 configurations {
     common
@@ -51,9 +51,10 @@ dependencies {
     }
 
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
-    modLocalRuntime "mezz.jei:jei-1.21.8-fabric:${rootProject.jei_version}"
+    modLocalRuntime "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
 
-    // NOTE (1.21.8 branch): no other dev-runtime niceties, AppleSkin has no build past 1.21.3.
+    // NOTE (1.21.10 branch): no other dev-runtime niceties. AppleSkin has a 1.21.9 build again
+    // (3.0.7+mc1.21.9) but stays out; it is dev-only and was dropped back on the 1.21.4 line.
 }
 
 processResources {

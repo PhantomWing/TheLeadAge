@@ -8,8 +8,8 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.AABB;
+
+import java.util.List;
 
 /**
  * Draws a leaded glass pane's design onto a thin slab (the leaded glass door / trapdoor window).
@@ -36,12 +38,12 @@ public final class LeadedGlassSurface {
     }
 
     public static void render(LeadedGlassConfig config, AABB slab, PoseStack pose,
-                              MultiBufferSource buffers, int light, int overlay) {
+                              SubmitNodeCollector collector, int light, int overlay) {
         pose.pushPose();
         // Canonical pane space -> the slab. The maths lives in LeadedGlassPlacement so the dye/shear
         // interaction can invert this exact matrix to turn a click back into a region — see its docs.
         pose.mulPose(LeadedGlassPlacement.surface(slab));
-        renderUpright(config, pose, buffers, light, overlay);
+        renderUpright(config, pose, collector, light, overlay);
         pose.popPose();
     }
 
@@ -51,22 +53,27 @@ public final class LeadedGlassSurface {
      * (grid/lattice) clear-cell swap must happen here rather than in the chunk-mesh wrapper.
      */
     public static void renderUpright(LeadedGlassConfig config, PoseStack pose,
-                                     MultiBufferSource buffers, int light, int overlay) {
+                                     SubmitNodeCollector collector, int light, int overlay) {
         BlockState paneState = paneStateFor(config);
         // 1.21.5: block models are BlockStateModels, so quads come per-part via collectParts, which
         // also replaces the old per-direction getQuads(state, dir, random) calls.
         BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
-        VertexConsumer buffer = buffers.getBuffer(Sheets.translucentItemSheet());
-        for (BlockModelPart part : model.collectParts(RandomSource.create(42L))) {
-            emit(part, config, null, buffer, pose, light, overlay);
-            for (Direction dir : DIRECTIONS) {
-                emit(part, config, dir, buffer, pose, light, overlay);
+        List<BlockModelPart> parts = model.collectParts(RandomSource.create(42L));
+        // 1.21.9: geometry is submitted rather than written to a buffer here, and the draw happens
+        // later. The pose is snapshotted (PoseStack.Pose#copy) at submit time, so every transform
+        // applied above is already baked into the Pose the callback receives.
+        collector.submitCustomGeometry(pose, Sheets.translucentItemSheet(), (snapshot, buffer) -> {
+            for (BlockModelPart part : parts) {
+                emit(part, config, null, buffer, snapshot, light, overlay);
+                for (Direction dir : DIRECTIONS) {
+                    emit(part, config, dir, buffer, snapshot, light, overlay);
+                }
             }
-        }
+        });
     }
 
     private static void emit(BlockModelPart part, LeadedGlassConfig config, Direction dir,
-                             VertexConsumer buffer, PoseStack pose, int light, int overlay) {
+                             VertexConsumer buffer, PoseStack.Pose pose, int light, int overlay) {
         for (BakedQuad quad : part.getQuads(dir)) {
             int tint = quad.tintIndex();
             // Clear regions must be drawn with the clear sprite, not the tintable white one. For most
@@ -78,7 +85,7 @@ public final class LeadedGlassSurface {
                     : quad;
             int color = colorFor(tint, config);
             float r = (color >> 16 & 0xFF) / 255.0f, g = (color >> 8 & 0xFF) / 255.0f, b = (color & 0xFF) / 255.0f;
-            buffer.putBulkData(pose.last(), out, r, g, b, 1.0f, light, overlay);
+            buffer.putBulkData(pose, out, r, g, b, 1.0f, light, overlay);
         }
     }
 

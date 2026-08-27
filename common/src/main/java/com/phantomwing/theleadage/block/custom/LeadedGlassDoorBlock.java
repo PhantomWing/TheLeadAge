@@ -72,7 +72,7 @@ public class LeadedGlassDoorBlock extends DoorBlock implements EntityBlock {
         if (region < 0) {
             return super.useItemOn(stack, state, level, pos, player, hand, hit); // missed the glass
         }
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             List<Integer> colors = LeadedGlassRecolor.apply(
                     pane.colors(), pane.frame().regions(), region, LeadedGlassRecolor.target(stack));
             if (colors == null) {

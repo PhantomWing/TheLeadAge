@@ -34,7 +34,7 @@ public final class TheLeadAgeNeoForge {
 
         // Client-only: the in-game config screen (isolated so the server never
         // loads the referenced Screen classes).
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             TheLeadAgeNeoForgeClient.init(container);
         }
     }

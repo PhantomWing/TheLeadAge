@@ -33,7 +33,7 @@ public class LeadedGlassTrapdoorBlockEntity extends BlockEntity {
     public void setConfig(LeadedGlassConfig config) {
         this.config = config;
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }

@@ -210,7 +210,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
         }
         // The colour we want this region to become: a dye's colour, or null to clear it (shears).
         DyeColor target = LeadedGlassRecolor.target(stack);
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
             List<Integer> colors = LeadedGlassRecolor.apply(pane.getColors(), type.regions, region, target);
             if (colors == null) {
                 return InteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
@@ -286,7 +286,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             return InteractionResult.PASS;
         }
         boolean reverse = isBackFace(state, hit);
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (type.orientation != null) {
                 int orientations = type.orientations;
                 int current = state.getValue(type.orientation);

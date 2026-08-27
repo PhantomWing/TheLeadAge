@@ -216,7 +216,7 @@ public class ModBlocks {
     }
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
-        return register(name, () -> new ChainBlock(leadProps(copyOf(Blocks.CHAIN))
+        return register(name, () -> new ChainBlock(leadProps(copyOf(Blocks.IRON_CHAIN))
                 .sound(SoundType.CHAIN).explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
