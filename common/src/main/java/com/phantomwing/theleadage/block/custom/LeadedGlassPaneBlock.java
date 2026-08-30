@@ -73,21 +73,17 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     // The glass plane sits 1px off-centre so its front face lands on a pixel edge, lining up with
     // stairs/slabs. One shape per placement, each matching where the ROTATED model actually ends up.
     //
-    // The wall shapes follow the placement direction (away from the player). The floor/ceiling pair
-    // does NOT, and that is not a mistake: the model is authored offset toward -z, and the blockstate
-    // rotates it with `rotateYXZ(-y, -x, 0)` (BlockModelRotation), so the floor's xRot of 270 turns
-    // that -z offset into +y and the ceiling's xRot of 90 turns it into -y. Floor panes therefore sit
-    // HIGH (resting on the 8px half-block line) and ceiling panes sit LOW. Flipping those xRots to
-    // chase "away from the player" would also flip which side of the came design faces the viewer,
-    // showing the mirror-authored back face — so the shapes follow the model, not the other way round.
+    // The wall shapes follow the placement direction (away from the player). The flat pair is set by
+    // which SIDE of the sheet has to face the viewer: the model is authored offset toward -z, and the
+    // blockstate rotates it with `rotateYXZ(-y, -x, 0)` (BlockModelRotation), so a flat pane's xRot
+    // decides both the offset's direction and whether the front or the mirror-authored back face is
+    // shown. Presenting the front (floor 90 / ceiling 270, see ModModelProvider#paneXRot) puts the
+    // sheet LOW on the floor and HIGH on the ceiling. The shapes follow the model, never the reverse:
+    // change one and the other must follow, or the glass renders outside what you can click.
     private static final VoxelShape SHAPE_NORTH = Block.box(0.0, 0.0, 6.0, 16.0, 16.0, 8.0);
     private static final VoxelShape SHAPE_SOUTH = Block.box(0.0, 0.0, 8.0, 16.0, 16.0, 10.0);
     private static final VoxelShape SHAPE_EAST = Block.box(8.0, 0.0, 0.0, 10.0, 16.0, 16.0);
     private static final VoxelShape SHAPE_WEST = Block.box(6.0, 0.0, 0.0, 8.0, 16.0, 16.0);
-    // A flat pane is rotated to present its front face (see ModModelProvider#paneXRot), which puts
-    // the 1px-off-centre sheet below the block's midline on the floor and above it on the ceiling.
-    // These boxes track the sheet: change one and the other must follow, or the glass renders
-    // outside what you can click.
     private static final VoxelShape SHAPE_FLOOR = Block.box(0.0, 6.0, 0.0, 16.0, 8.0, 16.0);
     private static final VoxelShape SHAPE_CEILING = Block.box(0.0, 8.0, 0.0, 16.0, 10.0, 16.0);
 
