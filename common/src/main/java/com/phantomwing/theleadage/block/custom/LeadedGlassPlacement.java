@@ -89,8 +89,8 @@ public final class LeadedGlassPlacement {
             // models, taking bottom_left as the reference:
             //     left  closed [0,0,16,16] normal      right closed [16,0,0,16] MIRRORED
             //     left  open   [16,0,0,16] MIRRORED    right open   [0,0,16,16] normal
-            // so the frame is mirrored when EXACTLY ONE of (right hinge, open) holds — an XOR, not
-            // an AND. The collision box cannot express this: it only says where the panel is, and
+            // so the frame is mirrored when EXACTLY ONE of (right hinge, open) holds, an XOR and
+            // not an AND. The collision box cannot express this: it only says where the panel is, and
             // surface() reaches it with proper rotations that never mirror, so the half-turn here is
             // the only thing that can flip the sheet. A half-turn about the panel's vertical centre
             // maps the box onto itself, so the glass cannot drift off the frame.

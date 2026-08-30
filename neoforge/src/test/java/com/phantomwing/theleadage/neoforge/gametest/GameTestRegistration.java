@@ -39,6 +39,7 @@ public final class GameTestRegistration {
         TESTS.put("bars_connect_to_leaded_glass", LeadOreGameTest::barsConnectToLeadedGlass);
         TESTS.put("frame_region_mapping", LeadOreGameTest::frameRegionMapping);
         TESTS.put("glass_placement_stays_inside_panel", LeadOreGameTest::glassPlacementStaysInsidePanel);
+        TESTS.put("door_glass_mirror_matches_frame", LeadOreGameTest::doorGlassMirrorMatchesFrame);
         TESTS.put("lead_weight_transforms_from_data", LeadOreGameTest::leadWeightTransformsFromData);
         TESTS.put("lead_weight_tier_chain", LeadOreGameTest::leadWeightTierChain);
         TESTS.put("lead_weight_break_chance", LeadOreGameTest::leadWeightBreakChance);

@@ -336,6 +336,40 @@ public class LeadOreGameTest {
         helper.succeed();
     }
 
+    /**
+     * Pins the door mirror rule. glassPlacementStaysInsidePanel cannot catch a wrong mirror bit:
+     * the half-turn maps the panel box onto itself, so every corner stays inside it either way.
+     * orientation() alone is identity or exactly that half-turn, so transforming the design's u axis
+     * through it reports the bit directly.
+     */
+    public static void doorGlassMirrorMatchesFrame(GameTestHelper helper) {
+        BlockState door = ModBlocks.LEADED_GLASS_DOOR.get().defaultBlockState();
+        for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
+            for (Direction facing : Direction.Plane.HORIZONTAL) {
+                for (boolean open : new boolean[]{false, true}) {
+                    for (DoorHingeSide hinge : DoorHingeSide.values()) {
+                        BlockState state = door
+                                .setValue(DoorBlock.HALF, half)
+                                .setValue(DoorBlock.FACING, facing)
+                                .setValue(DoorBlock.OPEN, open)
+                                .setValue(DoorBlock.HINGE, hinge);
+                        AABB box = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).bounds();
+                        Vector3f u = LeadedGlassPlacement.orientation(state, box)
+                                .transformDirection(new Vector3f(1.0f, 0.0f, 0.0f));
+                        boolean halfTurn = u.x() < 0.0f;
+                        // The frame model is mirror-authored for exactly right-hinge XOR open.
+                        boolean expected = (hinge == DoorHingeSide.RIGHT) != open;
+                        if (halfTurn != expected) {
+                            helper.fail(Component.literal("door " + facing + "/" + hinge + "/open=" + open
+                                    + ": half-turn=" + halfTurn + " expected=" + expected));
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        helper.succeed();
+    }
     private static void assertSheetInsidePanel(GameTestHelper helper, BlockState state) {
         AABB box = state.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO).bounds();
         Matrix4f m = LeadedGlassPlacement.orientation(state, box).mul(LeadedGlassPlacement.surface(box));

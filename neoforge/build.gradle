@@ -195,6 +195,11 @@ sourcesJar {
     def commonSources = project(':common').sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
+
+    // The compile-time KnifeItem stub must not leave this project in ANY artifact. shadowJar's
+    // exclude only covers the mod jar; the sources jar is part of the maven publication, so without
+    // this it hands consumers a same-FQN copy of a third-party class.
+    exclude 'vectorwing/**'
 }
 
 components.java {

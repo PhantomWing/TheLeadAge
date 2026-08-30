@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "theleadage:door_glass_mirror_matches_frame",
+  "environment": "theleadage:default",
+  "structure": "theleadage:empty",
+  "max_ticks": 100,
+  "setup_ticks": 0,
+  "required": true
+}

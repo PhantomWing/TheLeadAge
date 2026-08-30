@@ -13,6 +13,7 @@
 ### Fixes
 - Fixed Toolsmiths and Weaponsmiths being able to offer the same lead ingot trade twice on Fabric
 - Fixed leaded glass door designs appearing mirrored depending on the hinge side and whether the door is open.
+- Fixed lead armor trims not rendering on worn armor.
 
 
 # 1.0.0

@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.data.AtlasIds;
@@ -25,8 +26,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link LeadedGlassSurface} (doors / trapdoors) need it, hence this shared helper.</p>
  */
 public final class LeadedGlassClearSprite {
-    /** Cache: a tinted white sprite -> its clear counterpart (same name, "white_" prefix dropped). */
+    /**
+     * Cache: a tinted white sprite -> its clear counterpart (same name, "white_" prefix dropped).
+     * A sprite mapped to ITSELF means "no counterpart", so the negative answer is memoised too:
+     * without that, every non-{@code white_} quad re-runs the name check on every chunk rebuild,
+     * which is the common fully-clear pane path.
+     */
     private static final Map<TextureAtlasSprite, TextureAtlasSprite> CLEAR_SPRITE = new ConcurrentHashMap<>();
+
+    /**
+     * The atlas {@link #CLEAR_SPRITE} was built against. A resource reload re-stitches the atlas and
+     * hands out fresh sprite instances, so every cached key belongs to a dead generation: nothing can
+     * ever hit again and the old sprites would be pinned forever. Volatile because chunk meshing
+     * reaches this from several threads.
+     */
+    private static volatile TextureAtlas cachedAtlas;
 
     private LeadedGlassClearSprite() {
     }
@@ -54,6 +68,11 @@ public final class LeadedGlassClearSprite {
             uv[i] = UVPair.pack(to.getU0() + lu * (to.getU1() - to.getU0()),
                     to.getV0() + lw * (to.getV1() - to.getV0()));
         }
+        // Vanilla's 13-arg constructor. NeoForge patches THREE more components onto this record
+        // (bakedNormals, bakedColors, hasAmbientOcclusion) and this overload hard-codes them to
+        // UNSPECIFIED / DEFAULT / true, so a quad arriving with custom baked normals or colors from
+        // an extended model loses them here. Safe while the pane models keep their AO and shading
+        // decisions at model level; revisit if a per-quad override ever ships.
         return new BakedQuad(
                 quad.position0(), quad.position1(), quad.position2(), quad.position3(),
                 uv[0], uv[1], uv[2], uv[3],
@@ -106,14 +125,25 @@ public final class LeadedGlassClearSprite {
      */
     @Nullable
     public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
-        return CLEAR_SPRITE.computeIfAbsent(white, w -> {
+        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS);
+        if (atlas != cachedAtlas) {
+            CLEAR_SPRITE.clear();
+            cachedAtlas = atlas;
+        }
+        TextureAtlasSprite found = CLEAR_SPRITE.computeIfAbsent(white, w -> {
             Identifier name = w.contents().name();
             if (!name.getPath().contains("white_")) {
-                return null; // already the clear texture (or not one of ours)
+                return w; // already the clear texture (or not one of ours)
             }
             Identifier clearLoc = Identifier.fromNamespaceAndPath(
                     name.getNamespace(), name.getPath().replace("white_", ""));
-            return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(clearLoc);
+            TextureAtlasSprite clear = atlas.getSprite(clearLoc);
+            // getSprite NEVER returns null: it is getOrDefault(id, missingSprite), so an id that was
+            // not stitched (a resource pack dropping one clear texture) comes back as the missing
+            // texture. Retexturing onto that would paint the clear cells magenta; treat it as "no
+            // counterpart" instead, which is what the javadoc promises.
+            return clear == atlas.missingSprite() ? w : clear;
         });
+        return found == white ? null : found;
     }
 }

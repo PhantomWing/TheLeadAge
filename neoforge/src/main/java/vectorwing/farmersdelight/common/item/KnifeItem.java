@@ -10,12 +10,13 @@ import net.minecraft.world.item.Item;
  * extends FD's {@code KnifeItem}, and this supplies that one signature, in named mappings, so the
  * subclass compiles without taking FD on as a dependency.</p>
  *
- * <p><b>Status on 1.21.5.</b> Farmer's Delight publishes no NeoForge build for this version, so the
- * {@code isModLoaded("farmersdelight")} guard can never be true here and the class below is dead
- * weight kept only for parity with the Fabric side. It is stripped from the published jar either
- * way. If an FD-NeoForge 1.21.5 build appears, audit this constructor against its real
- * {@code KnifeItem} before shipping: a mismatch throws {@code NoSuchMethodError} at item
- * registration for players who have FD installed, and never in a dev run.</p>
+ * <p><b>Status on 1.21.11.</b> Farmer's Delight publishes no NeoForge build for this version, so
+ * the {@code isModLoaded("farmersdelight")} guard can never be true here and the class below is
+ * dead weight kept only for parity with the Fabric side, which has a twin of this file. It is
+ * stripped from the published jar either way. If an FD-NeoForge build appears, audit this
+ * constructor against its real {@code KnifeItem} before shipping: a mismatch throws
+ * {@code NoSuchMethodError} at item registration for players who have FD installed, and never in a
+ * dev run.</p>
  */
 public class KnifeItem extends Item {
     // 1.21.5: FD's real KnifeItem takes only Properties (tools are plain Item + components).
