@@ -481,7 +481,7 @@ public class ModModelProvider extends ModelProvider {
                             }
                             key.append(",waterlogged=").append(waterlogged);
                             variants.add(key.toString(), variant(familiesByOrientation[orientation][mask],
-                                    paneXRot(face), paneYRot(face, facing)));
+                                    paneXRot(face), paneYRot(facing)));
                         }
                     }
                 }
@@ -496,7 +496,7 @@ public class ModModelProvider extends ModelProvider {
         for (String face : new String[]{"floor", "wall", "ceiling"}) {
             for (String facing : new String[]{"north", "east", "south", "west"}) {
                 int xRot = paneXRot(face);
-                int yRot = paneYRot(face, facing);
+                int yRot = paneYRot(facing);
                 multipart.add(panePart(base + "_came", xRot, yRot, face, facing));
                 for (int cell = 0; cell < cellCount; cell++) {
                     multipart.add(panePart(base + "_cell_" + cell, xRot, yRot, face, facing));
@@ -518,25 +518,27 @@ public class ModModelProvider extends ModelProvider {
         return part;
     }
 
+    /**
+     * The pane sheet is authored 1px off-centre on its thin axis so it hugs the face it is attached
+     * to, which means these two rotations also decide WHICH side of the sheet the player looks at.
+     * A flat pane must present its FRONT face (model +Z), or the design reads mirrored; floor 90 /
+     * ceiling 270 do that, and the collision boxes in LeadedGlassPaneBlock follow the sheet there.
+     */
     private static int paneXRot(String face) {
         return switch (face) {
-            case "floor" -> 270;
-            case "ceiling" -> 90;
+            case "floor" -> 90;
+            case "ceiling" -> 270;
             default -> 0; // wall
         };
     }
 
-    private static int paneYRot(String face, String facing) {
-        int yRot = switch (facing) {
+    /** With the flat faces the right way up, the design's axes line up with the placer's view. */
+    private static int paneYRot(String facing) {
+        return switch (facing) {
             case "east" -> 90;
             case "south" -> 180;
             case "west" -> 270;
             default -> 0; // north
-        };
-        return switch (face) {
-            case "floor" -> (yRot + 90) % 360;
-            case "ceiling" -> (yRot + 270) % 360;
-            default -> yRot; // wall
         };
     }
 }
