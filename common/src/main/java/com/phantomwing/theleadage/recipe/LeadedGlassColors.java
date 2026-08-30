@@ -6,7 +6,7 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,7 +46,7 @@ public final class LeadedGlassColors {
             Map<Item, Integer> built = new HashMap<>();
             built.put(Items.GLASS_PANE, LeadedGlassConfig.CLEAR);
             for (DyeColor dye : DyeColor.values()) {
-                Item pane = BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace(dye.getName() + "_stained_glass_pane"));
+                Item pane = BuiltInRegistries.ITEM.getValue(Identifier.withDefaultNamespace(dye.getName() + "_stained_glass_pane"));
                 built.put(pane, dye.getId());
             }
             glassPaneMap = built;

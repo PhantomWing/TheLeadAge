@@ -40,7 +40,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GameTestInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -649,7 +649,7 @@ public class LeadOreGameTest {
                 .lookupOrThrow(Registries.TEST_INSTANCE);
         List<String> missing = GameTestRegistration.testNames().stream()
                 .filter(name -> !instances.containsKey(
-                        ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name)))
+                        Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, name)))
                 .toList();
         if (!missing.isEmpty()) {
             helper.fail(Component.literal("test functions with no test_instance JSON, so they never run: " + missing));

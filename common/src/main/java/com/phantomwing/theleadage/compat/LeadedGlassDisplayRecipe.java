@@ -12,7 +12,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -198,8 +198,8 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
     }
 
     /** A synthetic id for one arrangement — these are display entries, never real recipes. */
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "leaded_glass/" + path);
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, "leaded_glass/" + path);
     }
 
     /** A pane arrangement from a mini pattern ('P' = plain pane, '.' = empty), row per string. */
@@ -233,8 +233,8 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
 
     private static ItemStack vanillaGlassPane(int color) {
         return new ItemStack(color < 0
-                ? BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace("glass_pane"))
-                : BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace(
+                ? BuiltInRegistries.ITEM.getValue(Identifier.withDefaultNamespace("glass_pane"))
+                : BuiltInRegistries.ITEM.getValue(Identifier.withDefaultNamespace(
                         DyeColor.byId(color).getName() + "_stained_glass_pane")));
     }
 

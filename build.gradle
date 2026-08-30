@@ -31,13 +31,13 @@ ext.latestChangelog = {
 // Single source of truth for the manifest substitutions. Derives each dependency range in the
 // loader's required FORMAT from the canonical versions in gradle.properties, so fabric.mod.json
 // and neoforge.mods.toml never hold a hardcoded range that can drift on a port.
-//   Fabric predicate format: ">=1.21.9 <1.21.11"     NeoForge maven range: "[1.21.9,1.21.11)"
+//   Fabric predicate format: ">=1.21.11 <1.21.12"   NeoForge maven range: "[1.21.11,1.21.12)"
 ext.manifestProps = { ->
     def mc = rootProject.minecraft_version                          // build target = highest supported
     def p = mc.tokenize('.')
-    def mcNext = "${p[0]}.${p[1]}.${(p[2] as int) + 1}".toString()   // 1.21.10 -> 1.21.11 (exclusive upper)
+    def mcNext = "${p[0]}.${p[1]}.${(p[2] as int) + 1}".toString()   // 1.21.11 -> 1.21.12 (exclusive upper)
     // Floor = LOWEST supported game version, which differs from the build target whenever the
-    // mod spans a compatible pair (1.21.9 + 1.21.10).
+    // mod spans a compatible pair. On this branch it does not: 1.21.11 is supported alone.
     def mcFloor = rootProject.supported_minecraft_versions.tokenize(' ,').first()
     // major.minor of a version, ignoring any +build / -qualifier suffix.
     def mm = { String v -> def q = v.takeWhile { it != '+' && it != '-' }.tokenize('.'); "${q[0]}.${q[1]}".toString() }
@@ -45,7 +45,7 @@ ext.manifestProps = { ->
     // fabric-api numbers its per-MC lines independently, so the newest build for the LOWEST supported
     // game version can be older than the one we compile against. See gradle.properties.
     def fabricApiFloor = rootProject.fabric_api_min_version
-    def fabricApiBuild = rootProject.fabric_api_version.takeWhile { it != '+' }
+    def fabricApiBuild = rootProject.fabric_api_version.takeWhile { it != '+' }   // 0.141.4+1.21.11 -> 0.141.4
     def cmpVer = { String a, String b ->
         def x = a.tokenize('.').collect { it as int }, y = b.tokenize('.').collect { it as int }
         for (int i = 0; i < Math.max(x.size(), y.size()); i++) {

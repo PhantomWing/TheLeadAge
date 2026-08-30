@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.tags;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
@@ -16,7 +16,7 @@ public final class CommonTags {
         public static final TagKey<Biome> IS_SWAMP = tag("is_swamp");
 
         private static TagKey<Biome> tag(String path) {
-            return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath("c", path));
+            return TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath("c", path));
         }
 
         private Biomes() {
@@ -32,7 +32,7 @@ public final class CommonTags {
         public static final TagKey<Item> TOOLS_KNIFE = tag("tools/knife");
 
         private static TagKey<Item> tag(String path) {
-            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
+            return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", path));
         }
 
         private Items() {

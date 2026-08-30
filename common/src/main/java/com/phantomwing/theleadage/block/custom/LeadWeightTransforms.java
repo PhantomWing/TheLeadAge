@@ -8,7 +8,7 @@ import dev.architectury.registry.ReloadListenerRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -77,7 +77,7 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     /** Wire the datapack loader on both loaders. Call once from common init. */
     public static void register() {
         ReloadListenerRegistry.register(PackType.SERVER_DATA, new LeadWeightTransforms(),
-                ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, DIRECTORY));
+                Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, DIRECTORY));
     }
 
     /** The state {@code state} becomes on a hard impact, or {@code null} if it doesn't transform. */
@@ -96,10 +96,10 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, List<Transform>> files, ResourceManager manager, ProfilerFiller profiler) {
+    protected void apply(Map<Identifier, List<Transform>> files, ResourceManager manager, ProfilerFiller profiler) {
         Map<Block, BlockState> blocks = new HashMap<>();
         List<TagRule> tags = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, List<Transform>> file : files.entrySet()) {
+        for (Map.Entry<Identifier, List<Transform>> file : files.entrySet()) {
             try {
                 for (Transform entry : file.getValue()) {
                     parse(entry, blocks, tags);
@@ -117,7 +117,7 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
         BlockState output = blockOrThrow(entry.output()).defaultBlockState();
         String input = entry.input();
         if (input.startsWith("#")) {
-            TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.parse(input.substring(1)));
+            TagKey<Block> tag = TagKey.create(Registries.BLOCK, Identifier.parse(input.substring(1)));
             tags.add(new TagRule(tag, output));
         } else {
             blocks.put(blockOrThrow(input), output);
@@ -126,7 +126,7 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
 
     private static Block blockOrThrow(String id) {
         // 1.21.2: Registry#get returns an Optional<Holder.Reference<T>> rather than the value.
-        ResourceLocation key = ResourceLocation.parse(id);
+        Identifier key = Identifier.parse(id);
         return BuiltInRegistries.BLOCK.get(key)
                 .map(Holder::value)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown block '" + id + "'"));

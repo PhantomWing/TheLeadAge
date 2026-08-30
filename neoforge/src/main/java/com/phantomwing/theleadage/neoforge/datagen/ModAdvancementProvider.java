@@ -9,16 +9,16 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementType;
-import net.minecraft.advancements.critereon.DamageSourcePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.EntityTypePredicate;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.KilledTrigger;
+import net.minecraft.advancements.criterion.DamageSourcePredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.EntityTypePredicate;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.KilledTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.data.advancements.AdvancementSubProvider;
@@ -43,7 +43,7 @@ public class ModAdvancementProvider implements AdvancementSubProvider {
                         // A ClientAsset id, NOT a texture path: 1.21.5 wrapped this argument in
                         // ClientAsset, which expands it to "textures/<id>.png" itself. Passing the
                         // full path here double-prefixes it and the tab renders with no background.
-                        ResourceLocation.parse("theleadage:block/cut_lead"),
+                        Identifier.parse("theleadage:block/cut_lead"),
                         AdvancementType.TASK, false, false, false)
                 .addCriterion("root", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[]{}))
                 .save(consumer, id("root"));

@@ -2,11 +2,12 @@ package com.phantomwing.theleadage.client;
 
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.BlockAndTintGetter;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,11 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link LeadedGlassSurface} (doors / trapdoors) need it, hence this shared helper.</p>
  */
 public final class LeadedGlassClearSprite {
-    // BakedQuad vertex layout (DefaultVertexFormat.BLOCK): 8 ints per vertex, with the u/v pair at
-    // offset 4. Spelled out here rather than borrowed from a loader API so this stays loader-agnostic.
-    private static final int STRIDE = 8;
-    private static final int UV0 = 4;
-
     /** Cache: a tinted white sprite -> its clear counterpart (same name, "white_" prefix dropped). */
     private static final Map<TextureAtlasSprite, TextureAtlasSprite> CLEAR_SPRITE = new ConcurrentHashMap<>();
 
@@ -47,19 +43,21 @@ public final class LeadedGlassClearSprite {
             return quad;
         }
         // Remap each vertex's atlas UV from the old sprite's bounds onto the new sprite's.
-        int[] v = quad.vertices().clone();
+        // 1.21.11: BakedQuad is a record of four positions and four PACKED uv longs, not the old
+        // interleaved int[] vertex array. UVPair does the packing, and the values it holds are
+        // absolute ATLAS coordinates, so the sprite-local round trip is unchanged.
+        long[] uv = new long[4];
         for (int i = 0; i < 4; i++) {
-            int o = i * STRIDE + UV0;
-            float lu = (Float.intBitsToFloat(v[o]) - from.getU0()) / (from.getU1() - from.getU0());
-            float lw = (Float.intBitsToFloat(v[o + 1]) - from.getV0()) / (from.getV1() - from.getV0());
-            v[o] = Float.floatToRawIntBits(to.getU0() + lu * (to.getU1() - to.getU0()));
-            v[o + 1] = Float.floatToRawIntBits(to.getV0() + lw * (to.getV1() - to.getV0()));
+            long packed = quad.packedUV(i);
+            float lu = (UVPair.unpackU(packed) - from.getU0()) / (from.getU1() - from.getU0());
+            float lw = (UVPair.unpackV(packed) - from.getV0()) / (from.getV1() - from.getV0());
+            uv[i] = UVPair.pack(to.getU0() + lu * (to.getU1() - to.getU0()),
+                    to.getV0() + lw * (to.getV1() - to.getV0()));
         }
-        // This is vanilla BakedQuad's full constructor (6 components). NeoForge patches on a 7th,
-        // hasAmbientOcclusion, which this defaults to true because common cannot see the accessor
-        // that would read it back. Harmless as long as the pane models keep their AO decision at
-        // model level, which the mesher consults first; revisit if a per-quad AO=false ever ships.
-        return new BakedQuad(v, -1, quad.direction(), to, quad.shade(), quad.lightEmission());
+        return new BakedQuad(
+                quad.position0(), quad.position1(), quad.position2(), quad.position3(),
+                uv[0], uv[1], uv[2], uv[3],
+                -1, quad.direction(), to, quad.shade(), quad.lightEmission());
     }
 
     /** {@link #retexture(BakedQuad)} when the quad's region is clear; every other quad passes through. */
@@ -109,11 +107,11 @@ public final class LeadedGlassClearSprite {
     @Nullable
     public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
         return CLEAR_SPRITE.computeIfAbsent(white, w -> {
-            ResourceLocation name = w.contents().name();
+            Identifier name = w.contents().name();
             if (!name.getPath().contains("white_")) {
                 return null; // already the clear texture (or not one of ours)
             }
-            ResourceLocation clearLoc = ResourceLocation.fromNamespaceAndPath(
+            Identifier clearLoc = Identifier.fromNamespaceAndPath(
                     name.getNamespace(), name.getPath().replace("white_", ""));
             return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(clearLoc);
         });

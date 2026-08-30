@@ -4,8 +4,8 @@ import com.phantomwing.theleadage.fabric.config.TheLeadAgeFabricConfig;
 import com.phantomwing.theleadage.villager.LeadVillagerTrades;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerTrades;
 
 import java.util.List;
 
@@ -73,10 +73,12 @@ public final class ModVillagerTrades {
             if (rebalanced && sharesRebalancedPool(profession)) {
                 return;
             }
-            factories.add((trader, random) ->
+            // 1.21.11: ItemListing#getOffer takes the ServerLevel first. Named serverLevel here
+            // because `level` is already this method's profession level.
+            factories.add((serverLevel, trader, random) ->
                     TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                             TheLeadAgeFabricConfig.ENABLE_VILLAGER_TRADES_ID)
-                            ? listing.getOffer(trader, random)
+                            ? listing.getOffer(serverLevel, trader, random)
                             : null);
         });
     }

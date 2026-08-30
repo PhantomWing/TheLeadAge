@@ -4,7 +4,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.villager.LeadVillagerTrades;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;

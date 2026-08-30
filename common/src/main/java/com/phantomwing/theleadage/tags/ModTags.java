@@ -2,7 +2,7 @@ package com.phantomwing.theleadage.tags;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -51,7 +51,7 @@ public final class ModTags {
         public static final TagKey<Block> PILLAGER_REPELLENTS = tag("pillager_repellents");
 
         private static TagKey<Block> tag(String name) {
-            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
         }
 
         private Blocks() {
@@ -84,7 +84,7 @@ public final class ModTags {
         public static final TagKey<Item> LEAD_EQUIPMENT = tag("lead_equipment");
 
         private static TagKey<Item> tag(String name) {
-            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
         }
 
         private Items() {
@@ -96,7 +96,7 @@ public final class ModTags {
         public static final TagKey<EntityType<?>> CAN_WEAR_LEAD_ARMOR = tag("can_wear_lead_armor");
 
         private static TagKey<EntityType<?>> tag(String name) {
-            return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
         }
 
         private EntityTypes() {
@@ -110,7 +110,7 @@ public final class ModTags {
         public static final TagKey<Biome> HAS_EXTRA_LEAD_ORE = tag("has_extra_lead_ore");
 
         private static TagKey<Biome> tag(String name) {
-            return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.BIOME, Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
         }
 
         private Biomes() {

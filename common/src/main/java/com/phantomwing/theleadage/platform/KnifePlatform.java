@@ -5,7 +5,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -50,7 +50,7 @@ public final class KnifePlatform {
 
     /** FD's knife mining tag. Referenced by id so neither loader needs an FD class to build the tool. */
     private static final TagKey<Block> MINEABLE_WITH_KNIFE = TagKey.create(Registries.BLOCK,
-            ResourceLocation.fromNamespaceAndPath("farmersdelight", "mineable/knife"));
+            Identifier.fromNamespaceAndPath("farmersdelight", "mineable/knife"));
 
     private KnifePlatform() {
     }

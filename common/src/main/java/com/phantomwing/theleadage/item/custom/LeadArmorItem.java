@@ -4,7 +4,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import dev.architectury.event.events.common.TickEvent;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -42,9 +42,9 @@ public class LeadArmorItem extends Item {
     private static final double KNOCKBACK_RESISTANCE_PER_HEAVINESS = 0.025; // +2.5% knockback resistance (+10% full set)
     private static final double WATER_SINK_PER_HEAVINESS = 0.01;            // extra downward velocity/tick while submerged
 
-    private static final ResourceLocation SPEED_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_slowness");
-    private static final ResourceLocation GRAVITY_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_gravity");
-    private static final ResourceLocation KNOCKBACK_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_knockback_resistance");
+    private static final Identifier SPEED_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_slowness");
+    private static final Identifier GRAVITY_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_gravity");
+    private static final Identifier KNOCKBACK_MODIFIER_ID = TheLeadAge.resourceLocation("lead_heaviness_knockback_resistance");
     private static final EquipmentSlot[] ARMOR_SLOTS =
             {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
@@ -152,7 +152,7 @@ public class LeadArmorItem extends Item {
         return heaviness;
     }
 
-    private static void updateModifier(LivingEntity living, Holder<Attribute> attribute, ResourceLocation id,
+    private static void updateModifier(LivingEntity living, Holder<Attribute> attribute, Identifier id,
                                        double amount, AttributeModifier.Operation operation) {
         AttributeInstance instance = living.getAttribute(attribute);
         if (instance == null) {

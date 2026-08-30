@@ -5,7 +5,7 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import dev.architectury.registry.client.rendering.RenderTypeRegistry;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 
@@ -28,8 +28,8 @@ import java.util.stream.Stream;
  * sites client-side.</p>
  */
 public final class LeadedGlassItemModels {
-    public static final ResourceLocation TRAPDOOR_SPECIAL_ID = TheLeadAge.resourceLocation("leaded_glass_trapdoor");
-    public static final ResourceLocation PANE_SPECIAL_ID = TheLeadAge.resourceLocation("leaded_glass_pane");
+    public static final Identifier TRAPDOOR_SPECIAL_ID = TheLeadAge.resourceLocation("leaded_glass_trapdoor");
+    public static final Identifier PANE_SPECIAL_ID = TheLeadAge.resourceLocation("leaded_glass_pane");
 
     private LeadedGlassItemModels() {
     }

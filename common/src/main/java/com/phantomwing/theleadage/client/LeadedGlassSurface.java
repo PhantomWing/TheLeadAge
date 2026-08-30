@@ -62,7 +62,11 @@ public final class LeadedGlassSurface {
         // 1.21.9: geometry is submitted rather than written to a buffer here, and the draw happens
         // later. The pose is snapshotted (PoseStack.Pose#copy) at submit time, so every transform
         // applied above is already baked into the Pose the callback receives.
-        collector.submitCustomGeometry(pose, Sheets.translucentItemSheet(), (snapshot, buffer) -> {
+        // translucentBlockItemSheet, NOT translucentItemSheet: these quads come from a BLOCK model
+        // and carry absolute BLOCKS-atlas UVs. 1.21.11 repointed translucentItemSheet() at the new
+        // ITEMS atlas (the block-atlas type it used to return is now translucentBlockItemSheet),
+        // and the signature is identical, so the wrong one compiles and samples the wrong atlas.
+        collector.submitCustomGeometry(pose, Sheets.translucentBlockItemSheet(), (snapshot, buffer) -> {
             for (BlockModelPart part : parts) {
                 emit(part, config, null, buffer, snapshot, light, overlay);
                 for (Direction dir : DIRECTIONS) {

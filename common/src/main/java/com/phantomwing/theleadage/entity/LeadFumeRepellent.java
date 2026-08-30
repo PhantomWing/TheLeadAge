@@ -6,7 +6,7 @@ import com.phantomwing.theleadage.tags.ModTags;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.monster.illager.Pillager;
 
 /**
  * Burning lead drives mobs off — the mod's answer to soul torches repelling piglins.

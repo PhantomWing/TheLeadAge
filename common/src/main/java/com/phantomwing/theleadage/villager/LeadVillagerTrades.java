@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.villager;
 
 import com.phantomwing.theleadage.item.ModItems;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.npc.villager.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
@@ -32,7 +32,7 @@ public final class LeadVillagerTrades {
      * iron-ingot buy trade, which all three smith professions share at apprentice.
      */
     public static VillagerTrades.ItemListing smithBuysLeadIngots() {
-        return (trader, random) -> new MerchantOffer(
+        return (level, trader, random) -> new MerchantOffer(
                 new ItemCost(ModItems.LEAD_INGOT.get(), 4),
                 new ItemStack(Items.EMERALD, 1),
                 12,

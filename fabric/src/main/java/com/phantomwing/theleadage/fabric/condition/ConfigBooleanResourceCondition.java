@@ -8,7 +8,7 @@ import com.phantomwing.theleadage.fabric.config.TheLeadAgeFabricConfig;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Fabric parity twin of the NeoForge
@@ -19,8 +19,8 @@ import net.minecraft.resources.ResourceLocation;
  * handler Fabric uses. Id + field are byte-identical to the NeoForge side.
  */
 public record ConfigBooleanResourceCondition(String settingId) implements ResourceCondition {
-    public static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "config_boolean");
+    public static final Identifier ID =
+            Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, "config_boolean");
 
     public static final MapCodec<ConfigBooleanResourceCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.STRING.fieldOf("settingId").forGetter(ConfigBooleanResourceCondition::settingId)

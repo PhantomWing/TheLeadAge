@@ -12,7 +12,7 @@ import net.minecraft.data.PackOutput;
 // and its constructor dropped the block-tag TagLookup (block-to-item tag copying is separate now,
 // and this provider only adds item tags directly).
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class ModItemTagsProvider extends ItemTagsProvider {
     /** Farmer's Delight's knife tag — the Cutting Board's accepted tool. Inert when FD is absent. */
     private static final TagKey<Item> FARMERS_DELIGHT_KNIVES =
-            TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("farmersdelight", "tools/knives"));
+            TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("farmersdelight", "tools/knives"));
 
     public ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output, lookupProvider, TheLeadAge.MOD_ID);
@@ -111,6 +111,6 @@ public class ModItemTagsProvider extends ItemTagsProvider {
     }
 
     private static TagKey<Item> c(String path) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", path));
     }
 }

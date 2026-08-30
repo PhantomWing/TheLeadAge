@@ -1,6 +1,6 @@
 package com.phantomwing.theleadage.fabric.loot;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface LeadLootTableId {
     @Nullable
-    ResourceLocation theleadage$getLootTableId();
+    Identifier theleadage$getLootTableId();
 
-    void theleadage$setLootTableId(ResourceLocation id);
+    void theleadage$setLootTableId(Identifier id);
 }

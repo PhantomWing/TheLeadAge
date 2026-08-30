@@ -6,7 +6,7 @@ import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
@@ -192,10 +192,10 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
     }
 
     private static TagKey<Block> c(String path) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("c", path));
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", path));
     }
 
     private static TagKey<Block> sable(String path) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("sable", path));
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("sable", path));
     }
 }

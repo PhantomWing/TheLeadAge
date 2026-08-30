@@ -5,7 +5,7 @@ import com.phantomwing.theleadage.loot.LeadLootAlgorithms;
 import com.phantomwing.theleadage.loot.LeadLootSpec;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,16 +34,16 @@ import java.util.function.Supplier;
 public abstract class LootTableMixin implements LeadLootTableId {
     @Unique
     @Nullable
-    private ResourceLocation theleadage$lootTableId;
+    private Identifier theleadage$lootTableId;
 
     @Override
     @Nullable
-    public ResourceLocation theleadage$getLootTableId() {
+    public Identifier theleadage$getLootTableId() {
         return this.theleadage$lootTableId;
     }
 
     @Override
-    public void theleadage$setLootTableId(ResourceLocation id) {
+    public void theleadage$setLootTableId(Identifier id) {
         this.theleadage$lootTableId = id;
     }
 
@@ -53,7 +53,7 @@ public abstract class LootTableMixin implements LeadLootTableId {
     )
     private void theleadage$applyLeadLoot(LootContext context,
                                           CallbackInfoReturnable<ObjectArrayList<ItemStack>> cir) {
-        ResourceLocation tableId = this.theleadage$lootTableId;
+        Identifier tableId = this.theleadage$lootTableId;
         ObjectArrayList<ItemStack> generatedLoot = cir.getReturnValue();
         if (tableId == null || generatedLoot == null || !CommonConfig.enableStructureLoot()) {
             return;

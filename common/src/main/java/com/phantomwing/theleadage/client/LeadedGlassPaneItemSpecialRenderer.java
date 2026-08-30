@@ -6,6 +6,7 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.world.item.BlockItem;
@@ -13,7 +14,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,12 +35,13 @@ public class LeadedGlassPaneItemSpecialRenderer implements SpecialModelRenderer<
     /**
      * 1.21.6: special renderers report what they draw, which vanilla turns into the item's cached
      * bounding box. Both corners of the unit cube bound a block model in standard block space, and
-     * the AABB builder on the other end only needs the extremes.
+     * the AABB builder on the other end only needs the extremes. 1.21.11 turned this from a Set to
+     * a Consumer, so the points are pushed rather than added.
      */
     @Override
-    public void getExtents(Set<Vector3f> extents) {
-        extents.add(new Vector3f(0.0f, 0.0f, 0.0f));
-        extents.add(new Vector3f(1.0f, 1.0f, 1.0f));
+    public void getExtents(Consumer<Vector3fc> extents) {
+        extents.accept(new Vector3f(0.0f, 0.0f, 0.0f));
+        extents.accept(new Vector3f(1.0f, 1.0f, 1.0f));
     }
 
     @Override

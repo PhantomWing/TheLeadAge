@@ -1,7 +1,7 @@
 {
   "pack": {
     "description": "Lead-themed textures for Create's compat items (Crushed Raw Lead). Applied automatically when Create is installed.",
-    "min_format": 69,
-    "max_format": [69, 0]
+    "min_format": 75,
+    "max_format": [75, 0]
   }
 }

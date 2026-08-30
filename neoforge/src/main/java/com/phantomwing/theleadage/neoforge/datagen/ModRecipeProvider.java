@@ -29,7 +29,7 @@ import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Items;
@@ -310,7 +310,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private static ItemLike vanillaItem(String path) {
-        return BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace(path));
+        return BuiltInRegistries.ITEM.getValue(Identifier.withDefaultNamespace(path));
     }
 
     private static String name(ItemLike item) {
@@ -320,7 +320,7 @@ public class ModRecipeProvider extends RecipeProvider {
     private static ResourceKey<Recipe<?>> id(String path) {
         // 1.21.2: RecipeBuilder#save keys on a ResourceKey<Recipe<?>> rather than an id string.
         return ResourceKey.create(Registries.RECIPE,
-                ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, path));
+                Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, path));
     }
 
     private void oreSmeltAndBlast(RecipeOutput output, ItemLike material, ItemLike result) {

@@ -9,7 +9,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.neoforged.bus.api.IEventBus;
@@ -29,9 +29,9 @@ public class ModBiomeModifiers {
 
     // The biome-modifier instances (data, emitted by ModDatapackProvider).
     public static final ResourceKey<BiomeModifier> ADD_LEAD_ORE = ResourceKey.create(
-            NeoForgeRegistries.Keys.BIOME_MODIFIERS, ResourceLocation.fromNamespaceAndPath(TheLeadAgeCommon.MOD_ID, "add_lead_ore"));
+            NeoForgeRegistries.Keys.BIOME_MODIFIERS, Identifier.fromNamespaceAndPath(TheLeadAgeCommon.MOD_ID, "add_lead_ore"));
     public static final ResourceKey<BiomeModifier> ADD_LEAD_ORE_EXTRA = ResourceKey.create(
-            NeoForgeRegistries.Keys.BIOME_MODIFIERS, ResourceLocation.fromNamespaceAndPath(TheLeadAgeCommon.MOD_ID, "add_lead_ore_extra"));
+            NeoForgeRegistries.Keys.BIOME_MODIFIERS, Identifier.fromNamespaceAndPath(TheLeadAgeCommon.MOD_ID, "add_lead_ore_extra"));
 
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);

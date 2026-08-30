@@ -9,7 +9,7 @@ import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * JEI integration. The mod's leaded-glass crafting recipes are code-matched (the grid arrangement
@@ -23,10 +23,10 @@ import net.minecraft.resources.ResourceLocation;
  */
 @JeiPlugin
 public class TheLeadAgeJeiPlugin implements IModPlugin {
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "jei_plugin");
+    private static final Identifier UID = Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, "jei_plugin");
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return UID;
     }
 

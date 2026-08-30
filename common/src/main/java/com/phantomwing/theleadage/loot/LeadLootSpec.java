@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.loot;
 
 import com.phantomwing.theleadage.item.ModItems;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -27,7 +27,7 @@ public final class LeadLootSpec {
      * replace up to {@code [min, max]} matched stacks (0 max ⇒ all) of any
      * {@code removedItems} with {@code item}.
      */
-    public record Entry(String id, ResourceLocation targetLootTable, float chance,
+    public record Entry(String id, Identifier targetLootTable, float chance,
                         Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems) {
     }
 
@@ -36,8 +36,8 @@ public final class LeadLootSpec {
     /** Chance for a rolled iron-ingot stack to become lead ingots instead. */
     private static final float INGOT_CHANCE = 0.20f;
 
-    private static ResourceLocation mc(String path) {
-        return ResourceLocation.withDefaultNamespace(path);
+    private static Identifier mc(String path) {
+        return Identifier.withDefaultNamespace(path);
     }
 
     private static Supplier<Item> vanilla(Item item) {

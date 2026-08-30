@@ -319,7 +319,7 @@ public class ModBlocks {
                 // another block's (the wall torch drops through minecraft:blocks/torch). Left alone,
                 // datagen writes our drops into that vanilla file. Name our own, as pre-1.21.2 did.
                 .overrideLootTable(Optional.of(ResourceKey.create(Registries.LOOT_TABLE,
-                        pendingKey.location().withPrefix("blocks/"))));
+                        pendingKey.identifier().withPrefix("blocks/"))));
     }
 
     /** Empty properties carrying the block being registered right now. */

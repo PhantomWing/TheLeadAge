@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.armor;
 
 import com.phantomwing.theleadage.TheLeadAge;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.Component;
@@ -51,7 +51,7 @@ public class ModTrimMaterials {
         // ingredient item moved onto the item's PROVIDES_TRIM_MATERIAL component, and the per-asset
         // override map lives on the MaterialAssetGroup.
         context.register(LEAD, new TrimMaterial(LEAD_ASSETS,
-                Component.translatable(Util.makeDescriptionId("trim_material", LEAD.location()))
+                Component.translatable(Util.makeDescriptionId("trim_material", LEAD.identifier()))
                         .withStyle(Style.EMPTY.withColor(TextColor.parseColor("#6E737D").getOrThrow()))));
     }
 

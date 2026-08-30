@@ -25,7 +25,7 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -185,20 +185,20 @@ public class ModModelProvider extends ModelProvider {
         return BlockModelGenerators.plainVariant(modBlock(path));
     }
 
-    private static ResourceLocation modBlock(String path) {
-        return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "block/" + path);
+    private static Identifier modBlock(String path) {
+        return Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, "block/" + path);
     }
 
-    private static ResourceLocation modItem(String path) {
-        return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "item/" + path);
+    private static Identifier modItem(String path) {
+        return Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, "item/" + path);
     }
 
-    private static ResourceLocation modBlockTexture(String path) {
+    private static Identifier modBlockTexture(String path) {
         return modBlock(path);
     }
 
-    private static void flatFromTexture(ItemModelGenerators img, Item item, ResourceLocation texture) {
-        ResourceLocation model = ModelTemplates.FLAT_ITEM.create(
+    private static void flatFromTexture(ItemModelGenerators img, Item item, Identifier texture) {
+        Identifier model = ModelTemplates.FLAT_ITEM.create(
                 ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(texture), img.modelOutput);
         img.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
     }
@@ -210,17 +210,17 @@ public class ModModelProvider extends ModelProvider {
         TextureMapping mapping = new TextureMapping()
                 .put(TextureSlot.SIDE, TextureMapping.getBlockTexture(block))
                 .put(TextureSlot.END, TextureMapping.getBlockTexture(block, "_top"));
-        ResourceLocation model = ModelTemplates.CUBE_COLUMN.create(block, mapping, bmg.modelOutput);
-        ResourceLocation horizontal = ModelTemplates.CUBE_COLUMN_HORIZONTAL.create(block, mapping, bmg.modelOutput);
+        Identifier model = ModelTemplates.CUBE_COLUMN.create(block, mapping, bmg.modelOutput);
+        Identifier horizontal = ModelTemplates.CUBE_COLUMN_HORIZONTAL.create(block, mapping, bmg.modelOutput);
         bmg.blockStateOutput.accept(BlockModelGenerators.createRotatedPillarWithHorizontalVariant(block,
                 BlockModelGenerators.plainVariant(model), BlockModelGenerators.plainVariant(horizontal)));
     }
 
     private static void orientableTrapdoor(BlockModelGenerators bmg, Block block) {
         TextureMapping mapping = TextureMapping.defaultTexture(block);
-        ResourceLocation top = ModelTemplates.ORIENTABLE_TRAPDOOR_TOP.create(block, mapping, bmg.modelOutput);
-        ResourceLocation bottom = ModelTemplates.ORIENTABLE_TRAPDOOR_BOTTOM.create(block, mapping, bmg.modelOutput);
-        ResourceLocation open = ModelTemplates.ORIENTABLE_TRAPDOOR_OPEN.create(block, mapping, bmg.modelOutput);
+        Identifier top = ModelTemplates.ORIENTABLE_TRAPDOOR_TOP.create(block, mapping, bmg.modelOutput);
+        Identifier bottom = ModelTemplates.ORIENTABLE_TRAPDOOR_BOTTOM.create(block, mapping, bmg.modelOutput);
+        Identifier open = ModelTemplates.ORIENTABLE_TRAPDOOR_OPEN.create(block, mapping, bmg.modelOutput);
         bmg.blockStateOutput.accept(BlockModelGenerators.createOrientableTrapdoor(block,
                 BlockModelGenerators.plainVariant(top), BlockModelGenerators.plainVariant(bottom),
                 BlockModelGenerators.plainVariant(open)));
@@ -237,12 +237,12 @@ public class ModModelProvider extends ModelProvider {
         }
     }
 
-    private static void rawModel(BlockModelGenerators bmg, ResourceLocation id, JsonObject json) {
+    private static void rawModel(BlockModelGenerators bmg, Identifier id, JsonObject json) {
         bmg.modelOutput.accept(id, () -> json);
     }
 
     /** A child model: {"parent": ..., "textures": {...}} (the old datagen's withExistingParent + textures). */
-    private static JsonObject childModel(ResourceLocation parent, String[][] textures) {
+    private static JsonObject childModel(Identifier parent, String[][] textures) {
         JsonObject json = new JsonObject();
         json.addProperty("parent", parent.toString());
         JsonObject tex = new JsonObject();
@@ -269,9 +269,9 @@ public class ModModelProvider extends ModelProvider {
 
     private void leadTorchAndLantern(BlockModelGenerators bmg) {
         String torchTex = "theleadage:block/lead_torch";
-        rawModel(bmg, modBlock("lead_torch"), childModel(ResourceLocation.withDefaultNamespace("block/template_torch"),
+        rawModel(bmg, modBlock("lead_torch"), childModel(Identifier.withDefaultNamespace("block/template_torch"),
                 new String[][]{{"torch", torchTex}}));
-        rawModel(bmg, modBlock("lead_wall_torch"), childModel(ResourceLocation.withDefaultNamespace("block/template_torch_wall"),
+        rawModel(bmg, modBlock("lead_wall_torch"), childModel(Identifier.withDefaultNamespace("block/template_torch_wall"),
                 new String[][]{{"torch", torchTex}}));
         JsonObject torch = new JsonObject();
         torch.add("", variant("theleadage:block/lead_torch", 0, 0));
@@ -284,9 +284,9 @@ public class ModModelProvider extends ModelProvider {
         variants(bmg, ModBlocks.LEAD_WALL_TORCH.get(), wallTorch);
 
         String lanternTex = "theleadage:block/lead_lantern";
-        rawModel(bmg, modBlock("lead_lantern"), childModel(ResourceLocation.withDefaultNamespace("block/template_lantern"),
+        rawModel(bmg, modBlock("lead_lantern"), childModel(Identifier.withDefaultNamespace("block/template_lantern"),
                 new String[][]{{"lantern", lanternTex}}));
-        rawModel(bmg, modBlock("lead_lantern_hanging"), childModel(ResourceLocation.withDefaultNamespace("block/template_hanging_lantern"),
+        rawModel(bmg, modBlock("lead_lantern_hanging"), childModel(Identifier.withDefaultNamespace("block/template_hanging_lantern"),
                 new String[][]{{"lantern", lanternTex}}));
         JsonObject lantern = new JsonObject();
         lantern.add("hanging=false", variant("theleadage:block/lead_lantern", 0, 0));
@@ -298,7 +298,7 @@ public class ModModelProvider extends ModelProvider {
         String tex = "theleadage:block/lead_chain";
         // 1.21.9 renamed the vanilla chain to iron_chain; block/template_chain is the shared geometry
         // both it and the copper chains parent to.
-        rawModel(bmg, modBlock("lead_chain"), childModel(ResourceLocation.withDefaultNamespace("block/template_chain"),
+        rawModel(bmg, modBlock("lead_chain"), childModel(Identifier.withDefaultNamespace("block/template_chain"),
                 new String[][]{{"particle", tex}, {"all", tex}}));
         JsonObject chain = new JsonObject();
         chain.add("axis=x", variant("theleadage:block/lead_chain", 90, 90));
@@ -312,7 +312,7 @@ public class ModModelProvider extends ModelProvider {
         String[] parts = {"post_ends", "post", "cap", "cap_alt", "side", "side_alt"};
         for (String part : parts) {
             rawModel(bmg, modBlock("lead_bars_" + part),
-                    childModel(ResourceLocation.withDefaultNamespace("block/iron_bars_" + part),
+                    childModel(Identifier.withDefaultNamespace("block/iron_bars_" + part),
                             new String[][]{{"particle", tex}, {"bars", tex}, {"edge", tex}}));
         }
         JsonArray multipart = new JsonArray();
@@ -351,7 +351,7 @@ public class ModModelProvider extends ModelProvider {
             for (boolean powered : new boolean[]{false, true}) {
                 String suffix = lit && powered ? "_lit_powered" : lit ? "_lit" : powered ? "_powered" : "";
                 String name = "lead_bulb" + suffix;
-                rawModel(bmg, modBlock(name), childModel(ResourceLocation.withDefaultNamespace("block/cube_all"),
+                rawModel(bmg, modBlock(name), childModel(Identifier.withDefaultNamespace("block/cube_all"),
                         new String[][]{{"all", "theleadage:block/" + name}}));
                 bulb.add("lit=" + lit + ",powered=" + powered, variant("theleadage:block/" + name, 0, 0));
             }

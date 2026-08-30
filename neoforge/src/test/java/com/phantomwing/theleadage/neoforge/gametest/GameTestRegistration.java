@@ -3,7 +3,7 @@ package com.phantomwing.theleadage.neoforge.gametest;
 import com.phantomwing.theleadage.TheLeadAge;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -65,6 +65,6 @@ public final class GameTestRegistration {
     @SubscribeEvent
     public static void registerFunctions(RegisterEvent event) {
         event.register(Registries.TEST_FUNCTION, helper -> TESTS.forEach(
-                (name, function) -> helper.register(ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name), function)));
+                (name, function) -> helper.register(Identifier.fromNamespaceAndPath(TheLeadAge.MOD_ID, name), function)));
     }
 }

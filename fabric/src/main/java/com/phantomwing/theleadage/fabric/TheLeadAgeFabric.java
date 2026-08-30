@@ -40,7 +40,7 @@ public final class TheLeadAgeFabric implements ModInitializer {
                 lootRegistry.entrySet().forEach(entry -> {
                     LootTable table = entry.getValue();
                     if (table instanceof LeadLootTableId holder) {
-                        holder.theleadage$setLootTableId(entry.getKey().location());
+                        holder.theleadage$setLootTableId(entry.getKey().identifier());
                     }
                 }));
     }
