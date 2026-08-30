@@ -2,6 +2,7 @@
 
 ### Fixes
 - Fixed the advancements tab background not showing.
+- Fixed leaded glass panes placed on the floor or ceiling showing their design mirrored and rotated.
 
 
 # 1.1.0
