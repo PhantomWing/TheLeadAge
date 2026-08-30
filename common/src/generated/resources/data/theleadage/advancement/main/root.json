@@ -6,7 +6,7 @@
   },
   "display": {
     "announce_to_chat": false,
-    "background": "theleadage:textures/block/cut_lead.png",
+    "background": "theleadage:block/cut_lead",
     "description": {
       "translate": "theleadage.advancement.root.description"
     },
