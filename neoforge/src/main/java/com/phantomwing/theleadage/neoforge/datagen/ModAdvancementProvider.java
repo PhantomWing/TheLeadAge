@@ -40,7 +40,7 @@ public class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder root = Advancement.Builder.advancement()
                 .display(ModItems.RAW_LEAD.get(),
                         title("root"), description("root"),
-                        ResourceLocation.parse("theleadage:textures/block/cut_lead.png"),
+                        ResourceLocation.parse("theleadage:block/cut_lead"),
                         AdvancementType.TASK, false, false, false)
                 .addCriterion("root", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[]{}))
                 .save(consumer, id("root"));
