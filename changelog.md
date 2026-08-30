@@ -3,6 +3,7 @@
 ### Fixes
 - Fixed the advancements tab background not showing.
 - Fixed leaded glass panes placed on the floor or ceiling showing their design mirrored and rotated.
+- Fixed leaded glass door designs appearing mirrored depending on the hinge side and whether the door is open.
 
 
 # 1.1.0

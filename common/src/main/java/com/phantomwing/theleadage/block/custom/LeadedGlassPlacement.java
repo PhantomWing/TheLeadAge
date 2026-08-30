@@ -84,10 +84,18 @@ public final class LeadedGlassPlacement {
 
     private static void applyOrientation(Matrix4f m, BlockState state) {
         if (state.getBlock() instanceof DoorBlock) {
-            // A right-hinge open door uses vanilla's MIRRORED models; the collision box only says
-            // where the panel is, not that the model there is mirrored. Mirror the glass to match —
-            // a half-turn about the panel's vertical centre maps the box onto itself, so it can't drift.
-            if (state.getValue(DoorBlock.OPEN) && state.getValue(DoorBlock.HINGE) == DoorHingeSide.RIGHT) {
+            // Which of the four door models is showing decides whether the frame's design is
+            // mirror-authored, and the glass has to match it. Reading the big-face UVs of the four
+            // models, taking bottom_left as the reference:
+            //     left  closed [0,0,16,16] normal      right closed [16,0,0,16] MIRRORED
+            //     left  open   [16,0,0,16] MIRRORED    right open   [0,0,16,16] normal
+            // so the frame is mirrored when EXACTLY ONE of (right hinge, open) holds — an XOR, not
+            // an AND. The collision box cannot express this: it only says where the panel is, and
+            // surface() reaches it with proper rotations that never mirror, so the half-turn here is
+            // the only thing that can flip the sheet. A half-turn about the panel's vertical centre
+            // maps the box onto itself, so the glass cannot drift off the frame.
+            boolean rightHinge = state.getValue(DoorBlock.HINGE) == DoorHingeSide.RIGHT;
+            if (rightHinge != state.getValue(DoorBlock.OPEN)) {
                 m.rotateY((float) Math.PI);
             }
             return;
