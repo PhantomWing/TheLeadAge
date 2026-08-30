@@ -1,3 +1,10 @@
+# 1.1.1
+
+### Fixes
+- Fixed leaded glass door designs appearing mirrored depending on the hinge side and whether the door is open.
+- Declared the Fabric Loader version the mod actually requires.
+
+
 # 1.1.0
 
 ### Additions
