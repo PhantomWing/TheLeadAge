@@ -1,3 +1,9 @@
+# 1.1.1
+
+### Fixes
+- Fixed the advancements tab background not showing.
+
+
 # 1.1.0
 
 ### Additions
