@@ -84,8 +84,12 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     private static final VoxelShape SHAPE_SOUTH = Block.box(0.0, 0.0, 8.0, 16.0, 16.0, 10.0);
     private static final VoxelShape SHAPE_EAST = Block.box(8.0, 0.0, 0.0, 10.0, 16.0, 16.0);
     private static final VoxelShape SHAPE_WEST = Block.box(6.0, 0.0, 0.0, 8.0, 16.0, 16.0);
-    private static final VoxelShape SHAPE_FLOOR = Block.box(0.0, 8.0, 0.0, 16.0, 10.0, 16.0);
-    private static final VoxelShape SHAPE_CEILING = Block.box(0.0, 6.0, 0.0, 16.0, 8.0, 16.0);
+    // A flat pane is rotated to present its front face (see ModModelProvider#paneXRot), which puts
+    // the 1px-off-centre sheet below the block's midline on the floor and above it on the ceiling.
+    // These boxes track the sheet: change one and the other must follow, or the glass renders
+    // outside what you can click.
+    private static final VoxelShape SHAPE_FLOOR = Block.box(0.0, 6.0, 0.0, 16.0, 8.0, 16.0);
+    private static final VoxelShape SHAPE_CEILING = Block.box(0.0, 8.0, 0.0, 16.0, 10.0, 16.0);
 
     /** Set just before a {@code new}, so {@link #createBlockStateDefinition} (called from super) sees it. */
     private static CameType pendingType;
@@ -252,20 +256,22 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                     default -> lx; // NORTH
                 };
             }
+            // Flat panes read as authored from the placer's viewpoint: the design's u runs to the
+            // player's right and v away from them, so these are just that view frame per facing.
             case FLOOR -> {
                 switch (facing) {
-                    case EAST -> { u = 1 - lx; v = 1 - lz; }
-                    case SOUTH -> { u = 1 - lz; v = lx; }
-                    case WEST -> { u = lx; v = lz; }
-                    default -> { u = lz; v = 1 - lx; } // NORTH
+                    case EAST -> { u = lz; v = lx; }
+                    case SOUTH -> { u = 1 - lx; v = lz; }
+                    case WEST -> { u = 1 - lz; v = 1 - lx; }
+                    default -> { u = lx; v = 1 - lz; } // NORTH
                 }
             }
             default -> { // CEILING
                 switch (facing) {
-                    case EAST -> { u = lx; v = 1 - lz; }
-                    case SOUTH -> { u = lz; v = lx; }
-                    case WEST -> { u = 1 - lx; v = lz; }
-                    default -> { u = 1 - lz; v = 1 - lx; } // NORTH
+                    case EAST -> { u = lz; v = 1 - lx; }
+                    case SOUTH -> { u = 1 - lx; v = 1 - lz; }
+                    case WEST -> { u = 1 - lz; v = lx; }
+                    default -> { u = lx; v = lz; } // NORTH
                 }
             }
         }
@@ -346,8 +352,10 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     private boolean isBackFace(BlockState state, BlockHitResult hit) {
         Direction back = switch (state.getValue(FACE)) {
             case WALL -> state.getValue(FACING);
-            case FLOOR -> Direction.UP;
-            case CEILING -> Direction.DOWN;
+            // A flat pane shows its FRONT to whoever placed it, so the back is the side facing away:
+            // down through the floor, up into the ceiling.
+            case FLOOR -> Direction.DOWN;
+            case CEILING -> Direction.UP;
         };
         return hit.getDirection() == back;
     }

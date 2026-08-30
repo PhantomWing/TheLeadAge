@@ -40,7 +40,10 @@ public class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder root = Advancement.Builder.advancement()
                 .display(ModItems.RAW_LEAD.get(),
                         title("root"), description("root"),
-                        ResourceLocation.parse("theleadage:textures/block/cut_lead.png"),
+                        // A ClientAsset id, NOT a texture path: 1.21.5 wrapped this argument in
+                        // ClientAsset, which expands it to "textures/<id>.png" itself. Passing the
+                        // full path here double-prefixes it and the tab renders with no background.
+                        ResourceLocation.parse("theleadage:block/cut_lead"),
                         AdvancementType.TASK, false, false, false)
                 .addCriterion("root", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[]{}))
                 .save(consumer, id("root"));

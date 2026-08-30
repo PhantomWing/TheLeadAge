@@ -3,9 +3,9 @@ package com.phantomwing.theleadage.client;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
 import org.jetbrains.annotations.Nullable;
@@ -115,7 +115,7 @@ public final class LeadedGlassClearSprite {
             }
             ResourceLocation clearLoc = ResourceLocation.fromNamespaceAndPath(
                     name.getNamespace(), name.getPath().replace("white_", ""));
-            return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(clearLoc);
+            return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(clearLoc);
         });
     }
 }
