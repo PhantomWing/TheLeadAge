@@ -1,3 +1,9 @@
+# 1.1.1
+
+### Fixes
+- Fixed leaded glass panes placed on the floor or ceiling showing their design mirrored and rotated.
+
+
 # 1.1.0
 
 ### Additions
