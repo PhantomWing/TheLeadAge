@@ -3,8 +3,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -14,8 +13,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -25,8 +23,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -36,8 +33,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -47,8 +43,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -58,8 +53,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -69,8 +63,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -80,8 +73,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -91,8 +83,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -102,8 +93,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 270,
-        "y": 90
+        "x": 90
       },
       "when": {
         "face": "floor",
@@ -113,8 +103,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -124,8 +114,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -135,8 +125,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -146,8 +136,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -157,8 +147,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -168,8 +158,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -179,8 +169,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -190,8 +180,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -201,8 +191,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -212,8 +202,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 270,
-        "y": 180
+        "x": 90,
+        "y": 90
       },
       "when": {
         "face": "floor",
@@ -223,8 +213,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -234,8 +224,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -245,8 +235,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -256,8 +246,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -267,8 +257,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -278,8 +268,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -289,8 +279,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -300,8 +290,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -311,8 +301,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -322,8 +312,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 270,
-        "y": 270
+        "x": 90,
+        "y": 180
       },
       "when": {
         "face": "floor",
@@ -333,7 +323,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -343,7 +334,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -353,7 +345,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -363,7 +356,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -373,7 +367,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -383,7 +378,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -393,7 +389,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -403,7 +400,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -413,7 +411,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -423,7 +422,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 270
+        "x": 90,
+        "y": 270
       },
       "when": {
         "face": "floor",
@@ -823,8 +823,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -834,8 +833,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -845,8 +843,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -856,8 +853,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -867,8 +863,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -878,8 +873,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -889,8 +883,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -900,8 +893,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -911,8 +903,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -922,8 +913,7 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 90,
-        "y": 270
+        "x": 270
       },
       "when": {
         "face": "ceiling",
@@ -933,7 +923,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -943,7 +934,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -953,7 +945,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -963,7 +956,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -973,7 +967,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -983,7 +978,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -993,7 +989,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -1003,7 +1000,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -1013,7 +1011,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -1023,7 +1022,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 90
+        "x": 270,
+        "y": 90
       },
       "when": {
         "face": "ceiling",
@@ -1033,8 +1033,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1044,8 +1044,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1055,8 +1055,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1066,8 +1066,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1077,8 +1077,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1088,8 +1088,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1099,8 +1099,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1110,8 +1110,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1121,8 +1121,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1132,8 +1132,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 90,
-        "y": 90
+        "x": 270,
+        "y": 180
       },
       "when": {
         "face": "ceiling",
@@ -1143,8 +1143,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_came",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1154,8 +1154,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_0",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1165,8 +1165,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_1",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1176,8 +1176,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_2",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1187,8 +1187,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_3",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1198,8 +1198,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_4",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1209,8 +1209,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_5",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1220,8 +1220,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_6",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1231,8 +1231,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_7",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
@@ -1242,8 +1242,8 @@
     {
       "apply": {
         "model": "theleadage:block/leaded_glass_pane_grid_cell_8",
-        "x": 90,
-        "y": 180
+        "x": 270,
+        "y": 270
       },
       "when": {
         "face": "ceiling",
