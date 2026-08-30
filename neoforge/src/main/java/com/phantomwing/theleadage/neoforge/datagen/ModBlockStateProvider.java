@@ -287,7 +287,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
             return ConfiguredModel.builder()
                     .modelFile(familiesByOrientation[family][mask])
                     .rotationX(paneXRot(face))
-                    .rotationY(paneYRot(face, facing))
+                    .rotationY(paneYRot(facing))
                     .build();
         });
     }
@@ -306,7 +306,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         for (AttachFace face : AttachFace.values()) {
             for (Direction facing : Direction.Plane.HORIZONTAL) {
                 int xRot = paneXRot(face);
-                int yRot = paneYRot(face, facing);
+                int yRot = paneYRot(facing);
                 builder.part().modelFile(came).rotationX(xRot).rotationY(yRot).addModel()
                         .condition(LeadedGlassPaneBlock.FACE, face)
                         .condition(LeadedGlassPaneBlock.FACING, facing).end();
@@ -319,25 +319,27 @@ public class ModBlockStateProvider extends BlockStateProvider {
         }
     }
 
+    /**
+     * The pane sheet is authored 1px off-centre on its thin axis so it hugs the face it is attached
+     * to, which means these two rotations also decide WHICH side of the sheet the player looks at.
+     * A flat pane must present its FRONT face (model +Z), or the design reads mirrored; floor 90 /
+     * ceiling 270 do that, and the collision boxes in LeadedGlassPaneBlock follow the sheet there.
+     */
     private static int paneXRot(AttachFace face) {
         return switch (face) {
             case WALL -> 0;
-            case FLOOR -> 270;
-            case CEILING -> 90;
+            case FLOOR -> 90;
+            case CEILING -> 270;
         };
     }
 
-    private static int paneYRot(AttachFace face, Direction facing) {
-        int yRot = switch (facing) {
+    /** With the flat faces the right way up, the design's axes line up with the placer's view. */
+    private static int paneYRot(Direction facing) {
+        return switch (facing) {
             case EAST -> 90;
             case SOUTH -> 180;
             case WEST -> 270;
             default -> 0; // NORTH
-        };
-        return switch (face) {
-            case WALL -> yRot;
-            case FLOOR -> (yRot + 90) % 360;
-            case CEILING -> (yRot + 270) % 360;
         };
     }
 
