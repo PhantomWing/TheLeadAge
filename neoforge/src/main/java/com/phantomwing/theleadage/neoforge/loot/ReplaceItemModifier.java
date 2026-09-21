@@ -43,7 +43,13 @@ public class ReplaceItemModifier extends LootModifier {
     private final int maxStacks;
 
     public ReplaceItemModifier(LootItemCondition[] conditions, ItemLike itemToAdd, List<Item> itemToReplace, int minStacks, int maxStacks) {
-        super(conditions);
+        this(conditions, 0, itemToAdd, itemToReplace, minStacks, maxStacks);
+    }
+
+    // 26.1: LootModifier takes a priority, and codecStart yields it as the second argument.
+    public ReplaceItemModifier(LootItemCondition[] conditions, int priority, ItemLike itemToAdd,
+                               List<Item> itemToReplace, int minStacks, int maxStacks) {
+        super(conditions, priority);
         this.removedItems = itemToReplace;
         this.item = itemToAdd.asItem();
         this.minStacks = minStacks;

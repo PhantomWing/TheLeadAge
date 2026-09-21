@@ -8,6 +8,7 @@ import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.neoforge.condition.ConfigBooleanCondition;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -28,17 +29,15 @@ import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.conditions.AndCondition;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -288,7 +287,8 @@ public class ModRecipeProvider extends RecipeProvider {
      *  via the code-matched leaded_glass_pane recipes, not shaped recipes. */
     private void leadedGlassFamily(RecipeOutput output) {
         for (DyeColor color : DyeColor.values()) {
-            ItemLike dye = DyeItem.byColor(color);
+            // 26.1 dropped DyeItem.byColor; the dye items are plain registry entries.
+            ItemLike dye = BuiltInRegistries.ITEM.getValue(Identifier.withDefaultNamespace(color.getName() + "_dye"));
             ItemLike stainedGlass = vanillaItem(color.getName() + "_stained_glass");
             ItemLike leaded = ModBlocks.STAINED_LEADED_GLASS.get(color).get();
 
@@ -324,14 +324,17 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void oreSmeltAndBlast(RecipeOutput output, ItemLike material, ItemLike result) {
-        cook(output, material, result, 200, RecipeSerializer.SMELTING_RECIPE, SmeltingRecipe::new, "smelting");
-        cook(output, material, result, 100, RecipeSerializer.BLASTING_RECIPE, BlastingRecipe::new, "blasting");
+        // 26.1 replaced the generic(serializer, factory) form with per-type builders that also
+        // take the recipe-book category.
+        cook(output, SimpleCookingRecipeBuilder.smelting(Ingredient.of(material), RecipeCategory.MISC,
+                CookingBookCategory.MISC, result, ORE_XP, 200), material, result, "smelting");
+        cook(output, SimpleCookingRecipeBuilder.blasting(Ingredient.of(material), RecipeCategory.MISC,
+                CookingBookCategory.MISC, result, ORE_XP, 100), material, result, "blasting");
     }
 
-    private <T extends AbstractCookingRecipe> void cook(RecipeOutput output, ItemLike material, ItemLike result, int time,
-                                                        RecipeSerializer<T> serializer, AbstractCookingRecipe.Factory<T> factory, String suffix) {
-        SimpleCookingRecipeBuilder.generic(Ingredient.of(material), RecipeCategory.MISC, result, ORE_XP, time, serializer, factory)
-                .unlockedBy(getHasName(material), has(material))
+    private void cook(RecipeOutput output, SimpleCookingRecipeBuilder builder, ItemLike material,
+                      ItemLike result, String suffix) {
+        builder.unlockedBy(getHasName(material), has(material))
                 .save(output, id(name(result) + "_from_" + name(material) + "_" + suffix));
     }
 
@@ -482,11 +485,16 @@ public class ModRecipeProvider extends RecipeProvider {
      * leaded_glass_config component, which the builder cannot attach.
      */
     private void paneStonecutting(RecipeOutput output, LeadedGlassFrame frame) {
-        ItemStack result = new ItemStack(ModItems.paneItemFor(frame));
-        result.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame,
-                Collections.nCopies(frame.regions(), LeadedGlassConfig.CLEAR)));
+        // 26.1: SingleItemRecipe results are ItemStackTemplates, and the template is built from a
+        // component PATCH rather than a live ItemStack: item components are not bound during
+        // datagen, so `new ItemStack(item)` throws "Components not bound yet".
+        DataComponentPatch config = DataComponentPatch.builder()
+                .set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame,
+                        Collections.nCopies(frame.regions(), LeadedGlassConfig.CLEAR)))
+                .build();
+        ItemStackTemplate result = new ItemStackTemplate(ModItems.paneItemFor(frame), config);
         output.accept(id("leaded_glass_pane_" + frame.getSerializedName() + "_from_stonecutting"),
-                new ColoredPaneStonecutterRecipe("leaded_glass_pane",
+                new ColoredPaneStonecutterRecipe(new Recipe.CommonInfo(true),
                         Ingredient.of(ModItems.LEADED_GLASS_PANEL.get()), result), null);
     }
 

@@ -4,9 +4,7 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -28,8 +26,7 @@ import java.util.Optional;
  * </ul>
  */
 public class LeadedGlassCombineRecipe extends CustomRecipe {
-    public LeadedGlassCombineRecipe(CraftingBookCategory category) {
-        super(category);
+    public LeadedGlassCombineRecipe() {
     }
 
     @Override
@@ -38,7 +35,7 @@ public class LeadedGlassCombineRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput input) {
         return parse(input).map(result -> {
             ItemStack pane = new ItemStack(ModItems.paneItemFor(result.frame()), result.count());
             pane.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),

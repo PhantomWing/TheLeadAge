@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "theleadage:cut_lead",
   "result": {
-    "count": 1,
     "id": "theleadage:chiseled_lead"
   }
 }

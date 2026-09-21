@@ -4,7 +4,6 @@ import com.phantomwing.theleadage.TheLeadAgeCommon;
 import com.phantomwing.theleadage.fabric.condition.ConfigBooleanResourceCondition;
 import com.phantomwing.theleadage.fabric.config.TheLeadAgeFabricConfig;
 import com.phantomwing.theleadage.fabric.loot.LeadLootTableId;
-import com.phantomwing.theleadage.fabric.villager.ModVillagerTrades;
 import com.phantomwing.theleadage.fabric.world.ModWorldGen;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
@@ -29,9 +28,6 @@ public final class TheLeadAgeFabric implements ModInitializer {
 
         // Attach lead ore to overworld biomes (gated by config).
         ModWorldGen.register();
-
-        // Villager trades (the Fabric twin of the NeoForge village-event handler).
-        ModVillagerTrades.register();
 
         // Once all loot tables are loaded, stamp each with its registry id so the
         // LootTableMixin (the Fabric equivalent of the NeoForge Global Loot

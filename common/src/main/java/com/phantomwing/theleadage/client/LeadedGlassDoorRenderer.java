@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,6 +41,7 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
         // previous occupant of this state would otherwise keep drawing.
         state.config = null;
         state.box = null;
+        state.blockState = null;
 
         BlockState blockState = be.getBlockState();
         if (be.getLevel() == null || !(blockState.getBlock() instanceof DoorBlock)) {
@@ -56,6 +57,7 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
         }
         state.config = pane;
         state.box = shape.bounds();
+        state.blockState = blockState;
     }
 
     @Override

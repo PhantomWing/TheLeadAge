@@ -10,7 +10,6 @@ import org.joml.Vector3fc;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,19 +65,20 @@ public class LeadedGlassPaneItemSpecialRenderer implements SpecialModelRenderer<
      * vanilla's own custom geometry drops it.
      */
     @Override
-    public void submit(@Nullable LeadedGlassConfig config, ItemDisplayContext context, PoseStack pose,
-                       SubmitNodeCollector collector, int light, int overlay, boolean hasFoil, int outlineColor) {
+    public void submit(@Nullable LeadedGlassConfig config, PoseStack pose,
+                       SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
+                       int outlineColor) {
         if (config != null) {
             LeadedGlassSurface.renderUpright(config, pose, collector, light, overlay);
         }
     }
 
     /** {@code {"type": "theleadage:leaded_glass_pane"}} in an items/ definition. */
-    public record Unbaked() implements SpecialModelRenderer.Unbaked {
+    public record Unbaked() implements SpecialModelRenderer.Unbaked<LeadedGlassConfig> {
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(new Unbaked());
 
         @Override
-        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
+        public SpecialModelRenderer<LeadedGlassConfig> bake(SpecialModelRenderer.BakingContext context) {
             return new LeadedGlassPaneItemSpecialRenderer();
         }
 

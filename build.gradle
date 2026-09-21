@@ -1,6 +1,7 @@
 plugins {
     id 'architectury-plugin' version "${architectury_plugin_version}"
-    id 'dev.architectury.loom' version "${architectury_loom_version}" apply false
+    // loom-no-remap: 26.1 is unobfuscated, no mappings/remapJar; common is bundled via Shadow.
+    id 'dev.architectury.loom-no-remap' version "${architectury_loom_version}" apply false
     // Publishing â€” applied per loader subproject.
     id 'me.modmuss50.mod-publish-plugin' version "${mod_publish_plugin_version}" apply false
 }
@@ -31,13 +32,13 @@ ext.latestChangelog = {
 // Single source of truth for the manifest substitutions. Derives each dependency range in the
 // loader's required FORMAT from the canonical versions in gradle.properties, so fabric.mod.json
 // and neoforge.mods.toml never hold a hardcoded range that can drift on a port.
-//   Fabric predicate format: ">=1.21.11 <1.21.12"   NeoForge maven range: "[1.21.11,1.21.12)"
+//   Fabric predicate format: ">=26.1 <26.1.3"   NeoForge maven range: "[26.1,26.1.3)"
 ext.manifestProps = { ->
     def mc = rootProject.minecraft_version                          // build target = highest supported
     def p = mc.tokenize('.')
-    def mcNext = "${p[0]}.${p[1]}.${(p[2] as int) + 1}".toString()   // 1.21.11 -> 1.21.12 (exclusive upper)
+    def mcNext = "${p[0]}.${p[1]}.${(p[2] as int) + 1}".toString()   // 26.1.2 -> 26.1.3 (exclusive upper)
     // Floor = LOWEST supported game version, which differs from the build target whenever the
-    // mod spans a compatible pair. On this branch it does not: 1.21.11 is supported alone.
+    // mod spans a compatible run of versions. On this branch it does: 26.1 through 26.1.2.
     def mcFloor = rootProject.supported_minecraft_versions.tokenize(' ,').first()
     // major.minor of a version, ignoring any +build / -qualifier suffix.
     def mm = { String v -> def q = v.takeWhile { it != '+' && it != '-' }.tokenize('.'); "${q[0]}.${q[1]}".toString() }
@@ -78,7 +79,7 @@ architectury {
 }
 
 subprojects {
-    apply plugin: 'dev.architectury.loom'
+    apply plugin: 'dev.architectury.loom-no-remap'
 
     loom {
         silentMojangMappingsLicense()
@@ -86,11 +87,8 @@ subprojects {
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        // Mojang official mappings, layered with Parchment.
-        mappings loom.layered {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_mappings_version}@zip")
-        }
+        // No mappings block: 26.1 is unobfuscated, Mojang ships no mappings file
+        // (officialMojangMappings would fail).
     }
 }
 
@@ -111,7 +109,6 @@ allprojects {
         mavenLocal()
 
         maven { url = 'https://maven.neoforged.net/releases' }
-        maven { url = 'https://maven.parchmentmc.org' }
 
         // AppleSkin (dev-runtime only)
         maven {
@@ -168,11 +165,11 @@ allprojects {
         maven { url = "https://maven.ithundxr.dev/snapshots" }
     }
 
-    java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
-        options.release = 21
+        options.release = 25
     }
 
     java {

@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "theleadage:lead_bricks",
   "result": {
-    "count": 1,
     "id": "theleadage:lead_brick_wall"
   }
 }

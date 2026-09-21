@@ -2,17 +2,20 @@ package com.phantomwing.theleadage.fabric.client;
 
 import com.phantomwing.theleadage.client.LeadedGlassClearSprite;
 import net.fabricmc.fabric.api.client.model.loading.v1.wrapper.WrapperBlockStateModel;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.model.SpriteFinder;
+import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
+import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
+import net.fabricmc.fabric.api.client.renderer.v1.sprite.FabricTextureAtlas;
+import net.fabricmc.fabric.api.client.renderer.v1.sprite.SpriteFinder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,19 +80,23 @@ public class LeadedGlassPaneModelFabric extends WrapperBlockStateModel {
                 float lv = (quad.v(i) - from.getV0()) / (from.getV1() - from.getV0());
                 quad.uv(i, lu, lv);
             }
-            quad.spriteBake(to, MutableQuadView.BAKE_NORMALIZED);
+            // 26.1: quads bake against a Material (sprite + translucency) rather than a bare
+            // sprite. Pane glass is force-translucent, matching what the pane models declare.
+            quad.materialBake(new Material.Baked(to, true), MutableQuadView.BAKE_NORMALIZED);
             quad.tintIndex(-1);
         }
         return true;
     }
 
     /**
-     * Deliberately NOT cached in a field. {@code SpriteFinder.get} is already a field read on the
+     * Deliberately NOT cached in a field. The atlas getter is already a field read on the
      * atlas (Fabric stores the finder there) and Fabric rebuilds it when the atlas re-stitches.
      * Holding our own copy would survive that invalidation, leaving us matching quads against the
      * previous atlas layout after any resource reload.
      */
     private static SpriteFinder spriteFinder() {
-        return SpriteFinder.get(Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS));
+        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS);
+        // 26.1 fabric-api: the finder hangs off the atlas itself, through an injected interface.
+        return ((FabricTextureAtlas) atlas).spriteFinder();
     }
 }

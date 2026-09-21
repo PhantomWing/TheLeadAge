@@ -1,7 +1,13 @@
 {
   "parent": "theleadage:block/leaded_glass_pane_bars_v",
   "textures": {
-    "glass_1": "theleadage:block/leaded_glass_bars_v",
-    "glass_2": "theleadage:block/leaded_glass_bars_v"
+    "glass_1": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_bars_v"
+    },
+    "glass_2": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_bars_v"
+    }
   }
 }

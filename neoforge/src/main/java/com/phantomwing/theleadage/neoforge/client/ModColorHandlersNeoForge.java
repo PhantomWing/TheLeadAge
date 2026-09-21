@@ -11,13 +11,12 @@ import com.phantomwing.theleadage.client.LeadedGlassTrapdoorSpecialRenderer;
 import com.phantomwing.theleadage.client.ModColorHandlers;
 import com.phantomwing.theleadage.particle.ModParticles;
 import net.minecraft.client.particle.FlameParticle;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -36,12 +35,10 @@ public final class ModColorHandlersNeoForge {
     private ModColorHandlersNeoForge() {
     }
 
+    // 26.1: tints register as a per-tint-index list of BlockTintSources, one call per block.
     @SubscribeEvent
-    static void blockColors(RegisterColorHandlersEvent.Block event) {
-        event.register(ModColorHandlers::blockTint, ModBlocks.LEADED_GLASS_PANEL.get(),
-                ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
-                ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
-                ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+    static void blockColors(RegisterColorHandlersEvent.BlockTintSources event) {
+        ModColorHandlers.forEachPane((block, sources) -> event.register(sources, block));
     }
 
     @SubscribeEvent
@@ -79,9 +76,4 @@ public final class ModColorHandlersNeoForge {
         event.registerBlockEntityRenderer(ModBlockEntities.LEADED_GLASS_TRAPDOOR.get(), LeadedGlassTrapdoorRenderer::new);
     }
 
-    @SubscribeEvent
-    static void clientSetup(FMLClientSetupEvent event) {
-        // 1.21.4 dropped the model-JSON render_type our old datagen emitted; layers register in code.
-        event.enqueueWork(LeadedGlassItemModels::registerRenderLayers);
-    }
 }

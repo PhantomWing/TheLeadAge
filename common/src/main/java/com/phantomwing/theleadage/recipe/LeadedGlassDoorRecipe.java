@@ -4,9 +4,7 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -20,8 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * door would have to hand back three items (lead door + both panes), more than crafting allows.
  */
 public class LeadedGlassDoorRecipe extends CustomRecipe {
-    public LeadedGlassDoorRecipe(CraftingBookCategory category) {
-        super(category);
+    public LeadedGlassDoorRecipe() {
     }
 
     @Override
@@ -30,7 +27,7 @@ public class LeadedGlassDoorRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput input) {
         LeadedGlassDoorConfig config = doorConfig(input);
         if (config == null) {
             return ItemStack.EMPTY;

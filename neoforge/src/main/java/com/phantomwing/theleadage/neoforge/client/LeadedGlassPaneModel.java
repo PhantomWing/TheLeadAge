@@ -1,16 +1,15 @@
 package com.phantomwing.theleadage.neoforge.client;
 
 import com.phantomwing.theleadage.client.LeadedGlassClearSprite;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,7 @@ public class LeadedGlassPaneModel extends DelegateBlockStateModel {
 
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state,
-                             RandomSource random, List<BlockModelPart> parts) {
+                             RandomSource random, List<BlockStateModelPart> parts) {
         int start = parts.size();
         super.collectParts(level, pos, state, random, parts);
         boolean[] clear = LeadedGlassClearSprite.clearFlags(level, pos);
@@ -52,7 +51,7 @@ public class LeadedGlassPaneModel extends DelegateBlockStateModel {
     }
 
     /** A part whose clear cells are retextured to the untinted clear sprite; everything else forwards. */
-    private record RetexturedPart(BlockModelPart part, boolean[] clear) implements BlockModelPart {
+    private record RetexturedPart(BlockStateModelPart part, boolean[] clear) implements BlockStateModelPart {
         @Override
         public List<BakedQuad> getQuads(@Nullable Direction side) {
             List<BakedQuad> quads = part.getQuads(side);
@@ -79,18 +78,20 @@ public class LeadedGlassPaneModel extends DelegateBlockStateModel {
         }
 
         @Override
-        public TextureAtlasSprite particleIcon() {
-            return part.particleIcon();
+        public Material.Baked particleMaterial() {
+            return part.particleMaterial();
         }
 
-        // NeoForge adds these two to BlockModelPart. Their interface defaults answer from the global
-        // ItemBlockRenderTypes map and from useAmbientOcclusion, so without forwarding a wrapped
-        // part's own render layer or forced AO would be dropped for exactly the wrapped positions.
+        // 26.1: the render layer is no longer a per-part question (it is inferred from the
+        // texture), and the material flags carry translucency and animation instead.
         @Override
-        public ChunkSectionLayer getRenderType(BlockState state) {
-            return part.getRenderType(state);
+        public int materialFlags() {
+            return part.materialFlags();
         }
 
+        // NeoForge's own addition. Its interface default answers from useAmbientOcclusion, so
+        // without forwarding, a wrapped part's forced AO would be dropped for exactly the
+        // wrapped positions.
         @Override
         public TriState ambientOcclusion() {
             return part.ambientOcclusion();

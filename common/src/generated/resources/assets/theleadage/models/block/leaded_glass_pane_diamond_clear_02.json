@@ -1,7 +1,13 @@
 {
   "parent": "theleadage:block/leaded_glass_pane_diamond",
   "textures": {
-    "glass_0": "theleadage:block/leaded_glass_diamond",
-    "glass_2": "theleadage:block/leaded_glass_diamond"
+    "glass_0": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_diamond"
+    },
+    "glass_2": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_diamond"
+    }
   }
 }

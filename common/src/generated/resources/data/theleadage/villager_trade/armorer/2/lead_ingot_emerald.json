@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_villager_trades"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_villager_trades"
+    }
+  ],
+  "gives": {
+    "id": "minecraft:emerald"
+  },
+  "max_uses": 12.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 4.0,
+    "id": "theleadage:lead_ingot"
+  },
+  "xp": 10.0
+}

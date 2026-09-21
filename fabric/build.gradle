@@ -1,5 +1,6 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    // loom-no-remap has no remapJar, so shadowJar is the primary mod artifact (bundles :common).
+    id 'com.gradleup.shadow' version '9.4.2'
 }
 
 architectury {
@@ -11,11 +12,10 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// 1.21.11: the recipe-viewer plugin is live on a PINNED JEI (27.6.0.28 - newer builds use a Loom
-// this toolchain refuses). FDR publishes for 1.21.11 but cannot be a dependency here (classTweaker
-// v2), so the Lead Knife compiles against the local stub. EMI still has nothing past 1.21.1.
+// 26.1: the recipe-viewer plugin is live on JEI. The Lead Knife still compiles against the local
+// FDR stub (no FDR dependency is resolved here). EMI still has nothing past 1.21.1.
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 1.21.11 branch: JEI compat, FD knife via stub; no EMI")
+logger.lifecycle("[TheLeadAge] (fabric) 26.1 branch: JEI compat, FD knife via stub; no EMI")
 
 configurations {
     common
@@ -26,35 +26,31 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    // loom-no-remap: plain configs (no `mod` prefix - nothing is remapped).
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    api "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     // Architectury API (Fabric).
-    modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
+    api "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
-    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    common(project(path: ':common')) { transitive false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionFabric')) { transitive false }
 
     // Cloth Config — a real (compiled + shipped) Fabric dependency: it backs the
     // Fabric AutoConfig config screen (TheLeadAgeFabricConfig). fabric-api excluded
     // to avoid a transitive downgrade.
-    modImplementation("me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}") {
+    implementation("me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}") {
         exclude group: "net.fabricmc.fabric-api"
     }
 
-    // Farmer's Delight Refabricated is NOT a dependency on this line. Its 1.21.11 builds ship a
-    // `classTweaker v2` file that the classtweaker reader in architectury-loom 1.14.476 cannot read
-    // ("Unsupported class tweaker format: v2"), so merely having it on the classpath fails
-    // :fabric configuration. Reading v2 needs the loom 1.17.x line, i.e. the 26.1 build overhaul
-    // (Gradle 9 + Java 25), which is well past this branch.
-    //
-    // LeadKnifeItem therefore compiles against the local stub in vectorwing/farmersdelight/, whose
-    // shape was verified with javap against fdr_version's real jar. Re-verify on any fdr_version
-    // bump. At runtime the class still binds to the real FDR jar when the player has it installed.
+    // Farmer's Delight Refabricated is NOT a dependency on this line. LeadKnifeItem compiles
+    // against the local stub in vectorwing/farmersdelight/, whose shape was verified with javap
+    // against fdr_version's real jar. Re-verify on any fdr_version bump. At runtime the class
+    // binds to the real FDR jar when the player has it installed.
 
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
-    modLocalRuntime "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
+    localRuntime "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
 
-    // NOTE (1.21.11 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
+    // NOTE (26.1 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
     // was dropped back on the 1.21.4 line.
 }
 
@@ -67,9 +63,24 @@ processResources {
     filesMatching('fabric.mod.json') {
         expand(manifest)
     }
+
+    // Dev-only: Fabric Loader reads the access widener (declared in fabric.mod.json) from the mod's
+    // resource root, which in dev is this source set, not common's. shadowCommon covers production.
+    from(project(':common').file("src/main/resources/${rootProject.mod_id}.accesswidener"))
+}
+
+// shadowJar is built on top of the Loom-processed `jar` (marked `raw`) so Loom's JiJ
+// fabric.mod.json is preserved while :common is merged in; shadowJar is the primary jar.
+jar {
+    archiveClassifier = 'raw'
 }
 
 shadowJar {
+    dependsOn jar
+    // Build from the Loom-processed jar, not source, to keep Loom's fabric.mod.json.
+    mainSpec.sourcePaths.clear()
+    from(zipTree(jar.archiveFile))
+
     exclude 'architectury.common.json'
 
     // NOT belt and braces on this line: the KnifeItem STUB under vectorwing/ is real source here, and
@@ -78,20 +89,16 @@ shadowJar {
     exclude 'vectorwing/**'
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier = 'dev-shadow'
+    archiveClassifier = null
 }
 
-remapJar {
-    injectAccessWidener = true
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-}
+assemble.dependsOn shadowJar
 
 // Publishing (Fabric jar). ./gradlew :fabric:publishMods (tokens via MODRINTH_TOKEN / CURSEFORGE_TOKEN env vars).
 apply plugin: 'me.modmuss50.mod-publish-plugin'
 
 publishMods {
-    file = remapJar.archiveFile
+    file = shadowJar.archiveFile
     version = rootProject.mod_version
     displayName = "The Lead Age ${rootProject.mod_version}"
     changelog = rootProject.ext.latestChangelog()
@@ -135,9 +142,16 @@ sourcesJar {
     exclude 'vectorwing/**'
 }
 
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
+// Redirect the java component's outgoing artifacts to shadowJar (the shippable jar) so
+// `from components.java` doesn't publish the classifier='raw' jar.
+configurations {
+    apiElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
     }
 }
 

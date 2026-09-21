@@ -1,10 +1,15 @@
 {
   "parent": "block/block",
   "ambientocclusion": false,
-  "render_type": "minecraft:translucent",
   "textures": {
-    "particle": "theleadage:block/white_leaded_glass_grid",
-    "glass": "theleadage:block/white_leaded_glass_grid"
+    "particle": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/white_leaded_glass_grid"
+    },
+    "glass": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/white_leaded_glass_grid"
+    }
   },
   "elements": [
     {

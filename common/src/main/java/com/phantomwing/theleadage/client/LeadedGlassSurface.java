@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.client;
 
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
@@ -10,9 +11,9 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.AABB;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,8 +59,13 @@ public final class LeadedGlassSurface {
         BlockState paneState = paneStateFor(config);
         // 1.21.5: block models are BlockStateModels, so quads come per-part via collectParts, which
         // also replaces the old per-direction getQuads(state, dir, random) calls.
-        BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
-        List<BlockModelPart> parts = model.collectParts(RandomSource.create(42L));
+        // 26.1: the block renderer no longer hands out models (Minecraft#getBlockRenderer is gone),
+        // the model set on the model manager does, and collectParts fills a list instead of
+        // returning one.
+        BlockStateModel model = Minecraft.getInstance().getModelManager()
+                .getBlockStateModelSet().get(paneState);
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(RandomSource.create(42L), parts);
         // 1.21.9: geometry is submitted rather than written to a buffer here, and the draw happens
         // later. The pose is snapshotted (PoseStack.Pose#copy) at submit time, so every transform
         // applied above is already baked into the Pose the callback receives.
@@ -67,7 +74,7 @@ public final class LeadedGlassSurface {
         // ITEMS atlas (the block-atlas type it used to return is now translucentBlockItemSheet),
         // and the signature is identical, so the wrong one compiles and samples the wrong atlas.
         collector.submitCustomGeometry(pose, Sheets.translucentBlockItemSheet(), (snapshot, buffer) -> {
-            for (BlockModelPart part : parts) {
+            for (BlockStateModelPart part : parts) {
                 emit(part, config, null, buffer, snapshot, light, overlay);
                 for (Direction dir : DIRECTIONS) {
                     emit(part, config, dir, buffer, snapshot, light, overlay);
@@ -76,10 +83,10 @@ public final class LeadedGlassSurface {
         });
     }
 
-    private static void emit(BlockModelPart part, LeadedGlassConfig config, Direction dir,
+    private static void emit(BlockStateModelPart part, LeadedGlassConfig config, Direction dir,
                              VertexConsumer buffer, PoseStack.Pose pose, int light, int overlay) {
         for (BakedQuad quad : part.getQuads(dir)) {
-            int tint = quad.tintIndex();
+            int tint = quad.materialInfo().tintIndex();
             // Clear regions must be drawn with the clear sprite, not the tintable white one. For most
             // came types the block state already picked a clear-textured model and this is a no-op,
             // but grid and lattice carry no clear_N state, and their chunk-mesh wrapper can only do the
@@ -87,9 +94,13 @@ public final class LeadedGlassSurface {
             BakedQuad out = tint >= 0 && config.colorAt(tint) == null
                     ? LeadedGlassClearSprite.retexture(quad)
                     : quad;
-            int color = colorFor(tint, config);
-            float r = (color >> 16 & 0xFF) / 255.0f, g = (color >> 8 & 0xFF) / 255.0f, b = (color & 0xFF) / 255.0f;
-            buffer.putBulkData(pose, out, r, g, b, 1.0f, light, overlay);
+            // 26.1: the per-quad colour, light and overlay moved off putBulkData's argument list
+            // into a QuadInstance (it defaults to opaque white at full brightness).
+            QuadInstance instance = new QuadInstance();
+            instance.setColor(0xFF000000 | colorFor(tint, config));
+            instance.setLightCoords(light);
+            instance.setOverlayCoords(overlay);
+            buffer.putBakedQuad(pose, out, instance);
         }
     }
 

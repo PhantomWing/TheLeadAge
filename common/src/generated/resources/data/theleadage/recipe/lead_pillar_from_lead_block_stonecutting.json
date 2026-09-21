@@ -2,7 +2,6 @@
   "type": "minecraft:stonecutting",
   "ingredient": "theleadage:lead_block",
   "result": {
-    "count": 1,
     "id": "theleadage:lead_pillar"
   }
 }

@@ -16,7 +16,8 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
-import net.minecraft.client.renderer.block.model.BlockModelDefinition;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelDispatcher;
+import net.minecraft.client.resources.model.sprite.Material;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
@@ -61,10 +62,10 @@ public class ModModelProvider extends ModelProvider {
         bmg.createTrivialCube(ModBlocks.DEEPSLATE_LEAD_ORE.get());
         bmg.createTrivialCube(ModBlocks.RAW_LEAD_BLOCK.get());
         bmg.createTrivialCube(ModBlocks.LEAD_BLOCK.get());
-        bmg.createTrivialCube(ModBlocks.LEADED_GLASS.get());
+        translucentCube(bmg, ModBlocks.LEADED_GLASS.get());
         bmg.createTrivialCube(ModBlocks.LEAD_GRATE.get());
         for (DyeColor color : DyeColor.values()) {
-            bmg.createTrivialCube(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
+            translucentCube(bmg, ModBlocks.STAINED_LEADED_GLASS.get(color).get());
         }
 
         // ---------- Families ----------
@@ -199,7 +200,8 @@ public class ModModelProvider extends ModelProvider {
 
     private static void flatFromTexture(ItemModelGenerators img, Item item, Identifier texture) {
         Identifier model = ModelTemplates.FLAT_ITEM.create(
-                ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(texture), img.modelOutput);
+                // 26.1: texture slots take a Material (sprite + translucency), not a bare id.
+                ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(new Material(texture)), img.modelOutput);
         img.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
     }
 
@@ -232,8 +234,9 @@ public class ModModelProvider extends ModelProvider {
     /** A blockstate emitted as raw JSON (parsed through the vanilla codec), mirroring committed output. */
     private record RawBlockState(Block block, JsonElement json) implements BlockModelDefinitionGenerator {
         @Override
-        public BlockModelDefinition create() {
-            return BlockModelDefinition.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
+        public BlockStateModelDispatcher create() {
+            // 26.1 renamed BlockModelDefinition to BlockStateModelDispatcher; same JSON shape.
+            return BlockStateModelDispatcher.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
         }
     }
 
@@ -243,14 +246,36 @@ public class ModModelProvider extends ModelProvider {
 
     /** A child model: {"parent": ..., "textures": {...}} (the old datagen's withExistingParent + textures). */
     private static JsonObject childModel(Identifier parent, String[][] textures) {
+        return childModel(parent, textures, false);
+    }
+
+    /**
+     * 26.1: a texture can be an object carrying {@code force_translucent}, which is now the only way
+     * to opt geometry into the translucent layer (the old model-level render_type is gone). Glass
+     * textures need it; plain metal ones infer cutout from their binary alpha.
+     */
+    private static JsonObject childModel(Identifier parent, String[][] textures, boolean forceTranslucent) {
         JsonObject json = new JsonObject();
         json.addProperty("parent", parent.toString());
         JsonObject tex = new JsonObject();
         for (String[] entry : textures) {
-            tex.addProperty(entry[0], entry[1]);
+            if (forceTranslucent) {
+                JsonObject material = new JsonObject();
+                material.addProperty("force_translucent", true);
+                material.addProperty("sprite", entry[1]);
+                tex.add(entry[0], material);
+            } else {
+                tex.addProperty(entry[0], entry[1]);
+            }
         }
         json.add("textures", tex);
         return json;
+    }
+
+    /** A glass cube: a trivial cube whose texture opts into the translucent layer. */
+    private static void translucentCube(BlockModelGenerators bmg, Block block) {
+        bmg.createTrivialBlock(block, TexturedModel.CUBE.updateTexture(mapping ->
+                mapping.put(TextureSlot.ALL, TextureMapping.getBlockTexture(block).withForceTranslucent(true))));
     }
 
     private static JsonObject variant(String model, Integer x, Integer y) {
@@ -429,7 +454,7 @@ public class ModModelProvider extends ModelProvider {
                     textures.add(new String[]{regionKeys[i], "theleadage:block/" + clearTexture});
                 }
             }
-            rawModel(bmg, modBlock(name), childModel(modBlock(base), textures.toArray(String[][]::new)));
+            rawModel(bmg, modBlock(name), childModel(modBlock(base), textures.toArray(String[][]::new), true));
             byMask[mask] = "theleadage:block/" + name;
         }
         return byMask;

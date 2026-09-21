@@ -3,13 +3,13 @@ package com.phantomwing.theleadage.client;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -51,7 +51,8 @@ public final class LeadedGlassClearSprite {
      * texture, so callers can apply this to every clear region without checking first.
      */
     public static BakedQuad retexture(BakedQuad quad) {
-        TextureAtlasSprite from = quad.sprite();
+        BakedQuad.MaterialInfo material = quad.materialInfo();
+        TextureAtlasSprite from = material.sprite();
         TextureAtlasSprite to = clearSprite(from);
         if (to == null) {
             return quad;
@@ -68,20 +69,21 @@ public final class LeadedGlassClearSprite {
             uv[i] = UVPair.pack(to.getU0() + lu * (to.getU1() - to.getU0()),
                     to.getV0() + lw * (to.getV1() - to.getV0()));
         }
-        // Vanilla's 13-arg constructor. NeoForge patches THREE more components onto this record
-        // (bakedNormals, bakedColors, hasAmbientOcclusion) and this overload hard-codes them to
-        // UNSPECIFIED / DEFAULT / true, so a quad arriving with custom baked normals or colors from
-        // an extended model loses them here. Safe while the pane models keep their AO and shading
-        // decisions at model level; revisit if a per-quad override ever ships.
+        // 26.1: the sprite, tint index, shading and light emission moved off BakedQuad into a
+        // MaterialInfo component, so the swap rebuilds that record (new sprite, tint dropped) and
+        // carries the rest of the quad's material over untouched.
+        BakedQuad.MaterialInfo clearMaterial = new BakedQuad.MaterialInfo(
+                to, material.layer(), material.itemRenderType(), -1, material.shade(),
+                material.lightEmission());
         return new BakedQuad(
                 quad.position0(), quad.position1(), quad.position2(), quad.position3(),
                 uv[0], uv[1], uv[2], uv[3],
-                -1, quad.direction(), to, quad.shade(), quad.lightEmission());
+                quad.direction(), clearMaterial);
     }
 
     /** {@link #retexture(BakedQuad)} when the quad's region is clear; every other quad passes through. */
     public static BakedQuad retexture(BakedQuad quad, boolean @Nullable [] clear) {
-        return isClear(clear, quad.tintIndex()) ? retexture(quad) : quad;
+        return isClear(clear, quad.materialInfo().tintIndex()) ? retexture(quad) : quad;
     }
 
     /**

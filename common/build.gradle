@@ -26,12 +26,14 @@ processResources {
 dependencies {
     // We depend on Fabric Loader here to use the Fabric @Environment annotations and
     // get the mixin dependencies. Do NOT use other classes from Fabric Loader.
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    // 26.1/loom-no-remap: the `mod`-prefixed configs (modImplementation/modApi) are gone -
+    // there is no remapping, so dependencies are plain implementation/api/compileOnly.
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     // Architectury API (common).
-    modApi "dev.architectury:architectury:${rootProject.architectury_version}"
+    api "dev.architectury:architectury:${rootProject.architectury_version}"
     // JEI plugin API, compile-time only. JEI stays an optional runtime mod: the @JeiPlugin class
     // is only ever classloaded by JEI itself, so nothing breaks when JEI isn't installed.
-    modCompileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
+    compileOnly "mezz.jei:jei-${rootProject.minecraft_version}-common-api:${rootProject.jei_version}"
     // EMI still has no build past 1.21.1, so its plugin stays absent.
 }
 

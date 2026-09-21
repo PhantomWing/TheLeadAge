@@ -3,9 +3,7 @@ package com.phantomwing.theleadage.recipe;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -17,8 +15,7 @@ import org.jetbrains.annotations.Nullable;
  * copying the pane's design (frame + colours) onto the trapdoor's flap.
  */
 public class LeadedGlassTrapdoorRecipe extends CustomRecipe {
-    public LeadedGlassTrapdoorRecipe(CraftingBookCategory category) {
-        super(category);
+    public LeadedGlassTrapdoorRecipe() {
     }
 
     @Override
@@ -27,7 +24,7 @@ public class LeadedGlassTrapdoorRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput input) {
         ItemStack pane = findPane(input);
         if (pane == null) {
             return ItemStack.EMPTY;

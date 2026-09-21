@@ -38,6 +38,9 @@ public class DataGenerators {
         event.addProvider(new ModEntityTypeTagsProvider(output, lookupProvider));
         event.addProvider(new ModDatapackProvider(output, lookupProvider));
         event.addProvider(new ModGlobalLootModifierProvider(output, lookupProvider));
+        // Villager trades (26.1 data-driven villager_trade registry + smith pool tags). Emits a
+        // neoforge:conditions gate, so it must run BEFORE FabricConditionsProvider.
+        event.addProvider(new ModVillagerTradeProvider(output, lookupProvider));
         // 1.21.4: NeoForge's AdvancementProvider wrapper is gone — vanilla's takes the sub providers.
         event.addProvider(new AdvancementProvider(output, lookupProvider, List.of(new ModAdvancementProvider())));
 

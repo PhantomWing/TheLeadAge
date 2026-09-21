@@ -178,7 +178,7 @@ public class LeadOreGameTest {
             helper.fail(Component.literal("No crafting recipe matched lead_door + two leaded glass panes"));
             return;
         }
-        ItemStack result = match.get().value().assemble(input, level.registryAccess());
+        ItemStack result = match.get().value().assemble(input);
         if (result.is(ModItems.LEADED_GLASS_DOOR.get())) {
             helper.succeed();
         } else {
@@ -201,7 +201,7 @@ public class LeadOreGameTest {
             helper.fail(Component.literal("no crafting recipe matched a 2x2 of lead ingots"));
             return;
         }
-        ItemStack result = match.get().value().assemble(input, level.registryAccess());
+        ItemStack result = match.get().value().assemble(input);
         if (!result.is(ModItems.LEAD_BRICKS.get())) {
             helper.fail(Component.literal("2x2 lead ingots produced " + result + ", expected lead bricks"));
             return;

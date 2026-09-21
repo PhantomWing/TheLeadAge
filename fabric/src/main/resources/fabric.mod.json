@@ -26,6 +26,7 @@
       "com.phantomwing.theleadage.compat.jei.TheLeadAgeJeiPlugin"
     ]
   },
+  "accessWidener": "theleadage.accesswidener",
   "mixins": [
     "theleadage.mixins.json"
   ],

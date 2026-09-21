@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.client;
 
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,4 +19,10 @@ public class LeadedGlassSurfaceRenderState extends BlockEntityRenderState {
     public LeadedGlassConfig config;
     @Nullable
     public AABB box;
+    /**
+     * The door / trapdoor's own block state, which the orientation matrix needs. 26.1 made the
+     * base class's blockState private, so extract copies it across here.
+     */
+    @Nullable
+    public BlockState blockState;
 }

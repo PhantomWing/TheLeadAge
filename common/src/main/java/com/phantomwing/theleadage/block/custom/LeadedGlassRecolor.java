@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.block.custom;
 
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -41,7 +42,8 @@ public final class LeadedGlassRecolor {
     /** The colour this item would paint, or {@code null} for "make it clear" (shears). */
     @Nullable
     public static DyeColor target(ItemStack stack) {
-        return stack.getItem() instanceof DyeItem dye ? dye.getDyeColor() : null;
+        // 26.1: DyeItem dropped getDyeColor; the colour rides on the stack's DYE component.
+        return stack.getItem() instanceof DyeItem ? stack.get(DataComponents.DYE) : null;
     }
 
     /**

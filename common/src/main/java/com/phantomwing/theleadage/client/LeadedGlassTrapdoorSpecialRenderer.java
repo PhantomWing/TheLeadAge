@@ -12,14 +12,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +41,8 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
     private static final AABB FLAP = new AABB(0.0, 0.0, 0.0, 1.0, 3.0 / 16.0, 1.0);
     private static final LeadedGlassConfig DEFAULT = new LeadedGlassConfig(LeadedGlassFrame.PLAIN,
             List.of(LeadedGlassConfig.CLEAR));
+    /** Tint colours by tint index for submitBlockModel; the frame model has none, so: white. */
+    private static final int[] UNTINTED = {-1};
 
     /**
      * 1.21.6: special renderers report what they draw, which vanilla turns into the item's cached
@@ -64,25 +68,32 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
      * {@code ModelBlockRenderer.renderModel} call did plus the outline colour.
      */
     @Override
-    public void submit(@Nullable LeadedGlassConfig config, ItemDisplayContext context, PoseStack pose,
-                       SubmitNodeCollector collector, int light, int overlay, boolean hasFoil, int outlineColor) {
+    public void submit(@Nullable LeadedGlassConfig config, PoseStack pose,
+                       SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
+                       int outlineColor) {
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
-        BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
+        // 26.1: models come from the model manager's block state model set, and submitBlockModel
+        // takes the collected parts plus a per-tint-index colour array in place of a model and
+        // float rgb. The frame model is untinted, so one white entry covers it.
+        BlockStateModel model = Minecraft.getInstance().getModelManager()
+                .getBlockStateModelSet().get(frame);
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(RandomSource.create(42L), parts);
 
         // The trapdoor frame (the cut-window overlay texture, cutout). Untinted, so vanilla's own
         // whole-model emission does exactly what is needed here.
-        collector.submitBlockModel(pose, Sheets.cutoutBlockSheet(), model, 1.0f, 1.0f, 1.0f,
+        collector.submitBlockModel(pose, Sheets.cutoutBlockSheet(), parts, UNTINTED,
                 light, overlay, outlineColor);
 
         LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, collector, light, overlay);
     }
 
     /** The data-driven side: {@code {"type": "theleadage:leaded_glass_trapdoor"}} in an items/ definition. */
-    public record Unbaked() implements SpecialModelRenderer.Unbaked {
+    public record Unbaked() implements SpecialModelRenderer.Unbaked<LeadedGlassConfig> {
         public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(new Unbaked());
 
         @Override
-        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
+        public SpecialModelRenderer<LeadedGlassConfig> bake(SpecialModelRenderer.BakingContext context) {
             return new LeadedGlassTrapdoorSpecialRenderer();
         }
 

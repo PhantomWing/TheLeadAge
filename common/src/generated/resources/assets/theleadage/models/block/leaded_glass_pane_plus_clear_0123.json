@@ -1,9 +1,21 @@
 {
   "parent": "theleadage:block/leaded_glass_pane_plus",
   "textures": {
-    "glass_0": "theleadage:block/leaded_glass_plus",
-    "glass_1": "theleadage:block/leaded_glass_plus",
-    "glass_2": "theleadage:block/leaded_glass_plus",
-    "glass_3": "theleadage:block/leaded_glass_plus"
+    "glass_0": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_plus"
+    },
+    "glass_1": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_plus"
+    },
+    "glass_2": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_plus"
+    },
+    "glass_3": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_plus"
+    }
   }
 }

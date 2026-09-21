@@ -8,14 +8,12 @@ import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.recipe.ModRecipes;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -67,7 +65,6 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
 
     private LeadedGlassDisplayRecipe(String name, int width, int height, List<Cell> cells,
                                      ResultKind resultKind, @Nullable LeadedGlassFrame frame, int resultCount) {
-        super(CraftingBookCategory.MISC);
         this.name = name;
         this.width = width;
         this.height = height;
@@ -255,7 +252,7 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput input) {
         return ItemStack.EMPTY;
     }
 

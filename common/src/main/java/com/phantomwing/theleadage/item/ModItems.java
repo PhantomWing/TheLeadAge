@@ -4,8 +4,6 @@ import com.google.common.collect.Sets;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.armor.ModTrimMaterials;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.component.ProvidesTrimMaterial;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.platform.KnifePlatform;
@@ -46,10 +44,12 @@ public class ModItems {
     // Materials
     public static final RegistrySupplier<Item> RAW_LEAD = register("raw_lead");
     // 1.21.5: the ingredient->trim-material link moved off TrimMaterial (which dropped its
-    // ingredient field) onto the ingredient item, via the PROVIDES_TRIM_MATERIAL component.
-    // Without this a smithing table can't apply the lead trim with a lead ingot.
+    // ingredient field) onto the ingredient item. Without it a smithing table can't apply the
+    // lead trim with a lead ingot. 26.1: ProvidesTrimMaterial takes a Holder<TrimMaterial>, which
+    // a dynamic-registry key can't resolve at registration time, so use the vanilla helper that
+    // wires it as a delayed holder component.
     public static final RegistrySupplier<Item> LEAD_INGOT = register("lead_ingot", Item::new,
-            baseItem().component(DataComponents.PROVIDES_TRIM_MATERIAL, new ProvidesTrimMaterial(ModTrimMaterials.LEAD)));
+            baseItem().trimMaterial(ModTrimMaterials.LEAD));
     public static final RegistrySupplier<Item> LEAD_NUGGET = register("lead_nugget");
     // Create compat: pressing a lead ingot in a Mechanical Press yields a sheet (Create's
     // c:plates convention). Only appears in the creative tab when Create is loaded.

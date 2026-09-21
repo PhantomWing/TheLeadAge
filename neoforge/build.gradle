@@ -1,5 +1,6 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    // loom-no-remap has no remapJar, so shadowJar is the primary mod artifact (bundles :common).
+    id 'com.gradleup.shadow' version '9.4.2'
 }
 
 architectury {
@@ -19,10 +20,9 @@ def datagenExisting = rootProject.file('common/src/main/resources/').absolutePat
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
-// 1.21.11: JEI publishes for both loaders, but is PINNED to 27.6.0.28 (newer builds use a Loom
-// this toolchain refuses). Create, FD-NeoForge and EMI still have no build.
+// 26.1: JEI publishes for both loaders. Create, FD-NeoForge and EMI still have no build.
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.11 branch: JEI kept; no Create/FD-NeoForge/EMI compat")
+logger.lifecycle("[TheLeadAge] (neoforge) 26.1 branch: JEI kept; no Create/FD-NeoForge/EMI compat")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -89,18 +89,19 @@ sourceSets {
 
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neo_version}"
+    // loom-no-remap: plain configs (no `mod` prefix - nothing is remapped).
     // Architectury API (NeoForge).
-    modApi "dev.architectury:architectury-neoforge:${rootProject.architectury_version}"
+    api "dev.architectury:architectury-neoforge:${rootProject.architectury_version}"
 
-    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    common(project(path: ':common')) { transitive false }
     shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }
 
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
     if (!runningGameTest && !runningDataGen) {
-        modLocalRuntime "mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}"
+        localRuntime "mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}"
     }
 
-    // NOTE (1.21.11 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
+    // NOTE (26.1 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
     // was dropped back on the 1.21.4 line.
 }
 
@@ -140,7 +141,18 @@ processResources {
     }
 }
 
+// shadowJar is built on top of the Loom-processed `jar` (marked `raw`) so :common is merged in;
+// shadowJar is the primary jar. The hand-maintained META-INF/accesstransformer.cfg (mirrors
+// common's AW, since there's no remapJar to auto-convert) ships via main resources.
+jar {
+    archiveClassifier = 'raw'
+}
+
 shadowJar {
+    dependsOn jar
+    mainSpec.sourcePaths.clear()
+    from(zipTree(jar.archiveFile))
+
     exclude 'fabric.mod.json'
     exclude 'architectury.common.json'
 
@@ -150,19 +162,16 @@ shadowJar {
     exclude 'vectorwing/**'
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier = 'dev-shadow'
+    archiveClassifier = null
 }
 
-remapJar {
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-}
+assemble.dependsOn shadowJar
 
 // Publishing (NeoForge jar). ./gradlew :neoforge:publishMods (tokens via MODRINTH_TOKEN / CURSEFORGE_TOKEN env vars).
 apply plugin: 'me.modmuss50.mod-publish-plugin'
 
 publishMods {
-    file = remapJar.archiveFile
+    file = shadowJar.archiveFile
     version = rootProject.mod_version
     displayName = "The Lead Age ${rootProject.mod_version}"
     changelog = rootProject.ext.latestChangelog()
@@ -202,9 +211,16 @@ sourcesJar {
     exclude 'vectorwing/**'
 }
 
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
+// Redirect the java component's outgoing artifacts to shadowJar (the shippable jar) so
+// `from components.java` doesn't publish the classifier='raw' jar.
+configurations {
+    apiElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
     }
 }
 

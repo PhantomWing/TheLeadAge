@@ -49,7 +49,9 @@ public final class MonsterArmorHandler {
         }
 
         // Check if we should equip Lead armor.
-        if (entity.getType().is(ModTags.EntityTypes.CAN_WEAR_LEAD_ARMOR) && entity instanceof Mob mob) {
+        // 26.1 removed EntityType.is(TagKey); tag membership goes through the built-in holder.
+        if (entity.getType().builtInRegistryHolder().is(ModTags.EntityTypes.CAN_WEAR_LEAD_ARMOR)
+                && entity instanceof Mob mob) {
             RandomSource random = mob.getRandom();
 
             ItemStack helmet = mob.getItemBySlot(EquipmentSlot.HEAD);

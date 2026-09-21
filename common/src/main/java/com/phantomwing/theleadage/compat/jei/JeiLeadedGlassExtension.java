@@ -8,6 +8,7 @@ import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
@@ -35,10 +36,14 @@ public class JeiLeadedGlassExtension implements ICraftingCategoryExtension<Leade
             if (variants == null) {
                 displays.add(SlotDisplay.Empty.INSTANCE); // an empty cell in a sub-3x3 grid
             } else if (variants.size() == 1) {
-                displays.add(new SlotDisplay.ItemStackSlotDisplay(variants.getFirst()));
+                // 26.1: slot displays hold an ItemStackTemplate (item + count + components) rather
+                // than a live ItemStack.
+                displays.add(new SlotDisplay.ItemStackSlotDisplay(
+                        ItemStackTemplate.fromNonEmptyStack(variants.getFirst())));
             } else {
                 displays.add(new SlotDisplay.Composite(
-                        variants.stream().map(stack -> (SlotDisplay) new SlotDisplay.ItemStackSlotDisplay(stack)).toList()));
+                        variants.stream().map(stack -> (SlotDisplay) new SlotDisplay.ItemStackSlotDisplay(
+                                ItemStackTemplate.fromNonEmptyStack(stack))).toList()));
             }
         }
         return displays;

@@ -1,14 +1,31 @@
 {
   "parent": "block/block",
   "ambientocclusion": false,
-  "render_type": "minecraft:translucent",
   "textures": {
-    "particle": "theleadage:block/white_leaded_glass_bars_v",
-    "glass_0": "theleadage:block/white_leaded_glass_bars_v",
-    "glass_1": "theleadage:block/white_leaded_glass_bars_v",
-    "glass_2": "theleadage:block/white_leaded_glass_bars_v",
-    "came": "theleadage:block/white_leaded_glass_bars_v",
-    "edge": "theleadage:block/leaded_glass_pane_side"
+    "particle": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/white_leaded_glass_bars_v"
+    },
+    "glass_0": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/white_leaded_glass_bars_v"
+    },
+    "glass_1": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/white_leaded_glass_bars_v"
+    },
+    "glass_2": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/white_leaded_glass_bars_v"
+    },
+    "came": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/white_leaded_glass_bars_v"
+    },
+    "edge": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_pane_side"
+    }
   },
   "elements": [
     {

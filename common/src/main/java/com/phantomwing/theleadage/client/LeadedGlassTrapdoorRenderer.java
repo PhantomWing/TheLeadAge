@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -51,6 +51,7 @@ public class LeadedGlassTrapdoorRenderer implements BlockEntityRenderer<LeadedGl
         // previous occupant of this state would otherwise keep drawing.
         state.config = null;
         state.box = null;
+        state.blockState = null;
 
         if (be.getLevel() == null) {
             return;
@@ -65,6 +66,7 @@ public class LeadedGlassTrapdoorRenderer implements BlockEntityRenderer<LeadedGl
         }
         state.config = be.getConfig();
         state.box = shape.bounds();
+        state.blockState = blockState;
     }
 
     @Override

@@ -1,6 +1,5 @@
 {
   "type": "theleadage:colored_pane_stonecutting",
-  "group": "leaded_glass_pane",
   "ingredient": "theleadage:leaded_glass_pane",
   "result": {
     "components": {
@@ -14,7 +13,6 @@
         "frame": "diagonal_bars_a"
       }
     },
-    "count": 1,
     "id": "theleadage:leaded_glass_pane_diagonal_bars"
   }
 }

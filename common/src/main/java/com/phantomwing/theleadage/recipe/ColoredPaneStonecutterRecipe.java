@@ -2,9 +2,10 @@ package com.phantomwing.theleadage.recipe;
 
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SingleItemRecipe;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
@@ -31,13 +32,14 @@ import java.util.Collections;
  * {@code assemble} so the icons match the coloured output too.
  */
 public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
-    public ColoredPaneStonecutterRecipe(String group, Ingredient ingredient, ItemStack result) {
-        super(group, ingredient, result);
+    public ColoredPaneStonecutterRecipe(Recipe.CommonInfo commonInfo, Ingredient ingredient,
+                                        ItemStackTemplate result) {
+        super(commonInfo, ingredient, result);
     }
 
     @Override
-    public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
-        ItemStack output = super.assemble(input, registries); // the target frame's all-clear pane
+    public ItemStack assemble(SingleRecipeInput input) {
+        ItemStack output = super.assemble(input); // the target frame's all-clear pane
         LeadedGlassConfig target = output.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
         if (target == null) {
             return output; // not a configured pane (shouldn't happen for our recipes)
@@ -95,10 +97,14 @@ public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
         return (RecipeSerializer<StonecutterRecipe>) (RecipeSerializer<?>) ModRecipes.COLORED_PANE_STONECUTTING.get();
     }
 
-    /** Reuses the vanilla single-item codec (group + ingredient + result); only the class differs. */
-    public static class Serializer extends SingleItemRecipe.Serializer<ColoredPaneStonecutterRecipe> {
-        public Serializer() {
-            super(ColoredPaneStonecutterRecipe::new);
-        }
+    /**
+     * Reuses the vanilla single-item codecs (common info + ingredient + result); only the class
+     * differs. 26.1 made RecipeSerializer a record of the two codecs, so there is no serializer
+     * class to subclass any more.
+     */
+    public static RecipeSerializer<ColoredPaneStonecutterRecipe> serializer() {
+        return new RecipeSerializer<>(
+                SingleItemRecipe.simpleMapCodec(ColoredPaneStonecutterRecipe::new),
+                SingleItemRecipe.simpleStreamCodec(ColoredPaneStonecutterRecipe::new));
     }
 }

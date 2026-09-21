@@ -1,8 +1,17 @@
 {
   "parent": "theleadage:block/leaded_glass_pane_cross",
   "textures": {
-    "glass_0": "theleadage:block/leaded_glass_cross",
-    "glass_1": "theleadage:block/leaded_glass_cross",
-    "glass_2": "theleadage:block/leaded_glass_cross"
+    "glass_0": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_cross"
+    },
+    "glass_1": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_cross"
+    },
+    "glass_2": {
+      "force_translucent": true,
+      "sprite": "theleadage:block/leaded_glass_cross"
+    }
   }
 }

@@ -10,9 +10,9 @@ import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.entity.ModEntities;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
@@ -32,17 +32,14 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LeadedGlassItemModels.registerTypes();
-        LeadedGlassItemModels.registerRenderLayers();
 
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
-        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
+        ParticleProviderRegistry.getInstance().register(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
         EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
 
-        // Pane tint providers (block side only — item tints are data-driven now).
-        ColorProviderRegistry.BLOCK.register(ModColorHandlers::blockTint, ModBlocks.LEADED_GLASS_PANEL.get(),
-                ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
-                ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
-                ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+        // Pane tint sources (block side only - item tints are data-driven now). 26.1: one list of
+        // per-region BlockTintSources per block, replacing the single tint function.
+        ModColorHandlers.forEachPane((block, sources) -> BlockColorRegistry.register(sources, block));
 
         // Dynamic (grid/lattice) panes: wrap their block-state models so clear cells are retextured
         // from the block entity at mesh time (Fabric twin of the NeoForge ModifyBakingResult wrap).
