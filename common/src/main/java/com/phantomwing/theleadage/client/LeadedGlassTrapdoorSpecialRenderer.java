@@ -82,7 +82,11 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
 
         // The trapdoor frame (the cut-window overlay texture, cutout). Untinted, so vanilla's own
         // whole-model emission does exactly what is needed here.
-        collector.submitBlockModel(pose, Sheets.cutoutBlockSheet(), parts, UNTINTED,
+        // cutoutBlockItemSheet, NOT cutoutBlockSheet: 26.1 splits the block-atlas sheets by context,
+        // and the plain one is an ENTITY render type (entityCutoutCull) while this is the item one
+        // (itemCutout). Both sample the blocks atlas, so the wrong one only shows up as an icon lit
+        // differently from the glass beside it, which uses the item sheet.
+        collector.submitBlockModel(pose, Sheets.cutoutBlockItemSheet(), parts, UNTINTED,
                 light, overlay, outlineColor);
 
         LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, collector, light, overlay);

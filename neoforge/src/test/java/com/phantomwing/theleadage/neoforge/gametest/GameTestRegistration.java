@@ -52,6 +52,7 @@ public final class GameTestRegistration {
         TESTS.put("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset);
         TESTS.put("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers);
         TESTS.put("lead_knife_fallback_keeps_sword_properties", LeadOreGameTest::leadKnifeFallbackKeepsSwordProperties);
+        TESTS.put("smith_pools_include_lead_trade", LeadOreGameTest::smithPoolsIncludeLeadTrade);
         TESTS.put("every_test_function_has_an_instance", LeadOreGameTest::everyTestFunctionHasAnInstance);
     }
 

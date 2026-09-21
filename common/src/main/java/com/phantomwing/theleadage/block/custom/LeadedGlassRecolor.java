@@ -29,9 +29,13 @@ public final class LeadedGlassRecolor {
     private LeadedGlassRecolor() {
     }
 
-    /** Whether this item recolours glass at all (a dye, or shears to clear it). */
+    /**
+     * Whether this item recolours glass at all (a dye, or shears to clear it). A dye whose stack
+     * carries no colour is NOT a tool: null doubles as the "make it clear" answer below, so such a
+     * stack would otherwise erase the region and be consumed instead of passing the click through.
+     */
     public static boolean isTool(ItemStack stack) {
-        return stack.getItem() instanceof DyeItem || stack.getItem() instanceof ShearsItem;
+        return stack.getItem() instanceof ShearsItem || target(stack) != null;
     }
 
     /** Shears clear a region rather than colouring it. */

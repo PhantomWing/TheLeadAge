@@ -38,6 +38,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.trading.VillagerTrade;
+import net.minecraft.tags.TagKey;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GameTestInstance;
 import net.minecraft.resources.Identifier;
@@ -713,6 +715,33 @@ public class LeadOreGameTest {
         if (components.get(DataComponents.TOOL) == null) {
             helper.fail(Component.literal("lead knife lost its tool component"));
             return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * 26.1 moved villager trades into a datapack registry, so the smith trades are only live if our
+     * generated entries land in the vanilla level-2 pool tags. Guards the datagen wiring that
+     * replaced the old code-defined listings.
+     */
+    public static void smithPoolsIncludeLeadTrade(GameTestHelper helper) {
+        Registry<VillagerTrade> trades = helper.getLevel().registryAccess()
+                .lookupOrThrow(Registries.VILLAGER_TRADE);
+        for (String smith : new String[]{"armorer", "toolsmith", "weaponsmith"}) {
+            TagKey<VillagerTrade> pool = TagKey.create(Registries.VILLAGER_TRADE,
+                    Identifier.withDefaultNamespace(smith + "/level_2"));
+            Identifier expected = TheLeadAge.resourceLocation(smith + "/2/lead_ingot_emerald");
+            boolean present = false;
+            for (Holder<VillagerTrade> holder : trades.getTagOrEmpty(pool)) {
+                if (holder.unwrapKey().map(key -> key.identifier().equals(expected)).orElse(false)) {
+                    present = true;
+                    break;
+                }
+            }
+            if (!present) {
+                helper.fail(Component.literal("the lead trade is missing from " + smith + " level 2"));
+                return;
+            }
         }
         helper.succeed();
     }
