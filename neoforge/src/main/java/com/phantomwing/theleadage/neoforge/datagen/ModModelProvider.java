@@ -151,10 +151,16 @@ public class ModModelProvider extends ModelProvider {
         // Leaded glass door: flat sprite (hand-authored model with the item texture).
         img.itemModelOutput.accept(ModItems.LEADED_GLASS_DOOR.get(),
                 ItemModelUtils.plainModel(modItem("leaded_glass_door")));
-        // Leaded glass trapdoor: the special renderer draws frame + configured glass.
+        // Leaded glass trapdoor: the frame is a plain model layer and the special renderer adds the
+        // configured glass on top. 26.1 renders a submitted BLOCK model through the chunk-layer
+        // pipeline, which carries no item lighting, so an icon frame drawn inside the special
+        // renderer came out flat; as its own layer it goes through the item path like any other
+        // block item. Both layers name the same model, so they share one set of transforms.
         img.itemModelOutput.accept(ModItems.LEADED_GLASS_TRAPDOOR.get(),
-                ItemModelUtils.specialModel(modItem("leaded_glass_trapdoor"),
-                        new LeadedGlassTrapdoorSpecialRenderer.Unbaked()));
+                ItemModelUtils.composite(
+                        ItemModelUtils.plainModel(modItem("leaded_glass_trapdoor")),
+                        ItemModelUtils.specialModel(modItem("leaded_glass_trapdoor"),
+                                new LeadedGlassTrapdoorSpecialRenderer.Unbaked())));
 
         // Panes: every type renders through the pane special renderer — the stack's config drives
         // the frame, region tints AND the clear-sprite swap. A static tinted model can't show

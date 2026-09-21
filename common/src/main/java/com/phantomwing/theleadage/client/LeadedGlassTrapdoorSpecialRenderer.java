@@ -2,26 +2,18 @@ package com.phantomwing.theleadage.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
-import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,8 +33,6 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
     private static final AABB FLAP = new AABB(0.0, 0.0, 0.0, 1.0, 3.0 / 16.0, 1.0);
     private static final LeadedGlassConfig DEFAULT = new LeadedGlassConfig(LeadedGlassFrame.PLAIN,
             List.of(LeadedGlassConfig.CLEAR));
-    /** Tint colours by tint index for submitBlockModel; the frame model has none, so: white. */
-    private static final int[] UNTINTED = {-1};
 
     /**
      * 1.21.6: special renderers report what they draw, which vanilla turns into the item's cached
@@ -63,32 +53,15 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
     }
 
     /**
-     * 1.21.9: {@code render} became {@code submit} — geometry is queued and drawn later. The frame
-     * goes through {@code submitBlockModel}, which carries exactly the arguments the old
-     * {@code ModelBlockRenderer.renderModel} call did plus the outline colour.
+     * 1.21.9: {@code render} became {@code submit} - geometry is queued and drawn later. Only the
+     * glass is drawn here: 26.1 puts a submitted BLOCK model through the chunk-layer pipeline,
+     * which has no item lighting, so the frame is a plain model layer of the item definition
+     * instead (see ModModelProvider) and vanilla lights it like any other block item.
      */
     @Override
     public void submit(@Nullable LeadedGlassConfig config, PoseStack pose,
                        SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
                        int outlineColor) {
-        BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
-        // 26.1: models come from the model manager's block state model set, and submitBlockModel
-        // takes the collected parts plus a per-tint-index colour array in place of a model and
-        // float rgb. The frame model is untinted, so one white entry covers it.
-        BlockStateModel model = Minecraft.getInstance().getModelManager()
-                .getBlockStateModelSet().get(frame);
-        List<BlockStateModelPart> parts = new ArrayList<>();
-        model.collectParts(RandomSource.create(42L), parts);
-
-        // The trapdoor frame (the cut-window overlay texture, cutout). Untinted, so vanilla's own
-        // whole-model emission does exactly what is needed here.
-        // cutoutBlockItemSheet, NOT cutoutBlockSheet: 26.1 splits the block-atlas sheets by context,
-        // and the plain one is an ENTITY render type (entityCutoutCull) while this is the item one
-        // (itemCutout). Both sample the blocks atlas, so the wrong one only shows up as an icon lit
-        // differently from the glass beside it, which uses the item sheet.
-        collector.submitBlockModel(pose, Sheets.cutoutBlockItemSheet(), parts, UNTINTED,
-                light, overlay, outlineColor);
-
         LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, collector, light, overlay);
     }
 
