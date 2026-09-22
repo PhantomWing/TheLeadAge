@@ -19,8 +19,28 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.data.tags.TagAppender;
 
 public class ModItemTagsProvider extends ItemTagsProvider {
+    /**
+     * 26.2: TagAppender#add takes a ResourceKey rather than the value, so this hands the chains
+     * below a wrapper that still accepts items. See ValueAppender.
+     */
+    @Override
+    protected ValueAppender<Item> tag(TagKey<Item> tag) {
+        return new ValueAppender<>(super.tag(tag), value -> value.builtInRegistryHolder().key());
+    }
+
+    // 26.2 removed these ItemTags constants; the vanilla data tags themselves still exist.
+    private static final TagKey<Item> VANILLA_SLABS = vanillaItemTag("slabs");
+    private static final TagKey<Item> VANILLA_STAIRS = vanillaItemTag("stairs");
+    private static final TagKey<Item> VANILLA_DOORS = vanillaItemTag("doors");
+    private static final TagKey<Item> VANILLA_TRAPDOORS = vanillaItemTag("trapdoors");
+
+    private static TagKey<Item> vanillaItemTag(String path) {
+        return TagKey.create(Registries.ITEM, Identifier.withDefaultNamespace(path));
+    }
+
     /** Farmer's Delight's knife tag — the Cutting Board's accepted tool. Inert when FD is absent. */
     private static final TagKey<Item> FARMERS_DELIGHT_KNIVES =
             TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("farmersdelight", "tools/knives"));
@@ -79,11 +99,11 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.TRIM_MATERIALS).add(ModItems.LEAD_INGOT.get());
 
         // Decorative block items.
-        tag(ItemTags.SLABS).add(ModItems.LEAD_BRICK_SLAB.get(), ModItems.CUT_LEAD_SLAB.get());
-        tag(ItemTags.STAIRS).add(ModItems.LEAD_BRICK_STAIRS.get(), ModItems.CUT_LEAD_STAIRS.get());
+        tag(VANILLA_SLABS).add(ModItems.LEAD_BRICK_SLAB.get(), ModItems.CUT_LEAD_SLAB.get());
+        tag(VANILLA_STAIRS).add(ModItems.LEAD_BRICK_STAIRS.get(), ModItems.CUT_LEAD_STAIRS.get());
         tag(ItemTags.WALLS).add(ModItems.LEAD_BRICK_WALL.get());
-        tag(ItemTags.DOORS).add(ModItems.LEAD_DOOR.get());
-        tag(ItemTags.TRAPDOORS).add(ModItems.LEAD_TRAPDOOR.get());
+        tag(VANILLA_DOORS).add(ModItems.LEAD_DOOR.get());
+        tag(VANILLA_TRAPDOORS).add(ModItems.LEAD_TRAPDOOR.get());
 
         // Mirror the leaded-glass block tag onto items (used by the "Leaded Lights" advancement).
         // 1.21.6: ItemTagsProvider.copy(blockTag, itemTag) is gone, so the item forms are listed

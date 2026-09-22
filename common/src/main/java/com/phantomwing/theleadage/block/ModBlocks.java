@@ -110,7 +110,7 @@ public class ModBlocks {
     // Vanilla's CopperBulbBlock is itself the non-weathering class (WeatheringCopperBulbBlock adds the
     // oxidation), so it drops straight in. Full lead cube, so it takes the solid lead strength.
     public static final RegistrySupplier<Block> LEAD_BULB = register("lead_bulb", () ->
-            new CopperBulbBlock(copyOf(Blocks.COPPER_BULB)
+            new CopperBulbBlock(copyOf(Blocks.COPPER_BULB.weathering().unaffected())
                     .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
                     .strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
 
@@ -239,7 +239,7 @@ public class ModBlocks {
 
     private static RegistrySupplier<Block> registerLeadGrate(String name) {
         return register(name, () -> new WaterloggedTransparentBlock(
-                leadProps(copyOf(Blocks.COPPER_GRATE))
+                leadProps(copyOf(Blocks.COPPER_GRATE.weathering().unaffected()))
                         .sound(ModSoundTypes.LEAD_GRATE).explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
@@ -255,7 +255,7 @@ public class ModBlocks {
 
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
         return register(color.getName() + "_leaded_glass", () ->
-                new StainedLeadedGlassBlock(color, copyOf(Blocks.WHITE_STAINED_GLASS)
+                new StainedLeadedGlassBlock(color, copyOf(Blocks.STAINED_GLASS.white())
                         .mapColor(color.getMapColor()).requiresCorrectToolForDrops().sound(ModSoundTypes.LEAD)
                         .explosionResistance(LEADED_GLASS_RESISTANCE)));
     }

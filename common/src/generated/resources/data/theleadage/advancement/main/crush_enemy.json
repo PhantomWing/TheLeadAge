@@ -5,7 +5,7 @@
       "conditions": {
         "killing_blow": {
           "direct_entity": {
-            "type": "theleadage:lead_weight"
+            "minecraft:entity_type": "theleadage:lead_weight"
           }
         }
       },

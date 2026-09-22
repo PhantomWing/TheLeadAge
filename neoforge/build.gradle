@@ -20,9 +20,9 @@ def datagenExisting = rootProject.file('common/src/main/resources/').absolutePat
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
-// 26.1: JEI publishes for both loaders. Create, FD-NeoForge and EMI still have no build.
+// 26.2: JEI publishes for both loaders. Create, FD-NeoForge and EMI still have no build.
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 26.1 branch: JEI kept; no Create/FD-NeoForge/EMI compat")
+logger.lifecycle("[TheLeadAge] (neoforge) 26.2 branch: JEI kept; no Create/FD-NeoForge/EMI compat")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -101,7 +101,7 @@ dependencies {
         localRuntime "mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}"
     }
 
-    // NOTE (26.1 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
+    // NOTE (26.2 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
     // was dropped back on the 1.21.4 line.
 }
 

@@ -14,8 +14,18 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.data.tags.TagAppender;
 
 public class ModBlockTagsProvider extends BlockTagsProvider {
+    /**
+     * 26.2: TagAppender#add takes a ResourceKey rather than the value, so this hands the chains
+     * below a wrapper that still accepts blocks. See ValueAppender.
+     */
+    @Override
+    protected ValueAppender<Block> tag(TagKey<Block> tag) {
+        return new ValueAppender<>(super.tag(tag), value -> value.builtInRegistryHolder().key());
+    }
+
     // Sable (Create Aeronautics' weight/volume system). Sable is not a compile-time dependency, so
     // its tags are referenced by id; the JSONs merge additively with Sable's own when it is installed
     // and are inert otherwise.

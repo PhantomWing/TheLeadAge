@@ -67,7 +67,7 @@ public class LeadArmorItem extends Item {
         EquipmentSlot slot = type.getSlot();
         // Material protection (armor/toughness) + a single visible Heaviness line.
         return material.createAttributes(type).withModifierAdded(
-                ModAttributes.HEAVINESS,
+                ModAttributes.HEAVINESS.asHolder(),
                 new AttributeModifier(TheLeadAge.resourceLocation("lead_heaviness_" + slot.getName()),
                         HEAVINESS_PER_PIECE, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.bySlot(slot));

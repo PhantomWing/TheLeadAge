@@ -11,7 +11,8 @@ modId = "theleadage"
 version = "${version}"
 displayName = "The Lead Age"
 displayURL = "https://github.com/PhantomWing/TheLeadAge"
-logoFile = "icon.png"
+# 26.2 deprecated logoFile, splitting it into a wide banner and a square icon. icon.png is 128x128.
+iconFile = "icon.png"
 authors = "PhantomWing"
 description = '''
 A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod to The Silver Age.
@@ -38,8 +39,8 @@ versionRange = "${dep_architectury_neoforge}"
 ordering = "AFTER"
 side = "BOTH"
 
-# JEI publishes for both loaders on this line (pinned to 27.6.0.28); Create, FD (NeoForge) and EMI
-# still publish no 1.21.11 build. FD Refabricated exists on the FABRIC side only.
+# JEI publishes for both loaders on this line; Create, FD (NeoForge) and EMI still publish no
+# 26.2 build. FD Refabricated exists on the FABRIC side only.
 # See the port notes in gradle.properties.
 
 

@@ -19,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.DoorBlock;
@@ -479,7 +480,7 @@ public class LeadOreGameTest {
         helper.startSequence()
                 // Poll rather than guess the dispenser's fire delay.
                 .thenWaitUntil(() -> helper.assertBlockPresent(ModBlocks.LEAD_WEIGHT.get(), target))
-                .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
+                .thenExecute(() -> helper.assertEntityNotPresent(EntityTypes.ITEM))
                 .thenSucceed();
     }
 

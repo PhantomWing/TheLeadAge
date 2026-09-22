@@ -204,7 +204,7 @@ public class LeadWeightEntity extends FallingBlockEntity {
                 break; // spent: the weight has shed too much momentum to keep hurting things
             }
             if (target.hurtOrSimulate(source, baseDamage * momentum)) {
-                applyKnockback(target);
+                applyKnockback(target, source);
                 // The crush bleeds the weight's momentum, so the next entity takes less — and it
                 // physically slows, lengthening the fall and easing off the fall-height bonus too.
                 momentum *= MOMENTUM_LOSS_PER_HIT;
@@ -218,18 +218,13 @@ public class LeadWeightEntity extends FallingBlockEntity {
         return BASE_DAMAGE + DAMAGE_PER_BLOCK * fall;
     }
 
-    private void applyKnockback(LivingEntity target) {
-        double dx = target.getX() - this.getX();
-        double dz = target.getZ() - this.getZ();
-        double dist = Math.sqrt(dx * dx + dz * dz);
-        if (dist < 1.0e-4) {
-            // Directly beneath the weight: scatter in a random horizontal direction.
-            double angle = this.random.nextDouble() * Math.PI * 2.0;
-            dx = Math.cos(angle);
-            dz = Math.sin(angle);
-        }
-        // knockback(power, x, z) pushes the target AWAY from (x, z) = the weight's column.
-        target.knockback(KNOCKBACK_POWER, this.getX() - target.getX(), this.getZ() - target.getZ());
+    private void applyKnockback(LivingEntity target, DamageSource source) {
+        // knockback(power, x, z, ...) pushes the target AWAY from (x, z) = the weight's column,
+        // and scatters in a random direction itself when the target stands in that column.
+        // 26.2 added the damage source (knockback-resistance attribution) and an extra-knockback
+        // amount on top of the power; the crush carries no enchantment bonus, hence 0.
+        target.knockback(KNOCKBACK_POWER, this.getX() - target.getX(), this.getZ() - target.getZ(),
+                source, 0.0f);
         target.setDeltaMovement(target.getDeltaMovement().add(0.0, -KNOCKBACK_DOWN, 0.0));
         target.hurtMarked = true;
     }

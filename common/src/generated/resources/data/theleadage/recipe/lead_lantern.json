@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "N": "theleadage:lead_nugget",
     "T": "theleadage:lead_torch"

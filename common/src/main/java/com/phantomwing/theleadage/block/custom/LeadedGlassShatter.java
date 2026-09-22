@@ -46,23 +46,7 @@ public final class LeadedGlassShatter {
         if (color == null) {
             return Blocks.GLASS.defaultBlockState();
         }
-        return switch (color) {
-            case WHITE -> Blocks.WHITE_STAINED_GLASS.defaultBlockState();
-            case ORANGE -> Blocks.ORANGE_STAINED_GLASS.defaultBlockState();
-            case MAGENTA -> Blocks.MAGENTA_STAINED_GLASS.defaultBlockState();
-            case LIGHT_BLUE -> Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
-            case YELLOW -> Blocks.YELLOW_STAINED_GLASS.defaultBlockState();
-            case LIME -> Blocks.LIME_STAINED_GLASS.defaultBlockState();
-            case PINK -> Blocks.PINK_STAINED_GLASS.defaultBlockState();
-            case GRAY -> Blocks.GRAY_STAINED_GLASS.defaultBlockState();
-            case LIGHT_GRAY -> Blocks.LIGHT_GRAY_STAINED_GLASS.defaultBlockState();
-            case CYAN -> Blocks.CYAN_STAINED_GLASS.defaultBlockState();
-            case PURPLE -> Blocks.PURPLE_STAINED_GLASS.defaultBlockState();
-            case BLUE -> Blocks.BLUE_STAINED_GLASS.defaultBlockState();
-            case BROWN -> Blocks.BROWN_STAINED_GLASS.defaultBlockState();
-            case GREEN -> Blocks.GREEN_STAINED_GLASS.defaultBlockState();
-            case RED -> Blocks.RED_STAINED_GLASS.defaultBlockState();
-            case BLACK -> Blocks.BLACK_STAINED_GLASS.defaultBlockState();
-        };
+        // 26.2 consolidated the 16 dyed variants into ColorCollection, so the whole switch is one pick.
+        return Blocks.STAINED_GLASS.pick(color).defaultBlockState();
     }
 }
