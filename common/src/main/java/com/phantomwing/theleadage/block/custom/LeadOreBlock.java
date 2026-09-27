@@ -1,18 +1,16 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,8 +28,6 @@ import org.jetbrains.annotations.Nullable;
  * check needed is Silk Touch, which yields the ore block itself and so never produces fumes.</p>
  */
 public class LeadOreBlock extends Block {
-    public static final MapCodec<LeadOreBlock> CODEC = simpleCodec(LeadOreBlock::new);
-
     /** Chance a (non-silk-touch) harvest is a BIG release (hiss + guaranteed dose) rather than a small wisp. */
     private static final float FUMES_CHANCE = 0.30f;
     private static final double BIG_DOSE_CHANCE = 1.0;    // big release: guaranteed dose at point-blank
@@ -42,18 +38,10 @@ public class LeadOreBlock extends Block {
     }
 
     @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
-    }
-
-    @Override
-    public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state,
+    public void playerDestroy(ServerLevel serverLevel, ServerPlayer player, BlockPos pos, BlockState state,
                               @Nullable BlockEntity blockEntity, ItemStack tool) {
-        super.playerDestroy(level, player, pos, state, blockEntity, tool);
-
-        if (!(level instanceof ServerLevel serverLevel)) {
-            return;
-        }
+        // 26.3 narrowed this hook to ServerLevel/ServerPlayer, so the old client-side guard is gone.
+        super.playerDestroy(serverLevel, player, pos, state, blockEntity, tool);
         // Whole mechanic (Lead Sickness + particles) is toggleable.
         if (!CommonConfig.leadOreSickness()) {
             return;

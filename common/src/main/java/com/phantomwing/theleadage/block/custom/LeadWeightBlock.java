@@ -1,6 +1,5 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import net.minecraft.core.BlockPos;
@@ -51,7 +50,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * intact). Stackable items, so no per-item durability and no block entity.</p>
  */
 public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<LeadWeightBlock> CODEC = simpleCodec(LeadWeightBlock::new);
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -72,11 +70,6 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     public LeadWeightBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(HANGING, false).setValue(WATERLOGGED, false));
-    }
-
-    @Override
-    protected MapCodec<? extends FallingBlock> codec() {
-        return CODEC;
     }
 
     @Override

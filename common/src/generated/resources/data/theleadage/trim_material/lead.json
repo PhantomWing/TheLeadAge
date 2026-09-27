@@ -1,10 +1,7 @@
 {
-  "asset_name": "lead",
   "description": {
     "color": "#6E737D",
     "translate": "trim_material.theleadage.lead"
   },
-  "override_armor_assets": {
-    "theleadage:lead": "lead_darker"
-  }
+  "palette_id": "theleadage:trim/lead"
 }

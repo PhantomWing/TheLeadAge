@@ -19,7 +19,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_knife"
+        "recipes": "theleadage:lead_knife"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

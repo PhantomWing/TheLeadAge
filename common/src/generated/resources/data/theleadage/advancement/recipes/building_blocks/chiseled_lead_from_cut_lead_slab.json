@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:chiseled_lead_from_cut_lead_slab"
+        "recipes": "theleadage:chiseled_lead_from_cut_lead_slab"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

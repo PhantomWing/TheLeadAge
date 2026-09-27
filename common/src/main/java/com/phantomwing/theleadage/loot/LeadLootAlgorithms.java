@@ -2,10 +2,10 @@ package com.phantomwing.theleadage.loot;
 
 import com.phantomwing.theleadage.utils.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.List;
 
@@ -27,8 +27,10 @@ public final class LeadLootAlgorithms {
      */
     public static void applyReplaceItem(ObjectArrayList<ItemStack> generatedLoot, LootContext lootContext,
                                         Item item, List<Item> removedItems, int minStacks, int maxStacks) {
+        // 26.3 moved UniformGenerator under providers.number.ints and made its value Holder-based;
+        // a uniform roll over the loot context's own random is the same thing without the wrapper.
         int budget = maxStacks > 0
-                ? UniformGenerator.between(minStacks, maxStacks).getInt(lootContext)
+                ? Mth.nextInt(lootContext.getRandom(), minStacks, maxStacks)
                 : Integer.MAX_VALUE;
 
         // Swap in place over an index loop. Do NOT remove-while-iterating here: fastutil's

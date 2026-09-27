@@ -28,7 +28,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:heavy_core"
+        "recipes": "minecraft:heavy_core"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

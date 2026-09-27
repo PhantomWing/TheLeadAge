@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:cut_lead_stairs"
+        "recipes": "theleadage:cut_lead_stairs"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

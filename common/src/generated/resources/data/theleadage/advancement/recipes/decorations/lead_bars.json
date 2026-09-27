@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_bars"
+        "recipes": "theleadage:lead_bars"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

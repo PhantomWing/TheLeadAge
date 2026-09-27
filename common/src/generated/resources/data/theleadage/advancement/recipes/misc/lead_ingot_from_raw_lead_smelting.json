@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_ingot_from_raw_lead_smelting"
+        "recipes": "theleadage:lead_ingot_from_raw_lead_smelting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

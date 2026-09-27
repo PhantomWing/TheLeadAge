@@ -60,11 +60,12 @@ public class ModVillagerTradeProvider implements DataProvider {
             List<CompletableFuture<?>> futures = new ArrayList<>();
 
             // Buy 4 Lead Ingot, sell 1 Emerald (maxUses 12, villagerXp 10).
-            VillagerTrade trade = new VillagerTrade(
+            // 26.3 hid VillagerTrade's constructor behind a builder (its numeric fields are
+            // ContextIntProvider/ContextFloatProvider holders now).
+            VillagerTrade trade = VillagerTrade.builder(
                     new TradeCost(ModItems.LEAD_INGOT.get(), 4),   // wants
                     new ItemStackTemplate(Items.EMERALD),          // gives
-                    12, 10, PRICE_MULTIPLIER,
-                    Optional.empty(), List.of());
+                    12, 10, PRICE_MULTIPLIER).build();
             JsonObject tradeJson = VillagerTrade.CODEC.encodeStart(ops, trade).getOrThrow().getAsJsonObject();
             tradeJson.add("neoforge:conditions", configCondition(Configuration.ENABLE_VILLAGER_TRADES_ID));
 

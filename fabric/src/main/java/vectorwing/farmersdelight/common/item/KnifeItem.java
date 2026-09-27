@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
  * {@code fabric/build.gradle}). At runtime {@code LeadKnifeItem} binds to the real FDR class.
  *
  * <p>FDR is not resolved as a dependency on this branch, so nothing checks this shape
- * automatically. It was read out of {@code farmers-delight-refabricated-26.2-3.6.26.jar} with
+ * automatically. It was read out of {@code FarmersDelight-26.3-3.6.27+refabricated.jar} with
  * javap instead: {@code KnifeItem extends Item}, one {@code (Item.Properties)} constructor.
  * Re-verify the same way when bumping {@code fdr_version}: a mismatch throws
  * {@code NoSuchMethodError} at item registration for players who have FDR installed, and never in

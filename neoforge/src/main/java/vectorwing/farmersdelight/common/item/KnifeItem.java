@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
  * extends FD's {@code KnifeItem}, and this supplies that one signature, in named mappings, so the
  * subclass compiles without taking FD on as a dependency.</p>
  *
- * <p><b>Status on 1.21.11.</b> Farmer's Delight publishes no NeoForge build for this version, so
+ * <p><b>Status on 26.3.</b> Farmer's Delight publishes no NeoForge build for this version, so
  * the {@code isModLoaded("farmersdelight")} guard can never be true here and the class below is
  * dead weight kept only for parity with the Fabric side, which has a twin of this file. It is
  * stripped from the published jar either way. If an FD-NeoForge build appears, audit this

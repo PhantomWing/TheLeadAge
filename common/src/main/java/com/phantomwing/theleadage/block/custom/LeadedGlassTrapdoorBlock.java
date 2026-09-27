@@ -1,7 +1,5 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.mojang.serialization.MapCodec;
-import com.phantomwing.theleadage.block.ModBlockSetTypes;
 import com.phantomwing.theleadage.block.entity.LeadedGlassTrapdoorBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
@@ -32,16 +30,8 @@ import java.util.List;
  * renderer; otherwise it is an ordinary vanilla trapdoor.
  */
 public class LeadedGlassTrapdoorBlock extends TrapDoorBlock implements EntityBlock {
-    public static final MapCodec<LeadedGlassTrapdoorBlock> CODEC =
-            simpleCodec(props -> new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS, props));
-
     public LeadedGlassTrapdoorBlock(BlockSetType type, Properties properties) {
         super(type, properties);
-    }
-
-    @Override
-    public MapCodec<? extends TrapDoorBlock> codec() {
-        return CODEC;
     }
 
     /**

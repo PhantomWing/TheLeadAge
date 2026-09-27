@@ -1,15 +1,18 @@
 {
   "type": "theleadage:replace_item",
-  "conditions": [
-    {
-      "condition": "neoforge:loot_table_id",
-      "loot_table_id": "minecraft:chests/village/village_armorer"
-    },
-    {
-      "chance": 0.2,
-      "condition": "minecraft:random_chance"
-    }
-  ],
+  "condition": {
+    "type": "minecraft:all_of",
+    "terms": [
+      {
+        "type": "neoforge:loot_table_id",
+        "loot_table_id": "minecraft:chests/village/village_armorer"
+      },
+      {
+        "type": "minecraft:random_chance",
+        "chance": 0.2
+      }
+    ]
+  },
   "in_stacks": 1,
   "item": "theleadage:lead_ingot",
   "max_stacks": 1,

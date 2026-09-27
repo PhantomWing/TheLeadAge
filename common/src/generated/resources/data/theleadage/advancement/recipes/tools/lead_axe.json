@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_axe"
+        "recipes": "theleadage:lead_axe"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

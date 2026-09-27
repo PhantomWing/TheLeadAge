@@ -7,10 +7,12 @@ import com.phantomwing.theleadage.item.ModItems;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import com.phantomwing.theleadage.neoforge.Configuration;
 import com.phantomwing.theleadage.neoforge.condition.ConfigBooleanCondition;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.MultiRegistryBootstrap;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
@@ -45,40 +47,38 @@ import net.neoforged.neoforge.common.conditions.NotCondition;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Set;
 
 public class ModRecipeProvider extends RecipeProvider {
     private static final float ORE_XP = 0.7f; // iron-like
 
     // 1.21.2 reworked RecipeProvider: shaped/shapeless/has/... are now instance methods that inject
-    // the provider's item HolderGetter, and buildRecipes() takes no args. The RecipeOutput is kept as
-    // a field so the conditional (config/mod-gated) recipes can still wrap it via withConditions(...).
-    private final RecipeOutput output;
+    // the provider's item HolderGetter, and buildRecipes() takes no args.
+    // 26.3: RecipeProvider owns `output`; the recipe context is kept for registry lookups.
+    private final BootstrapContext<Recipe<?>> recipeContext;
 
-    protected ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-        super(registries, output);
-        this.output = output;
+    protected ModRecipeProvider(BootstrapContext<Recipe<?>> recipes, BootstrapContext<Advancement> advancements) {
+        super(recipes, advancements);
+        this.recipeContext = recipes;
     }
 
     /**
-     * DataProvider runner. 1.21.2 split RecipeProvider into the builder (this class) and a
-     * {@link RecipeProvider.Runner} that the DataGenerator registers; the runner constructs the
-     * provider once the registries future resolves.
+     * 26.3 made recipes a reloadable datapack registry, so the old RecipeProvider.Runner is gone.
+     * Recipes also emit their unlock advancements, hence a bootstrap over both registries.
      */
-    public static final class Runner extends RecipeProvider.Runner {
-        public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
-            super(packOutput, registries);
-        }
+    public static MultiRegistryBootstrap create() {
+        return new MultiRegistryBootstrap() {
+            @Override
+            public Set<ResourceKey<? extends Registry<?>>> requestedRegistries() {
+                return Set.of(Registries.RECIPE, Registries.ADVANCEMENT);
+            }
 
-        @Override
-        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
-            return new ModRecipeProvider(registries, output);
-        }
-
-        @Override
-        public String getName() {
-            return "The Lead Age Recipes";
-        }
+            @Override
+            public void run(BootstrapGetter getter) {
+                new ModRecipeProvider(getter.get(Registries.RECIPE), getter.get(Registries.ADVANCEMENT))
+                        .buildRecipes();
+            }
+        };
     }
 
     @Override
@@ -89,7 +89,7 @@ public class ModRecipeProvider extends RecipeProvider {
         oreSmeltAndBlast(output, ModItems.LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.DEEPSLATE_LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
         // Create compat (crushed lead -> ingot) is absent on this branch: Create publishes no
-        // 1.21.2/1.21.3 build. Re-add with the ModLoadedCondition when it returns.
+        // 26.3 build. Re-add with the ModLoadedCondition when it returns.
 
         // 9 <-> storage block, 9 nuggets <-> ingot.
         storage(output, ModItems.RAW_LEAD.get(), ModItems.RAW_LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);

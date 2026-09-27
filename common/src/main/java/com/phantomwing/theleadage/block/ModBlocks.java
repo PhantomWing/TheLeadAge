@@ -75,10 +75,10 @@ public class ModBlocks {
     // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
             new Block(copyOf(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
-                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+                    .pushReaction(PushReaction.IMMOVEABLE).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
             new Block(copyOf(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
-                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+                    .pushReaction(PushReaction.IMMOVEABLE).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
 
     // Decorative lead blocks (no oxidation). Order matches the creative tab.
     public static final RegistrySupplier<Block> CUT_LEAD = registerLeadBlock("cut_lead");
@@ -291,7 +291,7 @@ public class ModBlocks {
      * solid lead through and through, so they push normally.
      */
     private static BlockBehaviour.Properties solidLeadProps() {
-        return leadProps().pushReaction(PushReaction.BLOCK);
+        return leadProps().pushReaction(PushReaction.IMMOVEABLE);
     }
 
     private static BlockBehaviour.Properties leadProps(BlockBehaviour.Properties baseProps) {

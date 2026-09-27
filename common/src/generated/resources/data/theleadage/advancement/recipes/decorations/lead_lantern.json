@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_lantern"
+        "recipes": "theleadage:lead_lantern"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

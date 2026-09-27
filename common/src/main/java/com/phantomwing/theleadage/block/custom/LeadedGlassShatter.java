@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.block.custom;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -34,10 +35,13 @@ public final class LeadedGlassShatter {
      * Mirrors the engine's own drop test in {@code ServerPlayerGameMode#destroyBlock}: creative mode
      * drops nothing, and the block needs the correct tool.
      */
-    public static void spawnDestroyEffect(Level level, Player player, BlockPos pos, BlockState state,
-                                          BlockState shattered) {
-        boolean recovered = !player.isCreative() && player.hasCorrectToolForDrops(state);
-        level.levelEvent(player, LevelEvent.PARTICLES_DESTROY_BLOCK, pos,
+    public static void spawnDestroyEffect(Level level, @Nullable Entity breaker, BlockPos pos,
+                                          BlockState state, BlockState shattered) {
+        // 26.3 hands the destroy hook an Entity rather than a Player; anything that is not a player
+        // (or a creative one, or one without the right tool) shatters the glass.
+        boolean recovered = breaker instanceof Player player
+                && !player.isCreative() && player.hasCorrectToolForDrops(state);
+        level.levelEvent(breaker, LevelEvent.PARTICLES_DESTROY_BLOCK, pos,
                 Block.getId(recovered ? state : shattered));
     }
 

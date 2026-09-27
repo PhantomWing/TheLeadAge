@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_torch"
+        "recipes": "theleadage:lead_torch"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

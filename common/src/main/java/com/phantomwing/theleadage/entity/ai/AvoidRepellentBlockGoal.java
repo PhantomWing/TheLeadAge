@@ -110,8 +110,16 @@ public class AvoidRepellentBlockGoal extends Goal {
             return false;
         }
         scanCooldown = SCAN_INTERVAL;
-        repellent = BlockPos.findClosestMatch(mob.blockPosition(), SEARCH_HORIZONTAL, SEARCH_VERTICAL,
-                pos -> mob.level().getBlockState(pos).is(repellents)).orElse(null);
+        // 26.3 removed BlockPos.findClosestMatch. withinManhattan walks outwards from the centre,
+        // so the first hit is still the nearest one; the clipped form keeps the flatter y range.
+        repellent = null;
+        for (BlockPos pos : BlockPos.withinClippedManhattan(mob.blockPosition(),
+                SEARCH_HORIZONTAL, SEARCH_VERTICAL, SEARCH_HORIZONTAL)) {
+            if (mob.level().getBlockState(pos).is(repellents)) {
+                repellent = pos.immutable();
+                break;
+            }
+        }
         return repellent != null;
     }
 

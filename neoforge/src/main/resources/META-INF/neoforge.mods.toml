@@ -40,7 +40,7 @@ ordering = "AFTER"
 side = "BOTH"
 
 # JEI publishes for both loaders on this line; Create, FD (NeoForge) and EMI still publish no
-# 26.2 build. FD Refabricated exists on the FABRIC side only.
+# 26.3 build. FD Refabricated exists on the FABRIC side only.
 # See the port notes in gradle.properties.
 
 

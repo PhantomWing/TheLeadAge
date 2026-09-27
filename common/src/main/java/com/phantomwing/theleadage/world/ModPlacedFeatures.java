@@ -7,7 +7,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
@@ -21,14 +21,15 @@ public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> ORE_LEAD_EXTRA = registerKey("ore_lead_extra");
 
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
-        HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures = context.lookup(Registries.CONFIGURED_FEATURE);
+        // 26.3: features are registered directly, so the lookup is over Registries.FEATURE.
+        HolderGetter<Feature> features = context.lookup(Registries.FEATURE);
 
         // Iron-style: one smooth triangle, but pulled up into the mid/upper stone (peak ~y28, reaching
         // surface outcrops in hills) and never air-discarded — so it reads as a common, visible "dig
         // through it" ore. That keeps it clear of The Silver Age's silver, which is a deep, air-hidden
         // deepslate ore (centre ~y-10); the two only overlap down in deepslate, like real galena/silver.
         context.register(ORE_LEAD, new PlacedFeature(
-                configuredFeatures.getOrThrow(ModConfiguredFeatures.ORE_LEAD),
+                features.getOrThrow(ModFeatures.ORE_LEAD),
                 List.of(
                         CountPlacement.of(10),
                         InSquarePlacement.spread(),
@@ -39,7 +40,7 @@ public class ModPlacedFeatures {
         // biased deep, so swamp lead is both more common and reaches further into the deepslate.
         // Attached only to #theleadage:has_extra_lead_ore (see the biome modifier / Fabric ModWorldGen).
         context.register(ORE_LEAD_EXTRA, new PlacedFeature(
-                configuredFeatures.getOrThrow(ModConfiguredFeatures.ORE_LEAD_SMALL),
+                features.getOrThrow(ModFeatures.ORE_LEAD_SMALL),
                 List.of(
                         CountPlacement.of(12),
                         InSquarePlacement.spread(),

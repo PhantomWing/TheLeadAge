@@ -226,7 +226,8 @@ public class LeadWeightEntity extends FallingBlockEntity {
         target.knockback(KNOCKBACK_POWER, this.getX() - target.getX(), this.getZ() - target.getZ(),
                 source, 0.0f);
         target.setDeltaMovement(target.getDeltaMovement().add(0.0, -KNOCKBACK_DOWN, 0.0));
-        target.hurtMarked = true;
+        // 26.3 renamed Entity#hurtMarked to needsSync; same job, resend the velocity to the client.
+        target.needsSync = true;
     }
 
     private DamageSource orbDamageSource(@Nullable Player owner) {

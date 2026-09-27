@@ -2,6 +2,8 @@ package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAgeCommon;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraft.data.loot.LootTableProvider;
@@ -24,26 +26,32 @@ public class DataGenerators {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent.Client event) {
         PackOutput output = event.getGenerator().getPackOutput();
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getWorldLookupProvider();
 
-        event.addProvider(new ModRecipeProvider.Runner(output, lookupProvider));
-        event.addProvider(new LootTableProvider(
-                output, Set.of(),
-                List.of(new LootTableProvider.SubProviderEntry(ModBlockLootTableProvider::new, LootContextParamSets.BLOCK)),
-                lookupProvider));
+        // World layer: worldgen features, placements, trim material and biome modifiers.
+        event.createWorldRegistryObjects(ModDatapackProvider.BUILDER, Set.of(TheLeadAgeCommon.MOD_ID));
+
+        // 26.3 moved recipes, loot tables and advancements out of standalone providers and into
+        // reloadable datapack registries. Recipes need two registries (they also emit their unlock
+        // advancements), hence the multi-registry bootstrap.
+        event.createReloadableRegistryObjects(new RegistrySetBuilder()
+                .add(ModRecipeProvider.create())
+                .add(Registries.LOOT_TABLE, new LootTableProvider(
+                        Set.of(),
+                        List.of(new LootTableProvider.SubProviderEntry(
+                                ModBlockLootTableProvider::new, LootContextParamSets.BLOCK))))
+                .add(Registries.ADVANCEMENT, new AdvancementProvider(
+                        List.of(ModAdvancementProvider::new))),
+                Set.of(TheLeadAgeCommon.MOD_ID, "minecraft"));
 
         event.addProvider(new ModBlockTagsProvider(output, lookupProvider));
         event.addProvider(new ModItemTagsProvider(output, lookupProvider));
         event.addProvider(new ModBiomeTagsProvider(output, lookupProvider));
         event.addProvider(new ModEntityTypeTagsProvider(output, lookupProvider));
-        event.addProvider(new ModDatapackProvider(output, lookupProvider));
         event.addProvider(new ModGlobalLootModifierProvider(output, lookupProvider));
         // Villager trades (26.1 data-driven villager_trade registry + smith pool tags). Emits a
         // neoforge:conditions gate, so it must run BEFORE FabricConditionsProvider.
         event.addProvider(new ModVillagerTradeProvider(output, lookupProvider));
-        // 1.21.4: NeoForge's AdvancementProvider wrapper is gone — vanilla's takes the sub providers.
-        event.addProvider(new AdvancementProvider(output, lookupProvider, List.of(new ModAdvancementProvider())));
-
         // 1.21.4: block + item models (and the items/ client item definitions) come from a single
         // vanilla-style ModelProvider.
         event.addProvider(new ModModelProvider(output));

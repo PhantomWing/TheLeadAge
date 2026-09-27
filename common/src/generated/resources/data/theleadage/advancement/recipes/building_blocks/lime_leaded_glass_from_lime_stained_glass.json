@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lime_leaded_glass_from_lime_stained_glass"
+        "recipes": "theleadage:lime_leaded_glass_from_lime_stained_glass"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

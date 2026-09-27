@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_brick_wall_from_lead_bricks_stonecutting"
+        "recipes": "theleadage:lead_brick_wall_from_lead_bricks_stonecutting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

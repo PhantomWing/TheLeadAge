@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.phantomwing.theleadage.loot.LeadLootAlgorithms;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +19,7 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -42,14 +44,15 @@ public class ReplaceItemModifier extends LootModifier {
     private final int minStacks;
     private final int maxStacks;
 
-    public ReplaceItemModifier(LootItemCondition[] conditions, ItemLike itemToAdd, List<Item> itemToReplace, int minStacks, int maxStacks) {
-        this(conditions, 0, itemToAdd, itemToReplace, minStacks, maxStacks);
+    public ReplaceItemModifier(Optional<Holder<LootItemCondition>> condition, ItemLike itemToAdd, List<Item> itemToReplace, int minStacks, int maxStacks) {
+        this(condition, 0, itemToAdd, itemToReplace, minStacks, maxStacks);
     }
 
     // 26.1: LootModifier takes a priority, and codecStart yields it as the second argument.
-    public ReplaceItemModifier(LootItemCondition[] conditions, int priority, ItemLike itemToAdd,
+    // 26.3: the condition array became a single optional condition holder.
+    public ReplaceItemModifier(Optional<Holder<LootItemCondition>> condition, int priority, ItemLike itemToAdd,
                                List<Item> itemToReplace, int minStacks, int maxStacks) {
-        super(conditions, priority);
+        super(condition, priority);
         this.removedItems = itemToReplace;
         this.item = itemToAdd.asItem();
         this.minStacks = minStacks;

@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.armor;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -10,10 +11,8 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
-import net.minecraft.world.item.equipment.trim.MaterialAssetGroup;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
 
-import java.util.Map;
 
 /**
  * Registers lead as a smithing-table armor trim material (datapack registry,
@@ -39,18 +38,17 @@ public class ModTrimMaterials {
             ResourceKey.create(EquipmentAssets.ROOT_ID, TheLeadAge.resourceLocation("lead"));
 
     /**
-     * The lead trim palette. Use the darker palette when lead trim is applied to lead
-     * armor, else it nearly disappears against the same colour (vanilla does the same,
-     * e.g. iron trim → iron_darker on iron armor).
+     * The lead trim palette, resolved under {@code textures/palettes/}. 26.3 replaced
+     * MaterialAssetGroup with a single palette id: the darker palette for lead trim on lead armor
+     * (else it nearly disappears against the same colour) now lives in the equipment asset's
+     * {@code trim_overrides} instead.
      */
-    private static final MaterialAssetGroup LEAD_ASSETS =
-            MaterialAssetGroup.create("lead", Map.of(LEAD_EQUIPMENT_ASSET, "lead_darker"));
+    public static final Identifier LEAD_PALETTE = TheLeadAge.resourceLocation("trim/lead");
 
     public static void bootstrap(BootstrapContext<TrimMaterial> context) {
-        // 1.21.5: TrimMaterial is a record(MaterialAssetGroup assets, Component description). The
-        // ingredient item moved onto the item's PROVIDES_TRIM_MATERIAL component, and the per-asset
-        // override map lives on the MaterialAssetGroup.
-        context.register(LEAD, new TrimMaterial(LEAD_ASSETS,
+        // 1.21.5 moved the ingredient item onto the item's PROVIDES_TRIM_MATERIAL component;
+        // 26.3 reduced TrimMaterial to (palette id, description).
+        context.register(LEAD, new TrimMaterial(LEAD_PALETTE,
                 Component.translatable(Util.makeDescriptionId("trim_material", LEAD.identifier()))
                         .withStyle(Style.EMPTY.withColor(TextColor.parseColor("#6E737D").getOrThrow()))));
     }

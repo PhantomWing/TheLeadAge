@@ -71,9 +71,11 @@ public final class LeadedGlassClearSprite {
         }
         // 26.1: the sprite, tint index, shading and light emission moved off BakedQuad into a
         // MaterialInfo component, so the swap rebuilds that record (new sprite, tint dropped) and
-        // carries the rest of the quad's material over untouched.
+        // carries the rest of the quad's material over untouched. 26.3 added the two item glint
+        // render types and replaced the shade flag with a shade-direction override.
         BakedQuad.MaterialInfo clearMaterial = new BakedQuad.MaterialInfo(
-                to, material.layer(), material.itemRenderType(), -1, material.shade(),
+                to, material.layer(), material.itemRenderType(), material.itemGlintRenderType(),
+                material.itemGlintSpecialRenderType(), -1, material.shadeDirectionOverride(),
                 material.lightEmission());
         return new BakedQuad(
                 quad.position0(), quad.position1(), quad.position2(), quad.position3(),

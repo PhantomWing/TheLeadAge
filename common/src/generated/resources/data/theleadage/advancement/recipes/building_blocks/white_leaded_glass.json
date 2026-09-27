@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:white_leaded_glass"
+        "recipes": "theleadage:white_leaded_glass"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

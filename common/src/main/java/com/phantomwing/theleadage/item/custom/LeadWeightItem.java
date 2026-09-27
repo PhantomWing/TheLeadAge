@@ -17,6 +17,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -96,7 +97,8 @@ public class LeadWeightItem extends BlockItem {
 
         // The spawned weight plays its own "starting to fall" whoosh; a resting placement plays a block
         // place sound — so no throw sound here.
-        player.swing(hand, true);
+        // 26.3: swing takes the animation to play; DEFAULT is the vanilla arm swing.
+        player.swing(hand, SwingAnimation.DEFAULT, true);
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }

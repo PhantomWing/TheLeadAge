@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import java.util.function.Consumer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -107,7 +108,8 @@ public class LeadedGlassPanelItem extends BlockItem {
             held.shrink(1);
         }
         if (!player.addItem(oldPane)) {
-            player.drop(oldPane, false);
+            // 26.3: drop takes a Prediction; this runs server-side, so nothing is client-predicted.
+            player.drop(oldPane, false, Prediction.SERVER_ONLY);
         }
         level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
     }

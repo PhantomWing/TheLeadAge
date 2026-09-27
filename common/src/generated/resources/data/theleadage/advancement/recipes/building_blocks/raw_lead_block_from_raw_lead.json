@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:raw_lead_block_from_raw_lead"
+        "recipes": "theleadage:raw_lead_block_from_raw_lead"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

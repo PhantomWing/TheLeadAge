@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:cut_lead_stairs_from_cut_lead_stonecutting"
+        "recipes": "theleadage:cut_lead_stairs_from_cut_lead_stonecutting"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

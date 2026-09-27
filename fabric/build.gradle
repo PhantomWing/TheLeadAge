@@ -12,10 +12,10 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 }
 
-// 26.2: the recipe-viewer plugin is live on JEI. The Lead Knife still compiles against the local
+// 26.3: the recipe-viewer plugin is live on JEI. The Lead Knife still compiles against the local
 // FDR stub (no FDR dependency is resolved here). EMI still has nothing past 1.21.1.
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 26.2 branch: JEI compat, FD knife via stub; no EMI")
+logger.lifecycle("[TheLeadAge] (fabric) 26.3 branch: JEI compat, FD knife via stub; no EMI")
 
 configurations {
     common
@@ -50,7 +50,7 @@ dependencies {
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
     localRuntime "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
 
-    // NOTE (26.2 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
+    // NOTE (26.3 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
     // was dropped back on the 1.21.4 line.
 }
 

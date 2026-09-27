@@ -15,5 +15,13 @@
         "texture": "theleadage:lead"
       }
     ]
-  }
+  },
+  "trim_overrides": [
+    {
+      "palette": "theleadage:trim/lead_darker",
+      "when": {
+        "material": "theleadage:lead"
+      }
+    }
+  ]
 }

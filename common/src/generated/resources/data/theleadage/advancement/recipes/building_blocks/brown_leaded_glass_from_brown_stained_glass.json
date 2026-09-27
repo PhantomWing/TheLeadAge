@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:brown_leaded_glass_from_brown_stained_glass"
+        "recipes": "theleadage:brown_leaded_glass_from_brown_stained_glass"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

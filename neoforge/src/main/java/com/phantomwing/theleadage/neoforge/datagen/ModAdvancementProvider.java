@@ -9,55 +9,61 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementType;
+import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.advancements.predicates.DamageSourcePredicate;
 import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.advancements.predicates.entity.EntityTypePredicate;
 import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.advancements.triggers.KilledTrigger;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.advancements.AdvancementSubProvider;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.data.advancements.AdvancementSubProvider;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Generates The Lead Age's advancement tab — a small "obtain" tree under a root
  * (mirrors The Silver Age's setup). Titles/descriptions are translation keys
  * {@code theleadage.advancement.<id>[.description]}, resolved from the lang files.
  */
-public class ModAdvancementProvider implements AdvancementSubProvider {
-    @Override
-    public void generate(HolderLookup.@NotNull Provider provider, @NotNull Consumer<AdvancementHolder> consumer) {
-        AdvancementHolder root = Advancement.Builder.advancement()
-                .display(ModItems.RAW_LEAD.get(),
-                        title("root"), description("root"),
-                        // A ClientAsset id, NOT a texture path: 1.21.5 wrapped this argument in
-                        // ClientAsset, which expands it to "textures/<id>.png" itself. Passing the
-                        // full path here double-prefixes it and the tab renders with no background.
-                        Identifier.parse("theleadage:block/cut_lead"),
-                        AdvancementType.TASK, false, false, false)
-                .addCriterion("root", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[]{}))
-                .save(consumer, id("root"));
+public class ModAdvancementProvider extends AdvancementSubProvider {
+    public ModAdvancementProvider(BootstrapContext<Advancement> output) {
+        super(output);
+    }
 
-        AdvancementHolder ingot = obtain(consumer, root, ModItems.LEAD_INGOT.get());
-        crushEnemy(provider, consumer, ingot);
-        leadedLights(consumer, ingot);
+    @Override
+    public void generate() {
+        // 26.3 dropped the background argument from display(); it lives on DisplayInfo as a
+        // ClientAsset id, NOT a texture path, so it expands to "textures/<id>.png" itself.
+        AdvancementHolder root = Advancement.Builder.advancement()
+                .display(new DisplayInfo(
+                        new ItemStackTemplate(ModItems.RAW_LEAD.get()),
+                        title("root"), description("root"),
+                        Optional.of(new ClientAsset.ResourceTexture(
+                                Identifier.parse("theleadage:block/cut_lead"))),
+                        AdvancementType.TASK, false, false, false))
+                .addCriterion("root", InventoryChangeTrigger.TriggerInstance.hasItems(new ItemLike[]{}))
+                .save(this.output, id("root"));
+
+        AdvancementHolder ingot = obtain(root, ModItems.LEAD_INGOT.get());
+        crushEnemy(ingot);
+        leadedLights(ingot);
     }
 
     /** Obtain any full leaded glass block (clear or stained). Any one of them satisfies it (OR requirements). */
-    private static void leadedLights(Consumer<AdvancementHolder> consumer, AdvancementHolder parent) {
+    private void leadedLights(AdvancementHolder parent) {
         Advancement.Builder builder = Advancement.Builder.advancement().parent(parent)
-                .display(ModBlocks.LEADED_GLASS.get(), title("leaded_lights"), description("leaded_lights"),
-                        null, AdvancementType.TASK, true, true, false);
+                .display(ModBlocks.LEADED_GLASS.get().asItem(), title("leaded_lights"), description("leaded_lights"),
+                        AdvancementType.TASK, true, true, false);
         List<ItemLike> glass = new ArrayList<>();
         glass.add(ModBlocks.LEADED_GLASS.get());
         for (DyeColor color : DyeColor.values()) {
@@ -69,30 +75,30 @@ public class ModAdvancementProvider implements AdvancementSubProvider {
             builder.addCriterion(crit, InventoryChangeTrigger.TriggerInstance.hasItems(g));
             criteria.add(crit);
         }
-        builder.requirements(AdvancementRequirements.anyOf(criteria)).save(consumer, id("leaded_lights"));
+        builder.requirements(AdvancementRequirements.anyOf(criteria)).save(this.output, id("leaded_lights"));
     }
 
     /** A challenge: kill an entity with a falling Lead Weight (its damage source's direct entity). */
-    private static void crushEnemy(HolderLookup.Provider provider, Consumer<AdvancementHolder> consumer, AdvancementHolder parent) {
+    private void crushEnemy(AdvancementHolder parent) {
         DamageSourcePredicate source = DamageSourcePredicate.Builder.damageType()
                 .direct(EntityPredicate.Builder.entity().entityType(
-                        EntityTypePredicate.of(provider.lookupOrThrow(Registries.ENTITY_TYPE), ModEntities.LEAD_WEIGHT.get())))
+                        EntityTypePredicate.of(this.output.lookup(Registries.ENTITY_TYPE), ModEntities.LEAD_WEIGHT.get())))
                 .build();
         Advancement.Builder.advancement().parent(parent)
-                .display(ModBlocks.LEAD_WEIGHT.get(), title("crush_enemy"), description("crush_enemy"),
-                        null, AdvancementType.TASK, true, true, false)
+                .display(ModBlocks.LEAD_WEIGHT.get().asItem(), title("crush_enemy"), description("crush_enemy"),
+                        AdvancementType.TASK, true, true, false)
                 .addCriterion("crush_enemy",
                         KilledTrigger.TriggerInstance.playerKilledEntity(Optional.empty(), Optional.of(source)))
-                .save(consumer, id("crush_enemy"));
+                .save(this.output, id("crush_enemy"));
     }
 
-    private static AdvancementHolder obtain(Consumer<AdvancementHolder> consumer, AdvancementHolder parent, ItemLike item) {
+    private AdvancementHolder obtain(AdvancementHolder parent, ItemLike item) {
         String name = ItemUtils.getName(item);
         return Advancement.Builder.advancement().parent(parent)
-                .display(item, title("obtain_" + name), description("obtain_" + name),
-                        null, AdvancementType.TASK, true, true, false)
+                .display(item.asItem(), title("obtain_" + name), description("obtain_" + name),
+                        AdvancementType.TASK, true, true, false)
                 .addCriterion(name, InventoryChangeTrigger.TriggerInstance.hasItems(item.asItem()))
-                .save(consumer, id("obtain_" + name));
+                .save(this.output, id("obtain_" + name));
     }
 
     private static MutableComponent title(String key) {
