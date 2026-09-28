@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -26,7 +27,8 @@ public record LeadOreBiomeModifier(HolderSet<Biome> biomes, HolderSet<PlacedFeat
     ).apply(inst, LeadOreBiomeModifier::new));
 
     @Override
-    public void modify(Holder<Biome> biome, BiomeModifier.Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+    public void modify(RegistryAccess registries, Holder<Biome> biome, BiomeModifier.Phase phase,
+                       ModifiableBiomeInfo.BiomeInfo.Builder builder) {
         if (phase == BiomeModifier.Phase.ADD && this.biomes.contains(biome) && CommonConfig.generateLeadOre()) {
             for (Holder<PlacedFeature> feature : this.features) {
                 builder.getGenerationSettings().addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, feature);

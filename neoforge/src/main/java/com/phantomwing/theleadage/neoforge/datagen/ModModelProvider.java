@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.armor.ModTrimMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.client.LeadedGlassItemModels;
@@ -25,10 +26,14 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.renderer.item.SelectItemModel;
+import net.minecraft.client.renderer.item.properties.select.TrimMaterialProperty;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
 import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
@@ -119,10 +124,16 @@ public class ModModelProvider extends ModelProvider {
         img.generateFlatItem(ModItems.LEAD_INGOT.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_NUGGET.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_SHEET.get(), ModelTemplates.FLAT_ITEM); // Create compat (dormant)
-        img.generateFlatItem(ModItems.LEAD_HELMET.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_CHESTPLATE.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_LEGGINGS.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_BOOTS.get(), ModelTemplates.FLAT_ITEM);
+        // Trimmable armor: a trim_material select per piece, so a trim shows on the inventory icon.
+        trimmableArmor(img, ModItems.LEAD_HELMET.get(), "helmet");
+        trimmableArmor(img, ModItems.LEAD_CHESTPLATE.get(), "chestplate");
+        trimmableArmor(img, ModItems.LEAD_LEGGINGS.get(), "leggings");
+        trimmableArmor(img, ModItems.LEAD_BOOTS.get(), "boots");
+        // Vanilla armor is deliberately left alone. NeoForge replaces every vanilla armor item
+        // definition with neoforge:trimmed_armor, which resolves any registered material from its
+        // palette id at runtime, so lead shows on vanilla icons there without us shadowing vanilla
+        // files (and shadowing them would break that for every other mod's material).
+
         img.generateFlatItem(ModItems.LEAD_HORSE_ARMOR.get(), ModelTemplates.FLAT_ITEM);
 
         img.generateFlatItem(ModItems.LEAD_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -203,6 +214,42 @@ public class ModModelProvider extends ModelProvider {
     private static Identifier modBlockTexture(String path) {
         return modBlock(path);
     }
+
+    /**
+     * Like vanilla {@code generateTrimmableItem}, but adds the mod's {@code theleadage:lead} trim
+     * material, which vanilla's hardcoded material list omits. Without a select here the piece
+     * renders untrimmed in the inventory for every material, vanilla ones included.
+     */
+    private static void trimmableArmor(ItemModelGenerators img, Item item, String slot) {
+        Material itemTexture = TextureMapping.getItemTexture(item);
+        Identifier slotPrefix = ItemModelGenerators.prefixForSlotTrim(slot);
+        // FLAT_ITEM directly rather than generateFlatItem: the latter also registers an item-model
+        // definition, which would collide with the select accepted below.
+        Identifier baseModel = ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(itemTexture), img.modelOutput);
+
+        List<SelectItemModel.SwitchCase<ResourceKey<TrimMaterial>>> cases = new ArrayList<>();
+        for (ItemModelGenerators.TrimMaterialData data : ItemModelGenerators.TRIM_MATERIAL_MODELS) {
+            cases.add(trimCase(img, baseModel, itemTexture, slotPrefix, data.palette().suffix(), data.materialKey()));
+        }
+        // Lead on lead needs the darker palette or it vanishes against the armour. 26.3 keeps the
+        // worn-armour side of that in the equipment asset's trim_overrides, but the inventory icon
+        // picks its sprite here, so the darker case is named explicitly.
+        cases.add(trimCase(img, baseModel, itemTexture, slotPrefix, "lead_darker", ModTrimMaterials.LEAD));
+        img.itemModelOutput.accept(item,
+                ItemModelUtils.select(new TrimMaterialProperty(), ItemModelUtils.plainModel(baseModel), cases));
+    }
+
+    /** One trim_material case: generates the layered model and returns the select case. */
+    private static SelectItemModel.SwitchCase<ResourceKey<TrimMaterial>> trimCase(
+            ItemModelGenerators img, Identifier baseModel, Material itemTexture, Identifier slotPrefix,
+            String paletteSuffix, ResourceKey<TrimMaterial> materialKey) {
+        String suffix = "_" + paletteSuffix;
+        Identifier trimModel = baseModel.withSuffix(suffix + "_trim");
+        img.generateLayeredItem(trimModel, itemTexture, new Material(slotPrefix.withSuffix(suffix)));
+        return ItemModelUtils.when(materialKey, ItemModelUtils.plainModel(trimModel));
+    }
+
 
     private static void flatFromTexture(ItemModelGenerators img, Item item, Identifier texture) {
         Identifier model = ModelTemplates.FLAT_ITEM.create(
