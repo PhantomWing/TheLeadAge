@@ -5,14 +5,10 @@ import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
-import com.phantomwing.theleadage.component.LeadedGlassConfig;
-import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.item.ItemEntity;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.DoorBlock;
@@ -29,9 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -55,16 +49,24 @@ import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.ITEM_ENTITY;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUSEA;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
+
 /**
  * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy} and {@link LeadFumes}):
  * a non-silk-touch harvest sometimes doses the player with Lead Sickness; silk touch never does.
- * Run headless with {@code ./gradlew :neoforge:runGameTest}.
+ * Listed in {@link GameTests}. Run headless with {@code ./gradlew :neoforge:runGameTest}.
+ *
+ * <p>These bodies read the same on every line: a call whose shape differs between Minecraft versions
+ * goes through {@link TestCompat} rather than being written out here.</p>
  *
  * <p>The fumes are random, so the tests mine many times and assert on the count.
  * With {@value #TRIALS} trials the "sometimes" bounds fail with probability ~1e-15,
@@ -75,45 +77,40 @@ import java.util.Optional;
  * therefore probe for {@link MobEffects#HUNGER} as the marker that a dose landed, and
  * {@link #leadSicknessLadderEscalates} covers the ladder itself.</p>
  */
-@GameTestHolder("theleadage")
-@PrefixGameTestTemplate(false)
 public class LeadOreGameTest {
     private static final int TRIALS = 100;
 
     /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
     private static final List<Holder<MobEffect>> SICKNESS_EFFECTS =
-            List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, MobEffects.CONFUSION);
+            List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, NAUSEA);
 
     /** Lead ore doses the player sometimes (but not on every break). */
-    @GameTest(template = "empty")
     public static void leadOreSometimesGivesLeadSickness(GameTestHelper helper) {
         int count = countDoses(helper, ModBlocks.LEAD_ORE.get(), false);
         if (count > 0 && count < TRIALS) {
             helper.succeed();
         } else {
-            helper.fail("Expected lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
+            fail(helper, "Expected lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
         }
     }
 
     /** Same for deepslate lead ore. */
-    @GameTest(template = "empty")
     public static void deepslateLeadOreSometimesGivesLeadSickness(GameTestHelper helper) {
         int count = countDoses(helper, ModBlocks.DEEPSLATE_LEAD_ORE.get(), false);
         if (count > 0 && count < TRIALS) {
             helper.succeed();
         } else {
-            helper.fail("Expected deepslate lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
+            fail(helper, "Expected deepslate lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
         }
     }
 
     /** Silk touch yields the ore block, not raw lead, so it NEVER gives fumes. */
-    @GameTest(template = "empty")
     public static void silkTouchNeverGivesLeadSickness(GameTestHelper helper) {
         int count = countDoses(helper, ModBlocks.LEAD_ORE.get(), true);
         if (count == 0) {
             helper.succeed();
         } else {
-            helper.fail("Silk touch should never dose the player (got " + count + "/" + TRIALS + ")");
+            fail(helper, "Silk touch should never dose the player (got " + count + "/" + TRIALS + ")");
         }
     }
 
@@ -122,49 +119,47 @@ public class LeadOreGameTest {
      * Nausea — and it stops there rather than climbing further. Exercises {@link LeadFumes#escalate}
      * directly, so it is deterministic (no distance/chance roll involved).
      */
-    @GameTest(template = "empty")
     public static void leadSicknessLadderEscalates(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         clearSickness(player);
 
         LeadFumes.escalate(player);
         if (!player.hasEffect(MobEffects.HUNGER)) {
-            helper.fail("first dose should apply Hunger");
+            fail(helper, "first dose should apply Hunger");
             return;
         }
         if (player.hasEffect(MobEffects.WEAKNESS) || player.hasEffect(MobEffects.POISON)) {
-            helper.fail("first dose should be Hunger ONLY");
+            fail(helper, "first dose should be Hunger ONLY");
             return;
         }
 
         LeadFumes.escalate(player);
         if (!player.hasEffect(MobEffects.WEAKNESS)) {
-            helper.fail("second dose should add Weakness");
+            fail(helper, "second dose should add Weakness");
             return;
         }
         if (player.hasEffect(MobEffects.POISON)) {
-            helper.fail("second dose should not reach Poison yet");
+            fail(helper, "second dose should not reach Poison yet");
             return;
         }
 
         LeadFumes.escalate(player);
-        if (!player.hasEffect(MobEffects.POISON) || !player.hasEffect(MobEffects.CONFUSION)) {
-            helper.fail("third dose should add Poison AND Nausea");
+        if (!player.hasEffect(MobEffects.POISON) || !player.hasEffect(NAUSEA)) {
+            fail(helper, "third dose should add Poison AND Nausea");
             return;
         }
 
         // Capped: a fourth dose refreshes the stack but must not invent a new stage.
         LeadFumes.escalate(player);
         if (!player.hasEffect(MobEffects.HUNGER) || !player.hasEffect(MobEffects.WEAKNESS)
-                || !player.hasEffect(MobEffects.POISON) || !player.hasEffect(MobEffects.CONFUSION)) {
-            helper.fail("a dose past stage 3 should refresh the whole stack");
+                || !player.hasEffect(MobEffects.POISON) || !player.hasEffect(NAUSEA)) {
+            fail(helper, "a dose past stage 3 should refresh the whole stack");
             return;
         }
         helper.succeed();
     }
 
     /** Lead Door + a leaded glass pane must resolve to the leaded glass door recipe. */
-    @GameTest(template = "empty")
     public static void doorRecipeCombines(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         RecipeManager recipes = level.getServer().getRecipeManager();
@@ -175,38 +170,36 @@ public class LeadOreGameTest {
                 new ItemStack(ModItems.LEADED_GLASS_PANEL.get())));
         Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, level);
         if (match.isEmpty()) {
-            helper.fail("No crafting recipe matched lead_door + two leaded glass panes");
+            fail(helper, "No crafting recipe matched lead_door + two leaded glass panes");
             return;
         }
-        ItemStack result = match.get().value().assemble(input, level.registryAccess());
+        ItemStack result = assemble(match.get().value(), input, level);
         if (result.is(ModItems.LEADED_GLASS_DOOR.get())) {
             helper.succeed();
         } else {
-            helper.fail("Matched " + match.get().id() + " but result was " + result);
+            fail(helper, "Matched " + match.get().id() + " but result was " + result);
         }
     }
 
     /** The IronBarsBlock mixin: bars/panes attach to a wall leaded glass pane, but not floor panes, and vanilla still works. */
-    @GameTest(template = "empty")
     public static void barsConnectToLeadedGlass(GameTestHelper helper) {
         IronBarsBlock bars = (IronBarsBlock) ModBlocks.LEAD_BARS.get();
         BlockState wallPane = ModBlocks.LEADED_GLASS_PANEL.get().defaultBlockState(); // FACE = WALL by default
         if (!bars.attachsTo(wallPane, false)) {
-            helper.fail("bars don't attach to a wall leaded glass pane — the IronBarsBlock mixin didn't apply");
+            fail(helper, "bars don't attach to a wall leaded glass pane, so the IronBarsBlock mixin didn't apply");
         }
         // Only wall panes anchor; a floor-mounted pane must not connect.
         if (bars.attachsTo(wallPane.setValue(LeadedGlassPaneBlock.FACE, AttachFace.FLOOR), false)) {
-            helper.fail("bars wrongly attach to a floor-mounted leaded glass pane");
+            fail(helper, "bars wrongly attach to a floor-mounted leaded glass pane");
         }
         // Vanilla behaviour intact: bars still attach to other bars.
         if (!bars.attachsTo(Blocks.IRON_BARS.defaultBlockState(), false)) {
-            helper.fail("bars no longer attach to iron bars — the mixin broke vanilla connection");
+            fail(helper, "bars no longer attach to iron bars, so the mixin broke vanilla connection");
         }
         helper.succeed();
     }
 
     /** The hit→region mapping must match each came's model layout (u: left→right, v: bottom→top). */
-    @GameTest(template = "empty")
     public static void frameRegionMapping(GameTestHelper helper) {
         assertRegion(helper, LeadedGlassFrame.SPLIT_H, 0.25, 0.5, 0);   // left
         assertRegion(helper, LeadedGlassFrame.SPLIT_H, 0.75, 0.5, 1);   // right
@@ -282,7 +275,6 @@ public class LeadOreGameTest {
      * collision box. That catches a wrong thin axis, a missing translation or a rotation about the
      * wrong point — the ways the sheet ends up somewhere other than in its frame.</p>
      */
-    @GameTest(template = "empty")
     public static void glassPlacementStaysInsidePanel(GameTestHelper helper) {
         BlockState door = ModBlocks.LEADED_GLASS_DOOR.get().defaultBlockState();
         for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
@@ -321,7 +313,7 @@ public class LeadOreGameTest {
         for (double[] c : corners) {
             Vector3f p = m.transformPosition(new Vector3f((float) c[0], (float) c[1], 0.5f));
             if (!allowed.contains(p.x, p.y, p.z)) {
-                helper.fail("glass corner (" + c[0] + "," + c[1] + ") landed at " + p
+                fail(helper, "glass corner (" + c[0] + "," + c[1] + ") landed at " + p
                         + ", outside the panel " + box + " for " + state);
                 return;
             }
@@ -329,55 +321,51 @@ public class LeadOreGameTest {
     }
 
     /** Heavy weight transforms are loaded from the mod's datapack and resolve block + (non-)matches. */
-    @GameTest(template = "empty")
     public static void leadWeightTransformsFromData(GameTestHelper helper) {
         var cracked = LeadWeightTransforms.transform(Blocks.STONE_BRICKS.defaultBlockState());
         var dirt = LeadWeightTransforms.transform(Blocks.GRASS_BLOCK.defaultBlockState());
         if (cracked == null || !cracked.is(Blocks.CRACKED_STONE_BRICKS)) {
-            helper.fail("stone_bricks -> " + cracked + ", expected cracked_stone_bricks");
+            fail(helper, "stone_bricks -> " + cracked + ", expected cracked_stone_bricks");
         } else if (dirt == null || !dirt.is(Blocks.DIRT)) {
-            helper.fail("grass_block -> " + dirt + ", expected dirt");
+            fail(helper, "grass_block -> " + dirt + ", expected dirt");
         } else if (LeadWeightTransforms.transform(Blocks.STONE.defaultBlockState()) != null) {
-            helper.fail("plain stone should not transform");
+            fail(helper, "plain stone should not transform");
         } else {
             helper.succeed();
         }
     }
 
     /** A weight degrades tier-by-tier; the last tier has no next, so it shatters. */
-    @GameTest(template = "empty")
     public static void leadWeightTierChain(GameTestHelper helper) {
         Block base = ModBlocks.LEAD_WEIGHT.get();
         Block chipped = ModBlocks.CHIPPED_LEAD_WEIGHT.get();
         Block damaged = ModBlocks.DAMAGED_LEAD_WEIGHT.get();
         if (ModBlocks.nextWeightTier(base) != chipped) {
-            helper.fail("lead_weight should chip to chipped_lead_weight");
+            fail(helper, "lead_weight should chip to chipped_lead_weight");
         } else if (ModBlocks.nextWeightTier(chipped) != damaged) {
-            helper.fail("chipped should chip to damaged");
+            fail(helper, "chipped should chip to damaged");
         } else if (ModBlocks.nextWeightTier(damaged) != null) {
-            helper.fail("damaged should have no next tier (it shatters)");
+            fail(helper, "damaged should have no next tier (it shatters)");
         } else {
             helper.succeed();
         }
     }
 
     /** The chip chance is 0 for short drops, rises with fall height, and is capped past the max fall. */
-    @GameTest(template = "empty")
     public static void leadWeightBreakChance(GameTestHelper helper) {
         if (LeadWeightBlock.breakChance(1.0) != 0.0 || LeadWeightBlock.breakChance(2.0) != 0.0) {
-            helper.fail("short drops (<= 2 blocks) must never chip the weight");
+            fail(helper, "short drops (<= 2 blocks) must never chip the weight");
         } else if (!(LeadWeightBlock.breakChance(6.5) > 0.0
                 && LeadWeightBlock.breakChance(6.5) < LeadWeightBlock.breakChance(10.0))) {
-            helper.fail("chip chance must rise with fall height");
+            fail(helper, "chip chance must rise with fall height");
         } else if (LeadWeightBlock.breakChance(12.0) != 1.0 || LeadWeightBlock.breakChance(50.0) != 1.0) {
-            helper.fail("chip chance must reach 100% at a high fall and stay capped");
+            fail(helper, "chip chance must reach 100% at a high fall and stay capped");
         } else {
             helper.succeed();
         }
     }
 
     /** An weight that falls onto a hopper is collected by it as an item, not left as a block on top. */
-    @GameTest(template = "empty", timeoutTicks = 200)
     public static void leadWeightDropsIntoHopper(GameTestHelper helper) {
         helper.setBlock(new BlockPos(1, 0, 1), Blocks.HOPPER);  // hopper on the floor
         helper.setBlock(new BlockPos(1, 1, 1), Blocks.AIR);     // carve the drop column out of the barrier
@@ -389,19 +377,18 @@ public class LeadOreGameTest {
                 // Poll until the hopper has it, rather than guessing how long the fall + collect takes.
                 .thenWaitUntil(() -> {
                     if (!hopperHasOrb(helper)) {
-                        helper.fail("hopper has not collected the weight yet");
+                        fail(helper, "hopper has not collected the weight yet");
                     }
                 })
                 .thenExecute(() -> {
                     if (helper.getBlockState(new BlockPos(1, 1, 1)).is(ModBlocks.LEAD_WEIGHT.get())) {
-                        helper.fail("weight placed itself as a block on the hopper instead of being collected");
+                        fail(helper, "weight placed itself as a block on the hopper instead of being collected");
                     }
                 })
                 .thenSucceed();
     }
 
     /** A dispenser sets a Lead Weight down in the cell it faces rather than throwing it as an item. */
-    @GameTest(template = "empty", timeoutTicks = 200)
     public static void dispenserPlacesLeadWeight(GameTestHelper helper) {
         // The template is enclosed in barriers; clear the working layer but leave y=1 as the floor,
         // so the placed weight has something to rest on and never turns into a falling entity.
@@ -417,24 +404,19 @@ public class LeadOreGameTest {
         BlockPos target = new BlockPos(2, 2, 1);
         helper.setBlock(dispenser, Blocks.DISPENSER.defaultBlockState()
                 .setValue(DispenserBlock.FACING, Direction.EAST));
-        if (!(helper.getBlockEntity(dispenser) instanceof DispenserBlockEntity contents)) {
-            helper.fail("dispenser block entity missing");
-            return;
-        }
+        DispenserBlockEntity contents = blockEntity(helper, dispenser, DispenserBlockEntity.class);
         contents.setItem(0, new ItemStack(ModItems.LEAD_WEIGHT.get()));
         helper.setBlock(new BlockPos(0, 2, 1), Blocks.REDSTONE_BLOCK); // powers the dispenser
 
         helper.startSequence()
                 // Poll rather than guess the dispenser's fire delay.
                 .thenWaitUntil(() -> helper.assertBlockPresent(ModBlocks.LEAD_WEIGHT.get(), target))
-                .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
+                .thenExecute(() -> helper.assertEntityNotPresent(ITEM_ENTITY))
                 .thenSucceed();
     }
 
     private static boolean hopperHasOrb(GameTestHelper helper) {
-        if (!(helper.getBlockEntity(new BlockPos(1, 0, 1)) instanceof HopperBlockEntity hopper)) {
-            return false;
-        }
+        HopperBlockEntity hopper = blockEntity(helper, new BlockPos(1, 0, 1), HopperBlockEntity.class);
         for (int i = 0; i < hopper.getContainerSize(); i++) {
             if (hopper.getItem(i).is(ModItems.LEAD_WEIGHT.get())) {
                 return true;
@@ -444,7 +426,6 @@ public class LeadOreGameTest {
     }
 
     /** An weight hung directly under a vertical chain stays put — the chain anchors it. */
-    @GameTest(template = "empty")
     public static void leadWeightHangsFromVerticalChain(GameTestHelper helper) {
         helper.setBlock(new BlockPos(1, 3, 1), ModBlocks.LEAD_CHAIN.get());  // vertical (axis Y is the default)
         helper.setBlock(new BlockPos(1, 2, 1),
@@ -454,14 +435,13 @@ public class LeadOreGameTest {
                 .thenExecute(() -> {
                     BlockState s = helper.getBlockState(new BlockPos(1, 2, 1));
                     if (!s.is(ModBlocks.LEAD_WEIGHT.get()) || !s.getValue(BlockStateProperties.HANGING)) {
-                        helper.fail("weight did not stay hanging from the vertical chain above it");
+                        fail(helper, "weight did not stay hanging from the vertical chain above it");
                     }
                 })
                 .thenSucceed();
     }
 
     /** A horizontal chain is not an anchor: an weight under one detaches (stops hanging). */
-    @GameTest(template = "empty")
     public static void leadWeightDetachesFromHorizontalChain(GameTestHelper helper) {
         helper.setBlock(new BlockPos(1, 3, 1), ModBlocks.LEAD_CHAIN.get().defaultBlockState()
                 .setValue(BlockStateProperties.AXIS, Direction.Axis.X));
@@ -471,14 +451,13 @@ public class LeadOreGameTest {
                 .thenWaitUntil(() -> {
                     BlockState s = helper.getBlockState(new BlockPos(1, 2, 1));
                     if (s.is(ModBlocks.LEAD_WEIGHT.get()) && s.getValue(BlockStateProperties.HANGING)) {
-                        helper.fail("weight is still hanging from a horizontal chain");
+                        fail(helper, "weight is still hanging from a horizontal chain");
                     }
                 })
                 .thenSucceed();
     }
 
     /** The lead weight aims at the 8-way adjacent direction; a near-vertical look uses the body facing. */
-    @GameTest(template = "empty")
     public static void leadWeightAimDirection(GameTestHelper helper) {
         assertDir(helper, Direction.NORTH, 0, 0, -1, 0, -1);        // look north
         assertDir(helper, Direction.NORTH, 1, 0, 0, 1, 0);         // look east
@@ -495,13 +474,12 @@ public class LeadOreGameTest {
     private static void assertDir(GameTestHelper helper, Direction facing, double lx, double ly, double lz, int ex, int ez) {
         int[] d = LeadWeightItem.aimDirection(facing, new Vec3(lx, ly, lz));
         if (d[0] != ex || d[1] != ez) {
-            helper.fail("look (" + lx + "," + ly + "," + lz + ") facing " + facing + " -> ["
+            fail(helper, "look (" + lx + "," + ly + "," + lz + ") facing " + facing + " -> ["
                     + d[0] + "," + d[1] + "], expected [" + ex + "," + ez + "]");
         }
     }
 
     /** The drop height follows the look pitch: eye level (1), a block up (2), or a block down (0). */
-    @GameTest(template = "empty")
     public static void leadWeightVerticalOffset(GameTestHelper helper) {
         assertVert(helper, 0, 0, -1, 1);          // level → eye level
         assertVert(helper, 0, 0.26, -0.966, 1);   // shallow up → still eye level
@@ -518,14 +496,14 @@ public class LeadOreGameTest {
     private static void assertVert(GameTestHelper helper, double lx, double ly, double lz, int expected) {
         int dy = LeadWeightItem.verticalOffset(new Vec3(lx, ly, lz));
         if (dy != expected) {
-            helper.fail("look (" + lx + "," + ly + "," + lz + ") -> dy " + dy + ", expected " + expected);
+            fail(helper, "look (" + lx + "," + ly + "," + lz + ") -> dy " + dy + ", expected " + expected);
         }
     }
 
     private static void assertRegion(GameTestHelper helper, LeadedGlassFrame frame, double u, double v, int expected) {
         int got = frame.regionAt(u, v);
         if (got != expected) {
-            helper.fail(frame + " at (" + u + "," + v + ") = region " + got + ", expected " + expected);
+            fail(helper, frame + " at (" + u + "," + v + ") = region " + got + ", expected " + expected);
         }
     }
 
@@ -555,7 +533,7 @@ public class LeadOreGameTest {
             }
         }
         Vec3 standAt = Vec3.atBottomCenterOf(helper.absolutePos(stand));
-        player.moveTo(standAt.x, standAt.y, standAt.z, 0.0f, 0.0f);
+        moveTo(player, standAt);
 
         int count = 0;
         for (int i = 0; i < TRIALS; i++) {
@@ -589,4 +567,5 @@ public class LeadOreGameTest {
         }
         return pick;
     }
+
 }
