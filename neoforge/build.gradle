@@ -26,12 +26,12 @@ logger.lifecycle("[TheLeadAge] (neoforge) 1.21.8 branch: JEI restored; no Create
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 
-    // Include the test-only source set in the dev mod definition so NeoForge's
-    // @GameTestHolder scan discovers the game tests. Dev-runtime only — the
-    // production jar is still built from `main`, so test classes never ship.
+    // Include the test-only source set in the dev mod so the game tests and their data load.
+    // Dev-runtime only: the production jar is still built from `main`, so test classes never ship.
+    // Added to Loom's own `main` group rather than a second group: two groups carrying the same
+    // mod make the loader keep one, and some FML releases keep the one without the tests (none run).
     mods {
-        register('theleadage') {
-            sourceSet sourceSets.main
+        named('main') {
             sourceSet sourceSets.test
         }
     }
