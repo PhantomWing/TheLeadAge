@@ -1,6 +1,5 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
-import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
@@ -13,12 +12,10 @@ import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
-import net.minecraft.world.entity.EntityType;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.DoorBlock;
@@ -36,11 +33,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.gametest.framework.GameTestInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -67,11 +61,20 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import java.util.List;
 import java.util.Optional;
 
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.ITEM_ENTITY;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUSEA;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
+
 /**
  * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy} and {@link LeadFumes}):
  * a non-silk-touch harvest sometimes doses the player with Lead Sickness; silk touch never does.
- * Registered through {@link GameTestRegistration} (1.21.5 registry-based gametests).
- * Run headless with {@code ./gradlew :neoforge:runGameTest}.
+ * Listed in {@link GameTests}. Run headless with {@code ./gradlew :neoforge:runGameTest}.
+ *
+ * <p>These bodies read the same on every line: a call whose shape differs between Minecraft versions
+ * goes through {@link TestCompat} rather than being written out here.</p>
  *
  * <p>The fumes are random, so the tests mine many times and assert on the count.
  * With {@value #TRIALS} trials the "sometimes" bounds fail with probability ~1e-15,
@@ -87,7 +90,7 @@ public class LeadOreGameTest {
 
     /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
     private static final List<Holder<MobEffect>> SICKNESS_EFFECTS =
-            List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, MobEffects.NAUSEA);
+            List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, NAUSEA);
 
     /** Lead ore doses the player sometimes (but not on every break). */
     public static void leadOreSometimesGivesLeadSickness(GameTestHelper helper) {
@@ -95,7 +98,7 @@ public class LeadOreGameTest {
         if (count > 0 && count < TRIALS) {
             helper.succeed();
         } else {
-            helper.fail(Component.literal("Expected lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")"));
+            fail(helper, "Expected lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
         }
     }
 
@@ -105,7 +108,7 @@ public class LeadOreGameTest {
         if (count > 0 && count < TRIALS) {
             helper.succeed();
         } else {
-            helper.fail(Component.literal("Expected deepslate lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")"));
+            fail(helper, "Expected deepslate lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
         }
     }
 
@@ -115,7 +118,7 @@ public class LeadOreGameTest {
         if (count == 0) {
             helper.succeed();
         } else {
-            helper.fail(Component.literal("Silk touch should never dose the player (got " + count + "/" + TRIALS + ")"));
+            fail(helper, "Silk touch should never dose the player (got " + count + "/" + TRIALS + ")");
         }
     }
 
@@ -130,35 +133,35 @@ public class LeadOreGameTest {
 
         LeadFumes.escalate(player);
         if (!player.hasEffect(MobEffects.HUNGER)) {
-            helper.fail(Component.literal("first dose should apply Hunger"));
+            fail(helper, "first dose should apply Hunger");
             return;
         }
         if (player.hasEffect(MobEffects.WEAKNESS) || player.hasEffect(MobEffects.POISON)) {
-            helper.fail(Component.literal("first dose should be Hunger ONLY"));
+            fail(helper, "first dose should be Hunger ONLY");
             return;
         }
 
         LeadFumes.escalate(player);
         if (!player.hasEffect(MobEffects.WEAKNESS)) {
-            helper.fail(Component.literal("second dose should add Weakness"));
+            fail(helper, "second dose should add Weakness");
             return;
         }
         if (player.hasEffect(MobEffects.POISON)) {
-            helper.fail(Component.literal("second dose should not reach Poison yet"));
+            fail(helper, "second dose should not reach Poison yet");
             return;
         }
 
         LeadFumes.escalate(player);
-        if (!player.hasEffect(MobEffects.POISON) || !player.hasEffect(MobEffects.NAUSEA)) {
-            helper.fail(Component.literal("third dose should add Poison AND Nausea"));
+        if (!player.hasEffect(MobEffects.POISON) || !player.hasEffect(NAUSEA)) {
+            fail(helper, "third dose should add Poison AND Nausea");
             return;
         }
 
         // Capped: a fourth dose refreshes the stack but must not invent a new stage.
         LeadFumes.escalate(player);
         if (!player.hasEffect(MobEffects.HUNGER) || !player.hasEffect(MobEffects.WEAKNESS)
-                || !player.hasEffect(MobEffects.POISON) || !player.hasEffect(MobEffects.NAUSEA)) {
-            helper.fail(Component.literal("a dose past stage 3 should refresh the whole stack"));
+                || !player.hasEffect(MobEffects.POISON) || !player.hasEffect(NAUSEA)) {
+            fail(helper, "a dose past stage 3 should refresh the whole stack");
             return;
         }
         helper.succeed();
@@ -175,14 +178,14 @@ public class LeadOreGameTest {
                 new ItemStack(ModItems.LEADED_GLASS_PANEL.get())));
         Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, level);
         if (match.isEmpty()) {
-            helper.fail(Component.literal("No crafting recipe matched lead_door + two leaded glass panes"));
+            fail(helper, "No crafting recipe matched lead_door + two leaded glass panes");
             return;
         }
-        ItemStack result = match.get().value().assemble(input, level.registryAccess());
+        ItemStack result = assemble(match.get().value(), input, level);
         if (result.is(ModItems.LEADED_GLASS_DOOR.get())) {
             helper.succeed();
         } else {
-            helper.fail(Component.literal("Matched " + match.get().id() + " but result was " + result));
+            fail(helper, "Matched " + match.get().id() + " but result was " + result);
         }
     }
 
@@ -198,16 +201,16 @@ public class LeadOreGameTest {
         Optional<RecipeHolder<CraftingRecipe>> match =
                 level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
         if (match.isEmpty()) {
-            helper.fail(Component.literal("no crafting recipe matched a 2x2 of lead ingots"));
+            fail(helper, "no crafting recipe matched a 2x2 of lead ingots");
             return;
         }
-        ItemStack result = match.get().value().assemble(input, level.registryAccess());
+        ItemStack result = assemble(match.get().value(), input, level);
         if (!result.is(ModItems.LEAD_BRICKS.get())) {
-            helper.fail(Component.literal("2x2 lead ingots produced " + result + ", expected lead bricks"));
+            fail(helper, "2x2 lead ingots produced " + result + ", expected lead bricks");
             return;
         }
         if (result.getCount() != 1) {
-            helper.fail(Component.literal("expected 1 lead bricks from 4 ingots, got " + result.getCount()));
+            fail(helper, "expected 1 lead bricks from 4 ingots, got " + result.getCount());
             return;
         }
         helper.succeed();
@@ -218,15 +221,15 @@ public class LeadOreGameTest {
         IronBarsBlock bars = (IronBarsBlock) ModBlocks.LEAD_BARS.get();
         BlockState wallPane = ModBlocks.LEADED_GLASS_PANEL.get().defaultBlockState(); // FACE = WALL by default
         if (!bars.attachsTo(wallPane, false)) {
-            helper.fail(Component.literal("bars don't attach to a wall leaded glass pane, so the IronBarsBlock mixin didn't apply"));
+            fail(helper, "bars don't attach to a wall leaded glass pane, so the IronBarsBlock mixin didn't apply");
         }
         // Only wall panes anchor; a floor-mounted pane must not connect.
         if (bars.attachsTo(wallPane.setValue(LeadedGlassPaneBlock.FACE, AttachFace.FLOOR), false)) {
-            helper.fail(Component.literal("bars wrongly attach to a floor-mounted leaded glass pane"));
+            fail(helper, "bars wrongly attach to a floor-mounted leaded glass pane");
         }
         // Vanilla behaviour intact: bars still attach to other bars.
         if (!bars.attachsTo(Blocks.IRON_BARS.defaultBlockState(), false)) {
-            helper.fail(Component.literal("bars no longer attach to iron bars, so the mixin broke vanilla connection"));
+            fail(helper, "bars no longer attach to iron bars, so the mixin broke vanilla connection");
         }
         helper.succeed();
     }
@@ -345,8 +348,8 @@ public class LeadOreGameTest {
         for (double[] c : corners) {
             Vector3f p = m.transformPosition(new Vector3f((float) c[0], (float) c[1], 0.5f));
             if (!allowed.contains(p.x, p.y, p.z)) {
-                helper.fail(Component.literal("glass corner (" + c[0] + "," + c[1] + ") landed at " + p
-                        + ", outside the panel " + box + " for " + state));
+                fail(helper, "glass corner (" + c[0] + "," + c[1] + ") landed at " + p
+                        + ", outside the panel " + box + " for " + state);
                 return;
             }
         }
@@ -357,11 +360,11 @@ public class LeadOreGameTest {
         var cracked = LeadWeightTransforms.transform(Blocks.STONE_BRICKS.defaultBlockState());
         var dirt = LeadWeightTransforms.transform(Blocks.GRASS_BLOCK.defaultBlockState());
         if (cracked == null || !cracked.is(Blocks.CRACKED_STONE_BRICKS)) {
-            helper.fail(Component.literal("stone_bricks -> " + cracked + ", expected cracked_stone_bricks"));
+            fail(helper, "stone_bricks -> " + cracked + ", expected cracked_stone_bricks");
         } else if (dirt == null || !dirt.is(Blocks.DIRT)) {
-            helper.fail(Component.literal("grass_block -> " + dirt + ", expected dirt"));
+            fail(helper, "grass_block -> " + dirt + ", expected dirt");
         } else if (LeadWeightTransforms.transform(Blocks.STONE.defaultBlockState()) != null) {
-            helper.fail(Component.literal("plain stone should not transform"));
+            fail(helper, "plain stone should not transform");
         } else {
             helper.succeed();
         }
@@ -373,11 +376,11 @@ public class LeadOreGameTest {
         Block chipped = ModBlocks.CHIPPED_LEAD_WEIGHT.get();
         Block damaged = ModBlocks.DAMAGED_LEAD_WEIGHT.get();
         if (ModBlocks.nextWeightTier(base) != chipped) {
-            helper.fail(Component.literal("lead_weight should chip to chipped_lead_weight"));
+            fail(helper, "lead_weight should chip to chipped_lead_weight");
         } else if (ModBlocks.nextWeightTier(chipped) != damaged) {
-            helper.fail(Component.literal("chipped should chip to damaged"));
+            fail(helper, "chipped should chip to damaged");
         } else if (ModBlocks.nextWeightTier(damaged) != null) {
-            helper.fail(Component.literal("damaged should have no next tier (it shatters)"));
+            fail(helper, "damaged should have no next tier (it shatters)");
         } else {
             helper.succeed();
         }
@@ -386,12 +389,12 @@ public class LeadOreGameTest {
     /** The chip chance is 0 for short drops, rises with fall height, and is capped past the max fall. */
     public static void leadWeightBreakChance(GameTestHelper helper) {
         if (LeadWeightBlock.breakChance(1.0) != 0.0 || LeadWeightBlock.breakChance(2.0) != 0.0) {
-            helper.fail(Component.literal("short drops (<= 2 blocks) must never chip the weight"));
+            fail(helper, "short drops (<= 2 blocks) must never chip the weight");
         } else if (!(LeadWeightBlock.breakChance(6.5) > 0.0
                 && LeadWeightBlock.breakChance(6.5) < LeadWeightBlock.breakChance(10.0))) {
-            helper.fail(Component.literal("chip chance must rise with fall height"));
+            fail(helper, "chip chance must rise with fall height");
         } else if (LeadWeightBlock.breakChance(12.0) != 1.0 || LeadWeightBlock.breakChance(50.0) != 1.0) {
-            helper.fail(Component.literal("chip chance must reach 100% at a high fall and stay capped"));
+            fail(helper, "chip chance must reach 100% at a high fall and stay capped");
         } else {
             helper.succeed();
         }
@@ -409,12 +412,12 @@ public class LeadOreGameTest {
                 // Poll until the hopper has it, rather than guessing how long the fall + collect takes.
                 .thenWaitUntil(() -> {
                     if (!hopperHasOrb(helper)) {
-                        helper.fail(Component.literal("hopper has not collected the weight yet"));
+                        fail(helper, "hopper has not collected the weight yet");
                     }
                 })
                 .thenExecute(() -> {
                     if (helper.getBlockState(new BlockPos(1, 1, 1)).is(ModBlocks.LEAD_WEIGHT.get())) {
-                        helper.fail(Component.literal("weight placed itself as a block on the hopper instead of being collected"));
+                        fail(helper, "weight placed itself as a block on the hopper instead of being collected");
                     }
                 })
                 .thenSucceed();
@@ -436,14 +439,14 @@ public class LeadOreGameTest {
         BlockPos target = new BlockPos(2, 2, 1);
         helper.setBlock(dispenser, Blocks.DISPENSER.defaultBlockState()
                 .setValue(DispenserBlock.FACING, Direction.EAST));
-        DispenserBlockEntity contents = helper.getBlockEntity(dispenser, DispenserBlockEntity.class);
+        DispenserBlockEntity contents = blockEntity(helper, dispenser, DispenserBlockEntity.class);
         contents.setItem(0, new ItemStack(ModItems.LEAD_WEIGHT.get()));
         helper.setBlock(new BlockPos(0, 2, 1), Blocks.REDSTONE_BLOCK); // powers the dispenser
 
         helper.startSequence()
                 // Poll rather than guess the dispenser's fire delay.
                 .thenWaitUntil(() -> helper.assertBlockPresent(ModBlocks.LEAD_WEIGHT.get(), target))
-                .thenExecute(() -> helper.assertEntityNotPresent(EntityType.ITEM))
+                .thenExecute(() -> helper.assertEntityNotPresent(ITEM_ENTITY))
                 .thenSucceed();
     }
 
@@ -458,15 +461,15 @@ public class LeadOreGameTest {
             BlockState state = pane.get().defaultBlockState();
             AttachFace face = state.getValue(LeadedGlassPaneBlock.FACE);
             if (face != AttachFace.WALL) {
-                helper.fail(Component.literal(pane.getId() + " default face is " + face + ", expected WALL "
-                        + "(the door would render its glass lying flat)"));
+                fail(helper, pane.getId() + " default face is " + face + ", expected WALL "
+                        + "(the door would render its glass lying flat)");
             }
         }
         helper.succeed();
     }
 
     private static boolean hopperHasOrb(GameTestHelper helper) {
-        HopperBlockEntity hopper = helper.getBlockEntity(new BlockPos(1, 0, 1), HopperBlockEntity.class);
+        HopperBlockEntity hopper = blockEntity(helper, new BlockPos(1, 0, 1), HopperBlockEntity.class);
         for (int i = 0; i < hopper.getContainerSize(); i++) {
             if (hopper.getItem(i).is(ModItems.LEAD_WEIGHT.get())) {
                 return true;
@@ -485,7 +488,7 @@ public class LeadOreGameTest {
                 .thenExecute(() -> {
                     BlockState s = helper.getBlockState(new BlockPos(1, 2, 1));
                     if (!s.is(ModBlocks.LEAD_WEIGHT.get()) || !s.getValue(BlockStateProperties.HANGING)) {
-                        helper.fail(Component.literal("weight did not stay hanging from the vertical chain above it"));
+                        fail(helper, "weight did not stay hanging from the vertical chain above it");
                     }
                 })
                 .thenSucceed();
@@ -501,7 +504,7 @@ public class LeadOreGameTest {
                 .thenWaitUntil(() -> {
                     BlockState s = helper.getBlockState(new BlockPos(1, 2, 1));
                     if (s.is(ModBlocks.LEAD_WEIGHT.get()) && s.getValue(BlockStateProperties.HANGING)) {
-                        helper.fail(Component.literal("weight is still hanging from a horizontal chain"));
+                        fail(helper, "weight is still hanging from a horizontal chain");
                     }
                 })
                 .thenSucceed();
@@ -524,8 +527,8 @@ public class LeadOreGameTest {
     private static void assertDir(GameTestHelper helper, Direction facing, double lx, double ly, double lz, int ex, int ez) {
         int[] d = LeadWeightItem.aimDirection(facing, new Vec3(lx, ly, lz));
         if (d[0] != ex || d[1] != ez) {
-            helper.fail(Component.literal("look (" + lx + "," + ly + "," + lz + ") facing " + facing + " -> ["
-                    + d[0] + "," + d[1] + "], expected [" + ex + "," + ez + "]"));
+            fail(helper, "look (" + lx + "," + ly + "," + lz + ") facing " + facing + " -> ["
+                    + d[0] + "," + d[1] + "], expected [" + ex + "," + ez + "]");
         }
     }
 
@@ -546,14 +549,14 @@ public class LeadOreGameTest {
     private static void assertVert(GameTestHelper helper, double lx, double ly, double lz, int expected) {
         int dy = LeadWeightItem.verticalOffset(new Vec3(lx, ly, lz));
         if (dy != expected) {
-            helper.fail(Component.literal("look (" + lx + "," + ly + "," + lz + ") -> dy " + dy + ", expected " + expected));
+            fail(helper, "look (" + lx + "," + ly + "," + lz + ") -> dy " + dy + ", expected " + expected);
         }
     }
 
     private static void assertRegion(GameTestHelper helper, LeadedGlassFrame frame, double u, double v, int expected) {
         int got = frame.regionAt(u, v);
         if (got != expected) {
-            helper.fail(Component.literal(frame + " at (" + u + "," + v + ") = region " + got + ", expected " + expected));
+            fail(helper, frame + " at (" + u + "," + v + ") = region " + got + ", expected " + expected);
         }
     }
 
@@ -583,7 +586,7 @@ public class LeadOreGameTest {
             }
         }
         Vec3 standAt = Vec3.atBottomCenterOf(helper.absolutePos(stand));
-        player.snapTo(standAt.x, standAt.y, standAt.z, 0.0f, 0.0f);
+        moveTo(player, standAt);
 
         int count = 0;
         for (int i = 0; i < TRIALS; i++) {
@@ -625,35 +628,16 @@ public class LeadOreGameTest {
      */
     public static void armorKeepsCustomAttributeModifiers(GameTestHelper helper) {
         if (!hasModifier(ModItems.LEAD_HELMET.get().components(), ModAttributes.HEAVINESS.get())) {
-            helper.fail(Component.literal("lead helmet lost its Heaviness modifier"));
+            fail(helper, "lead helmet lost its Heaviness modifier");
         }
         if (!hasModifier(ModItems.LEAD_HELMET.get().components(), Attributes.ARMOR.value())) {
-            helper.fail(Component.literal("lead helmet lost the material's armor modifier"));
+            fail(helper, "lead helmet lost the material's armor modifier");
         }
         if (!hasModifier(ModItems.LEAD_HORSE_ARMOR.get().components(), Attributes.KNOCKBACK_RESISTANCE.value())) {
-            helper.fail(Component.literal("lead horse armor lost its knockback resistance modifier"));
+            fail(helper, "lead horse armor lost its knockback resistance modifier");
         }
         if (!hasModifier(ModItems.LEAD_HORSE_ARMOR.get().components(), Attributes.ARMOR.value())) {
-            helper.fail(Component.literal("lead horse armor lost the material's armor modifier"));
-        }
-        helper.succeed();
-    }
-
-    /**
-     * Guards the one desync that fails silently: a test function registered with no matching
-     * {@code test_instance} JSON simply never runs, and the suite still reports all-pass. (The other
-     * direction, a JSON naming a function that does not exist, already fails registry load loudly.)
-     */
-    public static void everyTestFunctionHasAnInstance(GameTestHelper helper) {
-        Registry<GameTestInstance> instances = helper.getLevel().registryAccess()
-                .lookupOrThrow(Registries.TEST_INSTANCE);
-        List<String> missing = GameTestRegistration.testNames().stream()
-                .filter(name -> !instances.containsKey(
-                        ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name)))
-                .toList();
-        if (!missing.isEmpty()) {
-            helper.fail(Component.literal("test functions with no test_instance JSON, so they never run: " + missing));
-            return;
+            fail(helper, "lead horse armor lost the material's armor modifier");
         }
         helper.succeed();
     }
@@ -668,16 +652,16 @@ public class LeadOreGameTest {
         DataComponentMap components = ModItems.LEAD_KNIFE.get().components();
         if (!hasModifier(components, Attributes.ATTACK_DAMAGE.value())
                 || !hasModifier(components, Attributes.ATTACK_SPEED.value())) {
-            helper.fail(Component.literal("lead knife lost its attack attributes"));
+            fail(helper, "lead knife lost its attack attributes");
             return;
         }
         Weapon weapon = components.get(DataComponents.WEAPON);
         if (weapon == null || weapon.itemDamagePerAttack() != 1) {
-            helper.fail(Component.literal("expected the vanilla sword weapon cost (1 durability per attack), got " + weapon));
+            fail(helper, "expected the vanilla sword weapon cost (1 durability per attack), got " + weapon);
             return;
         }
         if (components.get(DataComponents.TOOL) == null) {
-            helper.fail(Component.literal("lead knife lost its tool component"));
+            fail(helper, "lead knife lost its tool component");
             return;
         }
         helper.succeed();
