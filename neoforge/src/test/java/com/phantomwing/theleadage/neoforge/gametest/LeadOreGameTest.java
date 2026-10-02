@@ -42,6 +42,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
@@ -63,6 +64,7 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
+import java.util.function.IntConsumer;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +72,7 @@ import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.ITEM_ENTIT
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUSEA;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
 
@@ -92,6 +95,8 @@ import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
  */
 public class LeadOreGameTest {
     private static final int TRIALS = 100;
+    /** How long a dose test waits for the fumes to find its player ({@link #whenFumesFind}). */
+    private static final int FIND_TICKS = 40;
 
     /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
     private static final List<Holder<MobEffect>> SICKNESS_EFFECTS =
@@ -99,32 +104,35 @@ public class LeadOreGameTest {
 
     /** Lead ore doses the player sometimes (but not on every break). */
     public static void leadOreSometimesGivesLeadSickness(GameTestHelper helper) {
-        int count = countDoses(helper, ModBlocks.LEAD_ORE.get(), false);
-        if (count > 0 && count < TRIALS) {
-            helper.succeed();
-        } else {
-            fail(helper, "Expected lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
-        }
+        countDoses(helper, ModBlocks.LEAD_ORE.get(), false, count -> {
+            if (count > 0 && count < TRIALS) {
+                helper.succeed();
+            } else {
+                fail(helper, "Expected lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
+            }
+        });
     }
 
     /** Same for deepslate lead ore. */
     public static void deepslateLeadOreSometimesGivesLeadSickness(GameTestHelper helper) {
-        int count = countDoses(helper, ModBlocks.DEEPSLATE_LEAD_ORE.get(), false);
-        if (count > 0 && count < TRIALS) {
-            helper.succeed();
-        } else {
-            fail(helper, "Expected deepslate lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
-        }
+        countDoses(helper, ModBlocks.DEEPSLATE_LEAD_ORE.get(), false, count -> {
+            if (count > 0 && count < TRIALS) {
+                helper.succeed();
+            } else {
+                fail(helper, "Expected deepslate lead ore to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
+            }
+        });
     }
 
     /** Silk touch yields the ore block, not raw lead, so it NEVER gives fumes. */
     public static void silkTouchNeverGivesLeadSickness(GameTestHelper helper) {
-        int count = countDoses(helper, ModBlocks.LEAD_ORE.get(), true);
-        if (count == 0) {
-            helper.succeed();
-        } else {
-            fail(helper, "Silk touch should never dose the player (got " + count + "/" + TRIALS + ")");
-        }
+        countDoses(helper, ModBlocks.LEAD_ORE.get(), true, count -> {
+            if (count == 0) {
+                helper.succeed();
+            } else {
+                fail(helper, "Silk touch should never dose the player (got " + count + "/" + TRIALS + ")");
+            }
+        });
     }
 
     /**
@@ -600,14 +608,19 @@ public class LeadOreGameTest {
     }
 
     /**
-     * Mines {@code ore} {@value #TRIALS} times and returns how many breaks actually dosed the player.
+     * Mines {@code ore} {@value #TRIALS} times and hands on how many breaks actually dosed the player.
      *
      * <p>Hunger is the probe because it is stage 1 — every dose applies it, whatever the stage. Note
      * that ALL of the sickness effects are cleared between trials, not just the one being probed: the
      * stage is derived from which effects are still active, so leaving any of them on would ratchet
      * the ladder upward and make the trials depend on each other.</p>
+     *
+     * <p>The mining waits until the fumes can find the player. They look for players through the
+     * level's entity sections, and a mock player moved into one that isn't accessible yet is invisible
+     * to them: every break scored nothing, the 0 of {@value #TRIALS} that failed the first of these tests now and then,
+     * and that the silk-touch test would have passed without noticing.</p>
      */
-    private static int countDoses(GameTestHelper helper, Block ore, boolean silkTouch) {
+    private static void countDoses(GameTestHelper helper, Block ore, boolean silkTouch, IntConsumer verdict) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);
         BlockPos pos = new BlockPos(1, 2, 1);
@@ -627,20 +640,34 @@ public class LeadOreGameTest {
         Vec3 standAt = Vec3.atBottomCenterOf(helper.absolutePos(stand));
         moveTo(player, standAt);
 
-        int count = 0;
-        for (int i = 0; i < TRIALS; i++) {
-            // Fresh, full-durability tool + a clean slate so each trial is independent.
-            player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe(helper, silkTouch));
-            clearSickness(player);
-            helper.setBlock(pos, ore);
+        whenFumesFind(helper, player, pos, FIND_TICKS, () -> {
+            int count = 0;
+            for (int i = 0; i < TRIALS; i++) {
+                // Fresh, full-durability tool + a clean slate so each trial is independent.
+                player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe(helper, silkTouch));
+                clearSickness(player);
+                helper.setBlock(pos, ore);
 
-            player.gameMode.destroyBlock(helper.absolutePos(pos));
+                player.gameMode.destroyBlock(helper.absolutePos(pos));
 
-            if (player.hasEffect(MobEffects.HUNGER)) {
-                count++;
+                if (player.hasEffect(MobEffects.HUNGER)) {
+                    count++;
+                }
             }
+            verdict.accept(count);
+        });
+    }
+
+    /** Runs {@code then} once a search for players around {@code ore}, as the fumes make, finds {@code player}. */
+    private static void whenFumesFind(GameTestHelper helper, ServerPlayer player, BlockPos ore, int ticksLeft, Runnable then) {
+        AABB around = AABB.ofSize(Vec3.atCenterOf(helper.absolutePos(ore)), 6.0, 6.0, 6.0);
+        if (helper.getLevel().getEntitiesOfClass(Player.class, around).contains(player)) {
+            then.run();
+        } else if (ticksLeft == 0) {
+            fail(helper, "the fumes never found the mock player beside the ore - the test's setup failed, not the mod");
+        } else {
+            helper.runAfterDelay(1, () -> whenFumesFind(helper, player, ore, ticksLeft - 1, then));
         }
-        return count;
     }
 
     /** Wipe every Lead Sickness effect, so the next dose starts the ladder from stage 0. */
@@ -666,16 +693,16 @@ public class LeadOreGameTest {
      * set over whatever was passed in). Locks both custom sets: armor Heaviness + horse knockback.
      */
     public static void armorKeepsCustomAttributeModifiers(GameTestHelper helper) {
-        if (!hasModifier(ModItems.LEAD_HELMET.get().components(), ModAttributes.HEAVINESS.get())) {
+        if (!hasModifier(defaultModifiers(ModItems.LEAD_HELMET.get()), ModAttributes.HEAVINESS.get())) {
             fail(helper, "lead helmet lost its Heaviness modifier");
         }
-        if (!hasModifier(ModItems.LEAD_HELMET.get().components(), Attributes.ARMOR.value())) {
+        if (!hasModifier(defaultModifiers(ModItems.LEAD_HELMET.get()), Attributes.ARMOR.value())) {
             fail(helper, "lead helmet lost the material's armor modifier");
         }
-        if (!hasModifier(ModItems.LEAD_HORSE_ARMOR.get().components(), Attributes.KNOCKBACK_RESISTANCE.value())) {
+        if (!hasModifier(defaultModifiers(ModItems.LEAD_HORSE_ARMOR.get()), Attributes.KNOCKBACK_RESISTANCE.value())) {
             fail(helper, "lead horse armor lost its knockback resistance modifier");
         }
-        if (!hasModifier(ModItems.LEAD_HORSE_ARMOR.get().components(), Attributes.ARMOR.value())) {
+        if (!hasModifier(defaultModifiers(ModItems.LEAD_HORSE_ARMOR.get()), Attributes.ARMOR.value())) {
             fail(helper, "lead horse armor lost the material's armor modifier");
         }
         helper.succeed();
@@ -734,7 +761,10 @@ public class LeadOreGameTest {
     }
 
     private static boolean hasModifier(DataComponentMap components, Attribute attribute) {
-        ItemAttributeModifiers modifiers = components.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        return hasModifier(components.get(DataComponents.ATTRIBUTE_MODIFIERS), attribute);
+    }
+
+    private static boolean hasModifier(ItemAttributeModifiers modifiers, Attribute attribute) {
         return modifiers != null && modifiers.modifiers().stream().anyMatch(e -> e.attribute().value() == attribute);
     }
 }
