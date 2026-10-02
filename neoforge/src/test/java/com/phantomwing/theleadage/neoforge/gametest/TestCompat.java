@@ -15,6 +15,9 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.core.component.DataComponents;
 
 /**
  * The calls a test makes whose shape differs between Minecraft versions, each behind a signature every
@@ -49,5 +52,10 @@ public final class TestCompat {
     /** What {@code recipe} crafts from {@code input}. It no longer takes the registries from 26.1. */
     public static ItemStack assemble(CraftingRecipe recipe, CraftingInput input, ServerLevel level) {
         return recipe.assemble(input);
+    }
+
+    /** An item's own attribute modifiers, baked into its components from 1.21.2; the item worked them out before. */
+    public static ItemAttributeModifiers defaultModifiers(Item item) {
+        return item.components().get(DataComponents.ATTRIBUTE_MODIFIERS);
     }
 }
