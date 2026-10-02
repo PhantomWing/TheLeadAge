@@ -21,6 +21,7 @@ public final class GameTests {
             test("bars_connect_to_leaded_glass", LeadOreGameTest::barsConnectToLeadedGlass),
             test("frame_region_mapping", LeadOreGameTest::frameRegionMapping),
             test("glass_placement_stays_inside_panel", LeadOreGameTest::glassPlacementStaysInsidePanel),
+            test("door_glass_mirror_matches_frame", LeadOreGameTest::doorGlassMirrorMatchesFrame),
             test("lead_weight_transforms_from_data", LeadOreGameTest::leadWeightTransformsFromData),
             test("lead_weight_tier_chain", LeadOreGameTest::leadWeightTierChain),
             test("lead_weight_break_chance", LeadOreGameTest::leadWeightBreakChance),
