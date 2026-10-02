@@ -1,3 +1,9 @@
+# 1.1.3
+
+### Fixes
+- Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1, which made bricks as cheap as the ingots themselves.
+
+
 # 1.1.2
 
 ### Fixes

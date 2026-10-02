@@ -17,18 +17,22 @@ public final class GameTests {
             test("silk_touch_never_gives_lead_sickness", LeadOreGameTest::silkTouchNeverGivesLeadSickness),
             test("lead_sickness_ladder_escalates", LeadOreGameTest::leadSicknessLadderEscalates),
             test("door_recipe_combines", LeadOreGameTest::doorRecipeCombines),
+            test("lead_bricks_recipe_yields_one", LeadOreGameTest::leadBricksRecipeYieldsOne),
             test("bars_connect_to_leaded_glass", LeadOreGameTest::barsConnectToLeadedGlass),
             test("frame_region_mapping", LeadOreGameTest::frameRegionMapping),
             test("glass_placement_stays_inside_panel", LeadOreGameTest::glassPlacementStaysInsidePanel),
+            test("door_glass_mirror_matches_frame", LeadOreGameTest::doorGlassMirrorMatchesFrame),
             test("lead_weight_transforms_from_data", LeadOreGameTest::leadWeightTransformsFromData),
             test("lead_weight_tier_chain", LeadOreGameTest::leadWeightTierChain),
             test("lead_weight_break_chance", LeadOreGameTest::leadWeightBreakChance),
             test("lead_weight_drops_into_hopper", LeadOreGameTest::leadWeightDropsIntoHopper).maxTicks(200),
             test("dispenser_places_lead_weight", LeadOreGameTest::dispenserPlacesLeadWeight).maxTicks(200),
+            test("dynamic_panes_default_to_upright", LeadOreGameTest::dynamicPanesDefaultToUpright),
             test("lead_weight_hangs_from_vertical_chain", LeadOreGameTest::leadWeightHangsFromVerticalChain),
             test("lead_weight_detaches_from_horizontal_chain", LeadOreGameTest::leadWeightDetachesFromHorizontalChain),
             test("lead_weight_aim_direction", LeadOreGameTest::leadWeightAimDirection),
-            test("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset));
+            test("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset),
+            test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers));
 
     private GameTests() {
     }
