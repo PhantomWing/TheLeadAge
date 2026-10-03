@@ -1,0 +1,13 @@
+{
+  "name": "The inventory opens with lead gear in it, and closes",
+  "steps": [
+    { "give": "theleadage:lead_ingot", "count": 12 },
+    { "give": "theleadage:lead_helmet" },
+    { "expect": "inventory", "has": "theleadage:lead_ingot", "count": 12 },
+    { "inventory": true },
+    { "expect": "screen", "class": "InventoryScreen" },
+    { "screenshot": "inventory" },
+    { "close": true },
+    { "expect": "screen", "open": false }
+  ]
+}
