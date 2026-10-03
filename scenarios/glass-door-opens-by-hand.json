@@ -1,0 +1,13 @@
+{
+  "name": "A leaded glass door places from its item and opens by hand",
+  "steps": [
+    { "hold": "theleadage:leaded_glass_door" },
+    { "use": [0, -1, 0], "face": "up" },
+    { "expect": "block", "at": [0, 0, 0], "is": "theleadage:leaded_glass_door", "with": { "half": "lower", "open": "false" } },
+    { "expect": "block", "at": [0, 1, 0], "is": "theleadage:leaded_glass_door", "with": { "half": "upper" } },
+    { "screenshot": "closed" },
+    { "use": [0, 0, 0], "face": "north" },
+    { "expect": "block", "at": [0, 0, 0], "with": { "open": "true" } },
+    { "screenshot": "open" }
+  ]
+}
