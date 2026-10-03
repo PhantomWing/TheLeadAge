@@ -32,7 +32,8 @@ public final class GameTests {
             test("lead_weight_detaches_from_horizontal_chain", LeadOreGameTest::leadWeightDetachesFromHorizontalChain),
             test("lead_weight_aim_direction", LeadOreGameTest::leadWeightAimDirection),
             test("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset),
-            test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers));
+            test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers),
+            test("horse_armor_has_no_durability", LeadOreGameTest::horseArmorHasNoDurability));
 
     private GameTests() {
     }

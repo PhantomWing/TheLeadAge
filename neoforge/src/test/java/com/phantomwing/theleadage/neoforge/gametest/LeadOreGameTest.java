@@ -62,6 +62,7 @@ import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntit
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
@@ -91,6 +92,8 @@ public class LeadOreGameTest {
     private static final int TRIALS = 100;
     /** How long a dose test waits for the fumes to find its player ({@link #whenFumesFind}). */
     private static final int FIND_TICKS = 40;
+    /** Ticks a test waits for the entities around the world spawn, before it can make a mock player. */
+    private static final int SPAWN_TICKS = 40;
 
     /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
     private static final List<Holder<MobEffect>> SICKNESS_EFFECTS =
@@ -135,6 +138,10 @@ public class LeadOreGameTest {
      * directly, so it is deterministic (no distance/chance roll involved).
      */
     public static void leadSicknessLadderEscalates(GameTestHelper helper) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> leadSicknessLadderEscalatesNow(helper));
+    }
+
+    private static void leadSicknessLadderEscalatesNow(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         clearSickness(player);
 
@@ -609,6 +616,18 @@ public class LeadOreGameTest {
         helper.succeed();
     }
 
+    /**
+     * Horse armour is never damaged, as vanilla's isn't. On 1.21.2 to 1.21.4 the two-argument
+     * {@code animalProperties} is the wolf armour's, and gives it a durability.
+     */
+    public static void horseArmorHasNoDurability(GameTestHelper helper) {
+        ItemStack armor = new ItemStack(ModItems.LEAD_HORSE_ARMOR.get());
+        if (armor.isDamageableItem()) {
+            fail(helper, "lead horse armor wears out: it has a durability of " + armor.getMaxDamage());
+        }
+        helper.succeed();
+    }
+
     private static void assertVert(GameTestHelper helper, double lx, double ly, double lz, int expected) {
         int dy = LeadWeightItem.verticalOffset(new Vec3(lx, ly, lz));
         if (dy != expected) {
@@ -637,6 +656,10 @@ public class LeadOreGameTest {
      * and that the silk-touch test would have passed without noticing.</p>
      */
     private static void countDoses(GameTestHelper helper, Block ore, boolean silkTouch, IntConsumer verdict) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> countDosesNow(helper, ore, silkTouch, verdict));
+    }
+
+    private static void countDosesNow(GameTestHelper helper, Block ore, boolean silkTouch, IntConsumer verdict) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);
         BlockPos pos = new BlockPos(1, 2, 1);
@@ -672,6 +695,21 @@ public class LeadOreGameTest {
             }
             verdict.accept(count);
         });
+    }
+
+    /**
+     * Runs {@code then} once the entities around the world spawn have loaded, which a mock player needs
+     * first: on 1.21.6 to 1.21.8 placing one waits for them, and they only load as the level ticks,
+     * which it can't while a test holds it. A mock player made too soon hung the whole run.
+     */
+    private static void whenSpawnLoaded(GameTestHelper helper, int ticksLeft, Runnable then) {
+        if (entitiesLoadedAroundSpawn(helper.getLevel(), 2)) {
+            then.run();
+        } else if (ticksLeft <= 0) {
+            fail(helper, "the entities around the world spawn never loaded, so no mock player could be made");
+        } else {
+            helper.runAfterDelay(1, () -> whenSpawnLoaded(helper, ticksLeft - 1, then));
+        }
     }
 
     /** Runs {@code then} once a search for players around {@code ore}, as the fumes make, finds {@code player}. */

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -59,5 +60,15 @@ public final class TestCompat {
     /** An item's own attribute modifiers. On 1.21.1 the item works them out; 1.21.2 bakes them into its components. */
     public static ItemAttributeModifiers defaultModifiers(Item item) {
         return item.getDefaultAttributeModifiers();
+    }
+
+    /**
+     * Whether the entities within {@code radius} chunks of the world spawn have loaded, which a mock
+     * player, placed near the spawn, needs first. 1.21.9 moved the spawn into the level's respawn
+     * data, and 26.1 renamed ChunkPos's factory and packing.
+     */
+    public static boolean entitiesLoadedAroundSpawn(ServerLevel level, int radius) {
+        return ChunkPos.rangeClosed(new ChunkPos(level.getSharedSpawnPos()), radius)
+                .allMatch(chunk -> level.areEntitiesLoaded(chunk.toLong()));
     }
 }
