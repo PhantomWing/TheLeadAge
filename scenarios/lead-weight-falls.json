@@ -1,0 +1,9 @@
+{
+  "name": "A lead weight with nothing under it falls and lands as a block",
+  "steps": [
+    { "setblock": [0, 4, 0], "block": "theleadage:lead_weight" },
+    { "expect": "block", "at": [0, 0, 0], "is": "theleadage:lead_weight", "within": 100 },
+    { "expect": "block", "at": [0, 4, 0], "is": "minecraft:air", "within": 1 },
+    { "screenshot": "landed" }
+  ]
+}

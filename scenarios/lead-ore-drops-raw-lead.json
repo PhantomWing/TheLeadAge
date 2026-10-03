@@ -1,0 +1,13 @@
+{
+  "name": "Mining lead ore in survival with an iron pickaxe gives raw lead",
+  "gamemode": "survival",
+  "steps": [
+    { "setblock": [0, 0, -4], "block": "theleadage:lead_ore" },
+    { "hold": "minecraft:iron_pickaxe" },
+    { "look": [0, 0, -4] },
+    { "break": [0, 0, -4], "face": "north" },
+    { "expect": "entity", "type": "minecraft:item", "near": [0, 0, -4], "radius": 2 },
+    { "move": [0, 0, -4] },
+    { "expect": "inventory", "has": "theleadage:raw_lead", "within": 60 }
+  ]
+}
