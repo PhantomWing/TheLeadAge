@@ -1,0 +1,14 @@
+{
+  "name": "A lead door ignores a hand, like iron, and opens with redstone",
+  "steps": [
+    { "hold": "theleadage:lead_door" },
+    { "use": [0, -1, 0], "face": "up" },
+    { "expect": "block", "at": [0, 0, 0], "is": "theleadage:lead_door", "with": { "open": "false" } },
+    { "use": [0, 0, 0], "face": "north" },
+    { "wait": 10 },
+    { "expect": "block", "at": [0, 0, 0], "with": { "open": "false" }, "within": 1 },
+    { "setblock": [1, 0, 0], "block": "minecraft:redstone_block" },
+    { "expect": "block", "at": [0, 0, 0], "with": { "open": "true" } },
+    { "screenshot": "powered" }
+  ]
+}
