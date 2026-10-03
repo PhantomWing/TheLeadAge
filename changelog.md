@@ -2,6 +2,7 @@
 
 ### Fixes
 - Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1, which made bricks as cheap as the ingots themselves.
+- Fixed Lead Horse Armor wearing out: like vanilla horse armor, it no longer has durability.
 
 
 # 1.1.1

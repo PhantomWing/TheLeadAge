@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.item.custom;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import net.minecraft.core.HolderSet;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -32,11 +33,15 @@ public class LeadHorseArmorItem extends Item {
     /**
      * Extends {@link Item}, not {@code AnimalArmorItem}: that ctor re-applies the material's BODY
      * attributes to the passed Properties, wiping any custom set (same clobber {@link LeadArmorItem}
-     * dodges). All equip behaviour lives in the EQUIPPABLE component {@code animalProperties} builds;
-     * the only thing lost is EQUESTRIAN's breaking sound, which is the default ITEM_BREAK anyway.
+     * dodges). All equip behaviour lives in the EQUIPPABLE component {@code animalProperties} builds.
+     *
+     * <p>Its horse form, as vanilla's horse armour takes it: the horse armour sound, and not damaged
+     * when the horse is hurt, which leaves it without durability or a repair material. The two-argument
+     * form is the wolf armour's, and wears out.</p>
      */
     public LeadHorseArmorItem(ArmorMaterial material, Properties properties) {
-        super(material.animalProperties(properties, HolderSet.direct(EntityType.HORSE.builtInRegistryHolder()))
+        super(material.animalProperties(properties, SoundEvents.HORSE_ARMOR, false,
+                        HolderSet.direct(EntityType.HORSE.builtInRegistryHolder()))
                 .attributes(withKnockbackResistance(material)));
     }
 
