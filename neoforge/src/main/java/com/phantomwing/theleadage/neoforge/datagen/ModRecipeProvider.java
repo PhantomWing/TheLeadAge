@@ -110,6 +110,7 @@ public class ModRecipeProvider extends RecipeProvider {
         // Lead tools + armor, crafted from lead ingots.
         ItemLike ingot = ModItems.LEAD_INGOT.get();
         sword(output, ModItems.LEAD_SWORD.get(), ingot);
+        spear(output, ModItems.LEAD_SPEAR.get(), ingot);
         pickaxe(output, ModItems.LEAD_PICKAXE.get(), ingot);
         axe(output, ModItems.LEAD_AXE.get(), ingot);
         shovel(output, ModItems.LEAD_SHOVEL.get(), ingot);
@@ -338,6 +339,14 @@ public class ModRecipeProvider extends RecipeProvider {
     private void sword(RecipeOutput output, ItemLike result, ItemLike material) {
         shaped(RecipeCategory.COMBAT, result)
                 .pattern("M").pattern("M").pattern("S")
+                .define('M', material).define('S', Items.STICK)
+                .unlockedBy(getHasName(material), has(material))
+                .save(output);
+    }
+
+    private void spear(RecipeOutput output, ItemLike result, ItemLike material) {
+        shaped(RecipeCategory.COMBAT, result)
+                .pattern("  M").pattern(" S ").pattern("S  ")
                 .define('M', material).define('S', Items.STICK)
                 .unlockedBy(getHasName(material), has(material))
                 .save(output);

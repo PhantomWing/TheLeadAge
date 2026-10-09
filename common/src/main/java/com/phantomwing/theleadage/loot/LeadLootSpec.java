@@ -15,8 +15,8 @@ import java.util.function.Supplier;
  * {@code SilverLootSpec}; lead currently does REPLACE only.)
  *
  * <p>Lead horse armor occasionally replaces iron horse armor in the vanilla loot
- * tables that contain it. {@code ModItems} suppliers are lazy so this class can be
- * loaded before item registration completes.</p>
+ * tables that contain it, and lead nautilus armor iron nautilus armor. {@code ModItems}
+ * suppliers are lazy so this class can be loaded before item registration completes.</p>
  */
 public final class LeadLootSpec {
     private LeadLootSpec() {
@@ -31,7 +31,7 @@ public final class LeadLootSpec {
                         Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems) {
     }
 
-    /** Low chance for a given iron-horse-armor roll to become lead instead. */
+    /** Low chance for a given iron horse or nautilus armor roll to become lead instead. */
     private static final float CHANCE = 0.10f;
     /** Chance for a rolled iron-ingot stack to become lead ingots instead. */
     private static final float INGOT_CHANCE = 0.20f;
@@ -46,6 +46,7 @@ public final class LeadLootSpec {
 
     public static List<Entry> entries() {
         List<Supplier<Item>> ironHorseArmor = List.of(vanilla(Items.IRON_HORSE_ARMOR));
+        List<Supplier<Item>> ironNautilusArmor = List.of(vanilla(Items.IRON_NAUTILUS_ARMOR));
         List<Supplier<Item>> ironIngot = List.of(vanilla(Items.IRON_INGOT));
         return List.of(
                 // Lead horse armor: occasionally replaces iron horse armor.
@@ -55,6 +56,15 @@ public final class LeadLootSpec {
                 replaceIronHorseArmor("lead_horse_armor_from_stronghold_corridor", "chests/stronghold_corridor", ironHorseArmor),
                 replaceIronHorseArmor("lead_horse_armor_from_village_weaponsmith", "chests/village/village_weaponsmith", ironHorseArmor),
                 replaceIronHorseArmor("lead_horse_armor_from_end_city", "chests/end_city_treasure", ironHorseArmor),
+
+                // Lead nautilus armor: occasionally replaces iron nautilus armor, in the ocean chests
+                // that hold it.
+                replaceIronNautilusArmor("lead_nautilus_armor_from_buried_treasure", "chests/buried_treasure", ironNautilusArmor),
+                replaceIronNautilusArmor("lead_nautilus_armor_from_shipwreck_map", "chests/shipwreck_map", ironNautilusArmor),
+                replaceIronNautilusArmor("lead_nautilus_armor_from_shipwreck_supply", "chests/shipwreck_supply", ironNautilusArmor),
+                replaceIronNautilusArmor("lead_nautilus_armor_from_shipwreck_treasure", "chests/shipwreck_treasure", ironNautilusArmor),
+                replaceIronNautilusArmor("lead_nautilus_armor_from_underwater_ruin_big", "chests/underwater_ruin_big", ironNautilusArmor),
+                replaceIronNautilusArmor("lead_nautilus_armor_from_underwater_ruin_small", "chests/underwater_ruin_small", ironNautilusArmor),
 
                 // Lead ingots: a rolled iron-ingot stack occasionally comes up lead instead. Curated to
                 // old ruins, mines, shipwrecks/treasure and metalworkers — where a mundane heavy metal fits.
@@ -76,6 +86,10 @@ public final class LeadLootSpec {
 
     private static Entry replaceIronHorseArmor(String id, String table, List<Supplier<Item>> removed) {
         return new Entry(id, mc(table), CHANCE, ModItems.LEAD_HORSE_ARMOR::get, 1, 1, removed);
+    }
+
+    private static Entry replaceIronNautilusArmor(String id, String table, List<Supplier<Item>> removed) {
+        return new Entry(id, mc(table), CHANCE, ModItems.LEAD_NAUTILUS_ARMOR::get, 1, 1, removed);
     }
 
     private static Entry replaceIronIngot(String id, String table, List<Supplier<Item>> removed) {

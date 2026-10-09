@@ -66,6 +66,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.AXES).add(ModItems.LEAD_AXE.get());
         tag(ItemTags.SHOVELS).add(ModItems.LEAD_SHOVEL.get());
         tag(ItemTags.HOES).add(ModItems.LEAD_HOE.get());
+        // Also what lets the spear take Lunge and the melee enchantments.
+        tag(ItemTags.SPEARS).add(ModItems.LEAD_SPEAR.get());
 
         // Armor — slot tags + trim support.
         tag(ItemTags.HEAD_ARMOR).add(ModItems.LEAD_HELMET.get());
@@ -77,6 +79,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get());
         // Lets the smithing table accept a lead ingot as a trim material.
         tag(ItemTags.TRIM_MATERIALS).add(ModItems.LEAD_INGOT.get());
+
+        tag(c("armors/nautilus")).add(ModItems.LEAD_NAUTILUS_ARMOR.get());
 
         // Decorative block items.
         tag(ItemTags.SLABS).add(ModItems.LEAD_BRICK_SLAB.get(), ModItems.CUT_LEAD_SLAB.get());
@@ -106,6 +110,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ModTags.Items.LEAD_EQUIPMENT).add(
                 ModItems.LEAD_SWORD.get(), ModItems.LEAD_PICKAXE.get(), ModItems.LEAD_AXE.get(),
                 ModItems.LEAD_SHOVEL.get(), ModItems.LEAD_HOE.get(), ModItems.LEAD_KNIFE.get(),
+                ModItems.LEAD_SPEAR.get(),
                 ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
                 ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get());
     }

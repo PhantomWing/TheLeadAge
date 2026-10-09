@@ -16,6 +16,7 @@ import com.phantomwing.theleadage.item.custom.LeadedGlassDoorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassPanelItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassTrapdoorItem;
 import com.phantomwing.theleadage.item.custom.LeadHorseArmorItem;
+import com.phantomwing.theleadage.item.custom.LeadNautilusArmorItem;
 import com.phantomwing.theleadage.tool.ModTiers;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -62,6 +63,7 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_AXE = registerAxe("lead_axe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_HOE = registerHoe("lead_hoe", ModTiers.LEAD);
     public static final RegistrySupplier<Item> LEAD_SWORD = registerSword("lead_sword", ModTiers.LEAD);
+    public static final RegistrySupplier<Item> LEAD_SPEAR = registerSpear("lead_spear", ModTiers.LEAD);
     // Farmer's Delight compat: a real FD KnifeItem when FD is present, a plain sword-statted Item
     // otherwise (so the mod loads standalone). Only appears in the creative tab when FD is loaded,
     // the same pattern as the Create-gated sheet.
@@ -76,6 +78,10 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_BOOTS = registerArmor("lead_boots", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorType.BOOTS);
     public static final RegistrySupplier<Item> LEAD_HORSE_ARMOR = register("lead_horse_armor",
             (props) -> new LeadHorseArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, props),
+            baseItem().stacksTo(1));
+    // Loot-only, like vanilla's nautilus armor and the horse armor above. See LeadLootSpec.
+    public static final RegistrySupplier<Item> LEAD_NAUTILUS_ARMOR = register("lead_nautilus_armor",
+            (props) -> new LeadNautilusArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, props),
             baseItem().stacksTo(1));
 
     // One item places the standing or wall torch depending on the clicked face (like vanilla).
@@ -225,6 +231,16 @@ public class ModItems {
 
     private static RegistrySupplier<Item> registerHoe(String name, ToolMaterial material) {
         return register(name, (props) -> new Item(props.hoe(material, -4.0f, -0.2f)), baseItem()); // 1 dmg, 3.8 speed
+    }
+
+    /**
+     * The netherite spear's charge, swung 0.2 slower like the rest of the set. The first number is
+     * the swing's length in seconds and the attack speed is its inverse: netherite's 1.15 is 0.87,
+     * so 1.5 gives 0.67. The rest are vanilla's netherite spear on this version.
+     */
+    private static RegistrySupplier<Item> registerSpear(String name, ToolMaterial material) {
+        return register(name, (props) -> new Item(
+                props.spear(material, 1.5f, 1.2f, 0.4f, 2.5f, 7.0f, 5.5f, 5.1f, 8.75f, 4.6f)), baseItem()); // 5 dmg, 0.67 speed
     }
 
     /**

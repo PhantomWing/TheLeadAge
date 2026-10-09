@@ -3,6 +3,9 @@
 ### Fixes
 - Fixed armor trims not showing on lead armor in the inventory.
 
+### Additions
+- Added **Lead Spear** and **Lead Nautilus Armor**. The spear charges like a netherite one but swings slower and wears out fast, like the rest of the lead set. The nautilus armor sometimes replaces iron nautilus armor in shipwrecks, buried treasure and ocean ruins.
+
 
 # 1.1.0
 
