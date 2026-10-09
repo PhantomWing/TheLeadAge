@@ -34,6 +34,8 @@ public final class GameTests {
             test("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset),
             test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers),
             test("horse_armor_has_no_durability", LeadOreGameTest::horseArmorHasNoDurability),
+            test("nautilus_armor_fits_the_nautilus", LeadOreGameTest::nautilusArmorFitsTheNautilus),
+            test("lead_spear_is_a_spear", LeadOreGameTest::leadSpearIsASpear),
             test("lead_knife_fallback_keeps_sword_properties", LeadOreGameTest::leadKnifeFallbackKeepsSwordProperties),
             test("smith_pools_include_lead_trade", LeadOreGameTest::smithPoolsIncludeLeadTrade));
 

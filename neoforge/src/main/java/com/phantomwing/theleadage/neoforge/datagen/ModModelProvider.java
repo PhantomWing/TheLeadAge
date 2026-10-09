@@ -135,8 +135,11 @@ public class ModModelProvider extends ModelProvider {
         // files (and shadowing them would break that for every other mod's material).
 
         img.generateFlatItem(ModItems.LEAD_HORSE_ARMOR.get(), ModelTemplates.FLAT_ITEM);
+        img.generateFlatItem(ModItems.LEAD_NAUTILUS_ARMOR.get(), ModelTemplates.FLAT_ITEM);
 
         img.generateFlatItem(ModItems.LEAD_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        // The flat icon in the inventory, and the _in_hand texture on the spear_in_hand model when held.
+        img.generateSpear(ModItems.LEAD_SPEAR.get());
         img.generateFlatItem(ModItems.LEAD_KNIFE.get(), ModelTemplates.FLAT_HANDHELD_ITEM); // FD compat (dormant)
         img.generateFlatItem(ModItems.LEAD_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         img.generateFlatItem(ModItems.LEAD_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);

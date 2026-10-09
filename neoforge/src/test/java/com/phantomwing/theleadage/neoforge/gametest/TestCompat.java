@@ -11,6 +11,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.animal.nautilus.Nautilus;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -32,6 +33,9 @@ public final class TestCompat {
 
     /** {@code EntityType.ITEM} until 26.2 moved it to {@code EntityTypes}. */
     public static final EntityType<ItemEntity> ITEM_ENTITY = EntityTypes.ITEM;
+
+    /** {@code EntityType.NAUTILUS} until 26.2 moved it to {@code EntityTypes}. New in 1.21.11. */
+    public static final EntityType<Nautilus> NAUTILUS = EntityTypes.NAUTILUS;
 
     private TestCompat() {
     }

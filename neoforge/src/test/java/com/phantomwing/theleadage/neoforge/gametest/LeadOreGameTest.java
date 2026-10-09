@@ -11,6 +11,10 @@ import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
+import com.phantomwing.theleadage.tags.ModTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -69,6 +73,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.ITEM_ENTITY;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUTILUS;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUSEA;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
@@ -742,6 +747,52 @@ public class LeadOreGameTest {
         ItemStack armor = new ItemStack(ModItems.LEAD_HORSE_ARMOR.get());
         if (armor.isDamageableItem()) {
             fail(helper, "lead horse armor wears out: it has a durability of " + armor.getMaxDamage());
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Nautilus armor goes on the nautilus, not the horse - the two properties differ only in which
+     * mob they fit - and on the horse armor's terms: never damaged, the material's armor plus the
+     * knockback resistance.
+     */
+    public static void nautilusArmorFitsTheNautilus(GameTestHelper helper) {
+        ItemStack armor = new ItemStack(ModItems.LEAD_NAUTILUS_ARMOR.get());
+        Equippable equippable = armor.get(DataComponents.EQUIPPABLE);
+        if (equippable == null || equippable.slot() != EquipmentSlot.BODY
+                || !equippable.canBeEquippedBy(NAUTILUS.builtInRegistryHolder())) {
+            fail(helper, "lead nautilus armor doesn't fit a nautilus's body slot: " + equippable);
+            return;
+        }
+        if (armor.isDamageableItem()) {
+            fail(helper, "lead nautilus armor wears out: it has a durability of " + armor.getMaxDamage());
+            return;
+        }
+        if (!hasModifier(defaultModifiers(ModItems.LEAD_NAUTILUS_ARMOR.get()), Attributes.KNOCKBACK_RESISTANCE.value())
+                || !hasModifier(defaultModifiers(ModItems.LEAD_NAUTILUS_ARMOR.get()), Attributes.ARMOR.value())) {
+            fail(helper, "lead nautilus armor lost its armor or knockback resistance modifier");
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * The spear charges, and counts as a spear: #minecraft:spears is what lets it take Lunge and the
+     * melee enchantments. Like the rest of the set it is lead equipment, which fumes when it breaks.
+     */
+    public static void leadSpearIsASpear(GameTestHelper helper) {
+        ItemStack spear = new ItemStack(ModItems.LEAD_SPEAR.get());
+        if (spear.get(DataComponents.KINETIC_WEAPON) == null) {
+            fail(helper, "lead spear has no charge attack");
+            return;
+        }
+        if (!spear.is(ItemTags.SPEARS)) {
+            fail(helper, "lead spear isn't in #minecraft:spears");
+            return;
+        }
+        if (!spear.is(ModTags.Items.LEAD_EQUIPMENT)) {
+            fail(helper, "lead spear isn't lead equipment, so it won't fume when it breaks");
+            return;
         }
         helper.succeed();
     }
