@@ -87,6 +87,12 @@ sourceSets {
     }
 }
 
+// The test source set holds game tests, which runGameTest runs; the JUnit `test` task finds none
+// there, and Gradle 9 fails a build whose test task discovers nothing.
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
+}
+
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neo_version}"
     // loom-no-remap: plain configs (no `mod` prefix - nothing is remapped).
