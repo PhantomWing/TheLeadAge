@@ -14,6 +14,11 @@
       {
         "texture": "theleadage:lead"
       }
+    ],
+    "nautilus_body": [
+      {
+        "texture": "theleadage:lead"
+      }
     ]
   }
 }
