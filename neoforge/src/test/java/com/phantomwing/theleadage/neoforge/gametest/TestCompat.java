@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.core.component.DataComponents;
 
 /**
@@ -58,6 +59,11 @@ public final class TestCompat {
     /** What {@code recipe} crafts from {@code input}. It no longer takes the registries from 26.1. */
     public static ItemStack assemble(CraftingRecipe recipe, CraftingInput input, ServerLevel level) {
         return recipe.assemble(input);
+    }
+
+    /** Whether {@code equippable} fits a mob of {@code type}. It takes the type's holder from 26.1. */
+    public static boolean canBeEquippedBy(Equippable equippable, EntityType<?> type) {
+        return equippable.canBeEquippedBy(type.builtInRegistryHolder());
     }
 
     /** An item's own attribute modifiers, baked into its components from 1.21.2; the item worked them out before. */

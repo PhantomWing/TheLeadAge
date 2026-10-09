@@ -77,6 +77,7 @@ import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUTILUS;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUSEA;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.canBeEquippedBy;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
@@ -760,7 +761,7 @@ public class LeadOreGameTest {
         ItemStack armor = new ItemStack(ModItems.LEAD_NAUTILUS_ARMOR.get());
         Equippable equippable = armor.get(DataComponents.EQUIPPABLE);
         if (equippable == null || equippable.slot() != EquipmentSlot.BODY
-                || !equippable.canBeEquippedBy(NAUTILUS.builtInRegistryHolder())) {
+                || !canBeEquippedBy(equippable, NAUTILUS)) {
             fail(helper, "lead nautilus armor doesn't fit a nautilus's body slot: " + equippable);
             return;
         }
