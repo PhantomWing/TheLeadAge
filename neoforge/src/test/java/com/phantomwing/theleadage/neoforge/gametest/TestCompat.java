@@ -10,6 +10,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.nautilus.Nautilus;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.core.component.DataComponents;
 
 /**
@@ -31,6 +33,9 @@ public final class TestCompat {
 
     /** {@code EntityType.ITEM} until 26.2 moved it to {@code EntityTypes}. */
     public static final EntityType<ItemEntity> ITEM_ENTITY = EntityType.ITEM;
+
+    /** {@code EntityType.NAUTILUS} until 26.2 moved it to {@code EntityTypes}. New in 1.21.11. */
+    public static final EntityType<Nautilus> NAUTILUS = EntityType.NAUTILUS;
 
     private TestCompat() {
     }
@@ -53,6 +58,11 @@ public final class TestCompat {
     /** What {@code recipe} crafts from {@code input}. It no longer takes the registries from 26.1. */
     public static ItemStack assemble(CraftingRecipe recipe, CraftingInput input, ServerLevel level) {
         return recipe.assemble(input);
+    }
+
+    /** Whether {@code equippable} fits a mob of {@code type}. It takes the type's holder from 26.1. */
+    public static boolean canBeEquippedBy(Equippable equippable, EntityType<?> type) {
+        return equippable.canBeEquippedBy(type.builtInRegistryHolder());
     }
 
     /** An item's own attribute modifiers, baked into its components from 1.21.2; the item worked them out before. */

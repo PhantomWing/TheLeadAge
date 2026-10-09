@@ -36,13 +36,14 @@ public class LeadHorseArmorItem extends Item {
     public LeadHorseArmorItem(ArmorMaterial material, Properties properties) {
         // 1.21.5: Properties#horseArmor replaces the old animalProperties + HolderSet dance;
         // the custom attribute set still overwrites the material's afterwards, as before.
-        super(properties.horseArmor(material).attributes(withKnockbackResistance(material)));
+        super(properties.horseArmor(material).attributes(withKnockbackResistance(material, "lead_horse_armor")));
     }
 
-    private static ItemAttributeModifiers withKnockbackResistance(ArmorMaterial material) {
+    /** The material's BODY set plus the knockback resistance, under a modifier id named for {@code item}. */
+    static ItemAttributeModifiers withKnockbackResistance(ArmorMaterial material, String item) {
         return material.createAttributes(ArmorType.BODY).withModifierAdded(
                 Attributes.KNOCKBACK_RESISTANCE,
-                new AttributeModifier(TheLeadAge.resourceLocation("lead_horse_armor_knockback_resistance"),
+                new AttributeModifier(TheLeadAge.resourceLocation(item + "_knockback_resistance"),
                         KNOCKBACK_RESISTANCE, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.bySlot(ArmorType.BODY.getSlot()));
     }
