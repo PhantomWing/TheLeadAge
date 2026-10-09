@@ -1,3 +1,9 @@
+# 1.1.1
+
+### Fixes
+- Fixed armor trims not showing on lead armor in the inventory.
+
+
 # 1.1.0
 
 ### Additions
