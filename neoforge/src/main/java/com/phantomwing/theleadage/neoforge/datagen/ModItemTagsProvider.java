@@ -80,6 +80,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         // Lets the smithing table accept a lead ingot as a trim material.
         tag(ItemTags.TRIM_MATERIALS).add(ModItems.LEAD_INGOT.get());
 
+        // The convention tags for animal armor, which every loader has from 1.21.11.
+        tag(c("armors/horse")).add(ModItems.LEAD_HORSE_ARMOR.get());
         tag(c("armors/nautilus")).add(ModItems.LEAD_NAUTILUS_ARMOR.get());
 
         // Decorative block items.
