@@ -1,5 +1,73 @@
 {
   "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "theleadage:item/lead_helmet_lead_darker_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.0019604
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_quartz_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.1
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_iron_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.2
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_netherite_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.3
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_redstone_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.4
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_copper_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.5
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_gold_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.6
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_emerald_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.7
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_diamond_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.8
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_lapis_trim",
+      "predicate": {
+        "minecraft:trim_type": 0.9
+      }
+    },
+    {
+      "model": "theleadage:item/lead_helmet_amethyst_trim",
+      "predicate": {
+        "minecraft:trim_type": 1.0
+      }
+    }
+  ],
   "textures": {
     "layer0": "theleadage:item/lead_helmet"
   }
