@@ -32,6 +32,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -78,6 +82,7 @@ import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUSEA;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.canBeEquippedBy;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.copperBlock;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
@@ -750,6 +755,37 @@ public class LeadOreGameTest {
             fail(helper, "lead horse armor wears out: it has a durability of " + armor.getMaxDamage());
         }
         helper.succeed();
+    }
+
+    /**
+     * A right-click with the lead axe, shovel or hoe does what vanilla's does: the axe scrapes oxidation
+     * and wax off copper and strips a log, the shovel makes a path, the hoe tills. The right-click lives in
+     * the tool's class, so a tool built as a plain Item with the Properties has the stats and none of it.
+     */
+    public static void leadToolsWorkBlocks(GameTestHelper helper) {
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Item axe = ModItems.LEAD_AXE.get();
+        useOn(helper, player, axe, new BlockPos(0, 1, 0),
+                copperBlock(WeatherState.OXIDIZED, false), copperBlock(WeatherState.WEATHERED, false));
+        useOn(helper, player, axe, new BlockPos(2, 1, 0),
+                copperBlock(WeatherState.UNAFFECTED, true), copperBlock(WeatherState.UNAFFECTED, false));
+        useOn(helper, player, axe, new BlockPos(4, 1, 0), Blocks.OAK_LOG, Blocks.STRIPPED_OAK_LOG);
+        useOn(helper, player, ModItems.LEAD_SHOVEL.get(), new BlockPos(0, 1, 2), Blocks.GRASS_BLOCK, Blocks.DIRT_PATH);
+        useOn(helper, player, ModItems.LEAD_HOE.get(), new BlockPos(2, 1, 2), Blocks.DIRT, Blocks.FARMLAND);
+        helper.succeed();
+    }
+
+    /** Places {@code before}, uses {@code tool} on its top face as {@code player}, and expects {@code after}. */
+    private static void useOn(GameTestHelper helper, Player player, Item tool, BlockPos pos, Block before, Block after) {
+        helper.setBlock(pos, before);
+        ItemStack stack = new ItemStack(tool);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        BlockPos at = helper.absolutePos(pos);
+        stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(at), Direction.UP, at, false)));
+        if (!helper.getBlockState(pos).is(after)) {
+            fail(helper, tool + " on " + before + " left " + helper.getBlockState(pos).getBlock() + ", expected " + after);
+        }
     }
 
     /**
