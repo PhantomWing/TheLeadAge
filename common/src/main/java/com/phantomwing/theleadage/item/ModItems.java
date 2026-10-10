@@ -26,7 +26,10 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.BlockItem;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ToolMaterial;
@@ -221,16 +224,19 @@ public class ModItems {
         return register(name, (props) -> new Item(props.pickaxe(material, 1.0f, -3.0f)), baseItem()); // 6 dmg, 1.0 speed
     }
 
+    // The axe, shovel and hoe are their vanilla classes, not a plain Item with the Properties: the class
+    // carries the right-click - stripping, scraping off oxidation and wax, paths, tilling - and the
+    // Properties only the stats, which each constructor applies the same way.
     private static RegistrySupplier<Item> registerAxe(String name, ToolMaterial material) {
-        return register(name, (props) -> new Item(props.axe(material, 5.0f, -3.2f)), baseItem()); // 10 dmg, 0.8 speed
+        return register(name, (props) -> new AxeItem(material, 5.0f, -3.2f, props), baseItem()); // 10 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerShovel(String name, ToolMaterial material) {
-        return register(name, (props) -> new Item(props.shovel(material, 1.5f, -3.2f)), baseItem()); // 6.5 dmg, 0.8 speed
+        return register(name, (props) -> new ShovelItem(material, 1.5f, -3.2f, props), baseItem()); // 6.5 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerHoe(String name, ToolMaterial material) {
-        return register(name, (props) -> new Item(props.hoe(material, -4.0f, -0.2f)), baseItem()); // 1 dmg, 3.8 speed
+        return register(name, (props) -> new HoeItem(material, -4.0f, -0.2f, props), baseItem()); // 1 dmg, 3.8 speed
     }
 
     /**
