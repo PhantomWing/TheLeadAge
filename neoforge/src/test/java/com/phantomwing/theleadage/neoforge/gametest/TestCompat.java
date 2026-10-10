@@ -5,7 +5,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -80,12 +79,12 @@ public final class TestCompat {
     }
 
     /**
-     * Whether the entities within {@code radius} chunks of the world spawn have loaded, which a mock
-     * player, placed near the spawn, needs first. 1.21.9 moved the spawn into the level's respawn
-     * data, and 26.1 renamed ChunkPos's factory and packing.
+     * Whether a mock player can be made yet. On 1.21.6 to 1.21.8 placing one waits for the entities
+     * around the world spawn, so the tests wait for them first. Here placing a player waits for nothing
+     * (a login waits in PrepareSpawnTask, which a mock player skips), and nothing keeps the spawn area
+     * loaded, so waiting for it can only time out.
      */
     public static boolean entitiesLoadedAroundSpawn(ServerLevel level, int radius) {
-        return ChunkPos.rangeClosed(ChunkPos.containing(level.getRespawnData().pos()), radius)
-                .allMatch(chunk -> level.areEntitiesLoaded(chunk.pack()));
+        return true;
     }
 }
