@@ -34,6 +34,7 @@ public final class GameTests {
             test("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset),
             test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers),
             test("horse_armor_has_no_durability", LeadOreGameTest::horseArmorHasNoDurability),
+            test("lead_tools_work_blocks", LeadOreGameTest::leadToolsWorkBlocks),
             test("lead_knife_fallback_keeps_sword_properties", LeadOreGameTest::leadKnifeFallbackKeepsSwordProperties));
 
     private GameTests() {

@@ -14,6 +14,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
@@ -53,6 +56,16 @@ public final class TestCompat {
     /** What {@code recipe} crafts from {@code input}. It no longer takes the registries from 26.1. */
     public static ItemStack assemble(CraftingRecipe recipe, CraftingInput input, ServerLevel level) {
         return recipe.assemble(input, level.registryAccess());
+    }
+
+    /** The block of copper in {@code state}, waxed or not. 26.2 gathered them into a collection on Blocks. */
+    public static Block copperBlock(WeatherState state, boolean isWaxed) {
+        return switch (state) {
+            case UNAFFECTED -> isWaxed ? Blocks.WAXED_COPPER_BLOCK : Blocks.COPPER_BLOCK;
+            case EXPOSED -> isWaxed ? Blocks.WAXED_EXPOSED_COPPER : Blocks.EXPOSED_COPPER;
+            case WEATHERED -> isWaxed ? Blocks.WAXED_WEATHERED_COPPER : Blocks.WEATHERED_COPPER;
+            case OXIDIZED -> isWaxed ? Blocks.WAXED_OXIDIZED_COPPER : Blocks.OXIDIZED_COPPER;
+        };
     }
 
     /** An item's own attribute modifiers, baked into its components from 1.21.2; the item worked them out before. */
