@@ -29,6 +29,11 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.phantomwing.theleadage.armor.ModTrimMaterials;
+import net.minecraft.client.renderer.item.SelectItemModel;
+import net.minecraft.client.renderer.item.properties.select.TrimMaterialProperty;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
 
 /**
  * Unified block + item model datagen for 1.21.4 (vanilla {@link ModelProvider}).
@@ -115,10 +120,13 @@ public class ModModelProvider extends ModelProvider {
         img.generateFlatItem(ModItems.LEAD_INGOT.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_NUGGET.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_SHEET.get(), ModelTemplates.FLAT_ITEM); // Create compat (dormant)
-        img.generateFlatItem(ModItems.LEAD_HELMET.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_CHESTPLATE.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_LEGGINGS.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_BOOTS.get(), ModelTemplates.FLAT_ITEM);
+        // Trimmable armor: a trim_material select per piece, so a trim shows on the inventory icon.
+        // Vanilla armor is left alone: on NeoForge its trimmed_armor model resolves any registered
+        // material at runtime, and shadowing vanilla's own files would break that for every other mod.
+        trimmableArmor(img, ModItems.LEAD_HELMET.get(), "helmet");
+        trimmableArmor(img, ModItems.LEAD_CHESTPLATE.get(), "chestplate");
+        trimmableArmor(img, ModItems.LEAD_LEGGINGS.get(), "leggings");
+        trimmableArmor(img, ModItems.LEAD_BOOTS.get(), "boots");
         img.generateFlatItem(ModItems.LEAD_HORSE_ARMOR.get(), ModelTemplates.FLAT_ITEM);
 
         img.generateFlatItem(ModItems.LEAD_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -169,6 +177,40 @@ public class ModModelProvider extends ModelProvider {
     }
 
     // ---------------- pane items ----------------
+
+    /**
+     * Like vanilla {@code generateTrimmableItem}, but adds the mod's {@code theleadage:lead} trim
+     * material, which vanilla's hardcoded material list omits. Without a select here the piece
+     * renders untrimmed in the inventory for every material, vanilla ones included.
+     */
+    private static void trimmableArmor(ItemModelGenerators img, Item item, String slot) {
+        ResourceLocation itemTexture = TextureMapping.getItemTexture(item);
+        ResourceLocation slotPrefix = ResourceLocation.withDefaultNamespace("trims/items/" + slot + "_trim");
+        // FLAT_ITEM directly rather than generateFlatItem: the latter also registers an item-model
+        // definition, which would collide with the select accepted below.
+        ResourceLocation baseModel = ModelTemplates.FLAT_ITEM.create(
+                ModelLocationUtils.getModelLocation(item), TextureMapping.layer0(itemTexture), img.modelOutput);
+
+        List<SelectItemModel.SwitchCase<ResourceKey<TrimMaterial>>> cases = new ArrayList<>();
+        for (ItemModelGenerators.TrimMaterialData data : ItemModelGenerators.TRIM_MATERIAL_MODELS) {
+            cases.add(trimCase(img, baseModel, itemTexture, slotPrefix, data.name(), data.materialKey()));
+        }
+        // Lead on lead needs the darker palette or it vanishes against the armour; the inventory
+        // icon picks its sprite here, so the darker case is named explicitly.
+        cases.add(trimCase(img, baseModel, itemTexture, slotPrefix, "lead_darker", ModTrimMaterials.LEAD));
+        img.itemModelOutput.accept(item,
+                ItemModelUtils.select(new TrimMaterialProperty(), ItemModelUtils.plainModel(baseModel), cases));
+    }
+
+    /** One trim_material case: generates the layered model and returns the select case. */
+    private static SelectItemModel.SwitchCase<ResourceKey<TrimMaterial>> trimCase(
+            ItemModelGenerators img, ResourceLocation baseModel, ResourceLocation itemTexture, ResourceLocation slotPrefix,
+            String paletteSuffix, ResourceKey<TrimMaterial> materialKey) {
+        String suffix = "_" + paletteSuffix;
+        ResourceLocation trimModel = baseModel.withSuffix(suffix + "_trim");
+        img.generateLayeredItem(trimModel, itemTexture, slotPrefix.withSuffix(suffix));
+        return ItemModelUtils.when(materialKey, ItemModelUtils.plainModel(trimModel));
+    }
 
     private static void paneItem(ItemModelGenerators img, RegistrySupplier<Item> item, String baseModel) {
         img.itemModelOutput.accept(item.get(),
