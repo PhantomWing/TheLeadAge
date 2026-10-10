@@ -6,6 +6,7 @@
 ### Fixes
 - Fixed armor trims not showing on lead armor in the inventory.
 - Fixed lead axes, shovels and hoes doing nothing on right-click: axes strip logs and scrape oxidation and wax off copper again, shovels make paths and hoes till.
+- Lead Horse Armor is now in the c:armors/horse tag, so other mods recognize it as horse armor.
 
 
 # 1.1.0
