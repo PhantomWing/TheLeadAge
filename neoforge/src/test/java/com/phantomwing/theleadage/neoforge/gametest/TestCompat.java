@@ -15,6 +15,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
@@ -63,6 +66,11 @@ public final class TestCompat {
     /** Whether {@code equippable} fits a mob of {@code type}. It takes the type's holder from 26.1. */
     public static boolean canBeEquippedBy(Equippable equippable, EntityType<?> type) {
         return equippable.canBeEquippedBy(type.builtInRegistryHolder());
+    }
+
+    /** The block of copper in {@code state}, waxed or not. 26.2 gathered them into a collection on Blocks. */
+    public static Block copperBlock(WeatherState state, boolean isWaxed) {
+        return (isWaxed ? Blocks.COPPER_BLOCK.waxed() : Blocks.COPPER_BLOCK.weathering()).pick(state);
     }
 
     /** An item's own attribute modifiers, baked into its components from 1.21.2; the item worked them out before. */
