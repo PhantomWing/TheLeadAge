@@ -3,6 +3,9 @@
 ### Additions
 - Added **Lead Spear** and **Lead Nautilus Armor**. The spear charges like a netherite one but swings slower and wears out fast, like the rest of the lead set. The nautilus armor sometimes replaces iron nautilus armor in shipwrecks, buried treasure and ocean ruins.
 
+### Fixes
+- Lead Horse Armor is now in the c:armors/horse tag, so other mods recognize it as horse armor.
+
 
 # 1.1.0
 
