@@ -46,6 +46,12 @@ public final class LeadedGlassRecolor {
     /** The colour this item would paint, or {@code null} for "make it clear" (shears). */
     @Nullable
     public static DyeColor target(ItemStack stack) {
+        return dyeOf(stack);
+    }
+
+    /** The colour of a dye, or {@code null} when the stack isn't one. */
+    @Nullable
+    public static DyeColor dyeOf(ItemStack stack) {
         // 26.1: DyeItem dropped getDyeColor; the colour rides on the stack's DYE component.
         return stack.getItem() instanceof DyeItem ? stack.get(DataComponents.DYE) : null;
     }

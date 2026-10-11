@@ -25,6 +25,7 @@ import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.recipe.ColoredPaneStonecutterRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassCombineRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassPaneCraftRecipe;
+import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassDoorRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorRecipe;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
@@ -223,6 +224,8 @@ public class ModRecipeProvider extends RecipeProvider {
         SpecialRecipeBuilder.special(LeadedGlassCombineRecipe::new).save(output, id("leaded_glass_combine"));
         // Glass panes around a lead ingot → 8 plain leaded glass panes of that glass's colour.
         SpecialRecipeBuilder.special(LeadedGlassPaneCraftRecipe::new).save(output, id("leaded_glass_pane_craft"));
+        // Dyed leaded glass in any colour a dye mod adds (vanilla's sixteen are leadedGlassFamily).
+        SpecialRecipeBuilder.special(StainedLeadedGlassRecipe::new).save(output, id("stained_leaded_glass"));
         // Leaded glass door: lead door + a configured pane → door carrying that pane's design.
         SpecialRecipeBuilder.special(LeadedGlassDoorRecipe::new).save(output, id("leaded_glass_door"));
         // Leaded glass trapdoor: lead trapdoor + a configured pane → trapdoor carrying that design.

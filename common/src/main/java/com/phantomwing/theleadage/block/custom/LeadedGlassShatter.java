@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Vanilla bundles the two: {@link LevelEvent#PARTICLES_DESTROY_BLOCK} carries a single block-state
  * id, and the client reads <em>both</em> the break sound and the destroy particles off it. So the
- * shatter case reports the equivalent vanilla glass instead of the leaded glass — which also swaps the
+ * shatter case reports the equivalent stained glass instead of the leaded glass — which also swaps the
  * particles to plain glass shards. That reads correctly (it shattered into glass), and it is the only
  * way to split the sound without a client-side mixin.</p>
  *
@@ -45,12 +45,15 @@ public final class LeadedGlassShatter {
                 Block.getId(recovered ? state : shattered));
     }
 
-    /** The vanilla glass that stands in when leaded glass shatters — colour-matched, clear if uncoloured. */
+    /**
+     * The glass that stands in when leaded glass shatters: the stained glass of its colour, clear if
+     * uncoloured. A dye mod's colour takes that mod's stained glass, else plain glass.
+     */
     public static BlockState shatteredGlass(@Nullable DyeColor color) {
         if (color == null) {
             return Blocks.GLASS.defaultBlockState();
         }
-        // 26.2 consolidated the 16 dyed variants into ColorCollection, so the whole switch is one pick.
-        return Blocks.STAINED_GLASS.pick(color).defaultBlockState();
+        Block glass = LeadedGlassDyes.stainedGlassOf(color);
+        return (glass == null ? Blocks.GLASS : glass).defaultBlockState();
     }
 }

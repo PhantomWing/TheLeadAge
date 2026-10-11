@@ -1,6 +1,12 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "theleadage:block/brown_leaded_glass"
+    "model": "theleadage:block/stained_leaded_glass",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": -8170446
+      }
+    ]
   }
 }
