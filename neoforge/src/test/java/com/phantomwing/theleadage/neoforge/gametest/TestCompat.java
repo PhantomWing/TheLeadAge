@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
+import net.minecraft.world.item.Items;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.resources.ResourceLocation;
@@ -35,6 +36,12 @@ public final class TestCompat {
 
     /** {@code EntityType.ITEM} until 26.2 moved it to {@code EntityTypes}. */
     public static final EntityType<ItemEntity> ITEM_ENTITY = EntityType.ITEM;
+
+    /** {@code Items.RED_DYE} until 26.2 gathered the dyes into a colour collection. */
+    public static final Item RED_DYE = Items.RED_DYE;
+
+    /** {@code Items.RED_STAINED_GLASS} until 26.2 gathered the stained glass into a colour collection. */
+    public static final Item RED_STAINED_GLASS = Items.RED_STAINED_GLASS;
 
     private TestCompat() {
     }
