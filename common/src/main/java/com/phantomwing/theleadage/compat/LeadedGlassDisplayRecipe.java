@@ -10,11 +10,15 @@ import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.recipe.LeadedGlassColors;
 import com.phantomwing.theleadage.recipe.ModRecipes;
+import com.phantomwing.theleadage.tags.CommonTags;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -38,14 +42,15 @@ import java.util.List;
  * <p>It extends {@link CustomRecipe} only so JEI can take it as a {@code RecipeHolder<CraftingRecipe>};
  * it is never added to the {@code RecipeManager} and {@link #matches never matches}. Each instance
  * carries a small grid of {@link Cell cells} plus what it produces, in each of its colours (clear and
- * every dye for the panes, a dye mod's colours for the blocks only it has a recipe for) — index-aligned
+ * every dye for the panes, every dye for the panes dyed in the grid, a dye mod's colours for the blocks only it has
+ * a recipe for) — index-aligned
  * across {@link #inputVariants()} and {@link #resultVariants()}.</p>
  */
 public class LeadedGlassDisplayRecipe extends CustomRecipe {
     /** What sits in one crafting-grid cell of the displayed arrangement. */
     public enum Cell {
-        EMPTY, PLAIN_PANE, LEADED_GLASS_BLOCK, GLASS_PANE, DYE, STAINED_GLASS, CLEAR_LEADED_GLASS, LEAD_INGOT,
-        LEAD_DOOR, LEAD_TRAPDOOR;
+        EMPTY, PLAIN_PANE, CLEAR_PANE, LEADED_GLASS_BLOCK, GLASS_PANE, DYE, STAINED_GLASS, CLEAR_LEADED_GLASS,
+        LEAD_INGOT, LEAD_DOOR, LEAD_TRAPDOOR;
 
         /** Whether this cell cycles with the colour variants (constant cells show one stack). */
         boolean cycles() {
@@ -105,13 +110,20 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
         return cells.get(index).cycles();
     }
 
-    /** Per grid cell: the stacks it shows (17 for cycling cells, 1 for constants, null for empty). */
+    /** The tag a grid cell takes, which a viewer that shows tags can show by its name; {@code null} for an item. */
+    @Nullable
+    public TagKey<Item> tagAt(int index) {
+        return cells.get(index) == Cell.LEAD_INGOT ? CommonTags.Items.INGOTS_LEAD : null;
+    }
+
+    /** Per grid cell: the stacks it shows (one per colour for cycling cells, null for empty). */
     public List<@Nullable List<ItemStack>> inputVariants() {
         List<List<ItemStack>> inputs = new ArrayList<>(cells.size());
         for (Cell cell : cells) {
             inputs.add(switch (cell) {
                 case EMPTY -> null;
-                case LEAD_INGOT -> List.of(new ItemStack(ModItems.LEAD_INGOT.get()));
+                case LEAD_INGOT -> leadIngots();
+                case CLEAR_PANE -> List.of(plainPane(LeadedGlassConfig.CLEAR));
                 case LEAD_DOOR -> List.of(new ItemStack(ModItems.LEAD_DOOR.get()));
                 case LEAD_TRAPDOOR -> List.of(new ItemStack(ModItems.LEAD_TRAPDOOR.get()));
                 case CLEAR_LEADED_GLASS -> List.of(new ItemStack(ModItems.LEADED_GLASS.get()));
@@ -177,6 +189,12 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
                 Cell.GLASS_PANE, Cell.GLASS_PANE, Cell.GLASS_PANE,
                 Cell.GLASS_PANE, Cell.LEAD_INGOT, Cell.GLASS_PANE,
                 Cell.GLASS_PANE, Cell.GLASS_PANE, Cell.GLASS_PANE), ResultKind.PANE, LeadedGlassFrame.PLAIN, 8));
+        // Eight clear panes around a dye -> eight plain panes of its colour, as vanilla dyes glass panes.
+        recipes.add(new LeadedGlassDisplayRecipe("pane_dye", 3, 3, List.of(
+                Cell.CLEAR_PANE, Cell.CLEAR_PANE, Cell.CLEAR_PANE,
+                Cell.CLEAR_PANE, Cell.DYE, Cell.CLEAR_PANE,
+                Cell.CLEAR_PANE, Cell.CLEAR_PANE, Cell.CLEAR_PANE), ResultKind.PANE, LeadedGlassFrame.PLAIN, 8,
+                LeadedGlassDyes.colors().stream().map(DyeColor::getId).toList()));
         // Combine arrangements: plain panes in a shape -> that came pattern (colours carry per region).
         recipes.add(arrangement("split_h", LeadedGlassFrame.SPLIT_H, 2, 2, 1, "PP"));
         recipes.add(arrangement("split_v", LeadedGlassFrame.SPLIT_V, 2, 1, 2, "P", "P"));
@@ -247,6 +265,17 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
     /** The single-region plain pane in {@code color} — the unit the came patterns are built from. */
     public static ItemStack plainPane(int color) {
         return pane(LeadedGlassFrame.PLAIN, color, 1);
+    }
+
+    /** Every lead ingot the recipes take, this mod's first. */
+    private static List<ItemStack> leadIngots() {
+        List<ItemStack> ingots = new ArrayList<>(List.of(new ItemStack(ModItems.LEAD_INGOT.get())));
+        for (Holder<Item> ingot : BuiltInRegistries.ITEM.getTagOrEmpty(CommonTags.Items.INGOTS_LEAD)) {
+            if (ingot.value() != ModItems.LEAD_INGOT.get()) {
+                ingots.add(new ItemStack(ingot));
+            }
+        }
+        return ingots;
     }
 
     private static ItemStack leadedGlassBlock(int color) {

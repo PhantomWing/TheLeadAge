@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "M": "theleadage:lead_ingot",
+    "M": "#c:ingots/lead",
     "S": "minecraft:stick"
   },
   "pattern": [
