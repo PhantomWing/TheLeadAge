@@ -32,6 +32,11 @@ public class ModRecipes {
             SERIALIZERS.register("leaded_glass_pane_craft",
                     () -> new CustomRecipe.Serializer<>(LeadedGlassPaneCraftRecipe::new));
 
+    // Dyed leaded glass in the colours a dye mod adds; vanilla's sixteen have shaped recipes in data.
+    public static final RegistrySupplier<CustomRecipe.Serializer<StainedLeadedGlassRecipe>> STAINED_LEADED_GLASS =
+            SERIALIZERS.register("stained_leaded_glass",
+                    () -> new CustomRecipe.Serializer<>(StainedLeadedGlassRecipe::new));
+
     public static void register() {
         SERIALIZERS.register();
     }

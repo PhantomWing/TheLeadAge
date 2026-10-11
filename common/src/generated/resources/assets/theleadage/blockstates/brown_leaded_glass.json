@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "theleadage:block/brown_leaded_glass"
+      "model": "theleadage:block/stained_leaded_glass"
     }
   }
 }

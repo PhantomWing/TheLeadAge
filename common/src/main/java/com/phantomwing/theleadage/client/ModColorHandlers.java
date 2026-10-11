@@ -4,16 +4,18 @@ import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Shared block-tint logic for the leaded glass panel — this is what turns one white-glass texture
- * into any colour in-world. Each glass region carries a {@code tintindex}; the provider returns
- * the region's dye colour from the block entity, or white for a clear region. Registration is per
- * loader at the proper client hook — Architectury's wrapper registers too eagerly (it needs a live
- * Minecraft). Item icons don't tint at all: they render through the pane special renderer, which
- * reads the stack's config directly.
+ * Shared block-tint logic for the leaded glass panel and the dyed leaded glass blocks — this is what
+ * turns one white-glass texture into any colour in-world. Each glass region carries a {@code tintindex};
+ * the provider returns the region's dye colour from the block entity, or white for a clear region.
+ * Registration is per loader at the proper client hook — Architectury's wrapper registers too eagerly
+ * (it needs a live Minecraft). Item icons don't tint here: the panes render through the pane special
+ * renderer, which reads the stack's config directly, and dyed leaded glass items carry a constant tint in
+ * their {@code items/} definition.
  */
 public final class ModColorHandlers {
     /** No tint — a clear (uncoloured) region shows the plain glass texture; also the came layer. */
@@ -27,6 +29,11 @@ public final class ModColorHandlers {
             return tintOf(panel.colorAt(tintIndex));
         }
         return NO_TINT;
+    }
+
+    /** Dyed leaded glass: its glass (tintindex 0) in the block's dye, the came untinted. */
+    public static int stainedGlassTint(BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int tintIndex) {
+        return tintIndex == 0 && state.getBlock() instanceof StainedGlassBlock glass ? tintOf(glass.getColor()) : NO_TINT;
     }
 
     private static int tintOf(@Nullable DyeColor dye) {
