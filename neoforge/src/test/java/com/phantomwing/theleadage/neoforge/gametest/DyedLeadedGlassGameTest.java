@@ -21,7 +21,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -93,7 +92,7 @@ public final class DyedLeadedGlassGameTest {
         byDye.set(4, new ItemStack(Items.RED_DYE));
         List<ItemStack> byLead = new ArrayList<>(Collections.nCopies(9, stained));
         byLead.set(4, ingot);
-        StainedLeadedGlassRecipe special = new StainedLeadedGlassRecipe(CraftingBookCategory.BUILDING);
+        StainedLeadedGlassRecipe special = TestCompat.stainedLeadedGlassRecipe();
         Block red = ModBlocks.STAINED_LEADED_GLASS.get(DyeColor.RED).get();
         for (List<ItemStack> grid : List.of(byDye, byLead)) {
             CraftingInput input = CraftingInput.of(3, 3, grid);
