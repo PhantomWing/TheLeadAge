@@ -1,8 +1,16 @@
-# 1.1.2
+# 1.2.0
+
+### Additions
+- Leaded glass works with dye mods such as Dye Depot and Delicate Dyes: every colour they add gets its own dyed leaded glass, crafted like the vanilla colours, with its drops, tags and a name in every language.
+
+### Changes
+- Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
 
 ### Fixes
 - Fixed armor trims not showing on lead armor in the inventory.
 - Fixed lead axes, shovels and hoes doing nothing on right-click: axes strip logs and scrape oxidation and wax off copper again, shovels make paths and hoes till.
+- Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
+- Fixed a crash when breaking leaded glass in a colour a dye mod adds.
 
 
 # 1.1.1

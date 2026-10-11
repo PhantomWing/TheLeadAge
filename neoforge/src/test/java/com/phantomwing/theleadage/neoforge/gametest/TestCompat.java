@@ -1,5 +1,7 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
+import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -81,5 +83,10 @@ public final class TestCompat {
     public static boolean entitiesLoadedAroundSpawn(ServerLevel level, int radius) {
         return ChunkPos.rangeClosed(new ChunkPos(level.getSharedSpawnPos()), radius)
                 .allMatch(chunk -> level.areEntitiesLoaded(chunk.toLong()));
+    }
+
+    /** The recipe that crafts dyed leaded glass in a dye mod's colour. Its constructor lost the category in 26.1. */
+    public static StainedLeadedGlassRecipe stainedLeadedGlassRecipe() {
+        return new StainedLeadedGlassRecipe(CraftingBookCategory.BUILDING);
     }
 }
