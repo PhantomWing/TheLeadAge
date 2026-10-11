@@ -5,8 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.Block;
 
 /**
  * Fabric-side block render-layer registration.
@@ -51,10 +49,6 @@ public final class ModRenderLayers {
         // translucent so they tint what you see through them. Matching cutoutCube/translucentCube in
         // ModBlockStateProvider — without these they fall back to solid and render as opaque blocks.
         BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(), ModBlocks.LEADED_GLASS.get());
-        Block[] stained = new Block[DyeColor.values().length];
-        for (int i = 0; i < stained.length; i++) {
-            stained[i] = ModBlocks.STAINED_LEADED_GLASS.get(DyeColor.values()[i]).get();
-        }
-        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(), stained);
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.translucent(), ModBlocks.stainedLeadedGlassBlocks());
     }
 }

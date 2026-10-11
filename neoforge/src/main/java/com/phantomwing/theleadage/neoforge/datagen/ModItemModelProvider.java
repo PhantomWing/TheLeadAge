@@ -91,8 +91,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         // display must be an explicit identity transform (flat, front-facing, filling the 16x16
         // slot) to shadow block/block's isometric view, and NeoForge's transforms builder
         // silently drops identity transforms from the generated JSON.
+        // Dyed leaded glass: every colour shows the one tinted block model.
         for (DyeColor color : DyeColor.values()) {
-            blockItem(color.getName() + "_leaded_glass");
+            withExistingParent(color.getName() + "_leaded_glass", modLoc("block/stained_leaded_glass"));
         }
     }
 

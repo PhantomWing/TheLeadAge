@@ -5,6 +5,7 @@ import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.custom.LeadTorchBlock;
 import com.phantomwing.theleadage.block.custom.LeadWallTorchBlock;
@@ -37,6 +38,7 @@ import net.minecraft.world.level.material.PushReaction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -190,13 +192,24 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> CHIPPED_LEAD_WEIGHT = registerLeadWeight("chipped_lead_weight");
     public static final RegistrySupplier<Block> DAMAGED_LEAD_WEIGHT = registerLeadWeight("damaged_lead_weight");
 
-    // 16 dyed leaded glass blocks (the colour palette for crafting panes). StainedGlassBlock
-    // carries the DyeColor (beacon-beam tint); same pickaxe-drop rule as plain leaded glass.
+    // Dyed leaded glass, the colour palette for crafting panes: a block per dye colour, vanilla's sixteen and
+    // any a dye mod adds (see LeadedGlassDyes). StainedGlassBlock carries the DyeColor (beacon-beam tint); same
+    // pickaxe-drop rule as plain leaded glass. A colour that shares its name with an earlier one maps to that
+    // one's block.
     public static final Map<DyeColor, RegistrySupplier<Block>> STAINED_LEADED_GLASS = new EnumMap<>(DyeColor.class);
     static {
-        for (DyeColor color : DyeColor.values()) {
-            STAINED_LEADED_GLASS.put(color, registerStainedLeadedGlass(color));
+        Map<String, RegistrySupplier<Block>> byName = new HashMap<>();
+        for (DyeColor color : LeadedGlassDyes.colors()) {
+            byName.put(color.getName(), registerStainedLeadedGlass(color));
         }
+        for (DyeColor color : DyeColor.values()) {
+            STAINED_LEADED_GLASS.put(color, byName.get(color.getName()));
+        }
+    }
+
+    /** Each dyed leaded glass block once. */
+    public static Block[] stainedLeadedGlassBlocks() {
+        return LeadedGlassDyes.colors().stream().map(color -> STAINED_LEADED_GLASS.get(color).get()).toArray(Block[]::new);
     }
 
     // ---- Lead block factories (mirroring The Silver Age, without oxidation) ----

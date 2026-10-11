@@ -5,15 +5,17 @@ import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Shared tint logic for the leaded glass panel — this is what turns one white-glass texture
- * into any colour. Each glass region carries a {@code tintindex}; these methods return the
+ * Shared tint logic for the leaded glass panel and the dyed leaded glass blocks — this is what
+ * turns one white-glass texture into any colour. Each glass region carries a {@code tintindex}; these methods return the
  * region's dye colour from the block entity (in-world) or the item's component (inventory),
  * or white for a clear region. Registration is per loader (NeoForge
  * {@code RegisterColorHandlersEvent}, Fabric {@code ColorProviderRegistry}) at the proper
@@ -44,6 +46,16 @@ public final class ModColorHandlers {
             return NO_TINT;
         }
         return tintOf(config.colorAt(tintIndex));
+    }
+
+    /** Dyed leaded glass: its glass (tintindex 0) in the block's dye, the came untinted. */
+    public static int stainedGlassTint(BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int tintIndex) {
+        return tintIndex == 0 && state.getBlock() instanceof StainedGlassBlock glass ? tintOf(glass.getColor()) : NO_TINT;
+    }
+
+    public static int stainedGlassItemTint(ItemStack stack, int tintIndex) {
+        return tintIndex == 0 && stack.getItem() instanceof BlockItem item && item.getBlock() instanceof StainedGlassBlock glass
+                ? tintOf(glass.getColor()) : NO_TINT;
     }
 
     private static int tintOf(@Nullable DyeColor dye) {
