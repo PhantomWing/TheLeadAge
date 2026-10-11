@@ -2,9 +2,12 @@
 
 ### Additions
 - Leaded glass works with dye mods such as Dye Depot and Delicate Dyes: every colour they add gets its own dyed leaded glass, crafted like the vanilla colours, with its drops, tags and a name in every language.
+- Eight clear Leaded Glass Panes around a dye craft eight panes of its colour, as vanilla's glass panes do.
+- Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
+- Recipes that use Lead Ingots or Lead Nuggets also accept lead from other mods, such as Mekanism's or Immersive Engineering's (the c:ingots/lead and c:nuggets/lead tags).
 
 ### Fixes
 - Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1, which made bricks as cheap as the ingots themselves.

@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.CommonTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -55,7 +56,7 @@ public class LeadedGlassPaneCraftRecipe extends CustomRecipe {
         if (input.width() != 3 || input.height() != 3) {
             return Optional.empty(); // must be the full 3×3 (centre ingot + eight edge panes)
         }
-        if (!input.getItem(CENTRE).is(ModItems.LEAD_INGOT.get())) {
+        if (!input.getItem(CENTRE).is(CommonTags.Items.INGOTS_LEAD)) {
             return Optional.empty();
         }
         Integer color = null;
