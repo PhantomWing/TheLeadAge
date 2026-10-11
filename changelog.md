@@ -14,6 +14,7 @@
 - Lead Horse Armor is now in the c:armors/horse tag, so other mods recognize it as horse armor.
 - Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
 - Fixed a crash when breaking leaded glass in a colour a dye mod adds.
+- Fixed the mod failing to load on NeoForge 26.3.0.37 and newer, with "ModConfig$Type does not have member field COMMON". It now needs NeoForge 26.3.0.48 or newer, with Architectury API 22.0.4 or newer, and keeps the settings you already have.
 
 
 # 1.1.0

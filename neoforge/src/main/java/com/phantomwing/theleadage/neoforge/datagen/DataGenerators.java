@@ -11,6 +11,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.data.event.PackGenerator;
 
 import java.util.List;
 import java.util.Set;
@@ -27,14 +28,15 @@ public class DataGenerators {
     public static void gatherData(GatherDataEvent.Client event) {
         PackOutput output = event.getGenerator().getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getWorldLookupProvider();
+        PackGenerator pack = event.getDefaultPackGenerator();
 
         // World layer: worldgen features, placements, trim material and biome modifiers.
-        event.createWorldRegistryObjects(ModDatapackProvider.BUILDER, Set.of(TheLeadAgeCommon.MOD_ID));
+        pack.createWorldRegistryObjects(ModDatapackProvider.BUILDER, Set.of(TheLeadAgeCommon.MOD_ID));
 
         // 26.3 moved recipes, loot tables and advancements out of standalone providers and into
         // reloadable datapack registries. Recipes need two registries (they also emit their unlock
         // advancements), hence the multi-registry bootstrap.
-        event.createReloadableRegistryObjects(new RegistrySetBuilder()
+        pack.createReloadableRegistryObjects(new RegistrySetBuilder()
                 .add(ModRecipeProvider.create())
                 .add(Registries.LOOT_TABLE, new LootTableProvider(
                         Set.of(),

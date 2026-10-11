@@ -41,7 +41,8 @@ public final class TheLeadAgeNeoForge {
             }
         }));
 
-        container.registerConfig(ModConfig.Type.COMMON, Configuration.COMMON_CONFIG);
+        // Named as it was while the type was COMMON, so players keep their settings.
+        container.registerConfig(ModConfig.Type.LOCAL, Configuration.COMMON_CONFIG, "theleadage-common.toml");
 
         // Client-only: the in-game config screen (isolated so the server never
         // loads the referenced Screen classes).
