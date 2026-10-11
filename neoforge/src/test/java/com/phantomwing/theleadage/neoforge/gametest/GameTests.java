@@ -38,7 +38,8 @@ public final class GameTests {
             test("dyed_glass_pack_opens", DyedLeadedGlassGameTest::dyedGlassPackOpens),
             test("dyed_glass_recipes_stay_data", DyedLeadedGlassGameTest::dyedGlassRecipesStayData),
             test("shattered_glass_is_its_colour", DyedLeadedGlassGameTest::shatteredGlassIsItsColour),
-            test("dyed_glass_names_are_their_own", DyedLeadedGlassGameTest::dyedGlassNamesAreTheirOwn));
+            test("dyed_glass_names_are_their_own", DyedLeadedGlassGameTest::dyedGlassNamesAreTheirOwn),
+            test("clear_panes_take_a_dye", DyedLeadedGlassGameTest::clearPanesTakeADye));
 
     private GameTests() {
     }
