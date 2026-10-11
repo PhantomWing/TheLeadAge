@@ -11,7 +11,7 @@
       }
     ],
     "N": {
-      "item": "theleadage:lead_nugget"
+      "tag": "c:nuggets/lead"
     },
     "S": {
       "item": "minecraft:stick"

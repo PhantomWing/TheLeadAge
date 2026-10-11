@@ -16,8 +16,10 @@ import dev.emi.emi.api.recipe.EmiWorldInteractionRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -166,15 +168,26 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
                 if (variants == null || variants.isEmpty()) {
                     continue; // an empty cell of the pattern
                 }
-                // Cycling cells have one stack per colour; constants (ingot/door/trapdoor) have one.
-                ItemStack stack = recipe.cyclesAt(cell) ? variants.get(color) : variants.get(0);
                 int row = cell / recipe.gridWidth();
                 int col = cell % recipe.gridWidth();
-                grid.set(row * GRID_WIDTH + col, EmiStack.of(stack));
+                grid.set(row * GRID_WIDTH + col, ingredientAt(recipe, cell, variants, color));
             }
             addRecipe(registry, new EmiCraftingRecipe(grid, EmiStack.of(results.get(color)),
                     synthetic(recipe.displayName() + "/" + color)));
         }
+    }
+
+    /**
+     * A cell of one colour variant: a tag's cell shows the tag, by its name, a cycling cell its colour's stack.
+     * Two returns rather than one expression: the Architectury transformer recomputes the frames, and where an
+     * EmiStack and an EmiIngredient meet it has to load EMI, which a run without EMI doesn't have.
+     */
+    private static EmiIngredient ingredientAt(LeadedGlassDisplayRecipe recipe, int cell, List<ItemStack> variants, int color) {
+        TagKey<Item> tag = recipe.tagAt(cell);
+        if (tag != null) {
+            return EmiIngredient.of(tag);
+        }
+        return EmiStack.of(recipe.cyclesAt(cell) ? variants.get(color) : variants.get(0));
     }
 
     private static void addInfo(EmiRegistry registry, String kind, List<ItemStack> stacks) {

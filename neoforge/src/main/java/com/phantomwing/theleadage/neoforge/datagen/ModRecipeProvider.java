@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.CommonTags;
 import com.simibubi.create.AllItems;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import com.phantomwing.theleadage.neoforge.Configuration;
@@ -23,14 +24,17 @@ import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.recipe.ColoredPaneStonecutterRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassCombineRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassPaneCraftRecipe;
+import com.phantomwing.theleadage.recipe.StainedLeadedGlassPaneRecipe;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassDoorRecipe;
 import com.phantomwing.theleadage.recipe.LeadedGlassTrapdoorRecipe;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -49,6 +53,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeProvider extends RecipeProvider {
     private static final float ORE_XP = 0.7f; // iron-like
+    // Recipes that use lead take the c: tags, so another mod's lead works in them too. The storage
+    // block and nugget conversions and the smelting keep this mod's own items: other lead mods have
+    // the same recipes for theirs, and two recipes matching one grid clash.
+    private static final TagKey<Item> LEAD_INGOTS = CommonTags.Items.INGOTS_LEAD;
+    private static final TagKey<Item> LEAD_NUGGETS = CommonTags.Items.NUGGETS_LEAD;
 
     public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries);
@@ -79,13 +88,13 @@ public class ModRecipeProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.LEAD_KNIFE.get(), 1)
                 .pattern("X")
                 .pattern("I")
-                .define('X', ModItems.LEAD_INGOT.get())
+                .define('X', LEAD_INGOTS)
                 .define('I', Items.STICK)
-                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
                 .save(output.withConditions(new ModLoadedCondition(ModIds.FARMERS_DELIGHT)));
 
         // Lead tools + armor, crafted from lead ingots.
-        ItemLike ingot = ModItems.LEAD_INGOT.get();
+        TagKey<Item> ingot = LEAD_INGOTS;
         sword(output, ModItems.LEAD_SWORD.get(), ingot);
         pickaxe(output, ModItems.LEAD_PICKAXE.get(), ingot);
         axe(output, ModItems.LEAD_AXE.get(), ingot);
@@ -107,7 +116,11 @@ public class ModRecipeProvider extends RecipeProvider {
 
         // Bricks are made from ingots, not from blocks, so 4 ingots -> 1 (the vanilla
         // bricks / nether-bricks ratio) rather than the 4 -> 4 used for block-to-block cuts.
-        twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, bricks, ingot, 1);
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, bricks, 1)
+                .pattern("##").pattern("##")
+                .define('#', ingot)
+                .unlockedBy(getHasName(ingot), has(ingot))
+                .save(output, id(name(bricks) + "_from_" + name(ModItems.LEAD_INGOT.get())));
         stoneCutting(output, bricks, block, 4);
 
         stairsWithCutting(output, ModItems.LEAD_BRICK_STAIRS.get(), bricks);
@@ -141,8 +154,8 @@ public class ModRecipeProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.LEADED_GLASS.get(), 8)
                 .pattern("GGG").pattern("GIG").pattern("GGG")
                 .define('G', Items.GLASS)
-                .define('I', ModItems.LEAD_INGOT.get())
-                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                .define('I', LEAD_INGOTS)
+                .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
                 .save(output);
         leadedGlassFamily(output);
 
@@ -150,16 +163,16 @@ public class ModRecipeProvider extends RecipeProvider {
         // grayish-white (and toxic). Charcoal works too, like the vanilla torch.
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_TORCH.get())
                 .pattern("N").pattern("C").pattern("S")
-                .define('N', ModItems.LEAD_NUGGET.get())
+                .define('N', LEAD_NUGGETS)
                 .define('C', Ingredient.of(Items.COAL, Items.CHARCOAL))
                 .define('S', Items.STICK)
-                .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
+                .unlockedBy(getHasName(LEAD_NUGGETS), has(LEAD_NUGGETS))
                 .save(output);
         // Lead lantern: 8 lead nuggets around a lead torch (the vanilla lantern pattern) — the
         // enclosure makes it safe to stand beside.
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_LANTERN.get())
                 .pattern("NNN").pattern("NTN").pattern("NNN")
-                .define('N', ModItems.LEAD_NUGGET.get())
+                .define('N', LEAD_NUGGETS)
                 .define('T', ModItems.LEAD_TORCH.get())
                 .unlockedBy(getHasName(ModItems.LEAD_TORCH.get()), has(ModItems.LEAD_TORCH.get()))
                 .save(output);
@@ -177,7 +190,7 @@ public class ModRecipeProvider extends RecipeProvider {
         // Lead Weight: 8 lead ingots around a lead block.
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
                 .pattern("III").pattern("ILI").pattern("III")
-                .define('I', ModItems.LEAD_INGOT.get())
+                .define('I', LEAD_INGOTS)
                 .define('L', ModItems.LEAD_BLOCK.get())
                 .unlockedBy(getHasName(ModItems.LEAD_BLOCK.get()), has(ModItems.LEAD_BLOCK.get()))
                 .save(output);
@@ -185,15 +198,15 @@ public class ModRecipeProvider extends RecipeProvider {
         // Lead Chain: nugget / ingot / nugget (vanilla chain ratio).
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_CHAIN.get())
                 .pattern("N").pattern("I").pattern("N")
-                .define('N', ModItems.LEAD_NUGGET.get())
-                .define('I', ModItems.LEAD_INGOT.get())
-                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                .define('N', LEAD_NUGGETS)
+                .define('I', LEAD_INGOTS)
+                .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
                 .save(output);
         // Lead Bars: 6 lead ingots -> 16 (vanilla iron-bars ratio).
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.LEAD_BARS.get(), 16)
                 .pattern("III").pattern("III")
-                .define('I', ModItems.LEAD_INGOT.get())
-                .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                .define('I', LEAD_INGOTS)
+                .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
                 .save(output);
 
         // Configurable leaded glass panel: code-matched (reads the grid arrangement → frame + colours).
@@ -202,6 +215,8 @@ public class ModRecipeProvider extends RecipeProvider {
         SpecialRecipeBuilder.special(LeadedGlassPaneCraftRecipe::new).save(output, id("leaded_glass_pane_craft"));
         // Dyed leaded glass in any colour a dye mod adds (vanilla's sixteen are leadedGlassFamily).
         SpecialRecipeBuilder.special(StainedLeadedGlassRecipe::new).save(output, id("stained_leaded_glass"));
+        // Eight clear leaded glass panes around a dye → eight of its colour, as vanilla dyes glass panes.
+        SpecialRecipeBuilder.special(StainedLeadedGlassPaneRecipe::new).save(output, id("stained_leaded_glass_pane"));
         // Leaded glass door: lead door + a configured pane → door carrying that pane's design.
         SpecialRecipeBuilder.special(LeadedGlassDoorRecipe::new).save(output, id("leaded_glass_door"));
         // Leaded glass trapdoor: lead trapdoor + a configured pane → trapdoor carrying that design.
@@ -237,8 +252,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("# N")
                 .define('#', Items.STICK)
                 .define('X', Items.STRING)
-                .define('N', ModItems.LEAD_NUGGET.get())
-                .unlockedBy(getHasName(ModItems.LEAD_NUGGET.get()), has(ModItems.LEAD_NUGGET.get()))
+                .define('N', LEAD_NUGGETS)
+                .unlockedBy(getHasName(LEAD_NUGGETS), has(LEAD_NUGGETS))
                 .save(fishingRodOutput);
         // Original vanilla recipe, kept (as a _fallback) when the override is off.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.FISHING_ROD)
@@ -282,14 +297,18 @@ public class ModRecipeProvider extends RecipeProvider {
             ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, leaded, 8)
                     .pattern("GGG").pattern("GIG").pattern("GGG")
                     .define('G', stainedGlass)
-                    .define('I', ModItems.LEAD_INGOT.get())
-                    .unlockedBy(getHasName(ModItems.LEAD_INGOT.get()), has(ModItems.LEAD_INGOT.get()))
+                    .define('I', LEAD_INGOTS)
+                    .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
                     .save(output, id(name(leaded) + "_from_" + name(stainedGlass)));
         }
     }
 
     private static ItemLike vanillaItem(String path) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(path));
+    }
+
+    private static String getHasName(TagKey<Item> tag) {
+        return "has_" + tag.location().getPath().replace('/', '_');
     }
 
     private static String name(ItemLike item) {
@@ -313,7 +332,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output, id(name(result) + "_from_" + name(material) + "_" + suffix));
     }
 
-    private void sword(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void sword(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
                 .pattern("M").pattern("M").pattern("S")
                 .define('M', material).define('S', Items.STICK)
@@ -321,7 +340,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void pickaxe(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void pickaxe(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
                 .pattern("MMM").pattern(" S ").pattern(" S ")
                 .define('M', material).define('S', Items.STICK)
@@ -329,7 +348,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void axe(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void axe(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
                 .pattern("MM").pattern("MS").pattern(" S")
                 .define('M', material).define('S', Items.STICK)
@@ -337,7 +356,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void shovel(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void shovel(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
                 .pattern("M").pattern("S").pattern("S")
                 .define('M', material).define('S', Items.STICK)
@@ -345,7 +364,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void hoe(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void hoe(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
                 .pattern("MM").pattern(" S").pattern(" S")
                 .define('M', material).define('S', Items.STICK)
@@ -353,7 +372,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void helmet(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void helmet(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
                 .pattern("MMM").pattern("M M")
                 .define('M', material)
@@ -361,7 +380,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void chestplate(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void chestplate(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
                 .pattern("M M").pattern("MMM").pattern("MMM")
                 .define('M', material)
@@ -369,7 +388,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void leggings(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void leggings(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
                 .pattern("MMM").pattern("M M").pattern("M M")
                 .define('M', material)
@@ -377,7 +396,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    private void boots(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void boots(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result)
                 .pattern("M M").pattern("M M")
                 .define('M', material)
@@ -434,16 +453,16 @@ public class ModRecipeProvider extends RecipeProvider {
         stoneCutting(output, result, material, 4);
     }
 
-    private void door(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void door(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         doorBuilder(result, Ingredient.of(material))
-                .group(name(material))
+                .group(name(ModItems.LEAD_INGOT.get()))
                 .unlockedBy(getHasName(material), has(material))
                 .save(output);
     }
 
-    private void trapdoor(RecipeOutput output, ItemLike result, ItemLike material) {
+    private void trapdoor(RecipeOutput output, ItemLike result, TagKey<Item> material) {
         trapdoorBuilder(result, Ingredient.of(material))
-                .group(name(material))
+                .group(name(ModItems.LEAD_INGOT.get()))
                 .unlockedBy(getHasName(material), has(material))
                 .save(output);
     }

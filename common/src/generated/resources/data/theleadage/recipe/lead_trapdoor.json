@@ -4,7 +4,7 @@
   "group": "lead_ingot",
   "key": {
     "#": {
-      "item": "theleadage:lead_ingot"
+      "tag": "c:ingots/lead"
     }
   },
   "pattern": [

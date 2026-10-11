@@ -20,7 +20,7 @@
       "item": "minecraft:stick"
     },
     "X": {
-      "item": "theleadage:lead_ingot"
+      "tag": "c:ingots/lead"
     }
   },
   "pattern": [

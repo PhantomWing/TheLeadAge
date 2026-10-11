@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "N": {
-      "item": "theleadage:lead_nugget"
+      "tag": "c:nuggets/lead"
     },
     "T": {
       "item": "theleadage:lead_torch"

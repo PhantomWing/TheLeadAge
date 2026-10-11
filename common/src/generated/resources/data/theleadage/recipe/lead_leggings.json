@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "M": {
-      "item": "theleadage:lead_ingot"
+      "tag": "c:ingots/lead"
     }
   },
   "pattern": [

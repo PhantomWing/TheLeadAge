@@ -6,7 +6,7 @@
       "item": "minecraft:purple_stained_glass"
     },
     "I": {
-      "item": "theleadage:lead_ingot"
+      "tag": "c:ingots/lead"
     }
   },
   "pattern": [

@@ -37,6 +37,11 @@ public class ModRecipes {
             SERIALIZERS.register("stained_leaded_glass",
                     () -> new SimpleCraftingRecipeSerializer<>(StainedLeadedGlassRecipe::new));
 
+    // Eight clear leaded glass panes around a dye, as vanilla's glass panes are dyed.
+    public static final RegistrySupplier<SimpleCraftingRecipeSerializer<StainedLeadedGlassPaneRecipe>> STAINED_LEADED_GLASS_PANE =
+            SERIALIZERS.register("stained_leaded_glass_pane",
+                    () -> new SimpleCraftingRecipeSerializer<>(StainedLeadedGlassPaneRecipe::new));
+
     public static void register() {
         SERIALIZERS.register();
     }
