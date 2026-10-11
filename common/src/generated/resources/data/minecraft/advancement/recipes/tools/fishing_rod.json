@@ -16,11 +16,11 @@
   ],
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_lead_nugget": {
+    "has_nuggets_lead": {
       "conditions": {
         "items": [
           {
-            "items": "theleadage:lead_nugget"
+            "items": "#c:nuggets/lead"
           }
         ]
       },
@@ -51,7 +51,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_lead_nugget"
+      "has_nuggets_lead"
     ]
   ],
   "rewards": {
