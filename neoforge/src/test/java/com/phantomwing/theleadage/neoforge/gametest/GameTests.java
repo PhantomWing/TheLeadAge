@@ -38,7 +38,12 @@ public final class GameTests {
             test("nautilus_armor_fits_the_nautilus", LeadOreGameTest::nautilusArmorFitsTheNautilus),
             test("lead_spear_is_a_spear", LeadOreGameTest::leadSpearIsASpear),
             test("lead_knife_fallback_keeps_sword_properties", LeadOreGameTest::leadKnifeFallbackKeepsSwordProperties),
-            test("smith_pools_include_lead_trade", LeadOreGameTest::smithPoolsIncludeLeadTrade));
+            test("smith_pools_include_lead_trade", LeadOreGameTest::smithPoolsIncludeLeadTrade),
+            test("dyed_glass_pack_matches_datagen", DyedLeadedGlassGameTest::dyedGlassPackMatchesDatagen),
+            test("dyed_glass_pack_opens", DyedLeadedGlassGameTest::dyedGlassPackOpens),
+            test("dyed_glass_recipes_stay_data", DyedLeadedGlassGameTest::dyedGlassRecipesStayData),
+            test("shattered_glass_is_its_colour", DyedLeadedGlassGameTest::shatteredGlassIsItsColour),
+            test("dyed_glass_names_are_their_own", DyedLeadedGlassGameTest::dyedGlassNamesAreTheirOwn));
 
     private GameTests() {
     }

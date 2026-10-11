@@ -43,6 +43,10 @@ public class ModRecipes {
         return new RecipeSerializer<>(MapCodec.unit(recipe), StreamCodec.unit(recipe));
     }
 
+    // Dyed leaded glass in the colours a dye mod adds; vanilla's sixteen have shaped recipes in data.
+    public static final RegistrySupplier<RecipeSerializer<StainedLeadedGlassRecipe>> STAINED_LEADED_GLASS =
+            SERIALIZERS.register("stained_leaded_glass", () -> special(StainedLeadedGlassRecipe::new));
+
     public static void register() {
         SERIALIZERS.register();
     }

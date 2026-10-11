@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Vanilla bundles the two: {@link LevelEvent#PARTICLES_DESTROY_BLOCK} carries a single block-state
  * id, and the client reads <em>both</em> the break sound and the destroy particles off it. So the
- * shatter case reports the equivalent vanilla glass instead of the leaded glass — which also swaps the
+ * shatter case reports the equivalent stained glass instead of the leaded glass — which also swaps the
  * particles to plain glass shards. That reads correctly (it shattered into glass), and it is the only
  * way to split the sound without a client-side mixin.</p>
  *
@@ -41,28 +41,15 @@ public final class LeadedGlassShatter {
                 Block.getId(recovered ? state : shattered));
     }
 
-    /** The vanilla glass that stands in when leaded glass shatters — colour-matched, clear if uncoloured. */
+    /**
+     * The glass that stands in when leaded glass shatters: the stained glass of its colour, clear if
+     * uncoloured. A dye mod's colour takes that mod's stained glass, else plain glass.
+     */
     public static BlockState shatteredGlass(@Nullable DyeColor color) {
         if (color == null) {
             return Blocks.GLASS.defaultBlockState();
         }
-        return switch (color) {
-            case WHITE -> Blocks.WHITE_STAINED_GLASS.defaultBlockState();
-            case ORANGE -> Blocks.ORANGE_STAINED_GLASS.defaultBlockState();
-            case MAGENTA -> Blocks.MAGENTA_STAINED_GLASS.defaultBlockState();
-            case LIGHT_BLUE -> Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
-            case YELLOW -> Blocks.YELLOW_STAINED_GLASS.defaultBlockState();
-            case LIME -> Blocks.LIME_STAINED_GLASS.defaultBlockState();
-            case PINK -> Blocks.PINK_STAINED_GLASS.defaultBlockState();
-            case GRAY -> Blocks.GRAY_STAINED_GLASS.defaultBlockState();
-            case LIGHT_GRAY -> Blocks.LIGHT_GRAY_STAINED_GLASS.defaultBlockState();
-            case CYAN -> Blocks.CYAN_STAINED_GLASS.defaultBlockState();
-            case PURPLE -> Blocks.PURPLE_STAINED_GLASS.defaultBlockState();
-            case BLUE -> Blocks.BLUE_STAINED_GLASS.defaultBlockState();
-            case BROWN -> Blocks.BROWN_STAINED_GLASS.defaultBlockState();
-            case GREEN -> Blocks.GREEN_STAINED_GLASS.defaultBlockState();
-            case RED -> Blocks.RED_STAINED_GLASS.defaultBlockState();
-            case BLACK -> Blocks.BLACK_STAINED_GLASS.defaultBlockState();
-        };
+        Block glass = LeadedGlassDyes.stainedGlassOf(color);
+        return (glass == null ? Blocks.GLASS : glass).defaultBlockState();
     }
 }

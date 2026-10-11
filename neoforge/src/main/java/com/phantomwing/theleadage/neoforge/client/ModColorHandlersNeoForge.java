@@ -39,6 +39,7 @@ public final class ModColorHandlersNeoForge {
     @SubscribeEvent
     static void blockColors(RegisterColorHandlersEvent.BlockTintSources event) {
         ModColorHandlers.forEachPane((block, sources) -> event.register(sources, block));
+        ModColorHandlers.forEachStainedGlass((block, sources) -> event.register(sources, block));
     }
 
     @SubscribeEvent
