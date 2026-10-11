@@ -5,7 +5,7 @@
       "minecraft:coal",
       "minecraft:charcoal"
     ],
-    "N": "theleadage:lead_nugget",
+    "N": "#c:nuggets/lead",
     "S": "minecraft:stick"
   },
   "pattern": [

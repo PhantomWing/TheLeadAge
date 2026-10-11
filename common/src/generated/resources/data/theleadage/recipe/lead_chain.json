@@ -1,8 +1,8 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "I": "theleadage:lead_ingot",
-    "N": "theleadage:lead_nugget"
+    "I": "#c:ingots/lead",
+    "N": "#c:nuggets/lead"
   },
   "pattern": [
     "N",

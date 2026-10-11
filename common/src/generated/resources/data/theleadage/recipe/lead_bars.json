@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "I": "theleadage:lead_ingot"
+    "I": "#c:ingots/lead"
   },
   "pattern": [
     "III",

@@ -7,6 +7,7 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassShatter;
 import com.phantomwing.theleadage.compat.LeadedGlassDisplayRecipe;
+import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.pack.DyedLeadedGlassPack;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
@@ -129,6 +130,23 @@ public final class DyedLeadedGlassGameTest {
                 fail(helper, "Red leaded glass around " + grid.get(4) + " made " + result + ", not 8 red leaded glass");
                 return;
             }
+        }
+        helper.succeed();
+    }
+
+    /** Eight clear leaded glass panes around a dye make eight plain panes of its colour, as vanilla dyes glass panes. */
+    public static void clearPanesTakeADye(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        List<ItemStack> grid = new ArrayList<>(Collections.nCopies(9, LeadedGlassDisplayRecipe.plainPane(LeadedGlassConfig.CLEAR)));
+        grid.set(4, new ItemStack(TestCompat.RED_DYE));
+        CraftingInput input = CraftingInput.of(3, 3, grid);
+        Optional<RecipeHolder<CraftingRecipe>> match =
+                level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
+        ItemStack result = match.isEmpty() ? ItemStack.EMPTY : assemble(match.get().value(), input, level);
+        ItemStack red = LeadedGlassDisplayRecipe.plainPane(DyeColor.RED.getId());
+        if (result.getCount() != 8 || !ItemStack.isSameItemSameComponents(result, red)) {
+            fail(helper, "Eight clear leaded glass panes around red dye made " + result + ", not 8 red panes");
+            return;
         }
         helper.succeed();
     }
