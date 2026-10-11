@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.DyeColor;
@@ -74,6 +75,28 @@ public final class DyedLeadedGlassGameTest {
                         ? "The tag " + id + " doesn't list white leaded glass, so the pack shouldn't add the others to it"
                         : "The pack writes " + id + " as " + file.getValue() + ", datagen as " + read(stack.get(0)));
                 return;
+            }
+        }
+        helper.succeed();
+    }
+
+    /**
+     * The pack a dye mod's colours get reads as a pack of this version, whose format its pack.mcmeta has to
+     * name the way the version reads it, and serves what it was made with. No dye mod is loaded in the
+     * tests, so it is made for white glass.
+     */
+    public static void dyedGlassPackOpens(GameTestHelper helper) {
+        for (PackType type : PackType.values()) {
+            Pack pack = DyedLeadedGlassPack.create(type, List.of("white"));
+            if (pack == null || !pack.getCompatibility().isCompatible()) {
+                fail(helper, "The dyed leaded glass pack doesn't read as a " + type + " pack of this version");
+                return;
+            }
+            for (var id : DyedLeadedGlassPack.files(type, List.of("white")).keySet()) {
+                if (!TestCompat.serves(pack, type, id)) {
+                    fail(helper, "The dyed leaded glass pack doesn't serve " + id);
+                    return;
+                }
             }
         }
         helper.succeed();

@@ -1,5 +1,9 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.core.BlockPos;
@@ -77,5 +81,12 @@ public final class TestCompat {
     /** The recipe that crafts dyed leaded glass in a dye mod's colour. Its constructor lost the category in 26.1. */
     public static StainedLeadedGlassRecipe stainedLeadedGlassRecipe() {
         return new StainedLeadedGlassRecipe(CraftingBookCategory.BUILDING);
+    }
+
+    /** Whether {@code pack} has the file {@code id}. 26.3's Pack#open gives a stream of the pack's parts. */
+    public static boolean serves(Pack pack, PackType type, ResourceLocation id) {
+        try (PackResources resources = pack.open()) {
+            return resources.getResource(type, id) != null;
+        }
     }
 }
