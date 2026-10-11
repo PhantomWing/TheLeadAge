@@ -47,6 +47,7 @@ public final class ModColorHandlersNeoForge {
                 ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
                 ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
                 ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+        event.register(ModColorHandlers::stainedGlassTint, ModBlocks.stainedLeadedGlassBlocks());
     }
 
     @SubscribeEvent
@@ -72,6 +73,7 @@ public final class ModColorHandlersNeoForge {
                 ModItems.LEADED_GLASS_PANE_SPLIT.get(), ModItems.LEADED_GLASS_PANE_PLUS.get(),
                 ModItems.LEADED_GLASS_PANE_GRID.get(), ModItems.LEADED_GLASS_PANE_DIAGONAL.get(),
                 ModItems.LEADED_GLASS_PANE_CROSS.get(), ModItems.LEADED_GLASS_PANE_DIAMOND.get(), ModItems.LEADED_GLASS_PANE_LATTICE.get(), ModItems.LEADED_GLASS_PANE_BARS.get(), ModItems.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+        event.register(ModColorHandlers::stainedGlassItemTint, ModBlocks.stainedLeadedGlassBlocks());
     }
 
     @SubscribeEvent

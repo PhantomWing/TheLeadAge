@@ -73,7 +73,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         // (like vanilla stained glass).
         cutoutCube(ModBlocks.LEADED_GLASS);
         for (DyeColor color : DyeColor.values()) {
-            translucentCube(ModBlocks.STAINED_LEADED_GLASS.get(color));
+            stainedLeadedGlass(ModBlocks.STAINED_LEADED_GLASS.get(color));
         }
 
         leadedGlassPanes();
@@ -343,8 +343,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
         };
     }
 
-    private void translucentCube(RegistrySupplier<Block> block) {
-        ModelFile model = models().cubeAll(blockName(block), blockTexture(block.get())).renderType(RenderType.translucent().name);
+    // Every colour shares one hand-authored model, its glass tinted by the block colour handler and its came
+    // left as it is, so a colour a dye mod adds needs no texture of its own.
+    private void stainedLeadedGlass(RegistrySupplier<Block> block) {
+        ModelFile model = models().getExistingFile(modLoc("block/stained_leaded_glass"));
         getVariantBuilder(block.get()).partialState().setModels(new ConfiguredModel(model));
     }
 
