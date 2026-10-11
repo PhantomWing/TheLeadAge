@@ -8,7 +8,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 
 import java.util.stream.Stream;
@@ -63,7 +62,7 @@ public final class LeadedGlassItemModels {
                     ModBlocks.LEADED_GLASS_PANE_DIAMOND, ModBlocks.LEADED_GLASS_PANE_LATTICE,
                     ModBlocks.LEADED_GLASS_PANE_BARS, ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS)
                     .map(s -> (Block) s.get()),
-            Stream.of(DyeColor.values()).map(c -> (Block) ModBlocks.STAINED_LEADED_GLASS.get(c).get())
+            Stream.of(ModBlocks.stainedLeadedGlassBlocks())
     ).toArray(Block[]::new);
 
 }
