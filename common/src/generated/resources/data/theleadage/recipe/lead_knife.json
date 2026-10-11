@@ -17,7 +17,7 @@
   ],
   "key": {
     "I": "minecraft:stick",
-    "X": "theleadage:lead_ingot"
+    "X": "#c:ingots/lead"
   },
   "pattern": [
     "X",
