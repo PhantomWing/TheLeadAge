@@ -5,6 +5,7 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassRecolor;
 import com.phantomwing.theleadage.block.custom.StainedLeadedGlassBlock;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.CommonTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
@@ -59,7 +60,7 @@ public class StainedLeadedGlassRecipe extends CustomRecipe {
         if (dye != null) {
             return edgesAreLeadedGlass(input) ? leadedGlassOf(dye) : null;
         }
-        if (!centre.is(ModItems.LEAD_INGOT.get())) {
+        if (!centre.is(CommonTags.Items.INGOTS_LEAD)) {
             return null;
         }
         // The edges may mix two mods' stained glass of one colour name, since both make the same leaded glass.

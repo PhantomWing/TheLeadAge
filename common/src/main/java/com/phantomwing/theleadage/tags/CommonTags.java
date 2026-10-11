@@ -26,6 +26,8 @@ public final class CommonTags {
     public static final class Items {
         /** {@code c:ingots/lead} — also the tool/armor repair ingredient. */
         public static final TagKey<Item> INGOTS_LEAD = tag("ingots/lead");
+        /** {@code c:nuggets/lead}. */
+        public static final TagKey<Item> NUGGETS_LEAD = tag("nuggets/lead");
         /** {@code c:plates/lead} — the Create-compat Lead Sheet (Create's convention for pressed metal). */
         public static final TagKey<Item> PLATES_LEAD = tag("plates/lead");
         /** {@code c:tools/knife} — the conventional knife tag, alongside Farmer's Delight's own. */
