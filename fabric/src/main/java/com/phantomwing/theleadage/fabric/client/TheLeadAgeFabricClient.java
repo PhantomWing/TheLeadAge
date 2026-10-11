@@ -43,6 +43,8 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
                 ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
                 ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
                 ModBlocks.LEADED_GLASS_PANE_CROSS.get(), ModBlocks.LEADED_GLASS_PANE_DIAMOND.get(), ModBlocks.LEADED_GLASS_PANE_LATTICE.get(), ModBlocks.LEADED_GLASS_PANE_BARS.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+        // Dyed leaded glass: one white texture tinted by the block's dye.
+        ColorProviderRegistry.BLOCK.register(ModColorHandlers::stainedGlassTint, ModBlocks.stainedLeadedGlassBlocks());
 
         // Dynamic (grid/lattice) panes: wrap their block-state models so clear cells are retextured
         // from the block entity at mesh time (Fabric twin of the NeoForge ModifyBakingResult wrap).

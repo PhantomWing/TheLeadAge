@@ -21,7 +21,7 @@ public class LeadedGlassTrapdoorItem extends BlockItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        return LeadedGlassTooltip.name(stack, super.getName(stack));
+        return LeadedGlassTooltip.name(stack, super.getName(stack), "leaded_glass_trapdoor");
     }
 
     @Override

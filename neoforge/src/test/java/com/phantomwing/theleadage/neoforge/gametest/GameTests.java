@@ -35,7 +35,12 @@ public final class GameTests {
             test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers),
             test("horse_armor_has_no_durability", LeadOreGameTest::horseArmorHasNoDurability),
             test("lead_tools_work_blocks", LeadOreGameTest::leadToolsWorkBlocks),
-            test("lead_knife_fallback_keeps_sword_properties", LeadOreGameTest::leadKnifeFallbackKeepsSwordProperties));
+            test("lead_knife_fallback_keeps_sword_properties", LeadOreGameTest::leadKnifeFallbackKeepsSwordProperties),
+            test("dyed_glass_pack_matches_datagen", DyedLeadedGlassGameTest::dyedGlassPackMatchesDatagen),
+            test("dyed_glass_pack_opens", DyedLeadedGlassGameTest::dyedGlassPackOpens),
+            test("dyed_glass_recipes_stay_data", DyedLeadedGlassGameTest::dyedGlassRecipesStayData),
+            test("shattered_glass_is_its_colour", DyedLeadedGlassGameTest::shatteredGlassIsItsColour),
+            test("dyed_glass_names_are_their_own", DyedLeadedGlassGameTest::dyedGlassNamesAreTheirOwn));
 
     private GameTests() {
     }

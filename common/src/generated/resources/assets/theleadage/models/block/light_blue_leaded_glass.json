@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "theleadage:block/light_blue_leaded_glass"
-  }
-}
