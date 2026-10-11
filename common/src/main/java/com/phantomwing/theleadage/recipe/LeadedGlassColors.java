@@ -6,11 +6,13 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -19,8 +21,8 @@ import java.util.Map;
 /**
  * Maps the leaded glass crafting inputs to a region colour id (a dye id, or
  * {@link LeadedGlassConfig#CLEAR}). Sources: the leaded glass <i>blocks</i> (the palette for
- * cutting panes), a <i>plain</i> leaded glass pane (for combining into a split), and vanilla
- * <i>glass panes</i> (crafting leaded panes from glass — clear or stained).
+ * cutting panes), a <i>plain</i> leaded glass pane (for combining into a split), and <i>glass panes</i>
+ * (crafting leaded panes from glass — clear, or stained by vanilla or a dye mod).
  */
 public final class LeadedGlassColors {
     @Nullable
@@ -35,23 +37,42 @@ public final class LeadedGlassColors {
         if (blockMap == null) {
             Map<Item, Integer> built = new HashMap<>();
             built.put(ModBlocks.LEADED_GLASS.get().asItem(), LeadedGlassConfig.CLEAR);
-            ModBlocks.STAINED_LEADED_GLASS.forEach((dye, block) -> built.put(block.get().asItem(), dye.getId()));
+            for (Block block : ModBlocks.stainedLeadedGlassBlocks()) {
+                built.put(block.asItem(), ((StainedGlassBlock) block).getColor().getId());
+            }
             blockMap = built;
         }
         return blockMap;
     }
 
+    /** Every stained glass pane, a dye mod's too, by the colour it carries. */
     private static Map<Item, Integer> glassPaneMap() {
         if (glassPaneMap == null) {
             Map<Item, Integer> built = new HashMap<>();
             built.put(Items.GLASS_PANE, LeadedGlassConfig.CLEAR);
-            for (DyeColor dye : DyeColor.values()) {
-                Item pane = BuiltInRegistries.ITEM.getValue(ResourceLocation.withDefaultNamespace(dye.getName() + "_stained_glass_pane"));
-                built.put(pane, dye.getId());
+            for (Item item : BuiltInRegistries.ITEM) {
+                if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof StainedGlassPaneBlock pane) {
+                    built.put(item, pane.getColor().getId());
+                }
             }
             glassPaneMap = built;
         }
         return glassPaneMap;
+    }
+
+    /** The glass pane of a colour id (vanilla's where there is one), or air when no mod has one. */
+    public static Item glassPaneOf(int color) {
+        if (color < 0) {
+            return Items.GLASS_PANE;
+        }
+        Item found = Items.AIR;
+        for (Map.Entry<Item, Integer> entry : glassPaneMap().entrySet()) {
+            if (entry.getValue() == color && (found == Items.AIR
+                    || BuiltInRegistries.ITEM.getKey(entry.getKey()).getNamespace().equals("minecraft"))) {
+                found = entry.getKey();
+            }
+        }
+        return found;
     }
 
     /** Colour id for a leaded glass <i>block</i> stack (pane-cutting), or {@code null} if it isn't one. */
@@ -60,7 +81,7 @@ public final class LeadedGlassColors {
         return stack.isEmpty() ? null : blockMap().get(stack.getItem());
     }
 
-    /** Colour id for a vanilla <i>glass pane</i> stack (clear or stained), or {@code null} if it isn't one. */
+    /** Colour id for a <i>glass pane</i> stack (clear or stained), or {@code null} if it isn't one. */
     @Nullable
     public static Integer glassPaneColorIdOf(ItemStack stack) {
         return stack.isEmpty() ? null : glassPaneMap().get(stack.getItem());

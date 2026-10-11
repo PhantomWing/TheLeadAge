@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.item.custom;
 
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
@@ -16,8 +17,8 @@ import java.util.function.Consumer;
 /**
  * Shared rendering of a leaded glass item's design (frame + colours), used by the pane, door and
  * trapdoor items. A plain pane shows nothing extra — its single colour goes in the name instead
- * (e.g. "Red Leaded Glass Pane"); every other frame shows its distinct colours as a comma-separated
- * list (including "Clear").
+ * (e.g. "Red Leaded Glass Pane", see {@link LeadedGlassDyes#name}); every other frame shows its distinct
+ * colours as a comma-separated list (including "Clear").
  */
 public final class LeadedGlassTooltip {
     private static final Component SEPARATOR = Component.literal(", ").withStyle(ChatFormatting.DARK_GRAY);
@@ -70,14 +71,17 @@ public final class LeadedGlassTooltip {
             first = false;
             Component name = id < 0
                     ? Component.translatable("tooltip.theleadage.color.clear")
-                    : Component.translatable("color.minecraft." + DyeColor.byId(id).getName());
+                    : LeadedGlassDyes.colorName(DyeColor.byId(id));
             line.append(name.copy().withStyle(ChatFormatting.DARK_GRAY));
         }
         return line;
     }
 
-    /** A plain pane carries its colour in the name ("Red Leaded Glass Pane"); otherwise the base name. */
-    public static Component name(ItemStack stack, Component baseName) {
+    /**
+     * A plain pane carries its colour in the name ("Red Leaded Glass Pane"); otherwise the base name.
+     * {@code kind} is the item's, as {@link LeadedGlassDyes#name} takes it.
+     */
+    public static Component name(ItemStack stack, Component baseName, String kind) {
         LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
         if (config == null || config.frame() != LeadedGlassFrame.PLAIN) {
             return baseName;
@@ -86,15 +90,14 @@ public final class LeadedGlassTooltip {
         if (dye == null) {
             return baseName; // clear plain pane keeps its plain name
         }
-        return Component.translatable("item.theleadage.tinted",
-                Component.translatable("color.minecraft." + dye.getName()), baseName);
+        return LeadedGlassDyes.name(kind, dye);
     }
 
     private static Component colorName(LeadedGlassConfig config, int region) {
         DyeColor dye = config.colorAt(region);
         Component name = dye == null
                 ? Component.translatable("tooltip.theleadage.color.clear")
-                : Component.translatable("color.minecraft." + dye.getName());
+                : LeadedGlassDyes.colorName(dye);
         return name.copy().withStyle(ChatFormatting.DARK_GRAY);
     }
 }
