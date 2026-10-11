@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,34 +45,38 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
     private static final String ID = TheLeadAge.MOD_ID + "/dyed_leaded_glass";
     private static final String MODEL = TheLeadAge.MOD_ID + ":block/stained_leaded_glass";
 
-    private static final Map<PackType, Map<ResourceLocation, byte[]>> FILES_BY_TYPE = new EnumMap<>(PackType.class);
-
     private final PackType type;
     private final Map<ResourceLocation, byte[]> files;
 
-    private DyedLeadedGlassPack(PackLocationInfo location, PackType type) {
+    private DyedLeadedGlassPack(PackLocationInfo location, PackType type, Map<ResourceLocation, byte[]> files) {
         super(location);
         this.type = type;
-        this.files = filesOf(type);
+        this.files = files;
     }
 
     /** The pack of this type, or {@code null} when no dye mod adds a colour. */
     @Nullable
     public static Pack create(PackType type) {
-        if (LeadedGlassDyes.extraColors().isEmpty()) {
-            return null;
-        }
+        List<String> colors = LeadedGlassDyes.extraColors().stream().map(DyeColor::getName).toList();
+        return colors.isEmpty() ? null : create(type, colors);
+    }
+
+    /** The pack of this type for these colours, whatever mods are loaded: the game tests open one of white glass. */
+    @Nullable
+    public static Pack create(PackType type, List<String> colors) {
+        Map<ResourceLocation, byte[]> made = new HashMap<>();
+        files(type, colors).forEach((file, json) -> made.put(file, json.toString().getBytes(StandardCharsets.UTF_8)));
         PackLocationInfo location = new PackLocationInfo(ID, Component.literal("The Lead Age: dyed leaded glass"),
                 PackSource.BUILT_IN, Optional.empty());
         return Pack.readMetaAndCreate(location, new Pack.ResourcesSupplier() {
             @Override
             public PackResources openPrimary(PackLocationInfo info) {
-                return new DyedLeadedGlassPack(info, type);
+                return new DyedLeadedGlassPack(info, type, made);
             }
 
             @Override
             public PackResources openFull(PackLocationInfo info, Pack.Metadata metadata) {
-                return new DyedLeadedGlassPack(info, type);
+                return new DyedLeadedGlassPack(info, type, made);
             }
         }, type, new PackSelectionConfig(true, Pack.Position.BOTTOM, false));
     }
@@ -122,17 +125,6 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
 
     @Override
     public void close() {
-    }
-
-    private static synchronized Map<ResourceLocation, byte[]> filesOf(PackType type) {
-        return FILES_BY_TYPE.computeIfAbsent(type, DyedLeadedGlassPack::makeFiles);
-    }
-
-    private static Map<ResourceLocation, byte[]> makeFiles(PackType type) {
-        Map<ResourceLocation, byte[]> made = new HashMap<>();
-        files(type, LeadedGlassDyes.extraColors().stream().map(DyeColor::getName).toList())
-                .forEach((id, json) -> made.put(id, json.toString().getBytes(StandardCharsets.UTF_8)));
-        return made;
     }
 
     /**
