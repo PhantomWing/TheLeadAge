@@ -21,7 +21,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -109,10 +108,10 @@ public final class DyedLeadedGlassGameTest {
     public static void dyedGlassRecipesStayData(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ItemStack glass = new ItemStack(ModItems.LEADED_GLASS.get());
-        ItemStack stained = new ItemStack(Items.RED_STAINED_GLASS);
+        ItemStack stained = new ItemStack(TestCompat.RED_STAINED_GLASS);
         ItemStack ingot = new ItemStack(ModItems.LEAD_INGOT.get());
         List<ItemStack> byDye = new ArrayList<>(Collections.nCopies(9, glass));
-        byDye.set(4, new ItemStack(Items.RED_DYE));
+        byDye.set(4, new ItemStack(TestCompat.RED_DYE));
         List<ItemStack> byLead = new ArrayList<>(Collections.nCopies(9, stained));
         byLead.set(4, ingot);
         StainedLeadedGlassRecipe special = TestCompat.stainedLeadedGlassRecipe();
