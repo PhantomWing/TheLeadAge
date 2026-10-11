@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,12 +18,14 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 /**
- * Shared block-tint logic for the leaded glass panes - this is what turns one white-glass texture
- * into any colour in-world. Each glass region carries a {@code tintindex}; the tint source for that
- * index returns the region's dye colour from the block entity, or white for a clear region.
+ * Shared block-tint logic for the leaded glass panes and the dyed leaded glass blocks - this is what
+ * turns one white-glass texture into any colour in-world. Each glass region carries a {@code tintindex};
+ * the tint source for that index returns the region's dye colour from the block entity, or white for a
+ * clear region.
  * Registration is per loader at the proper client hook - Architectury's wrapper registers too
- * eagerly (it needs a live Minecraft). Item icons don't tint at all: they render through the pane
- * special renderer, which reads the stack's config directly.
+ * eagerly (it needs a live Minecraft). Item icons don't tint here: the panes render through the pane
+ * special renderer, which reads the stack's config directly, and dyed leaded glass items carry a constant
+ * tint in their {@code items/} definition.
  *
  * <p>26.1 replaced the per-block tint <i>function</i> (called once per tint index) with a
  * {@link BlockTintSource} <i>list</i>, one entry per tint index, so each pane block registers as
@@ -61,6 +64,17 @@ public final class ModColorHandlers {
         }
         return sources;
     }
+
+    /** Feeds every dyed leaded glass block its one tint source: the glass (tint index 0) in its dye. */
+    public static void forEachStainedGlass(BiConsumer<Block, List<BlockTintSource>> sink) {
+        for (Block block : ModBlocks.stainedLeadedGlassBlocks()) {
+            sink.accept(block, List.of(STAINED_GLASS_TINT));
+        }
+    }
+
+    /** The dye of a dyed leaded glass block; the came, outside the tint index, stays untinted. */
+    private static final BlockTintSource STAINED_GLASS_TINT = state ->
+            state.getBlock() instanceof StainedGlassBlock glass ? tintOf(glass.getColor()) : NO_TINT;
 
     private static int tintOf(@Nullable DyeColor dye) {
         return dye == null ? NO_TINT : 0xFF000000 | dye.getTextureDiffuseColor();

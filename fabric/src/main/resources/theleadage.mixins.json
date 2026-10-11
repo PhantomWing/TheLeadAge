@@ -4,6 +4,7 @@
   "package": "com.phantomwing.theleadage.fabric.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "BuiltInPackSourceMixin",
     "IronBarsBlockMixin",
     "LivingEntityMixin",
     "LootTableMixin",

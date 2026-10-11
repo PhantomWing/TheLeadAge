@@ -40,6 +40,7 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         // Pane tint sources (block side only - item tints are data-driven now). 26.1: one list of
         // per-region BlockTintSources per block, replacing the single tint function.
         ModColorHandlers.forEachPane((block, sources) -> BlockColorRegistry.register(sources, block));
+        ModColorHandlers.forEachStainedGlass((block, sources) -> BlockColorRegistry.register(sources, block));
 
         // Dynamic (grid/lattice) panes: wrap their block-state models so clear cells are retextured
         // from the block entity at mesh time (Fabric twin of the NeoForge ModifyBakingResult wrap).
