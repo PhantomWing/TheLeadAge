@@ -33,7 +33,7 @@
   ],
   "key": {
     "#": "minecraft:stick",
-    "N": "theleadage:lead_nugget",
+    "N": "#c:nuggets/lead",
     "X": "minecraft:string"
   },
   "pattern": [

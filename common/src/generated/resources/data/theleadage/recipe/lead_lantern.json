@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "N": "theleadage:lead_nugget",
+    "N": "#c:nuggets/lead",
     "T": "theleadage:lead_torch"
   },
   "pattern": [
