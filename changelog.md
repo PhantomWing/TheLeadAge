@@ -1,12 +1,18 @@
-# 1.1.1
+# 1.2.0
 
 ### Additions
 - Added **Lead Spear** and **Lead Nautilus Armor**. The spear charges like a netherite one but swings slower and wears out fast, like the rest of the lead set. The nautilus armor sometimes replaces iron nautilus armor in shipwrecks, buried treasure and ocean ruins.
+- Leaded glass works with dye mods such as Dye Depot and Delicate Dyes: every colour they add gets its own dyed leaded glass, crafted like the vanilla colours, with its drops, tags and a name in every language.
+
+### Changes
+- Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
 
 ### Fixes
 - Fixed armor trims not showing on lead armor in the inventory.
 - Fixed lead axes, shovels and hoes doing nothing on right-click: axes strip logs and scrape oxidation and wax off copper again, shovels make paths and hoes till.
 - Lead Horse Armor is now in the c:armors/horse tag, so other mods recognize it as horse armor.
+- Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
+- Fixed a crash when breaking leaded glass in a colour a dye mod adds.
 
 
 # 1.1.0

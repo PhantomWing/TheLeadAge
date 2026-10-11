@@ -26,6 +26,7 @@ import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -59,6 +60,8 @@ public class ModModelProvider extends ModelProvider {
         LeadedGlassItemModels.registerTypes();
     }
 
+    private static final Identifier STAINED_LEADED_GLASS = TheLeadAge.resourceLocation("block/stained_leaded_glass");
+
     @Override
     protected void registerModels(BlockModelGenerators bmg, ItemModelGenerators img) {
         // ---------- Simple cubes (item model = the block model) ----------
@@ -68,8 +71,16 @@ public class ModModelProvider extends ModelProvider {
         bmg.createTrivialCube(ModBlocks.LEAD_BLOCK.get());
         bmg.createTrivialCube(ModBlocks.LEADED_GLASS.get());
         bmg.createTrivialCube(ModBlocks.LEAD_GRATE.get());
+        // Dyed leaded glass: every colour shares one hand-authored model, its glass tinted by the block colour
+        // handler in the world and by a constant of the dye's colour as an item, so a colour a dye mod adds
+        // needs no texture of its own.
         for (DyeColor color : DyeColor.values()) {
-            bmg.createTrivialCube(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
+            Block glass = ModBlocks.STAINED_LEADED_GLASS.get(color).get();
+            JsonObject variants = new JsonObject();
+            variants.add("", variant(STAINED_LEADED_GLASS.toString(), null, null));
+            variants(bmg, glass, variants);
+            img.itemModelOutput.accept(glass.asItem(), ItemModelUtils.tintedModel(STAINED_LEADED_GLASS,
+                    ItemModelUtils.constantTint(ARGB.opaque(color.getTextureDiffuseColor()))));
         }
 
         // ---------- Families ----------

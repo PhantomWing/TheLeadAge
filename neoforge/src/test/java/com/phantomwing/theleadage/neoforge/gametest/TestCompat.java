@@ -1,5 +1,12 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
+import net.minecraft.world.item.Items;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackResources;
+import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -38,6 +45,12 @@ public final class TestCompat {
 
     /** {@code EntityType.NAUTILUS} until 26.2 moved it to {@code EntityTypes}. New in 1.21.11. */
     public static final EntityType<Nautilus> NAUTILUS = EntityType.NAUTILUS;
+
+    /** {@code Items.RED_DYE} until 26.2 gathered the dyes into a colour collection. */
+    public static final Item RED_DYE = Items.RED_DYE;
+
+    /** {@code Items.RED_STAINED_GLASS} until 26.2 gathered the stained glass into a colour collection. */
+    public static final Item RED_STAINED_GLASS = Items.RED_STAINED_GLASS;
 
     private TestCompat() {
     }
@@ -90,5 +103,17 @@ public final class TestCompat {
      */
     public static boolean entitiesLoadedAroundSpawn(ServerLevel level, int radius) {
         return true;
+    }
+
+    /** The recipe that crafts dyed leaded glass in a dye mod's colour. Its constructor lost the category in 26.1. */
+    public static StainedLeadedGlassRecipe stainedLeadedGlassRecipe() {
+        return new StainedLeadedGlassRecipe(CraftingBookCategory.BUILDING);
+    }
+
+    /** Whether {@code pack} has the file {@code id}. 26.3's Pack#open gives a stream of the pack's parts. */
+    public static boolean serves(Pack pack, PackType type, Identifier id) {
+        try (PackResources resources = pack.open()) {
+            return resources.getResource(type, id) != null;
+        }
     }
 }

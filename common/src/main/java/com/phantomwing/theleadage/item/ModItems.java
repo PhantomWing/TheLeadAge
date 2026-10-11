@@ -17,6 +17,8 @@ import com.phantomwing.theleadage.item.custom.LeadedGlassPanelItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassTrapdoorItem;
 import com.phantomwing.theleadage.item.custom.LeadHorseArmorItem;
 import com.phantomwing.theleadage.item.custom.LeadNautilusArmorItem;
+import com.phantomwing.theleadage.item.custom.StainedLeadedGlassItem;
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.tool.ModTiers;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -138,10 +140,11 @@ public class ModItems {
 
     // Leaded glass: glass reinforced with lead nuggets (drops itself when mined with a pickaxe).
     public static final RegistrySupplier<Item> LEADED_GLASS = registerBlock("leaded_glass", ModBlocks.LEADED_GLASS);
-    // 16 dyed leaded glass blocks (creative-tab order: all glass blocks together).
+    // Dyed leaded glass, one per colour that has a block (creative-tab order: all glass blocks together).
     static {
-        for (DyeColor color : DyeColor.values()) {
-            registerBlock(color.getName() + "_leaded_glass", ModBlocks.STAINED_LEADED_GLASS.get(color));
+        for (DyeColor color : LeadedGlassDyes.colors()) {
+            RegistrySupplier<Block> block = ModBlocks.STAINED_LEADED_GLASS.get(color);
+            register(color.getName() + "_leaded_glass", (props) -> new StainedLeadedGlassItem(block.get(), props), blockItem());
         }
     }
 
