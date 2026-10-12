@@ -128,6 +128,7 @@
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Bệnh từ quặng chì",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creeper tránh khói chì",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Cướp tránh khói chì",
+  "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Khói chì từ lửa trại",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Ghi đè công thức gốc",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Công thức cần câu",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Công thức lõi nặng",
@@ -177,6 +178,7 @@
   "tag.worldgen.biome.theleadage.has_lead_ore": "Có quặng chì",
   "tag.worldgen.biome.theleadage.has_extra_lead_ore": "Có thêm quặng chì",
   "tag.block.theleadage.pillager_repellents": "Vật xua đuổi cướp",
+  "tag.block.theleadage.campfire_fume_sources": "Nguồn khói cho lửa trại",
   "tag.item.theleadage.creeper_repellents": "Vật xua đuổi creeper",
   "tag.item.theleadage.pillager_repellents": "Vật xua đuổi cướp",
   "tag.item.theleadage.lead_equipment": "Trang bị chì"

@@ -30,6 +30,11 @@ public final class CommonConfigImpl {
                 TheLeadAgeFabricConfig.PILLAGERS_AVOID_LEAD_FUMES_ID);
     }
 
+    public static boolean campfireLeadFumes() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.ENABLE_CAMPFIRE_LEAD_FUMES_ID);
+    }
+
     public static boolean enableStructureLoot() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_STRUCTURE_LOOT_ID);

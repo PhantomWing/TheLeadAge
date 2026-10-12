@@ -22,6 +22,9 @@ public class Configuration {
     public static final String PILLAGERS_AVOID_LEAD_FUMES_ID = "pillagers_avoid_lead_fumes";
     public static final ModConfigSpec.BooleanValue PILLAGERS_AVOID_LEAD_FUMES;
 
+    public static final String ENABLE_CAMPFIRE_LEAD_FUMES_ID = "enable_campfire_lead_fumes";
+    public static final ModConfigSpec.BooleanValue ENABLE_CAMPFIRE_LEAD_FUMES;
+
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public static final ModConfigSpec.BooleanValue ENABLE_RECIPE_OVERRIDES;
 
@@ -43,6 +46,7 @@ public class Configuration {
             case ENABLE_LEAD_ORE_SICKNESS_ID -> ENABLE_LEAD_ORE_SICKNESS.get();
             case CREEPERS_AVOID_LEAD_FUMES_ID -> CREEPERS_AVOID_LEAD_FUMES.get();
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> PILLAGERS_AVOID_LEAD_FUMES.get();
+            case ENABLE_CAMPFIRE_LEAD_FUMES_ID -> ENABLE_CAMPFIRE_LEAD_FUMES.get();
             case ENABLE_RECIPE_OVERRIDES_ID -> ENABLE_RECIPE_OVERRIDES.get();
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
@@ -64,13 +68,17 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.enable_lead_ore_sickness")
                 .define(ENABLE_LEAD_ORE_SICKNESS_ID, true);
         CREEPERS_AVOID_LEAD_FUMES = builder
-                .comment("Should creepers keep away from lit lead torches? They back off rather than close in, but a creeper cornered next to you can still explode.")
+                .comment("Should creepers keep away from lit lead torches and campfires burning over lead? They back off rather than close in, but a creeper cornered next to you can still explode.")
                 .translation("text.autoconfig.theleadage.option.creepers_avoid_lead_fumes")
                 .define(CREEPERS_AVOID_LEAD_FUMES_ID, true);
         PILLAGERS_AVOID_LEAD_FUMES = builder
-                .comment("Should pillagers keep away from lit lead torches? Only while wandering — raids, patrols and pillagers already shooting at you are unaffected.")
+                .comment("Should pillagers keep away from lit lead torches and campfires burning over lead? Only while wandering — raids, patrols and pillagers already shooting at you are unaffected.")
                 .translation("text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes")
                 .define(PILLAGERS_AVOID_LEAD_FUMES_ID, true);
+        ENABLE_CAMPFIRE_LEAD_FUMES = builder
+                .comment("Should a lit campfire or soul campfire on a block of lead or raw lead give off lead fumes? They give the players beside it Lead Sickness, and creepers and pillagers keep away from it when their options above are on.")
+                .translation("text.autoconfig.theleadage.option.enable_campfire_lead_fumes")
+                .define(ENABLE_CAMPFIRE_LEAD_FUMES_ID, true);
         ENABLE_RECIPE_OVERRIDES = builder
                 .comment("Master toggle for the lead recipe overrides below. When off, none of them apply and vanilla recipes are kept.")
                 .translation("text.autoconfig.theleadage.option.enable_recipe_overrides")
