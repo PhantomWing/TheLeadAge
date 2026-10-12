@@ -128,6 +128,7 @@
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "납 광석 질환",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "크리퍼가 납 연기를 피함",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "약탈자가 납 연기를 피함",
+  "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "모닥불 납 연기",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "바닐라 제작법 덮어쓰기",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "낚싯대 제작법",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "무거운 핵 제작법",
@@ -177,6 +178,7 @@
   "tag.worldgen.biome.theleadage.has_lead_ore": "납 광석 있음",
   "tag.worldgen.biome.theleadage.has_extra_lead_ore": "추가 납 광석 있음",
   "tag.block.theleadage.pillager_repellents": "약탈자 기피 블록",
+  "tag.block.theleadage.campfire_fume_sources": "모닥불 연기 발생원",
   "tag.item.theleadage.creeper_repellents": "크리퍼 기피 블록",
   "tag.item.theleadage.pillager_repellents": "약탈자 기피 블록",
   "tag.item.theleadage.lead_equipment": "납 장비"
