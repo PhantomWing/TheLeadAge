@@ -130,6 +130,7 @@
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Нездужання від свинцевої руди",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Кріпери уникають свинцевих випарів",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Розбійники уникають свинцевих випарів",
+  "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Свинцеві випари від багать",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Замінити ванільні рецепти",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Рецепт вудки",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Рецепт важкої серцевини",
@@ -179,6 +180,7 @@
   "tag.worldgen.biome.theleadage.has_lead_ore": "Має свинцеву руду",
   "tag.worldgen.biome.theleadage.has_extra_lead_ore": "Має додаткову свинцеву руду",
   "tag.block.theleadage.pillager_repellents": "Відлякувачі розбійників",
+  "tag.block.theleadage.campfire_fume_sources": "Джерела випарів для багать",
   "tag.item.theleadage.creeper_repellents": "Відлякувачі кріперів",
   "tag.item.theleadage.pillager_repellents": "Відлякувачі розбійників",
   "tag.item.theleadage.lead_equipment": "Свинцеве спорядження"
