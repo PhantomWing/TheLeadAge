@@ -5,6 +5,7 @@ import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
+import com.phantomwing.theleadage.effect.CampfireFumes;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.attribute.ModAttributes;
@@ -56,6 +57,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
@@ -613,6 +615,60 @@ public class LeadOreGameTest {
         if (got != expected) {
             fail(helper, frame + " at (" + u + "," + v + ") = region " + got + ", expected " + expected);
         }
+    }
+
+    /** A campfire gives off lead fumes only lit, and only over a block of lead or raw lead; a soul campfire too. */
+    public static void campfireFumesOnlyOverLead(GameTestHelper helper) {
+        record Case(Block under, Block campfire, boolean isLit, boolean fumes) {
+        }
+        BlockPos fire = new BlockPos(1, 2, 1);
+        BlockPos at = helper.absolutePos(fire);
+        ServerLevel level = helper.getLevel();
+        for (Case c : List.of(
+                new Case(ModBlocks.LEAD_BLOCK.get(), Blocks.CAMPFIRE, true, true),
+                new Case(ModBlocks.RAW_LEAD_BLOCK.get(), Blocks.SOUL_CAMPFIRE, true, true),
+                new Case(ModBlocks.LEAD_BLOCK.get(), Blocks.CAMPFIRE, false, false),
+                new Case(Blocks.HAY_BLOCK, Blocks.CAMPFIRE, true, false))) {
+            helper.setBlock(fire.below(), c.under());
+            helper.setBlock(fire, c.campfire().defaultBlockState().setValue(CampfireBlock.LIT, c.isLit()));
+            if (CampfireFumes.isFuming(level, at, level.getBlockState(at)) != c.fumes()) {
+                fail(helper, (c.isLit() ? "A lit " : "An unlit ") + c.campfire() + " over " + c.under()
+                        + (c.fumes() ? " gives off no fumes" : " gives off fumes"));
+                return;
+            }
+        }
+        helper.succeed();
+    }
+
+    /** A burst from a campfire burning over lead doses the player standing beside it. */
+    public static void campfireFumesDoseBesideIt(GameTestHelper helper) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> campfireFumesDoseBesideItNow(helper));
+    }
+
+    private static void campfireFumesDoseBesideItNow(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
+        BlockPos fire = new BlockPos(1, 2, 1);
+        // As for the ore: open air around the fire, the player beside it, since the fumes need a clear path.
+        for (int x = 0; x <= 2; x++) {
+            for (int y = 2; y <= 3; y++) {
+                for (int z = 0; z <= 2; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.AIR);
+                }
+            }
+        }
+        helper.setBlock(fire.below(), ModBlocks.LEAD_BLOCK.get());
+        helper.setBlock(fire, Blocks.CAMPFIRE);
+        moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(fire.east())));
+        whenFumesFind(helper, player, fire, FIND_TICKS, () -> {
+            clearSickness(player);
+            CampfireFumes.burst(helper.getLevel(), helper.absolutePos(fire));
+            if (player.hasEffect(MobEffects.HUNGER)) {
+                helper.succeed();
+            } else {
+                fail(helper, "The fumes of a campfire over lead didn't dose the player beside it");
+            }
+        });
     }
 
     /**

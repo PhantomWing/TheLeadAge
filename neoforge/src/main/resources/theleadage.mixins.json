@@ -4,6 +4,7 @@
   "package": "com.phantomwing.theleadage.neoforge.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CampfireBlockEntityMixin",
     "IronBarsBlockMixin",
     "LivingEntityMixin"
   ],
