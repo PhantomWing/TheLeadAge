@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.neoforge.client;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.client.particle.LeadFumesParticles;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
 import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
@@ -80,6 +81,10 @@ public final class ModColorHandlersNeoForge {
     static void particleProviders(RegisterParticleProvidersEvent event) {
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
         event.registerSpriteSet(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
+        // The lead fumes: a campfire's stream over raw lead, and the gas over water raw lead contaminates.
+        event.registerSpriteSet(ModParticles.LEAD_FUMES.get(), LeadFumesParticles.Stream.Provider::new);
+        event.registerSpriteSet(ModParticles.LEAD_FUMES_GAS.get(), LeadFumesParticles.Gas.Provider::new);
+        event.registerSpecial(ModParticles.LEAD_FUMES_CLOUD.get(), new LeadFumesParticles.Cloud.Provider());
     }
 
     @SubscribeEvent

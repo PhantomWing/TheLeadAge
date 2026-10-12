@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.block;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
+import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
@@ -74,7 +75,7 @@ public class ModBlocks {
     // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge. They copy
     // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+            new RawLeadBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
                     .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
             new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)

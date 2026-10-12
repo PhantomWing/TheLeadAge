@@ -35,6 +35,11 @@ public final class CommonConfigImpl {
                 TheLeadAgeFabricConfig.ENABLE_CAMPFIRE_LEAD_FUMES_ID);
     }
 
+    public static boolean leadWaterContamination() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.ENABLE_LEAD_WATER_CONTAMINATION_ID);
+    }
+
     public static boolean enableStructureLoot() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_STRUCTURE_LOOT_ID);

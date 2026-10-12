@@ -40,9 +40,15 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
-    /** Gate for a campfire lit over lead giving off lead fumes. Read live, every burst. */
+    /** Gate for a campfire lit over raw lead giving off lead fumes. Read live. */
     @ExpectPlatform
     public static boolean campfireLeadFumes() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Gate for raw lead contaminating the water on top of it. Read live. */
+    @ExpectPlatform
+    public static boolean leadWaterContamination() {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 

@@ -18,6 +18,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 /**
  * "Lead fumes" exposure. Breaking lead ore (and the lead torch's periodic bursts) immediately exposes
  * nearby <b>players</b>, with a distance-based chance (full within {@value #FULL_RANGE} blocks, falling
@@ -39,6 +42,11 @@ public final class LeadFumes {
     private static final int NAUSEA_TICKS = 200;    // 10s — stage 3
 
     private static final double GEAR_DOSE_CHANCE = 1.0; // crumbling gear is point-blank: always a dose
+
+    /** How long a player stays in fumes they can stay in - a campfire's stream, contaminated water - per stage. */
+    private static final int STAGE_TICKS = 60;
+    /** When each player last took a dose from such fumes: one timer for every source, so two at once climb no faster. */
+    private static final Map<Player, Long> LAST_TOUCH = new WeakHashMap<>();
 
     private LeadFumes() {
     }
@@ -65,6 +73,22 @@ public final class LeadFumes {
                         SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
             }
         }
+    }
+
+    /**
+     * A player in fumes they can stay in - a campfire's stream, contaminated water: a dose on contact, and another
+     * every {@value #STAGE_TICKS} ticks while they stay, so it worsens the longer they do.
+     */
+    public static void touch(Player player) {
+        long now = player.level().getGameTime();
+        Long last = LAST_TOUCH.get(player);
+        if (last != null && now >= last && now - last < STAGE_TICKS) {
+            return;
+        }
+        LAST_TOUCH.put(player, now);
+        escalate(player);
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
     }
 
     /**

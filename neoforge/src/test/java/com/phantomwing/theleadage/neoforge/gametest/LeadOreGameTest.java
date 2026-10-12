@@ -5,8 +5,10 @@ import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
+import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.CampfireFumes;
 import com.phantomwing.theleadage.effect.LeadFumes;
+import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
@@ -644,17 +646,18 @@ public class LeadOreGameTest {
         }
     }
 
-    /** A campfire gives off lead fumes only lit, and only over a block of lead or raw lead; a soul campfire too. */
-    public static void campfireFumesOnlyOverLead(GameTestHelper helper) {
+    /** A campfire gives off lead fumes only lit, and only over a block of raw lead; a soul campfire too. */
+    public static void campfireFumesOnlyOverRawLead(GameTestHelper helper) {
         record Case(Block under, Block campfire, boolean isLit, boolean fumes) {
         }
         BlockPos fire = new BlockPos(1, 2, 1);
         BlockPos at = helper.absolutePos(fire);
         ServerLevel level = helper.getLevel();
         for (Case c : List.of(
-                new Case(ModBlocks.LEAD_BLOCK.get(), Blocks.CAMPFIRE, true, true),
+                new Case(ModBlocks.RAW_LEAD_BLOCK.get(), Blocks.CAMPFIRE, true, true),
                 new Case(ModBlocks.RAW_LEAD_BLOCK.get(), Blocks.SOUL_CAMPFIRE, true, true),
-                new Case(ModBlocks.LEAD_BLOCK.get(), Blocks.CAMPFIRE, false, false),
+                new Case(ModBlocks.RAW_LEAD_BLOCK.get(), Blocks.CAMPFIRE, false, false),
+                new Case(ModBlocks.LEAD_BLOCK.get(), Blocks.CAMPFIRE, true, false),
                 new Case(Blocks.HAY_BLOCK, Blocks.CAMPFIRE, true, false))) {
             helper.setBlock(fire.below(), c.under());
             helper.setBlock(fire, c.campfire().defaultBlockState().setValue(CampfireBlock.LIT, c.isLit()));
@@ -667,16 +670,97 @@ public class LeadOreGameTest {
         helper.succeed();
     }
 
-    /** A burst from a campfire burning over lead doses the player standing beside it. */
-    public static void campfireFumesDoseBesideIt(GameTestHelper helper) {
-        whenSpawnLoaded(helper, SPAWN_TICKS, () -> campfireFumesDoseBesideItNow(helper));
+    /** The stream off a campfire over raw lead doses the player standing in it, and not the one beside it. */
+    public static void campfireStreamDosesWhoTouchesIt(GameTestHelper helper) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> campfireStreamDosesWhoTouchesItNow(helper));
     }
 
-    private static void campfireFumesDoseBesideItNow(GameTestHelper helper) {
+    private static void campfireStreamDosesWhoTouchesItNow(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);
         BlockPos fire = new BlockPos(1, 2, 1);
-        // As for the ore: open air around the fire, the player beside it, since the fumes need a clear path.
+        clearAround(helper);
+        helper.setBlock(fire.below(), ModBlocks.RAW_LEAD_BLOCK.get());
+        helper.setBlock(fire, Blocks.CAMPFIRE);
+        BlockPos at = helper.absolutePos(fire);
+        moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(fire.east())));
+        whenFumesFind(helper, player, fire, FIND_TICKS, () -> {
+            clearSickness(player);
+            CampfireFumes.doseStream(helper.getLevel(), at);
+            if (player.hasEffect(MobEffects.HUNGER)) {
+                fail(helper, "The stream off a campfire over raw lead dosed the player beside it");
+                return;
+            }
+            moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(fire.above())));
+            whenFumesFind(helper, player, fire, FIND_TICKS, () -> {
+                CampfireFumes.doseStream(helper.getLevel(), at);
+                if (player.hasEffect(MobEffects.HUNGER)) {
+                    helper.succeed();
+                } else {
+                    fail(helper, "The stream off a campfire over raw lead didn't dose the player standing in it");
+                }
+            });
+        });
+    }
+
+    /** Raw lead is wet with a water source on top, as potent sulfur is, and dry again once it's gone. */
+    public static void rawLeadIsWetUnderWater(GameTestHelper helper) {
+        BlockPos lead = new BlockPos(1, 2, 1);
+        clearAround(helper);
+        helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get());
+        if (wet(helper, lead)) {
+            fail(helper, "Raw lead with air on top is wet");
+            return;
+        }
+        helper.setBlock(lead.above(), Blocks.WATER);
+        if (!wet(helper, lead)) {
+            fail(helper, "Raw lead with a water source on top isn't wet");
+            return;
+        }
+        helper.setBlock(lead.above(), Blocks.AIR);
+        if (wet(helper, lead)) {
+            fail(helper, "Raw lead stays wet once the water on top is gone");
+            return;
+        }
+        helper.succeed();
+    }
+
+    /** Raw lead under water doses the player swimming in it near the fumes' spot, as potent sulfur's water does. */
+    public static void contaminatedWaterDosesSwimmer(GameTestHelper helper) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> contaminatedWaterDosesSwimmerNow(helper));
+    }
+
+    private static void contaminatedWaterDosesSwimmerNow(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
+        BlockPos lead = new BlockPos(1, 1, 1);
+        clearAround(helper);
+        helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get());
+        // A pool one deep over the lead, the fumes' spot in the air above it.
+        for (int x = 0; x <= 2; x++) {
+            for (int z = 0; z <= 2; z++) {
+                helper.setBlock(new BlockPos(x, 2, z), Blocks.WATER);
+            }
+        }
+        moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 2, 1))));
+        whenFumesFind(helper, player, lead.above(), FIND_TICKS, () -> {
+            clearSickness(player);
+            LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead));
+            if (player.hasEffect(MobEffects.HUNGER)) {
+                helper.succeed();
+            } else {
+                fail(helper, "Raw lead under water didn't dose the player swimming over it");
+            }
+        });
+    }
+
+    private static boolean wet(GameTestHelper helper, BlockPos pos) {
+        BlockState state = helper.getBlockState(pos);
+        return state.hasProperty(RawLeadBlock.WET) && state.getValue(RawLeadBlock.WET);
+    }
+
+    /** Open air over the floor of the test's structure, whose walls would stop the fumes' line of sight. */
+    private static void clearAround(GameTestHelper helper) {
         for (int x = 0; x <= 2; x++) {
             for (int y = 2; y <= 3; y++) {
                 for (int z = 0; z <= 2; z++) {
@@ -684,18 +768,6 @@ public class LeadOreGameTest {
                 }
             }
         }
-        helper.setBlock(fire.below(), ModBlocks.LEAD_BLOCK.get());
-        helper.setBlock(fire, Blocks.CAMPFIRE);
-        moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(fire.east())));
-        whenFumesFind(helper, player, fire, FIND_TICKS, () -> {
-            clearSickness(player);
-            CampfireFumes.burst(helper.getLevel(), helper.absolutePos(fire));
-            if (player.hasEffect(MobEffects.HUNGER)) {
-                helper.succeed();
-            } else {
-                fail(helper, "The fumes of a campfire over lead didn't dose the player beside it");
-            }
-        });
     }
 
     /**

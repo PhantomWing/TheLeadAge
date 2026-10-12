@@ -76,7 +76,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
         tag(ModTags.Blocks.CREEPER_REPELLENTS).add(burningLead);
         tag(ModTags.Blocks.PILLAGER_REPELLENTS).add(burningLead);
         // A campfire lit on one of these gives off lead fumes, as one on hay sends its smoke higher.
-        tag(ModTags.Blocks.CAMPFIRE_FUME_SOURCES).add(ModBlocks.LEAD_BLOCK.get(), ModBlocks.RAW_LEAD_BLOCK.get());
+        tag(ModTags.Blocks.CAMPFIRE_FUME_SOURCES).add(ModBlocks.RAW_LEAD_BLOCK.get());
 
         // The lead building set, grouped into sub-tags rolled up under #lead_blocks.
         tag(ModTags.Blocks.SOLID_LEAD_BLOCKS).add(

@@ -129,6 +129,7 @@
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "I creeper evitano i fumi di piombo",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "I predoni evitano i fumi di piombo",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Fumi di piombo dai fuochi da campo",
+  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Acqua contaminata dal piombo",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Sovrascrivi le ricette originali",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Ricetta della canna da pesca",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Ricetta del nucleo pesante",

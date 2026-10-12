@@ -129,6 +129,7 @@
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Кріпери уникають свинцевих випарів",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Розбійники уникають свинцевих випарів",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Свинцеві випари від багать",
+  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Забруднена свинцем вода",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Замінити ванільні рецепти",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Рецепт вудки",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Рецепт важкої серцевини",

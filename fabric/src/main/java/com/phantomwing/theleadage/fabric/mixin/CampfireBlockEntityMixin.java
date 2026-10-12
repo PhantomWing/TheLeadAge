@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * A lit campfire's server tick ({@code cookTick} runs only while it is lit), where one burning over lead gives
- * off its fumes ({@link CampfireFumes}). The NeoForge twin is the identically-named mixin in the {@code neoforge}
+ * A lit campfire's ticks ({@code cookTick} on the server and {@code particleTick} on the client run only while it is
+ * lit), where one burning over raw lead gives off its fumes ({@link CampfireFumes}). The NeoForge twin is the identically-named mixin in the {@code neoforge}
  * source set.
  */
 @Mixin(CampfireBlockEntity.class)
@@ -24,5 +24,11 @@ public class CampfireBlockEntityMixin {
         if (level instanceof ServerLevel serverLevel) {
             CampfireFumes.tick(serverLevel, pos, state);
         }
+    }
+
+    @Inject(method = "particleTick", at = @At("HEAD"))
+    private static void theleadage$leadFumeStream(Level level, BlockPos pos, BlockState state, CampfireBlockEntity campfire,
+                                                  CallbackInfo ci) {
+        CampfireFumes.particleTick(level, pos, state);
     }
 }

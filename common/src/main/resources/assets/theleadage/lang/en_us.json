@@ -129,6 +129,7 @@
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creepers Avoid Lead Fumes",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Pillagers Avoid Lead Fumes",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Campfire Lead Fumes",
+  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Lead-Contaminated Water",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Override Vanilla Recipes",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Fishing Rod Recipe",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Heavy Core Recipe",

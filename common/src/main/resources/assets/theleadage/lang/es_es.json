@@ -129,6 +129,7 @@
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Los creepers evitan los vapores de plomo",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Los saqueadores evitan los vapores de plomo",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Vapores de plomo de hogueras",
+  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Agua contaminada con plomo",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Sobrescribir recetas originales",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Receta de la caña de pescar",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Receta del núcleo pesado",
