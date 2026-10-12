@@ -9,7 +9,8 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.illager.Pillager;
 
 /**
- * Burning lead drives mobs off — the mod's answer to soul torches repelling piglins.
+ * Burning lead drives mobs off — the mod's answer to soul torches repelling piglins: the lead torches and
+ * lantern, and a campfire burning over lead ({@link com.phantomwing.theleadage.effect.CampfireFumes}).
  *
  * <p>Vanilla's version is tag-driven ({@code #minecraft:piglin_repellents}), but only because piglins
  * are <em>brain</em>-based: the tag feeds {@code MemoryModuleType.NEAREST_REPELLENT}, which the piglin

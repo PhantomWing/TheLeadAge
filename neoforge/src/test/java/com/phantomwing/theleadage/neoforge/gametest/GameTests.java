@@ -16,6 +16,8 @@ public final class GameTests {
             test("deepslate_lead_ore_sometimes_gives_lead_sickness", LeadOreGameTest::deepslateLeadOreSometimesGivesLeadSickness),
             test("silk_touch_never_gives_lead_sickness", LeadOreGameTest::silkTouchNeverGivesLeadSickness),
             test("lead_sickness_ladder_escalates", LeadOreGameTest::leadSicknessLadderEscalates),
+            test("campfire_fumes_only_over_lead", LeadOreGameTest::campfireFumesOnlyOverLead),
+            test("campfire_fumes_dose_beside_it", LeadOreGameTest::campfireFumesDoseBesideIt),
             test("door_recipe_combines", LeadOreGameTest::doorRecipeCombines),
             test("lead_bricks_recipe_yields_one", LeadOreGameTest::leadBricksRecipeYieldsOne),
             test("bars_connect_to_leaded_glass", LeadOreGameTest::barsConnectToLeadedGlass),

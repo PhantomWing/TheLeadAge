@@ -130,6 +130,7 @@
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Krankheit durch Bleierz",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creeper meiden Bleidämpfe",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Plünderer meiden Bleidämpfe",
+  "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Bleidämpfe aus Lagerfeuern",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Vanilla-Rezepte überschreiben",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Angel-Rezept",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Schwerer-Kern-Rezept",
@@ -179,6 +180,7 @@
   "tag.worldgen.biome.theleadage.has_lead_ore": "Hat Bleierz",
   "tag.worldgen.biome.theleadage.has_extra_lead_ore": "Hat zusätzliches Bleierz",
   "tag.block.theleadage.pillager_repellents": "Plünderer-Abschreckmittel",
+  "tag.block.theleadage.campfire_fume_sources": "Dampfquellen für Lagerfeuer",
   "tag.item.theleadage.creeper_repellents": "Creeper-Abschreckmittel",
   "tag.item.theleadage.pillager_repellents": "Plünderer-Abschreckmittel",
   "tag.item.theleadage.lead_equipment": "Bleiausrüstung"

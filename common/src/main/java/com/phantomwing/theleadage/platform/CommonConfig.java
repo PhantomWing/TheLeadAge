@@ -40,6 +40,12 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
+    /** Gate for a campfire lit over lead giving off lead fumes. Read live, every burst. */
+    @ExpectPlatform
+    public static boolean campfireLeadFumes() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
     /**
      * Gate for structure/chest loot injection (lead horse armor replacing iron
      * horse armor). Read at loot-roll time by the NeoForge Global Loot Modifiers
