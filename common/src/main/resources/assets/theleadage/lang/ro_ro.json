@@ -130,6 +130,7 @@
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Boală de la minereu de plumb",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creeperii evită vaporii de plumb",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Prădătorii evită vaporii de plumb",
+  "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Vapori de plumb din focuri de tabără",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Suprascrie rețetele originale",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Rețeta undiței",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Rețeta nucleului greu",
@@ -179,6 +180,7 @@
   "tag.worldgen.biome.theleadage.has_lead_ore": "Are minereu de plumb",
   "tag.worldgen.biome.theleadage.has_extra_lead_ore": "Are minereu de plumb suplimentar",
   "tag.block.theleadage.pillager_repellents": "Repelenți pentru prădători",
+  "tag.block.theleadage.campfire_fume_sources": "Surse de vapori pentru focuri de tabără",
   "tag.item.theleadage.creeper_repellents": "Repelenți pentru creeperi",
   "tag.item.theleadage.pillager_repellents": "Repelenți pentru prădători",
   "tag.item.theleadage.lead_equipment": "Echipament de plumb"

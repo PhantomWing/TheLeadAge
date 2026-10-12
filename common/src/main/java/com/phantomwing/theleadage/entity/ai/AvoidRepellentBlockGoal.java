@@ -1,11 +1,13 @@
 package com.phantomwing.theleadage.entity.ai;
 
+import com.phantomwing.theleadage.effect.CampfireFumes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -14,8 +16,8 @@ import java.util.EnumSet;
 import java.util.function.BooleanSupplier;
 
 /**
- * Flee from any nearby block in a tag — a block-based counterpart to vanilla's entity-based
- * {@code AvoidEntityGoal}, used to make creepers keep away from lead torches.
+ * Flee from any nearby block in a tag, or a campfire fuming over lead — a block-based counterpart to vanilla's
+ * entity-based {@code AvoidEntityGoal}, used to make creepers and pillagers keep away from burning lead.
  *
  * <p><b>Why a goal and not a tag.</b> Vanilla's soul-torch-repels-piglins works via
  * {@code #minecraft:piglin_repellents}, but that tag is only ever read by the <em>piglin brain</em>
@@ -115,7 +117,7 @@ public class AvoidRepellentBlockGoal extends Goal {
         repellent = null;
         for (BlockPos pos : BlockPos.withinClippedManhattan(mob.blockPosition(),
                 SEARCH_HORIZONTAL, SEARCH_VERTICAL, SEARCH_HORIZONTAL)) {
-            if (mob.level().getBlockState(pos).is(repellents)) {
+            if (repels(pos)) {
                 repellent = pos.immutable();
                 break;
             }
@@ -125,8 +127,13 @@ public class AvoidRepellentBlockGoal extends Goal {
 
     /** Cheap: the cached block is still in range and still tagged (it may have been broken or replaced). */
     private boolean stillRepels(BlockPos pos) {
-        return pos.closerToCenterThan(mob.position(), SEARCH_HORIZONTAL)
-                && mob.level().getBlockState(pos).is(repellents);
+        return pos.closerToCenterThan(mob.position(), SEARCH_HORIZONTAL) && repels(pos);
+    }
+
+    /** A block in this mob's tag, or a campfire fuming over lead, which no tag can say since only a lit one over lead counts. */
+    private boolean repels(BlockPos pos) {
+        BlockState state = mob.level().getBlockState(pos);
+        return state.is(repellents) || CampfireFumes.isFuming(mob.level(), pos, state);
     }
 
     @Override

@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "BuiltInPackSourceMixin",
+    "CampfireBlockEntityMixin",
     "IronBarsBlockMixin",
     "LivingEntityMixin",
     "LootTableMixin",
