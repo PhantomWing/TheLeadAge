@@ -49,6 +49,11 @@ public final class ModTags {
          * be tuned independently — a pack may well want a block that scares one but not the other.
          */
         public static final TagKey<Block> PILLAGER_REPELLENTS = tag("pillager_repellents");
+        /**
+         * Blocks a lit campfire gives off lead fumes over, as hay under one sends its smoke higher: the block of
+         * lead and of raw lead ({@link com.phantomwing.theleadage.effect.CampfireFumes}).
+         */
+        public static final TagKey<Block> CAMPFIRE_FUME_SOURCES = tag("campfire_fume_sources");
 
         private static TagKey<Block> tag(String name) {
             return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
