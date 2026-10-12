@@ -26,6 +26,10 @@ public final class CommonConfigImpl {
         return Configuration.PILLAGERS_AVOID_LEAD_FUMES.get();
     }
 
+    public static boolean campfireLeadFumes() {
+        return Configuration.ENABLE_CAMPFIRE_LEAD_FUMES.get();
+    }
+
     public static boolean enableStructureLoot() {
         return Configuration.ENABLE_STRUCTURE_LOOT.get();
     }
