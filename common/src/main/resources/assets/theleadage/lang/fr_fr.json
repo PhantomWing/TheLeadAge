@@ -128,6 +128,7 @@
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Malaise dû au minerai de plomb",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Les creepers évitent les vapeurs de plomb",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Les pillards évitent les vapeurs de plomb",
+  "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Vapeurs de plomb des feux de camp",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Remplacer les recettes d'origine",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Recette de la canne à pêche",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Recette du noyau lourd",
@@ -177,6 +178,7 @@
   "tag.worldgen.biome.theleadage.has_lead_ore": "Possède du minerai de plomb",
   "tag.worldgen.biome.theleadage.has_extra_lead_ore": "Possède du minerai de plomb supplémentaire",
   "tag.block.theleadage.pillager_repellents": "Répulsifs à pillards",
+  "tag.block.theleadage.campfire_fume_sources": "Sources de vapeurs pour feux de camp",
   "tag.item.theleadage.creeper_repellents": "Répulsifs à creepers",
   "tag.item.theleadage.pillager_repellents": "Répulsifs à pillards",
   "tag.item.theleadage.lead_equipment": "Équipement en plomb"
