@@ -24,7 +24,8 @@
     "theleadage:lead_ingot_from_pillager_outpost",
     "theleadage:lead_ingot_from_village_weaponsmith",
     "theleadage:lead_ingot_from_village_toolsmith",
-    "theleadage:lead_ingot_from_village_armorer"
+    "theleadage:lead_ingot_from_village_armorer",
+    "theleadage:lead_ingot_from_trial_chambers_reward"
   ],
   "replace": false
 }
