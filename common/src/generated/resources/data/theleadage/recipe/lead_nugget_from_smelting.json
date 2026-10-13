@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 0.1,
+  "ingredient": [
+    "theleadage:lead_pickaxe",
+    "theleadage:lead_shovel",
+    "theleadage:lead_axe",
+    "theleadage:lead_hoe",
+    "theleadage:lead_sword",
+    "theleadage:lead_helmet",
+    "theleadage:lead_chestplate",
+    "theleadage:lead_leggings",
+    "theleadage:lead_boots",
+    "theleadage:lead_horse_armor"
+  ],
+  "result": {
+    "count": 1,
+    "id": "theleadage:lead_nugget"
+  }
+}

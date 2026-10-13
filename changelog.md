@@ -5,10 +5,16 @@
 - Eight clear Leaded Glass Panes around a dye craft eight panes of its colour, as vanilla's glass panes do.
 - Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
 - Campfires and soul campfires lit on a Block of Lead or Raw Lead give off lead fumes, which give nearby players Lead Sickness and keep creepers and pillagers away.
+- Lead tools, armor and horse armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
+- Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
 - Recipes that use Lead Ingots or Lead Nuggets also accept lead from other mods, such as Mekanism's or Immersive Engineering's (the c:ingots/lead and c:nuggets/lead tags).
+- Husks can spawn wearing lead armor, as zombies and skeletons do.
+- Goats ramming Lead Ore lose a horn, as on iron and copper ore.
+- Trial chamber vaults can give Lead Ingots in place of iron ones.
+- Leaded glass counts as glass for other mods, and dyed leaded glass by its colour. The Lead Chain counts as a chain, and lead ore as stone or deepslate ore (the c:glass_blocks, c:dyed, c:chains and c:ores_in_ground tags).
 
 ### Fixes
 - Fixed armor trims not showing on lead armor in the inventory.
