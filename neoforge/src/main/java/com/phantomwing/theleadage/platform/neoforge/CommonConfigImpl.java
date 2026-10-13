@@ -34,8 +34,8 @@ public final class CommonConfigImpl {
         return Configuration.ENABLE_RAW_LEAD_CONTACT.get();
     }
 
-    public static boolean leadWaterContamination() {
-        return Configuration.ENABLE_LEAD_WATER_CONTAMINATION.get();
+    public static int leadWaterRange() {
+        return Configuration.LEAD_WATER_RANGE.get();
     }
 
     public static boolean enableStructureLoot() {

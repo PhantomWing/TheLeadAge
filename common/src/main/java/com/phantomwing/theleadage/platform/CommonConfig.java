@@ -3,7 +3,7 @@ package com.phantomwing.theleadage.platform;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
 /**
- * {@code @ExpectPlatform} bridge exposing the config booleans the loader-agnostic
+ * {@code @ExpectPlatform} bridge exposing the config values the loader-agnostic
  * code needs. The config itself stays loader-specific: NeoForge {@code ModConfigSpec},
  * Fabric Cloth {@code AutoConfig}, with 1:1 option ids and {@code true} defaults.
  * Implemented per loader at
@@ -52,9 +52,9 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
-    /** Gate for raw lead leaching into the water around it. Read live. */
+    /** How far raw lead contaminates the water around it, in blocks through the water; 0 turns it off. Read live. */
     @ExpectPlatform
-    public static boolean leadWaterContamination() {
+    public static int leadWaterRange() {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 

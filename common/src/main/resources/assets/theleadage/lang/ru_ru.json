@@ -130,7 +130,7 @@
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Разбойники избегают свинцовых паров",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Свинцовые пары от костров",
   "text.autoconfig.theleadage.option.enable_raw_lead_contact": "Отравление необработанным свинцом",
-  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Заражённая свинцом вода",
+  "text.autoconfig.theleadage.option.lead_water_range": "Радиус заражённой свинцом воды",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Заменить ванильные рецепты",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Рецепт удочки",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Рецепт тяжёлой сердцевины",

@@ -3,10 +3,10 @@ package com.phantomwing.theleadage.block.custom;
 import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
+import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -20,9 +20,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 /**
- * The block of raw lead: unrefined lead, poisonous to handle. A player who stands on it a while gets Lead Sickness,
- * slowly worse the longer they stay, sneaking or not, and it gives off a faint wisp of the lead's white smoke. In water it
- * leaks ({@link LeadWater}). Only a block in water ticks, every {@value LeadWater#INTERVAL} ticks rather than with a
+ * The block of raw lead: unrefined lead, poisonous to handle. A player who stands on it a few seconds gets Lead
+ * Sickness, worse the longer they stay, sneaking or not, and lead dust lifts off it. In water it leaks
+ * ({@link LeadWater}). Only a block in water ticks, every {@value LeadWater#INTERVAL} ticks rather than with a
  * block entity, so the blocks in a storage room cost nothing.
  */
 public class RawLeadBlock extends Block {
@@ -50,13 +50,13 @@ public class RawLeadBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(CONTAMINATION,
-                LeadWater.touchesWater(context.getLevel(), context.getClickedPos()) ? 1 : 0);
+                LeadWater.range() > 0 && LeadWater.touchesWater(context.getLevel(), context.getClickedPos()) ? 1 : 0);
     }
 
     @Override
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
                                      BlockPos pos, BlockPos neighborPos) {
-        if (!LeadWater.touchesWater(level, pos)) {
+        if (LeadWater.range() == 0 || !LeadWater.touchesWater(level, pos)) {
             return state.setValue(CONTAMINATION, 0);
         }
         return state.getValue(CONTAMINATION) == 0 ? state.setValue(CONTAMINATION, 1) : state;
@@ -75,8 +75,13 @@ public class RawLeadBlock extends Block {
         if (step == 0) {
             return;
         }
+        int range = LeadWater.range();
+        if (range == 0) {
+            level.setBlock(pos, state.setValue(CONTAMINATION, 0), Block.UPDATE_CLIENTS);
+            return;
+        }
         LeadWater.contaminate(level, pos, step);
-        if (step < LeadWater.MAX_STEP && random.nextInt(3) < SPREAD_CHANCE) {
+        if (step < Math.min(LeadWater.lastStep(range), LeadWater.MAX_STEP) && random.nextInt(3) < SPREAD_CHANCE) {
             level.setBlock(pos, state.setValue(CONTAMINATION, step + 1), Block.UPDATE_CLIENTS);
         }
         level.scheduleTick(pos, this, LeadWater.INTERVAL);
@@ -92,9 +97,11 @@ public class RawLeadBlock extends Block {
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        if (CommonConfig.rawLeadContact() && level.getBlockState(pos.above()).isAir() && random.nextBoolean()) {
-            level.addParticle(ParticleTypes.WHITE_SMOKE, pos.getX() + 0.2 + random.nextDouble() * 0.6, pos.getY() + 1.05,
-                    pos.getZ() + 0.2 + random.nextDouble() * 0.6, 0.0, 0.01, 0.0);
+        if (CommonConfig.rawLeadContact() && level.getBlockState(pos.above()).isAir()) {
+            for (int i = random.nextInt(3); i > 0; i--) {
+                level.addParticle(ModParticles.LEAD_DUST.get(), pos.getX() + 0.1 + random.nextDouble() * 0.8,
+                        pos.getY() + 1.02 + random.nextDouble() * 0.15, pos.getZ() + 0.1 + random.nextDouble() * 0.8, 0.0, 0.0, 0.0);
+            }
         }
     }
 }

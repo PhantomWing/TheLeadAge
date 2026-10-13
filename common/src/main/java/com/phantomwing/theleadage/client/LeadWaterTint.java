@@ -2,7 +2,6 @@ package com.phantomwing.theleadage.client;
 
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.LeadWater;
-import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -46,8 +45,6 @@ public final class LeadWaterTint {
     private static final float MURK_SETTLE = 400.0F;
     /** How long a lead's routes through the water are kept, in ticks, should a change to the water go unseen. */
     private static final long LEAK_KEPT = 200;
-    /** How far past the lead's reach a change to it is drawn again: renderers that blend each corner read a block more. */
-    private static final int REDRAW = LeadWater.TINT_RADIUS + 1;
 
     /** Each raw lead's routes through the water, by position: the tint asks for them for every block of water drawn. */
     private static final Map<Long, Kept> LEAKS = new ConcurrentHashMap<>();
@@ -65,7 +62,8 @@ public final class LeadWaterTint {
      */
     public static int tint(BlockPos pos, int color) {
         ClientLevel level = Minecraft.getInstance().level;
-        if (level == null || !CommonConfig.leadWaterContamination() || !mayHaveRawLeadNear(level, pos)) {
+        int range = LeadWater.range();
+        if (level == null || range == 0 || !mayHaveRawLeadNear(level, pos, range + 2)) {
             return color;
         }
         float strength = level.getFluidState(pos).is(FluidTags.WATER) ? strength(level, pos) : besideStrength(level, pos);
@@ -81,7 +79,8 @@ public final class LeadWaterTint {
 
     /**
      * The fog seen from inside contaminated water, as {@code red, green, blue}: the water's own fog, turned towards a
-     * lead grey as bright as it, by how strongly the water the camera is in is contaminated. Null outside it.
+     * lead grey as bright as it - at its thickest all through the contaminated water, thinning over the few blocks
+     * before it ({@link LeadWater#murk}). Null outside it.
      */
     @Nullable
     public static float[] fog(Camera camera, ClientLevel level, float red, float green, float blue) {
@@ -93,7 +92,9 @@ public final class LeadWaterTint {
             return null;
         }
         BlockPos at = BlockPos.containing(camera.getPosition());
-        float target = CommonConfig.leadWaterContamination() && mayHaveRawLeadNear(level, at) ? strength(level, at) : 0.0F;
+        int range = LeadWater.range();
+        float target = range > 0 && mayHaveRawLeadNear(level, at, range + LeadWater.MURK_AHEAD)
+                ? LeadWater.murk(level, at, lead -> leakOf(level, lead)) : 0.0F;
         murk += (target * MURK_MOST - murk) * settle;
         if (murk < 0.005F) {
             return null;
@@ -117,7 +118,7 @@ public final class LeadWaterTint {
         if (!LEAKS.isEmpty() && oldState.getFluidState().is(FluidTags.WATER) != newState.getFluidState().is(FluidTags.WATER)) {
             LEAKS.keySet().removeIf(key -> {
                 BlockPos lead = BlockPos.of(key);
-                if (pos.distManhattan(lead) > LeadWater.TINT_RADIUS + 1) {
+                if (pos.distManhattan(lead) > LeadWater.range() + LeadWater.MURK_AHEAD) {
                     return false;
                 }
                 redraw(renderer, lead);
@@ -149,16 +150,18 @@ public final class LeadWaterTint {
         }
         long now = level.getGameTime();
         Kept kept = LEAKS.get(lead.asLong());
-        if (kept == null || now < kept.at() || now - kept.at() > LEAK_KEPT) {
+        if (kept == null || now < kept.at() || now - kept.at() > LEAK_KEPT || kept.leak().range() != LeadWater.range()) {
             kept = new Kept(LeadWater.leak(level, lead), now);
             LEAKS.put(lead.asLong(), kept);
         }
         return kept.leak();
     }
 
+    /** Draws the water a lead at {@code pos} tints again, and a block more for renderers that blend each corner. */
     private static void redraw(LevelRenderer renderer, BlockPos pos) {
-        renderer.setBlocksDirty(pos.getX() - REDRAW, pos.getY() - REDRAW, pos.getZ() - REDRAW,
-                pos.getX() + REDRAW, pos.getY() + REDRAW, pos.getZ() + REDRAW);
+        int reach = LeadWater.range() + 2;
+        renderer.setBlocksDirty(pos.getX() - reach, pos.getY() - reach, pos.getZ() - reach,
+                pos.getX() + reach, pos.getY() + reach, pos.getZ() + reach);
     }
 
     /** Whether a change to a block changes the water's tint around it, so that water has to be drawn again. */
@@ -170,11 +173,10 @@ public final class LeadWaterTint {
     }
 
     /**
-     * Whether any chunk section within reach of {@code pos} may hold raw lead, read off the sections' palettes, so
+     * Whether any chunk section within {@code reach} of {@code pos} may hold raw lead, read off the sections' palettes, so
      * the oceans' water skips the search: the tint is asked for every water block a chunk draws.
      */
-    private static boolean mayHaveRawLeadNear(ClientLevel level, BlockPos pos) {
-        int reach = LeadWater.TINT_RADIUS + 1;
+    private static boolean mayHaveRawLeadNear(ClientLevel level, BlockPos pos, int reach) {
         for (int x = SectionPos.blockToSectionCoord(pos.getX() - reach); x <= SectionPos.blockToSectionCoord(pos.getX() + reach); x++) {
             for (int z = SectionPos.blockToSectionCoord(pos.getZ() - reach); z <= SectionPos.blockToSectionCoord(pos.getZ() + reach); z++) {
                 LevelChunk chunk = level.getChunkSource().getChunk(x, z, false);

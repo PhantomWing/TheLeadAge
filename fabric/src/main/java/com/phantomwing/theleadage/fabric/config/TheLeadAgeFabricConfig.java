@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 
 /**
@@ -32,8 +33,10 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String ENABLE_RAW_LEAD_CONTACT_ID = "enable_raw_lead_contact";
     public boolean enable_raw_lead_contact = true;
 
-    public static final String ENABLE_LEAD_WATER_CONTAMINATION_ID = "enable_lead_water_contamination";
-    public boolean enable_lead_water_contamination = true;
+    public static final String LEAD_WATER_RANGE_ID = "lead_water_range";
+    /** How far raw lead contaminates the water around it, in blocks through the water; 0 turns it off. */
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 8)
+    public int lead_water_range = 4;
 
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public boolean enable_recipe_overrides = true;
@@ -69,7 +72,6 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> config.pillagers_avoid_lead_fumes;
             case ENABLE_CAMPFIRE_LEAD_FUMES_ID -> config.enable_campfire_lead_fumes;
             case ENABLE_RAW_LEAD_CONTACT_ID -> config.enable_raw_lead_contact;
-            case ENABLE_LEAD_WATER_CONTAMINATION_ID -> config.enable_lead_water_contamination;
             case ENABLE_RECIPE_OVERRIDES_ID -> config.enable_recipe_overrides;
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> config.override_heavy_core_recipe;

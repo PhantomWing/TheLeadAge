@@ -81,7 +81,8 @@ public final class ModColorHandlersNeoForge {
     static void particleProviders(RegisterParticleProvidersEvent event) {
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
         event.registerSpriteSet(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
-        event.registerSpriteSet(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Speck::new);
+        event.registerSpriteSet(ModParticles.LEAD_DUST.get(), LeadSpeckParticle.Dust::new);
     }
 
     @SubscribeEvent

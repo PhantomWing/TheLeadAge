@@ -45,8 +45,8 @@ public final class LeadFumes {
 
     /** How long a player stays in lead fumes - a campfire's stream - or contaminated water per stage. */
     public static final int FUMES_STAGE_TICKS = 60;
-    /** How long a player stands on raw lead per stage, the first included: the same ladder, much slower. */
-    public static final int CONTACT_STAGE_TICKS = 200;
+    /** How long a player stands on raw lead per stage, the first included: the same pace as the fumes, after a moment. */
+    public static final int CONTACT_STAGE_TICKS = 60;
     /** When each player last took a dose from lead they stay in: one timer for every source, so two at once climb no faster. */
     private static final Map<Player, Long> LAST_TOUCH = new WeakHashMap<>();
     /**

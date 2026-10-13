@@ -40,9 +40,8 @@ public final class CommonConfigImpl {
                 TheLeadAgeFabricConfig.ENABLE_RAW_LEAD_CONTACT_ID);
     }
 
-    public static boolean leadWaterContamination() {
-        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
-                TheLeadAgeFabricConfig.ENABLE_LEAD_WATER_CONTAMINATION_ID);
+    public static int leadWaterRange() {
+        return TheLeadAgeFabricConfig.get().lead_water_range;
     }
 
     public static boolean enableStructureLoot() {

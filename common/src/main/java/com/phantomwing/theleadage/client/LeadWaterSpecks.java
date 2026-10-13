@@ -3,7 +3,6 @@ package com.phantomwing.theleadage.client;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.particle.ModParticles;
-import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -38,7 +37,7 @@ public final class LeadWaterSpecks {
 
     /** The level's ambient particle tick, around the player at {@code x, y, z}. */
     public static void tick(ClientLevel level, int x, int y, int z) {
-        if (!CommonConfig.leadWaterContamination()) {
+        if (LeadWater.range() == 0) {
             return;
         }
         long now = level.getGameTime();

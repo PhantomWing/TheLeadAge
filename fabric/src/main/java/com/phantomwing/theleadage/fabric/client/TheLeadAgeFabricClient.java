@@ -37,7 +37,8 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         ModRenderLayers.register();
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
-        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Provider::new);
+        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Speck::new);
+        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_DUST.get(), LeadSpeckParticle.Dust::new);
         EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
 
         // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersNeoForge.

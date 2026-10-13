@@ -130,7 +130,7 @@
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Les pillards évitent les vapeurs de plomb",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Vapeurs de plomb des feux de camp",
   "text.autoconfig.theleadage.option.enable_raw_lead_contact": "Empoisonnement au plomb brut",
-  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Eau contaminée au plomb",
+  "text.autoconfig.theleadage.option.lead_water_range": "Portée de l'eau contaminée au plomb",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Remplacer les recettes d'origine",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Recette de la canne à pêche",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Recette du noyau lourd",

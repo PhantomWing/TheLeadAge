@@ -28,8 +28,8 @@ public class Configuration {
     public static final String ENABLE_RAW_LEAD_CONTACT_ID = "enable_raw_lead_contact";
     public static final ModConfigSpec.BooleanValue ENABLE_RAW_LEAD_CONTACT;
 
-    public static final String ENABLE_LEAD_WATER_CONTAMINATION_ID = "enable_lead_water_contamination";
-    public static final ModConfigSpec.BooleanValue ENABLE_LEAD_WATER_CONTAMINATION;
+    public static final String LEAD_WATER_RANGE_ID = "lead_water_range";
+    public static final ModConfigSpec.IntValue LEAD_WATER_RANGE;
 
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public static final ModConfigSpec.BooleanValue ENABLE_RECIPE_OVERRIDES;
@@ -54,7 +54,6 @@ public class Configuration {
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> PILLAGERS_AVOID_LEAD_FUMES.get();
             case ENABLE_CAMPFIRE_LEAD_FUMES_ID -> ENABLE_CAMPFIRE_LEAD_FUMES.get();
             case ENABLE_RAW_LEAD_CONTACT_ID -> ENABLE_RAW_LEAD_CONTACT.get();
-            case ENABLE_LEAD_WATER_CONTAMINATION_ID -> ENABLE_LEAD_WATER_CONTAMINATION.get();
             case ENABLE_RECIPE_OVERRIDES_ID -> ENABLE_RECIPE_OVERRIDES.get();
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
@@ -88,13 +87,13 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.enable_campfire_lead_fumes")
                 .define(ENABLE_CAMPFIRE_LEAD_FUMES_ID, true);
         ENABLE_RAW_LEAD_CONTACT = builder
-                .comment("Should standing on a block of raw lead for a while give players Lead Sickness, slowly worse the longer they stay? Sneaking doesn't help.")
+                .comment("Should standing on a block of raw lead for a few seconds give players Lead Sickness, worse the longer they stay? Sneaking doesn't help.")
                 .translation("text.autoconfig.theleadage.option.enable_raw_lead_contact")
                 .define(ENABLE_RAW_LEAD_CONTACT_ID, true);
-        ENABLE_LEAD_WATER_CONTAMINATION = builder
-                .comment("Should a block of raw lead leach into the water it touches? The contaminated water spreads a block at a time, up to 4 blocks away through the water and around what stands in it, over about twenty seconds, is tinted grey, and gives players in it Lead Sickness, worse the longer they stay.")
-                .translation("text.autoconfig.theleadage.option.enable_lead_water_contamination")
-                .define(ENABLE_LEAD_WATER_CONTAMINATION_ID, true);
+        LEAD_WATER_RANGE = builder
+                .comment("How far a block of raw lead leaches into the water it touches, in blocks through the water and around what stands in it. The contaminated water spreads a block at a time, is tinted grey and murky, and gives players in it Lead Sickness, worse the longer they stay. 0 turns it off.")
+                .translation("text.autoconfig.theleadage.option.lead_water_range")
+                .defineInRange(LEAD_WATER_RANGE_ID, 4, 0, 8);
         ENABLE_RECIPE_OVERRIDES = builder
                 .comment("Master toggle for the lead recipe overrides below. When off, none of them apply and vanilla recipes are kept.")
                 .translation("text.autoconfig.theleadage.option.enable_recipe_overrides")

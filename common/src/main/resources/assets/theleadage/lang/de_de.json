@@ -130,7 +130,7 @@
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Plünderer meiden Bleidämpfe",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Bleidämpfe aus Lagerfeuern",
   "text.autoconfig.theleadage.option.enable_raw_lead_contact": "Vergiftung durch Rohblei",
-  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Bleiverseuchtes Wasser",
+  "text.autoconfig.theleadage.option.lead_water_range": "Reichweite von bleiverseuchtem Wasser",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Vanilla-Rezepte überschreiben",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Angel-Rezept",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Schwerer-Kern-Rezept",

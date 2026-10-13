@@ -130,7 +130,7 @@
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "I predoni evitano i fumi di piombo",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Fumi di piombo dai fuochi da campo",
   "text.autoconfig.theleadage.option.enable_raw_lead_contact": "Avvelenamento da piombo grezzo",
-  "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Acqua contaminata dal piombo",
+  "text.autoconfig.theleadage.option.lead_water_range": "Raggio dell'acqua contaminata dal piombo",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Sovrascrivi le ricette originali",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Ricetta della canna da pesca",
   "text.autoconfig.theleadage.option.override_heavy_core_recipe": "Ricetta del nucleo pesante",
