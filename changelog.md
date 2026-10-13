@@ -8,6 +8,9 @@
 - Campfires and soul campfires lit on a Block of Lead or Raw Lead give off lead fumes, which give nearby players Lead Sickness and keep creepers and pillagers away.
 - Lead tools, spears, armor, horse armor and nautilus armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
 - Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
+- Zombies, husks and zombie villagers sometimes spawn holding a Lead Sword, Lead Shovel or Lead Spear where they would have had an iron one, and vindicators a Lead Axe.
+- Lead tools and armor sometimes turn up in chests in place of iron ones: in villages, strongholds, end cities, mineshafts, buried treasure, ancient cities, abandoned camps, bastions and trial chambers. An abandoned camp's secret chest can hold Lead Ingots too.
+- A config option to stop mobs spawning with lead armor and tools.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
@@ -16,12 +19,15 @@
 - Goats ramming Lead Ore lose a horn, as on iron and copper ore.
 - Trial chamber vaults can give Lead Ingots in place of iron ones.
 - Leaded glass counts as glass for other mods, and dyed leaded glass by its colour. The Lead Chain counts as a chain, and lead ore as stone or deepslate ore (the c:glass_blocks, c:dyed, c:chains and c:ores_in_ground tags). The Lead Chain, Lead Lantern and Lead Bars also join vanilla's chains, lanterns and bars.
+- A falling Lead Weight strikes a helmet, which softens the blow, and goes through shields, as a falling anvil does.
+- Villagers open and close leaded glass doors, as they do wooden and copper ones.
 
 ### Fixes
 - Lead Horse Armor is now in the c:armors/horse tag, so other mods recognize it as horse armor.
 - Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
 - Fixed a crash when breaking leaded glass in a colour a dye mod adds.
 - Fixed the mod failing to load on NeoForge 26.3.0.37 and newer, with "ModConfig$Type does not have member field COMMON". It now needs NeoForge 26.3.0.48 or newer, with Architectury API 22.0.4 or newer, and keeps the settings you already have.
+- Fixed amethyst clusters giving fewer shards when mined with a Lead Pickaxe.
 
 
 # 1.1.0

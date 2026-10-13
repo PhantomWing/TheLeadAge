@@ -37,5 +37,11 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
             .add(EntityTypes.STRAY)
             .add(EntityTypes.BOGGED)
             .add(EntityTypes.PARCHED);
+        // Mobs that can naturally spawn holding an iron sword, axe, shovel or spear.
+        this.tag(ModTags.EntityTypes.CAN_HOLD_LEAD_TOOLS)
+            .add(EntityTypes.ZOMBIE)
+            .add(EntityTypes.ZOMBIE_VILLAGER)
+            .add(EntityTypes.HUSK)
+            .add(EntityTypes.VINDICATOR);
     }
 }
