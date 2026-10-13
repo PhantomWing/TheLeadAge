@@ -36,7 +36,8 @@ public class DataGenerators {
         event.addProvider(new ModItemTagsProvider(output, lookupProvider, blockTags.contentsGetter()));
         event.addProvider(new ModBiomeTagsProvider(output, lookupProvider));
         event.addProvider(new ModEntityTypeTagsProvider(output, lookupProvider));
-        event.addProvider(new ModDatapackProvider(output, lookupProvider));
+        ModDatapackProvider datapack = event.addProvider(new ModDatapackProvider(output, lookupProvider));
+        event.addProvider(new ModDamageTypeTagsProvider(output, datapack.getRegistryProvider()));
         event.addProvider(new ModGlobalLootModifierProvider(output, lookupProvider));
         // 1.21.4: NeoForge's AdvancementProvider wrapper is gone — vanilla's takes the sub providers.
         event.addProvider(new AdvancementProvider(output, lookupProvider, List.of(new ModAdvancementProvider())));
