@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.fabric.client;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
+import com.phantomwing.theleadage.client.LeadFumesParticle;
 import com.phantomwing.theleadage.client.LeadSpeckParticle;
 import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorItemRenderer;
@@ -39,6 +40,7 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Speck::new);
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_DUST.get(), LeadSpeckParticle.Dust::new);
+        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FUMES.get(), LeadFumesParticle.Provider::new);
         EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
 
         // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersNeoForge.

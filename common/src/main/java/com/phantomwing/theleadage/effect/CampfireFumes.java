@@ -1,10 +1,10 @@
 package com.phantomwing.theleadage.effect;
 
+import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -17,8 +17,8 @@ import net.minecraft.world.phys.AABB;
 
 /**
  * A campfire burning over raw lead - a block in {@link ModTags.Blocks#CAMPFIRE_FUME_SOURCES} - sends a stream of lead
- * fumes up with its smoke, as high: the white smoke of the lead torch and of broken lead ore, filling the column. A
- * player touching the stream breathes it, worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
+ * fumes up with its smoke: white puffs rising as the smoke does, so they climb together. A player touching the stream
+ * breathes it, worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
  * keep away from it ({@code AvoidRepellentBlockGoal}). Soul campfires too. Ticked by each loader's
  * {@code CampfireBlockEntityMixin}.
  */
@@ -64,21 +64,20 @@ public final class CampfireFumes {
     }
 
     /**
-     * A lit campfire's client tick: puffs of white smoke all the way up the stream. A puff only lives a moment, so one
-     * rising from the fire would never reach the smoke's height; filling the column keeps the stream as high as it.
+     * A lit campfire's client tick: a puff of fumes off the fire most ticks, rising at the speed the campfire's smoke
+     * does ({@link com.phantomwing.theleadage.client.LeadFumesParticle}), so the stream climbs with it.
      */
     public static void particleTick(Level level, BlockPos pos, BlockState state) {
         if (!isFuming(level, pos, state)) {
             return;
         }
         RandomSource random = level.getRandom();
-        AABB stream = stream(level, pos);
-        for (int i = random.nextInt(2) + 1; i > 0; i--) {
-            level.addAlwaysVisibleParticle(ParticleTypes.WHITE_SMOKE, true,
-                    pos.getX() + 0.25 + random.nextDouble() * 0.5,
-                    stream.minY + random.nextDouble() * (stream.maxY - stream.minY),
-                    pos.getZ() + 0.25 + random.nextDouble() * 0.5,
-                    0.0, 0.02, 0.0);
+        if (random.nextFloat() < 0.6F) {
+            level.addAlwaysVisibleParticle(ModParticles.LEAD_FUMES.get(), true,
+                    pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.4,
+                    pos.getY() + 0.5 + random.nextDouble() * 0.3,
+                    pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.4,
+                    0.0, 0.07, 0.0);
         }
     }
 }
