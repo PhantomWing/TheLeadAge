@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.tags.CommonTags;
 import com.phantomwing.theleadage.tags.ModTags;
@@ -11,6 +12,7 @@ import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -32,6 +34,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         // Conventional `c:` tags so other mods recognise lead as a standard metal.
         tag(c("ores")).add(ModItems.LEAD_ORE.get(), ModItems.DEEPSLATE_LEAD_ORE.get());
         tag(c("ores/lead")).add(ModItems.LEAD_ORE.get(), ModItems.DEEPSLATE_LEAD_ORE.get());
+        tag(c("ores_in_ground/stone")).add(ModItems.LEAD_ORE.get());
+        tag(c("ores_in_ground/deepslate")).add(ModItems.DEEPSLATE_LEAD_ORE.get());
 
         tag(c("raw_materials")).add(ModItems.RAW_LEAD.get());
         tag(c("raw_materials/lead")).add(ModItems.RAW_LEAD.get());
@@ -85,6 +89,16 @@ public class ModItemTagsProvider extends ItemTagsProvider {
 
         // Mirror the leaded-glass block tag onto items (used by the "Leaded Lights" advancement).
         copy(ModTags.Blocks.LEADED_GLASS_BLOCKS, ModTags.Items.LEADED_GLASS_BLOCKS);
+
+        tag(c("chains")).add(ModItems.LEAD_CHAIN.get());
+        // Glass and dye colour, as on the blocks (see ModBlockTagsProvider).
+        tag(c("glass_blocks")).addTag(ModTags.Items.LEADED_GLASS_BLOCKS);
+        tag(c("glass_blocks/colorless")).add(ModItems.LEADED_GLASS.get());
+        for (DyeColor color : DyeColor.values()) {
+            Item stained = ModBlocks.STAINED_LEADED_GLASS.get(color).get().asItem();
+            tag(c("dyed")).add(stained);
+            tag(c("dyed/" + color.getName())).add(stained);
+        }
 
         // Item forms of the repellent tags, mirroring vanilla's #minecraft:piglin_repellents item tag.
         // NOT a copy() of the block tags: the wall torch has no item, and one item (LEAD_TORCH) places

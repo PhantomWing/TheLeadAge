@@ -7,10 +7,16 @@
 - Campfires and soul campfires lit on a Block of Raw Lead send up a stream of lead fumes as high as their smoke. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
 - Raw lead is poisonous to handle: standing on a Block of Raw Lead for a while gives Lead Sickness, slowly worse the longer you stay, and it gives off a faint wisp of fumes.
 - A Block of Raw Lead in water leaches into it: over about twenty seconds the water around it turns grey a block at a time, up to 4 blocks away through the water, flowing around whatever stands in it, murky from under the surface too and with grey specks drifting in it. Players in it get Lead Sickness, worse the longer they stay.
+- Lead tools, armor and horse armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
+- Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
 - Recipes that use Lead Ingots or Lead Nuggets also accept lead from other mods, such as Mekanism's or Immersive Engineering's (the c:ingots/lead and c:nuggets/lead tags).
+- Husks can spawn wearing lead armor, as zombies and skeletons do.
+- Goats ramming Lead Ore lose a horn, as on iron and copper ore.
+- Trial chamber vaults can give Lead Ingots in place of iron ones.
+- Leaded glass counts as glass for other mods, and dyed leaded glass by its colour. The Lead Chain counts as a chain, and lead ore as stone or deepslate ore (the c:glass_blocks, c:dyed, c:chains and c:ores_in_ground tags).
 
 ### Fixes
 - Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1, which made bricks as cheap as the ingots themselves.

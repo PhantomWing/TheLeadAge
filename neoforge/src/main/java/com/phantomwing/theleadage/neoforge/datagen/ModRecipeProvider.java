@@ -105,6 +105,15 @@ public class ModRecipeProvider extends RecipeProvider {
         leggings(output, ModItems.LEAD_LEGGINGS.get(), ingot);
         boots(output, ModItems.LEAD_BOOTS.get(), ingot);
 
+        // Worn-out lead gear melts back down to a nugget, as vanilla's iron and gold gear does. The
+        // knife is left out: it exists without Farmer's Delight only as a hidden fallback.
+        nuggetFromGear(output, ModItems.LEAD_NUGGET.get(),
+                ModItems.LEAD_PICKAXE.get(), ModItems.LEAD_SHOVEL.get(), ModItems.LEAD_AXE.get(),
+                ModItems.LEAD_HOE.get(), ModItems.LEAD_SWORD.get(),
+                ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
+                ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get(),
+                ModItems.LEAD_HORSE_ARMOR.get());
+
         // Decorative lead blocks (crafting + stonecutter paths, mirroring The
         // Silver Age and vanilla copper/stone-brick families).
         ItemLike block = ModItems.LEAD_BLOCK.get();
@@ -322,6 +331,20 @@ public class ModRecipeProvider extends RecipeProvider {
     private void oreSmeltAndBlast(RecipeOutput output, ItemLike material, ItemLike result) {
         cook(output, material, result, 200, RecipeSerializer.SMELTING_RECIPE, SmeltingRecipe::new, "smelting");
         cook(output, material, result, 100, RecipeSerializer.BLASTING_RECIPE, BlastingRecipe::new, "blasting");
+    }
+
+    /** Vanilla's iron_nugget_from_smelting and _from_blasting: one recipe each, for every piece of gear. */
+    private void nuggetFromGear(RecipeOutput output, ItemLike nugget, ItemLike... gear) {
+        SimpleCookingRecipeBuilder smelting = SimpleCookingRecipeBuilder.smelting(
+                Ingredient.of(gear), RecipeCategory.MISC, nugget, 0.1f, 200);
+        SimpleCookingRecipeBuilder blasting = SimpleCookingRecipeBuilder.blasting(
+                Ingredient.of(gear), RecipeCategory.MISC, nugget, 0.1f, 100);
+        for (ItemLike item : gear) {
+            smelting.unlockedBy(getHasName(item), has(item));
+            blasting.unlockedBy(getHasName(item), has(item));
+        }
+        smelting.save(output, id(name(nugget) + "_from_smelting"));
+        blasting.save(output, id(name(nugget) + "_from_blasting"));
     }
 
     private <T extends AbstractCookingRecipe> void cook(RecipeOutput output, ItemLike material, ItemLike result, int time,
