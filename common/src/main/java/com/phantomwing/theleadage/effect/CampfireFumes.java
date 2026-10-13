@@ -12,13 +12,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * A campfire burning over raw lead - a block in {@link ModTags.Blocks#CAMPFIRE_FUME_SOURCES} - sends a stream of lead
  * fumes up with its smoke: white puffs rising as the smoke does, so they climb together. A player touching the stream
- * breathes it, worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
+ * breathes it - only where the fumes have got to: the stream climbs from the fire at the smoke's speed once it starts,
+ * and clears from the bottom up as the last of it rises once it stops - worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
  * keep away from it ({@code AvoidRepellentBlockGoal}). Soul campfires too. Ticked by each loader's
  * {@code CampfireBlockEntityMixin}.
  */
@@ -27,6 +32,12 @@ public final class CampfireFumes {
     private static final int STREAM_HEIGHT = 8;
     /** How often the stream is breathed. */
     private static final int INTERVAL = 10;
+    /** How fast the fumes rise, in blocks a tick: the campfire smoke's own speed. */
+    private static final double RISE = 0.07;
+    /** How long the last of the fumes take to clear once the fire stops giving them off: the longest a puff lives. */
+    private static final int CLEAR_TICKS = 130;
+    /** Each campfire's stream: when it started, and when it stopped or -1. */
+    private static final Map<CampfireBlockEntity, long[]> STREAMS = new WeakHashMap<>();
 
     private CampfireFumes() {
     }
@@ -39,22 +50,48 @@ public final class CampfireFumes {
                 && CommonConfig.campfireLeadFumes();
     }
 
-    /** A lit campfire's server tick. */
-    public static void tick(ServerLevel level, BlockPos pos, BlockState state) {
-        if (level.getGameTime() % INTERVAL == 0 && isFuming(level, pos, state)) {
-            doseStream(level, pos);
+    /** A campfire's server tick, lit or not: its stream starts, rises, stops and clears, and is breathed. */
+    public static void tick(ServerLevel level, BlockPos pos, BlockState state, CampfireBlockEntity campfire) {
+        long now = level.getGameTime();
+        long[] stream = STREAMS.get(campfire);
+        if (isFuming(level, pos, state)) {
+            if (stream == null || stream[1] >= 0) {
+                stream = new long[] {now, -1};
+                STREAMS.put(campfire, stream);
+            }
+        } else if (stream != null && stream[1] < 0) {
+            stream[1] = now;
+        }
+        if (stream == null) {
+            return;
+        }
+        if (stream[1] >= 0 && now - stream[1] > CLEAR_TICKS) {
+            STREAMS.remove(campfire);
+            return;
+        }
+        if (now % INTERVAL == 0) {
+            double top = pos.getY() + 0.5 + (now - stream[0]) * RISE;
+            double bottom = pos.getY() + 0.5 + (stream[1] < 0 ? 0.0 : (now - stream[1]) * RISE);
+            AABB column = stream(level, pos);
+            if (bottom < Math.min(top, column.maxY)) {
+                dose(level, column.setMinY(bottom).setMaxY(Math.min(top, column.maxY)));
+            }
         }
     }
 
-    /** The players touching the stream off the campfire at {@code pos} breathe it. */
+    /** The players touching the stream off the campfire at {@code pos}, risen all the way, breathe it. */
     public static void doseStream(ServerLevel level, BlockPos pos) {
-        for (Player player : level.getEntitiesOfClass(Player.class, stream(level, pos),
+        dose(level, stream(level, pos));
+    }
+
+    private static void dose(ServerLevel level, AABB stream) {
+        for (Player player : level.getEntitiesOfClass(Player.class, stream,
                 player -> !player.isSpectator() && player.isAlive())) {
             LeadFumes.touch(player, LeadFumes.FUMES_STAGE_TICKS);
         }
     }
 
-    /** The stream: the column over the fire, up to where its smoke fades or the first block in the way. */
+    /** The stream risen all the way: the column over the fire, up to where its smoke fades or the first block in the way. */
     public static AABB stream(BlockGetter level, BlockPos pos) {
         BlockPos.MutableBlockPos at = pos.above().mutable();
         while (at.getY() <= pos.getY() + STREAM_HEIGHT && level.getBlockState(at).getCollisionShape(level, at).isEmpty()) {
@@ -64,15 +101,15 @@ public final class CampfireFumes {
     }
 
     /**
-     * A lit campfire's client tick: a puff of fumes off the fire most ticks, rising at the speed the campfire's smoke
-     * does ({@link com.phantomwing.theleadage.client.LeadFumesParticle}), so the stream climbs with it.
+     * A lit campfire's client tick: a puff of fumes off the fire every few ticks, rising at the speed the campfire's
+     * smoke does ({@link com.phantomwing.theleadage.client.LeadFumesParticle}), so the stream climbs with it.
      */
     public static void particleTick(Level level, BlockPos pos, BlockState state) {
         if (!isFuming(level, pos, state)) {
             return;
         }
         RandomSource random = level.getRandom();
-        if (random.nextFloat() < 0.6F) {
+        if (random.nextFloat() < 0.18F) {
             level.addAlwaysVisibleParticle(ModParticles.LEAD_FUMES.get(), true,
                     pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.4,
                     pos.getY() + 0.5 + random.nextDouble() * 0.3,

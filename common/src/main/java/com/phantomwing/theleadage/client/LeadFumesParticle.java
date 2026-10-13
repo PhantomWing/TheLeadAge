@@ -9,30 +9,38 @@ import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 
 /**
- * Lead fumes rising off a campfire burning over raw lead: the lead torch's white smoke in look, the campfire's own
- * smoke in how it moves - as fast, as long and so as high - so the two rise together. It shrinks as it rises, as white
- * smoke does, and fades out over its last three seconds as campfire smoke does. Registered per loader.
+ * Lead fumes rising off a campfire burning over raw lead: the lead torch's white smoke in look, rising as fast and as
+ * long as the campfire's own smoke on average, so the two climb together. Each puff meanders as it goes - drifting
+ * this way and that, turning, swelling as it thins - and fades out over its last three seconds as campfire smoke does.
+ * Registered per loader.
  */
 public class LeadFumesParticle extends TextureSheetParticle {
     private static final int FADE_OUT = 60;
+    /** How hard the drift wanders each tick, and how much of it is kept: together, how far a puff strays. */
+    private static final float WANDER = 0.003F;
+    private static final float WANDER_KEPT = 0.96F;
 
-    private final SpriteSet sprites;
+    private final float spin;
+    private final float startSize;
 
     LeadFumesParticle(ClientLevel level, SpriteSet sprites, double x, double y, double z, double xSpeed, double ySpeed,
                       double zSpeed) {
         super(level, x, y, z);
-        this.sprites = sprites;
-        scale(1.6F);
+        pickSprite(sprites);
+        scale(1.2F + random.nextFloat() * 0.8F);
+        startSize = quadSize;
         setSize(0.25F, 0.25F);
         lifetime = random.nextInt(50) + 80;
         gravity = 3.0E-6F;
-        xd = xSpeed;
-        yd = ySpeed + random.nextFloat() / 500.0F;
-        zd = zSpeed;
+        xd = xSpeed + (random.nextFloat() - 0.5F) * 0.01F;
+        yd = ySpeed * (0.85F + random.nextFloat() * 0.3F);
+        zd = zSpeed + (random.nextFloat() - 0.5F) * 0.01F;
+        spin = (random.nextFloat() - 0.5F) * 0.06F;
+        roll = random.nextFloat() * (float) (Math.PI * 2);
+        oRoll = roll;
         float shade = 0.86F + random.nextFloat() * 0.1F;
         setColor(shade, shade, shade * 1.03F);
-        alpha = 0.9F;
-        setSpriteFromAge(sprites);
+        alpha = 0.0F;
     }
 
     @Override
@@ -40,18 +48,18 @@ public class LeadFumesParticle extends TextureSheetParticle {
         xo = x;
         yo = y;
         zo = z;
-        if (age++ >= lifetime || alpha <= 0.0F) {
+        oRoll = roll;
+        if (age++ >= lifetime) {
             remove();
             return;
         }
-        xd += random.nextFloat() / 5000.0F * (random.nextBoolean() ? 1 : -1);
-        zd += random.nextFloat() / 5000.0F * (random.nextBoolean() ? 1 : -1);
+        xd = (xd + (random.nextFloat() - 0.5F) * WANDER) * WANDER_KEPT;
+        zd = (zd + (random.nextFloat() - 0.5F) * WANDER) * WANDER_KEPT;
         yd -= gravity;
         move(xd, yd, zd);
-        if (age >= lifetime - FADE_OUT && alpha > 0.01F) {
-            alpha -= 0.015F;
-        }
-        setSpriteFromAge(sprites);
+        roll += spin;
+        quadSize = startSize * (1.0F + 0.8F * age / lifetime);
+        alpha = Math.min(0.85F, Math.min(age / 10.0F, (lifetime - age) / (float) FADE_OUT));
     }
 
     @Override
