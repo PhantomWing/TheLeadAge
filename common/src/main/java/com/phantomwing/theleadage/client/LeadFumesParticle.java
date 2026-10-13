@@ -27,7 +27,7 @@ public class LeadFumesParticle extends TextureSheetParticle {
                       double zSpeed) {
         super(level, x, y, z);
         pickSprite(sprites);
-        scale(1.2F + random.nextFloat() * 0.8F);
+        scale(0.8F + random.nextFloat() * 0.4F);
         startSize = quadSize;
         setSize(0.25F, 0.25F);
         lifetime = random.nextInt(50) + 80;
@@ -58,7 +58,7 @@ public class LeadFumesParticle extends TextureSheetParticle {
         yd -= gravity;
         move(xd, yd, zd);
         roll += spin;
-        quadSize = startSize * (1.0F + 0.8F * age / lifetime);
+        quadSize = startSize * (1.0F + 0.4F * age / lifetime);
         alpha = Math.min(0.85F, Math.min(age / 10.0F, (lifetime - age) / (float) FADE_OUT));
     }
 
