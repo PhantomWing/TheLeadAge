@@ -36,7 +36,8 @@ public class DataGenerators {
         event.addProvider(new ModItemTagsProvider(output, lookupProvider));
         event.addProvider(new ModBiomeTagsProvider(output, lookupProvider));
         event.addProvider(new ModEntityTypeTagsProvider(output, lookupProvider));
-        event.addProvider(new ModDatapackProvider(output, lookupProvider));
+        ModDatapackProvider datapack = event.addProvider(new ModDatapackProvider(output, lookupProvider));
+        event.addProvider(new ModDamageTypeTagsProvider(output, datapack.getRegistryProvider()));
         event.addProvider(new ModGlobalLootModifierProvider(output, lookupProvider));
         // Villager trades (26.1 data-driven villager_trade registry + smith pool tags). Emits a
         // neoforge:conditions gate, so it must run BEFORE FabricConditionsProvider.

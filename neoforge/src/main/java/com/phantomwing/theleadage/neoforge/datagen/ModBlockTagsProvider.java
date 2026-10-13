@@ -67,6 +67,8 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
         tag(ModTags.Blocks.LEAD_TRAPDOORS).add(ModBlocks.LEAD_TRAPDOOR.get());
         // Lead doors via the reusable tag; the leaded glass door/trapdoor belong to the glass family.
         tag(BlockTags.DOORS).addTag(ModTags.Blocks.LEAD_DOORS).add(ModBlocks.LEADED_GLASS_DOOR.get());
+        // The leaded glass door opens by hand, so villagers open it too, as they do a copper door.
+        tag(BlockTags.MOB_INTERACTABLE_DOORS).add(ModBlocks.LEADED_GLASS_DOOR.get());
         tag(BlockTags.TRAPDOORS).addTag(ModTags.Blocks.LEAD_TRAPDOORS).add(ModBlocks.LEADED_GLASS_TRAPDOOR.get());
 
         tag(BlockTags.BEACON_BASE_BLOCKS).add(ModBlocks.LEAD_BLOCK.get());
