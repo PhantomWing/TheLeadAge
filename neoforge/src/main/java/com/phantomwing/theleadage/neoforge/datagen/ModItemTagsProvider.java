@@ -86,6 +86,9 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(c("armors/horse")).add(ModItems.LEAD_HORSE_ARMOR.get());
         tag(c("armors/nautilus")).add(ModItems.LEAD_NAUTILUS_ARMOR.get());
 
+        // Every pickaxe gets an amethyst cluster's full four shards.
+        tag(ItemTags.CLUSTER_MAX_HARVESTABLES).add(ModItems.LEAD_PICKAXE.get());
+
         // Decorative block items.
         tag(ItemTags.SLABS).add(ModItems.LEAD_BRICK_SLAB.get(), ModItems.CUT_LEAD_SLAB.get());
         tag(ItemTags.STAIRS).add(ModItems.LEAD_BRICK_STAIRS.get(), ModItems.CUT_LEAD_STAIRS.get());
