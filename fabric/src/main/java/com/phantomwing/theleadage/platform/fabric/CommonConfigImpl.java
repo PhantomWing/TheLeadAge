@@ -48,4 +48,9 @@ public final class CommonConfigImpl {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_STRUCTURE_LOOT_ID);
     }
+
+    public static boolean mobLeadEquipment() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.ENABLE_MOB_LEAD_EQUIPMENT_ID);
+    }
 }

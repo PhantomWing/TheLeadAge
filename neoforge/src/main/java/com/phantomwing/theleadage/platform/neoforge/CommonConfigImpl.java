@@ -41,4 +41,8 @@ public final class CommonConfigImpl {
     public static boolean enableStructureLoot() {
         return Configuration.ENABLE_STRUCTURE_LOOT.get();
     }
+
+    public static boolean mobLeadEquipment() {
+        return Configuration.ENABLE_MOB_LEAD_EQUIPMENT.get();
+    }
 }

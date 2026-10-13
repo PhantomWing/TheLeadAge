@@ -9,6 +9,9 @@
 - A Block of Raw Lead in water leaches into it: over about twenty seconds the water around it turns grey a block at a time, up to 4 blocks away through the water, flowing around whatever stands in it, and fades out over one more block. Under the surface it is murky, the murk thickening as you swim towards it, with dark specks of lead drifting in it. Players in the contaminated water get Lead Sickness, worse the longer they stay; the faint edge does no harm. A config option sets how far it reaches, or turns it off.
 - Lead tools, armor and horse armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
 - Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
+- Zombies, husks and zombie villagers sometimes spawn holding a Lead Sword or Lead Shovel where they would have had an iron one, and vindicators a Lead Axe.
+- Lead tools and armor sometimes turn up in chests in place of iron ones: in villages, strongholds, end cities, mineshafts, buried treasure, ancient cities, bastions and trial chambers.
+- A config option to stop mobs spawning with lead armor and tools.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
@@ -17,12 +20,15 @@
 - Goats ramming Lead Ore lose a horn, as on iron and copper ore.
 - Trial chamber vaults can give Lead Ingots in place of iron ones.
 - Leaded glass counts as glass for other mods, and dyed leaded glass by its colour. The Lead Chain counts as a chain, and lead ore as stone or deepslate ore (the c:glass_blocks, c:dyed, c:chains and c:ores_in_ground tags).
+- A falling Lead Weight strikes a helmet, which softens the blow, and goes through shields, as a falling anvil does.
+- Villagers open and close leaded glass doors, as they do wooden and copper ones.
 
 ### Fixes
 - Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1, which made bricks as cheap as the ingots themselves.
 - Fixed armor trims not showing on lead armor in the inventory.
 - Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
 - Fixed a crash when breaking leaded glass in a colour a dye mod adds.
+- Fixed amethyst clusters giving fewer shards when mined with a Lead Pickaxe.
 
 
 # 1.1.2

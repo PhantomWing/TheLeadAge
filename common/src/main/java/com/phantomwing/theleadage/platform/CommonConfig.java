@@ -68,6 +68,11 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
+    @ExpectPlatform
+    public static boolean mobLeadEquipment() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
     // Recipe-override toggles are read at datapack-load time directly by the
     // conditional recipes (NeoForge ConfigBooleanCondition / Fabric config_boolean
     // resource condition), so they don't need a CommonConfig bridge here.

@@ -99,6 +99,8 @@ public final class ModTags {
     public static final class EntityTypes {
         /** Mobs whose naturally-spawned iron armor may be swapped for lead armor. */
         public static final TagKey<EntityType<?>> CAN_WEAR_LEAD_ARMOR = tag("can_wear_lead_armor");
+        /** Mobs whose naturally-spawned iron sword, axe or shovel may be swapped for the lead one. */
+        public static final TagKey<EntityType<?>> CAN_HOLD_LEAD_TOOLS = tag("can_hold_lead_tools");
 
         private static TagKey<EntityType<?>> tag(String name) {
             return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
