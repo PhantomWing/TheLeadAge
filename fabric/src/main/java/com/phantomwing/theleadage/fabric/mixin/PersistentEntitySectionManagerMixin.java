@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  *
  * <p>NeoForge subscribes {@code EntityJoinLevelEvent} and forwards the real
  * {@code event.loadedFromDisk()} flag to
- * {@link MonsterArmorHandler#tryEquipLeadArmor(Entity, net.minecraft.world.level.Level, boolean)}.
+ * {@link MonsterArmorHandler#tryEquipLeadGear(Entity, net.minecraft.world.level.Level, boolean)}.
  * This mixin gives Fabric the same flag by hooking the single vanilla path that
  * carries the authoritative "loaded from storage" boolean:</p>
  *
@@ -46,7 +46,7 @@ public abstract class PersistentEntitySectionManagerMixin {
         // net.minecraft.world.entity.Entity on the server level, and Entity
         // implements EntityAccess, so this cast is always safe at runtime.
         if (entityAccess instanceof Entity entity) {
-            MonsterArmorHandler.tryEquipLeadArmor(entity, entity.level(), loadedFromStorage);
+            MonsterArmorHandler.tryEquipLeadGear(entity, entity.level(), loadedFromStorage);
         }
     }
 }

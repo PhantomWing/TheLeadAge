@@ -1,0 +1,20 @@
+{
+  "type": "theleadage:replace_item",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/abandoned_mineshaft"
+    },
+    {
+      "chance": 0.1,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "in_stacks": 1,
+  "item": "theleadage:lead_pickaxe",
+  "max_stacks": 1,
+  "priority": 0,
+  "removed_item": [
+    "minecraft:iron_pickaxe"
+  ]
+}
