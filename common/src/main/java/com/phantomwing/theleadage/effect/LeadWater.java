@@ -9,10 +9,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -112,6 +114,8 @@ public final class LeadWater {
         private final int[] arrival = new int[SIZE * SIZE * SIZE];
         /** The shortest route to each block, in blocks; 0 where nothing has looked yet, {@link #DRY} where no water is. */
         private final byte[] route = new byte[SIZE * SIZE * SIZE];
+        /** Every block of water within the lead's reach. */
+        private final IntArrayList reach = new IntArrayList();
 
         private Leak(BlockGetter level, BlockPos lead) {
             this.lead = lead;
@@ -140,6 +144,7 @@ public final class LeadWater {
                             }
                             route[to] = length;
                             next.add(to);
+                            reach.add(to);
                         }
                         if (route[to] == length) {
                             arrival[to] = Math.min(arrival[to], arrival[from] + waitAt(x, y, z));
@@ -171,6 +176,24 @@ public final class LeadWater {
             }
             float near = 1.0F - 0.5F * (route[indexOf(water)] - 1) / (MAX_RADIUS - 1);
             return near * Math.min(1.0F, (since + 1) / (float) FADE);
+        }
+
+        /** How many blocks of water are within the lead's reach, reached yet or not. */
+        public int size() {
+            return reach.size();
+        }
+
+        /** A block of water within the lead's reach, at random, if the spreading has reached it {@code step} steps in. */
+        @Nullable
+        public BlockPos pick(int step, RandomSource random) {
+            if (reach.isEmpty()) {
+                return null;
+            }
+            int at = reach.getInt(random.nextInt(reach.size()));
+            if (step < arrival[at]) {
+                return null;
+            }
+            return lead.offset(at / (SIZE * SIZE) - MAX_RADIUS, at / SIZE % SIZE - MAX_RADIUS, at % SIZE - MAX_RADIUS);
         }
 
         private int waitAt(int dx, int dy, int dz) {

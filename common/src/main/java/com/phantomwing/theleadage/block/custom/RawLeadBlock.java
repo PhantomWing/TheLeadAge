@@ -33,7 +33,7 @@ public class RawLeadBlock extends Block {
     public static final IntegerProperty CONTAMINATION = IntegerProperty.create("contamination", 0, LeadWater.MAX_STEP);
     /** The spreading takes a step in this many of every three checks: about 20 seconds to spread as far as it does. */
     private static final int SPREAD_CHANCE = 2;
-    private static final DustParticleOptions SPECK = new DustParticleOptions(new Vector3f(0.36F, 0.38F, 0.42F), 1.0F);
+    private static final DustParticleOptions SPECK = new DustParticleOptions(new Vector3f(0.28F, 0.30F, 0.33F), 1.5F);
 
     public RawLeadBlock(Properties properties) {
         super(properties);
@@ -103,12 +103,11 @@ public class RawLeadBlock extends Block {
         if (step == 0 || !CommonConfig.leadWaterContamination()) {
             return;
         }
-        int reach = LeadWater.MAX_RADIUS;
+        // A block's animation ticks every second or two, so each lets loose a good handful, more the further it reaches.
         LeadWater.Leak leak = LeadWater.leak(level, pos);
-        for (int i = 0; i < 8; i++) {
-            BlockPos at = pos.offset(random.nextInt(reach * 2 + 1) - reach, random.nextInt(reach * 2 + 1) - reach,
-                    random.nextInt(reach * 2 + 1) - reach);
-            if (leak.since(step, at) >= 0) {
+        for (int i = Math.max(2, leak.size() / 4); i > 0; i--) {
+            BlockPos at = leak.pick(step, random);
+            if (at != null && random.nextFloat() < leak.strength(step, at)) {
                 level.addParticle(SPECK, at.getX() + random.nextDouble(), at.getY() + random.nextDouble(),
                         at.getZ() + random.nextDouble(), 0.0, 0.0, 0.0);
             }
