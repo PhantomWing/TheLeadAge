@@ -61,6 +61,14 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.BEACON_BASE_BLOCKS).add(ModBlocks.LEAD_BLOCK.get());
 
+        // A goat ramming lead ore loses a horn, as on iron or copper ore (vanilla lists only the stone ores).
+        tag(BlockTags.SNAPS_GOAT_HORN).add(ModBlocks.LEAD_ORE.get());
+
+        // The families vanilla groups its iron and copper chains, lanterns and bars into.
+        tag(BlockTags.CHAINS).add(ModBlocks.LEAD_CHAIN.get());
+        tag(BlockTags.LANTERNS).add(ModBlocks.LEAD_LANTERN.get());
+        tag(BlockTags.BARS).add(ModBlocks.LEAD_BARS.get());
+
         // A standing lead torch on a wall forces the wall's centre post, like a vanilla torch
         // (vanilla lists only the standing torches here, not the wall variants).
         tag(BlockTags.WALL_POST_OVERRIDE).add(ModBlocks.LEAD_TORCH.get());
@@ -148,6 +156,18 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
         tag(c("storage_blocks")).add(ModBlocks.LEAD_BLOCK.get(), ModBlocks.RAW_LEAD_BLOCK.get());
         tag(c("storage_blocks/lead")).add(ModBlocks.LEAD_BLOCK.get());
         tag(c("storage_blocks/raw_lead")).add(ModBlocks.RAW_LEAD_BLOCK.get());
+
+        tag(c("chains")).add(ModBlocks.LEAD_CHAIN.get());
+
+        // Leaded glass is glass to other mods, the clear one colourless and each dyed one under its
+        // colour, as vanilla's glass and stained glass are. Not c:glass_blocks/cheap: it costs lead.
+        tag(c("glass_blocks")).addTag(ModTags.Blocks.LEADED_GLASS_BLOCKS);
+        tag(c("glass_blocks/colorless")).add(ModBlocks.LEADED_GLASS.get());
+        for (DyeColor color : DyeColor.values()) {
+            Block stained = ModBlocks.STAINED_LEADED_GLASS.get(color).get();
+            tag(c("dyed")).add(stained);
+            tag(c("dyed/" + color.getName())).add(stained);
+        }
     }
 
     /**

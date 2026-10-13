@@ -21,8 +21,10 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
         this.tag(ModTags.EntityTypes.CAN_WEAR_LEAD_ARMOR)
             .add(EntityType.ZOMBIE)
             .add(EntityType.ZOMBIE_VILLAGER)
+            .add(EntityType.HUSK)
             .add(EntityType.SKELETON)
             .add(EntityType.STRAY)
-            .add(EntityType.BOGGED);
+            .add(EntityType.BOGGED)
+            .add(EntityType.PARCHED);
     }
 }
