@@ -5,8 +5,8 @@
 - Eight clear Leaded Glass Panes around a dye craft eight panes of its colour, as vanilla's glass panes do.
 - Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
 - Campfires and soul campfires lit on a Block of Raw Lead send up a stream of lead fumes as high as their smoke. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
-- Raw lead is poisonous to handle: standing on a Block of Raw Lead gives Lead Sickness, slowly worse the longer you stay, and it gives off a faint wisp of fumes.
-- A Block of Raw Lead in water leaches into it: over about half a minute the water up to 4 blocks around it turns grey, and players in it get Lead Sickness, worse the longer they stay.
+- Raw lead is poisonous to handle: standing on a Block of Raw Lead for a while gives Lead Sickness, slowly worse the longer you stay, and it gives off a faint wisp of fumes.
+- A Block of Raw Lead in water leaches into it: over about twenty seconds the water around it turns grey a block at a time, up to 4 blocks away, and players in it get Lead Sickness, worse the longer they stay.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.

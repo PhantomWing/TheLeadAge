@@ -45,10 +45,17 @@ public final class LeadFumes {
 
     /** How long a player stays in lead fumes - a campfire's stream - or contaminated water per stage. */
     public static final int FUMES_STAGE_TICKS = 60;
-    /** How long a player stands on raw lead per stage: the same ladder, much slower. */
+    /** How long a player stands on raw lead per stage, the first included: the same ladder, much slower. */
     public static final int CONTACT_STAGE_TICKS = 200;
     /** When each player last took a dose from lead they stay in: one timer for every source, so two at once climb no faster. */
     private static final Map<Player, Long> LAST_TOUCH = new WeakHashMap<>();
+    /**
+     * How long a player's stand on raw lead can go unfelt before it starts over: a player standing still only tells
+     * the server where they are once a second.
+     */
+    private static final int STAND_LAPSE = 40;
+    /** Each player's stand on raw lead: when it last dosed them (or began), and when it was last felt. */
+    private static final Map<Player, long[]> STANDING = new WeakHashMap<>();
 
     private LeadFumes() {
     }
@@ -78,19 +85,38 @@ public final class LeadFumes {
     }
 
     /**
-     * A player in lead they can stay in - a campfire's stream, contaminated water, a block of raw lead underfoot: a
-     * dose on contact, and another every {@code stageTicks} while they stay, so it worsens the longer they do.
+     * A player in lead they can stay in - a campfire's stream, contaminated water: a dose on contact, and another
+     * every {@code stageTicks} while they stay, so it worsens the longer they do. Whether it dosed them.
      */
-    public static void touch(Player player, int stageTicks) {
+    public static boolean touch(Player player, int stageTicks) {
         long now = player.level().getGameTime();
         Long last = LAST_TOUCH.get(player);
         if (last != null && now >= last && now - last < stageTicks) {
-            return;
+            return false;
         }
         LAST_TOUCH.put(player, now);
         escalate(player);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
+        return true;
+    }
+
+    /**
+     * A player standing on a block of raw lead: nothing at first, a dose once they have stood there
+     * {@code stageTicks}, and another every {@code stageTicks} after. Stepping off for a couple of seconds starts it
+     * over.
+     */
+    public static void stand(Player player, int stageTicks) {
+        long now = player.level().getGameTime();
+        long[] stand = STANDING.get(player);
+        if (stand == null || now < stand[1] || now - stand[1] > STAND_LAPSE) {
+            STANDING.put(player, new long[] {now, now});
+            return;
+        }
+        stand[1] = now;
+        if (now - stand[0] >= stageTicks && touch(player, stageTicks)) {
+            stand[0] = now;
+        }
     }
 
     /**

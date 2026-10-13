@@ -19,7 +19,7 @@ public final class GameTests {
             test("campfire_fumes_only_over_raw_lead", LeadOreGameTest::campfireFumesOnlyOverRawLead),
             test("campfire_stream_doses_who_touches_it", LeadOreGameTest::campfireStreamDosesWhoTouchesIt),
             test("raw_lead_leaks_into_water", LeadOreGameTest::rawLeadLeaksIntoWater),
-            test("raw_lead_doses_who_stands_on_it", LeadOreGameTest::rawLeadDosesWhoStandsOnIt),
+            test("raw_lead_doses_who_stands_on_it", LeadOreGameTest::rawLeadDosesWhoStandsOnIt).maxTicks(400),
             test("contaminated_water_doses_swimmer", LeadOreGameTest::contaminatedWaterDosesSwimmer),
             test("door_recipe_combines", LeadOreGameTest::doorRecipeCombines),
             test("lead_bricks_recipe_yields_one", LeadOreGameTest::leadBricksRecipeYieldsOne),

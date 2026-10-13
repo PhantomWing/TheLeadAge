@@ -703,7 +703,7 @@ public class LeadOreGameTest {
         });
     }
 
-    /** Raw lead leaks into water touching any side of it, a block's reach at first, and stops once the water is gone. */
+    /** Raw lead leaks into water touching any side of it, its spreading's first step at once, and stops once the water is gone. */
     public static void rawLeadLeaksIntoWater(GameTestHelper helper) {
         BlockPos lead = new BlockPos(1, 2, 1);
         clearAround(helper);
@@ -714,7 +714,7 @@ public class LeadOreGameTest {
         }
         helper.setBlock(lead.east(), Blocks.WATER);
         if (reach(helper, lead) != 1) {
-            fail(helper, "Raw lead with water beside it reaches " + reach(helper, lead) + " blocks, not 1 to start");
+            fail(helper, "Raw lead with water beside it starts at step " + reach(helper, lead) + ", not 1");
             return;
         }
         helper.setBlock(lead.east(), Blocks.AIR);
@@ -725,21 +725,32 @@ public class LeadOreGameTest {
         helper.succeed();
     }
 
-    /** Standing on raw lead gives a player Lead Sickness. */
+    /** Standing on raw lead a while gives a player Lead Sickness, and not at once. */
     public static void rawLeadDosesWhoStandsOnIt(GameTestHelper helper) {
         whenSpawnLoaded(helper, SPAWN_TICKS, () -> {
             ServerPlayer player = helper.makeMockServerPlayerInLevel();
             player.setGameMode(GameType.SURVIVAL);
             clearSickness(player);
-            BlockPos lead = helper.absolutePos(new BlockPos(1, 1, 1));
             helper.setBlock(new BlockPos(1, 1, 1), ModBlocks.RAW_LEAD_BLOCK.get());
-            ModBlocks.RAW_LEAD_BLOCK.get().stepOn(helper.getLevel(), lead, helper.getLevel().getBlockState(lead), player);
-            if (player.hasEffect(MobEffects.HUNGER)) {
-                helper.succeed();
-            } else {
-                fail(helper, "Standing on raw lead didn't dose the player");
-            }
+            standOnRawLead(helper, player, helper.absolutePos(new BlockPos(1, 1, 1)), 0);
         });
+    }
+
+    /** The player stands on the raw lead, felt once a second as a player standing still is, until it should dose them. */
+    private static void standOnRawLead(GameTestHelper helper, ServerPlayer player, BlockPos lead, int stood) {
+        ModBlocks.RAW_LEAD_BLOCK.get().stepOn(helper.getLevel(), lead, helper.getLevel().getBlockState(lead), player);
+        boolean dosed = player.hasEffect(MobEffects.HUNGER);
+        if (stood < LeadFumes.CONTACT_STAGE_TICKS) {
+            if (dosed) {
+                fail(helper, "Raw lead dosed the player after " + stood + " ticks, before " + LeadFumes.CONTACT_STAGE_TICKS);
+            } else {
+                helper.runAfterDelay(20, () -> standOnRawLead(helper, player, lead, stood + 20));
+            }
+        } else if (dosed) {
+            helper.succeed();
+        } else {
+            fail(helper, "Standing on raw lead for " + stood + " ticks didn't dose the player");
+        }
     }
 
     /** Raw lead in water doses the player swimming in the water it has leaked into. */
@@ -759,11 +770,11 @@ public class LeadOreGameTest {
             }
         }
         helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState()
-                .setValue(RawLeadBlock.CONTAMINATION, LeadWater.MAX_RADIUS));
+                .setValue(RawLeadBlock.CONTAMINATION, LeadWater.MAX_STEP));
         moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 2, 1))));
         whenFumesFind(helper, player, lead.above(), FIND_TICKS, () -> {
             clearSickness(player);
-            LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead), LeadWater.MAX_RADIUS);
+            LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead), LeadWater.MAX_STEP);
             if (player.hasEffect(MobEffects.HUNGER)) {
                 helper.succeed();
             } else {

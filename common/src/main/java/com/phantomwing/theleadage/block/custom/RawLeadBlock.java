@@ -22,17 +22,17 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.joml.Vector3f;
 
 /**
- * The block of raw lead: unrefined lead, poisonous to handle. A player standing on it gets Lead Sickness, slowly
- * worse the longer they stay, sneaking or not, and it gives off a faint wisp of the lead's white smoke. In water it
+ * The block of raw lead: unrefined lead, poisonous to handle. A player who stands on it a while gets Lead Sickness,
+ * slowly worse the longer they stay, sneaking or not, and it gives off a faint wisp of the lead's white smoke. In water it
  * leaks ({@link LeadWater}). Only a block in water ticks, every {@value LeadWater#INTERVAL} ticks rather than with a
  * block entity, so the blocks in a storage room cost nothing.
  */
 public class RawLeadBlock extends Block {
     public static final MapCodec<RawLeadBlock> CODEC = simpleCodec(RawLeadBlock::new);
-    /** How far it has leaked into the water it touches: 0 out of water, else its reach in blocks, growing to the most. */
-    public static final IntegerProperty CONTAMINATION = IntegerProperty.create("contamination", 0, LeadWater.MAX_RADIUS);
-    /** The reach grows a block once in this many checks on average: about every 10 seconds. */
-    private static final int SPREAD_CHANCE = 20;
+    /** How far it has leaked into the water it touches: 0 out of water, else the steps its spreading has taken. */
+    public static final IntegerProperty CONTAMINATION = IntegerProperty.create("contamination", 0, LeadWater.MAX_STEP);
+    /** The spreading takes a step in this many of every three checks: about 20 seconds to spread as far as it does. */
+    private static final int SPREAD_CHANCE = 2;
     private static final DustParticleOptions SPECK = new DustParticleOptions(new Vector3f(0.36F, 0.38F, 0.42F), 1.0F);
 
     public RawLeadBlock(Properties properties) {
@@ -74,13 +74,13 @@ public class RawLeadBlock extends Block {
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        int radius = state.getValue(CONTAMINATION);
-        if (radius == 0) {
+        int step = state.getValue(CONTAMINATION);
+        if (step == 0) {
             return;
         }
-        LeadWater.contaminate(level, pos, radius);
-        if (radius < LeadWater.MAX_RADIUS && random.nextInt(SPREAD_CHANCE) == 0) {
-            level.setBlock(pos, state.setValue(CONTAMINATION, radius + 1), Block.UPDATE_CLIENTS);
+        LeadWater.contaminate(level, pos, step);
+        if (step < LeadWater.MAX_STEP && random.nextInt(3) < SPREAD_CHANCE) {
+            level.setBlock(pos, state.setValue(CONTAMINATION, step + 1), Block.UPDATE_CLIENTS);
         }
         level.scheduleTick(pos, this, LeadWater.INTERVAL);
     }
@@ -88,7 +88,7 @@ public class RawLeadBlock extends Block {
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (!level.isClientSide && entity instanceof Player player && !player.isSpectator() && CommonConfig.rawLeadContact()) {
-            LeadFumes.touch(player, LeadFumes.CONTACT_STAGE_TICKS);
+            LeadFumes.stand(player, LeadFumes.CONTACT_STAGE_TICKS);
         }
         super.stepOn(level, pos, state, entity);
     }
@@ -99,14 +99,15 @@ public class RawLeadBlock extends Block {
             level.addParticle(ParticleTypes.WHITE_SMOKE, pos.getX() + 0.2 + random.nextDouble() * 0.6, pos.getY() + 1.05,
                     pos.getZ() + 0.2 + random.nextDouble() * 0.6, 0.0, 0.01, 0.0);
         }
-        int radius = state.getValue(CONTAMINATION);
-        if (radius == 0 || !CommonConfig.leadWaterContamination()) {
+        int step = state.getValue(CONTAMINATION);
+        if (step == 0 || !CommonConfig.leadWaterContamination()) {
             return;
         }
-        for (int i = 0; i < 6; i++) {
-            BlockPos at = pos.offset(random.nextInt(radius * 2 + 1) - radius, random.nextInt(radius * 2 + 1) - radius,
-                    random.nextInt(radius * 2 + 1) - radius);
-            if (LeadWater.contaminates(level, pos, radius, at)) {
+        int reach = LeadWater.MAX_RADIUS;
+        for (int i = 0; i < 8; i++) {
+            BlockPos at = pos.offset(random.nextInt(reach * 2 + 1) - reach, random.nextInt(reach * 2 + 1) - reach,
+                    random.nextInt(reach * 2 + 1) - reach);
+            if (LeadWater.contaminates(level, pos, step, at)) {
                 level.addParticle(SPECK, at.getX() + random.nextDouble(), at.getY() + random.nextDouble(),
                         at.getZ() + random.nextDouble(), 0.0, 0.0, 0.0);
             }
