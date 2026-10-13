@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:blasting",
+  "cookingtime": 100,
+  "experience": 0.1,
+  "ingredient": [
+    "theleadage:lead_pickaxe",
+    "theleadage:lead_shovel",
+    "theleadage:lead_axe",
+    "theleadage:lead_hoe",
+    "theleadage:lead_sword",
+    "theleadage:lead_spear",
+    "theleadage:lead_helmet",
+    "theleadage:lead_chestplate",
+    "theleadage:lead_leggings",
+    "theleadage:lead_boots",
+    "theleadage:lead_horse_armor",
+    "theleadage:lead_nautilus_armor"
+  ],
+  "result": {
+    "id": "theleadage:lead_nugget"
+  }
+}

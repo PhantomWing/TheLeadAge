@@ -24,6 +24,7 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -57,7 +58,7 @@ import java.util.List;
  * picks the clear vs. coloured texture. Orientable types (e.g. split) carry an {@code orientation}
  * that selects a distinct model and can be cycled in place by sneak-right-click.
  */
-public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWaterloggedBlock {
+public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWaterloggedBlock, BeaconBeamBlock {
     public static final EnumProperty<AttachFace> FACE = BlockStateProperties.ATTACH_FACE;
     // 1.21.2 removed DirectionProperty; HORIZONTAL_FACING is now a plain EnumProperty<Direction>.
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -398,6 +399,41 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new LeadedGlassPanelBlockEntity(pos, state);
+    }
+
+    /**
+     * The colour a beacon's beam takes through this pane, as through vanilla's stained glass panes:
+     * its dyed regions averaged, or null when all of it is clear, so the beam passes untouched.
+     */
+    @Nullable
+    public Integer beaconColor(BlockState state, BlockGetter level, BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane)) {
+            return null;
+        }
+        int red = 0, green = 0, blue = 0, dyed = 0;
+        for (int region = 0; region < frame(state).regions(); region++) {
+            DyeColor color = pane.colorAt(region);
+            if (color != null) {
+                int rgb = color.getTextureDiffuseColor();
+                red += (rgb >> 16) & 0xFF;
+                green += (rgb >> 8) & 0xFF;
+                blue += rgb & 0xFF;
+                dyed++;
+            }
+        }
+        return dyed == 0 ? null : 0xFF000000 | red / dyed << 16 | green / dyed << 8 | blue / dyed;
+    }
+
+    /** NeoForge's {@code IBlockExtension#getBeaconColorMultiplier}, overridden by name: common can't see it. */
+    @Nullable
+    public Integer getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
+        return beaconColor(state, level, pos);
+    }
+
+    /** Fabric's beacon casts to this before it asks the colour, which its mixin then takes from {@link #beaconColor}. */
+    @Override
+    public DyeColor getColor() {
+        return DyeColor.WHITE;
     }
 
     /** A region is clear when it has no colour (an explicit CLEAR id, or no entry at all). */
