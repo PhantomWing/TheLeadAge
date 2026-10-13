@@ -17,6 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BiomeColorsMixin {
     @Inject(method = "getAverageWaterColor", at = @At("RETURN"), cancellable = true)
     private static void theleadage$leadTint(BlockAndTintGetter level, BlockPos pos, CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(LeadWaterTint.tint(level, pos, cir.getReturnValueI()));
+        cir.setReturnValue(LeadWaterTint.tint(pos, cir.getReturnValueI()));
     }
 }

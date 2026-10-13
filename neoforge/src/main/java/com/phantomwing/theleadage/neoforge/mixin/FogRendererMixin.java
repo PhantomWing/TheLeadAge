@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Turns the fog grey inside the water raw lead contaminates ({@link LeadWaterTint#fog}), which is all that shows of its
- * tint from under the surface. The fog colour is also the shaders' {@code fogColor}. The Fabric twin is the
+ * tint from under the surface. Set once everything else has, NeoForge's fog colour event included, and cleared to
+ * again; it is also the shaders' {@code fogColor}. The Fabric twin is the
  * identically-named mixin in the {@code fabric} source set.
  */
 @Mixin(FogRenderer.class)

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Water a block of raw lead leaches into. Raw lead touching water on any side, at any depth, leaks into the water
@@ -84,6 +85,11 @@ public final class LeadWater {
      * at the end of its reach, and fading in over a few steps once reached, from the raw lead that tints it most.
      */
     public static float strength(BlockGetter level, BlockPos water) {
+        return strength(level, water, lead -> leak(level, lead));
+    }
+
+    /** As {@link #strength(BlockGetter, BlockPos)}, with each lead's routes found by {@code leaks}. */
+    public static float strength(BlockGetter level, BlockPos water, Function<BlockPos, Leak> leaks) {
         float strongest = 0.0F;
         BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();
         for (int dx = -MAX_RADIUS; dx <= MAX_RADIUS; dx++) {
@@ -93,7 +99,7 @@ public final class LeadWater {
                 for (int dz = -restZ; dz <= restZ; dz++) {
                     BlockState state = level.getBlockState(at.setWithOffset(water, dx, dy, dz));
                     if (state.getBlock() instanceof RawLeadBlock && state.getValue(RawLeadBlock.CONTAMINATION) > 0) {
-                        strongest = Math.max(strongest, leak(level, at).strength(state.getValue(RawLeadBlock.CONTAMINATION), water));
+                        strongest = Math.max(strongest, leaks.apply(at).strength(state.getValue(RawLeadBlock.CONTAMINATION), water));
                     }
                 }
             }
