@@ -41,7 +41,9 @@ public class DataGenerators {
                 new ModBiomeTagsProvider(output, lookupProvider, existingFileHelper));
         generator.addProvider(event.includeServer(),
                 new ModEntityTypeTagsProvider(output, lookupProvider, existingFileHelper));
-        generator.addProvider(event.includeServer(), new ModDatapackProvider(output, lookupProvider));
+        ModDatapackProvider datapack = generator.addProvider(event.includeServer(), new ModDatapackProvider(output, lookupProvider));
+        generator.addProvider(event.includeServer(),
+                new ModDamageTypeTagsProvider(output, datapack.getRegistryProvider(), existingFileHelper));
         generator.addProvider(event.includeServer(), new ModGlobalLootModifierProvider(output, lookupProvider));
         generator.addProvider(event.includeServer(), new AdvancementProvider(output, lookupProvider, existingFileHelper,
                 List.of(new ModAdvancementProvider())));
