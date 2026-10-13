@@ -121,8 +121,8 @@ public final class LeadWater {
     }
 
     /**
-     * How strongly the water at {@code water} is contaminated, from 0 to 1: strongest beside the lead, fading towards
-     * the edge of its reach, and fading in over a few steps once reached, from the raw lead that tints it most.
+     * How strongly the water at {@code water} is contaminated, from 0 to 1: strongest beside the lead, fading to half
+     * at the edge of its reach, and fading in over a few steps once reached, from the raw lead that tints it most.
      */
     public static float strength(BlockGetter level, BlockPos water) {
         float strongest = 0.0F;
@@ -139,7 +139,7 @@ public final class LeadWater {
                     int since = since(level, at, state.getValue(RawLeadBlock.CONTAMINATION), water);
                     if (since >= 0) {
                         int distance = Math.abs(dx) + Math.abs(dy) + Math.abs(dz);
-                        float near = 1.0F - (float) distance / (MAX_RADIUS + 1);
+                        float near = 1.0F - 0.5F * (distance - 1) / (MAX_RADIUS - 1);
                         strongest = Math.max(strongest, near * Math.min(1.0F, (since + 1) / (float) FADE));
                     }
                 }

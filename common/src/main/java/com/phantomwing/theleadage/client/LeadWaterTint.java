@@ -20,8 +20,8 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
  * specks too.
  */
 public final class LeadWaterTint {
-    private static final int LEAD_GREY = 0x5F656D;
-    private static final float MOST = 0.7F;
+    private static final int LEAD_GREY = 0x464B53;
+    private static final float MOST = 0.85F;
 
     private LeadWaterTint() {
     }
