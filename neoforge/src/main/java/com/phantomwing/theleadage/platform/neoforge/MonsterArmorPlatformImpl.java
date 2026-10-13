@@ -16,7 +16,7 @@ public final class MonsterArmorPlatformImpl {
 
     public static void registerMobSpawnHandler() {
         NeoForge.EVENT_BUS.addListener((EntityJoinLevelEvent event) ->
-                MonsterArmorHandler.tryEquipLeadArmor(
+                MonsterArmorHandler.tryEquipLeadGear(
                         event.getEntity(),
                         event.getLevel(),
                         event.loadedFromDisk()));
