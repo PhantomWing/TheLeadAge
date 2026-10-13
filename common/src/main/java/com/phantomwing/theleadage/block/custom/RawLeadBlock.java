@@ -104,10 +104,11 @@ public class RawLeadBlock extends Block {
             return;
         }
         int reach = LeadWater.MAX_RADIUS;
+        LeadWater.Leak leak = LeadWater.leak(level, pos);
         for (int i = 0; i < 8; i++) {
             BlockPos at = pos.offset(random.nextInt(reach * 2 + 1) - reach, random.nextInt(reach * 2 + 1) - reach,
                     random.nextInt(reach * 2 + 1) - reach);
-            if (LeadWater.contaminates(level, pos, step, at)) {
+            if (leak.since(step, at) >= 0) {
                 level.addParticle(SPECK, at.getX() + random.nextDouble(), at.getY() + random.nextDouble(),
                         at.getZ() + random.nextDouble(), 0.0, 0.0, 0.0);
             }

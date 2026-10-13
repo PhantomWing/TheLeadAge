@@ -92,7 +92,7 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.enable_raw_lead_contact")
                 .define(ENABLE_RAW_LEAD_CONTACT_ID, true);
         ENABLE_LEAD_WATER_CONTAMINATION = builder
-                .comment("Should a block of raw lead leach into the water it touches? The contaminated water spreads a block at a time, up to 4 blocks away, over about twenty seconds, is tinted grey, and gives players in it Lead Sickness, worse the longer they stay.")
+                .comment("Should a block of raw lead leach into the water it touches? The contaminated water spreads a block at a time, up to 4 blocks away through the water and around what stands in it, over about twenty seconds, is tinted grey, and gives players in it Lead Sickness, worse the longer they stay.")
                 .translation("text.autoconfig.theleadage.option.enable_lead_water_contamination")
                 .define(ENABLE_LEAD_WATER_CONTAMINATION_ID, true);
         ENABLE_RECIPE_OVERRIDES = builder
