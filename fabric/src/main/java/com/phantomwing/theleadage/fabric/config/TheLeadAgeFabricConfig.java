@@ -42,6 +42,9 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String ENABLE_STRUCTURE_LOOT_ID = "enable_structure_loot";
     public boolean enable_structure_loot = true;
 
+    public static final String ENABLE_MOB_LEAD_EQUIPMENT_ID = "enable_mob_lead_equipment";
+    public boolean enable_mob_lead_equipment = true;
+
     public static final String ENABLE_VILLAGER_TRADES_ID = "enable_villager_trades";
     public boolean enable_villager_trades = true;
 
@@ -66,6 +69,7 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> config.override_heavy_core_recipe;
             case ENABLE_STRUCTURE_LOOT_ID -> config.enable_structure_loot;
+            case ENABLE_MOB_LEAD_EQUIPMENT_ID -> config.enable_mob_lead_equipment;
             case ENABLE_VILLAGER_TRADES_ID -> config.enable_villager_trades;
             default -> throw new Error("Invalid setting ID: " + id);
         };

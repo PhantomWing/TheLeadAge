@@ -37,6 +37,9 @@ public class Configuration {
     public static final String ENABLE_STRUCTURE_LOOT_ID = "enable_structure_loot";
     public static final ModConfigSpec.BooleanValue ENABLE_STRUCTURE_LOOT;
 
+    public static final String ENABLE_MOB_LEAD_EQUIPMENT_ID = "enable_mob_lead_equipment";
+    public static final ModConfigSpec.BooleanValue ENABLE_MOB_LEAD_EQUIPMENT;
+
     public static final String ENABLE_VILLAGER_TRADES_ID = "enable_villager_trades";
     public static final ModConfigSpec.BooleanValue ENABLE_VILLAGER_TRADES;
 
@@ -51,6 +54,7 @@ public class Configuration {
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
             case ENABLE_STRUCTURE_LOOT_ID -> ENABLE_STRUCTURE_LOOT.get();
+            case ENABLE_MOB_LEAD_EQUIPMENT_ID -> ENABLE_MOB_LEAD_EQUIPMENT.get();
             case ENABLE_VILLAGER_TRADES_ID -> ENABLE_VILLAGER_TRADES.get();
             default -> throw new Error("Invalid setting ID: " + id);
         };
@@ -95,6 +99,10 @@ public class Configuration {
                 .comment("Should lead items appear in structure/chest loot? (Lead horse armor occasionally replaces iron horse armor.)")
                 .translation("text.autoconfig.theleadage.option.enable_structure_loot")
                 .define(ENABLE_STRUCTURE_LOOT_ID, true);
+        ENABLE_MOB_LEAD_EQUIPMENT = builder
+                .comment("Should mobs sometimes spawn with lead armor, swords, axes and shovels where they would have had iron ones? (Zombies, skeletons, vindicators and the like.)")
+                .translation("text.autoconfig.theleadage.option.enable_mob_lead_equipment")
+                .define(ENABLE_MOB_LEAD_EQUIPMENT_ID, true);
         ENABLE_VILLAGER_TRADES = builder
                 .comment("Should villagers offer lead trades?")
                 .translation("text.autoconfig.theleadage.option.enable_villager_trades")
