@@ -34,6 +34,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         // Conventional `c:` tags so other mods recognise lead as a standard metal.
         tag(c("ores")).add(ModItems.LEAD_ORE.get(), ModItems.DEEPSLATE_LEAD_ORE.get());
         tag(c("ores/lead")).add(ModItems.LEAD_ORE.get(), ModItems.DEEPSLATE_LEAD_ORE.get());
+        tag(c("ores_in_ground/stone")).add(ModItems.LEAD_ORE.get());
+        tag(c("ores_in_ground/deepslate")).add(ModItems.DEEPSLATE_LEAD_ORE.get());
 
         tag(c("raw_materials")).add(ModItems.RAW_LEAD.get());
         tag(c("raw_materials/lead")).add(ModItems.RAW_LEAD.get());
@@ -92,6 +94,19 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ModTags.Items.LEADED_GLASS_BLOCKS).add(ModBlocks.LEADED_GLASS.get().asItem());
         for (DyeColor color : DyeColor.values()) {
             tag(ModTags.Items.LEADED_GLASS_BLOCKS).add(ModBlocks.STAINED_LEADED_GLASS.get(color).get().asItem());
+        }
+
+        tag(c("chains")).add(ModItems.LEAD_CHAIN.get());
+        tag(ItemTags.CHAINS).add(ModItems.LEAD_CHAIN.get());
+        tag(ItemTags.LANTERNS).add(ModItems.LEAD_LANTERN.get());
+        tag(ItemTags.BARS).add(ModItems.LEAD_BARS.get());
+        // Glass and dye colour, as on the blocks (see ModBlockTagsProvider).
+        tag(c("glass_blocks")).addTag(ModTags.Items.LEADED_GLASS_BLOCKS);
+        tag(c("glass_blocks/colorless")).add(ModItems.LEADED_GLASS.get());
+        for (DyeColor color : DyeColor.values()) {
+            Item stained = ModBlocks.STAINED_LEADED_GLASS.get(color).get().asItem();
+            tag(c("dyed")).add(stained);
+            tag(c("dyed/" + color.getName())).add(stained);
         }
 
         // Item forms of the repellent tags, mirroring vanilla's #minecraft:piglin_repellents item tag.

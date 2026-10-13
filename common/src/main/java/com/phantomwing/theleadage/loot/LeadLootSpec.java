@@ -70,7 +70,10 @@ public final class LeadLootSpec {
                 replaceIronIngot("lead_ingot_from_pillager_outpost", "chests/pillager_outpost", ironIngot),
                 replaceIronIngot("lead_ingot_from_village_weaponsmith", "chests/village/village_weaponsmith", ironIngot),
                 replaceIronIngot("lead_ingot_from_village_toolsmith", "chests/village/village_toolsmith", ironIngot),
-                replaceIronIngot("lead_ingot_from_village_armorer", "chests/village/village_armorer", ironIngot)
+                replaceIronIngot("lead_ingot_from_village_armorer", "chests/village/village_armorer", ironIngot),
+                // The vault rolls chests/trial_chambers/reward, which reaches the iron in reward_common as a
+                // nested table; loot modifiers only ever see the table that was rolled.
+                replaceIronIngot("lead_ingot_from_trial_chambers_reward", "chests/trial_chambers/reward", ironIngot)
         );
     }
 
