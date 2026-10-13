@@ -129,6 +129,7 @@
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Криперлер қорғасын буынан аулақ жүреді",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Тонаушылар қорғасын буынан аулақ жүреді",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Ошақтан шығатын қорғасын буы",
+  "text.autoconfig.theleadage.option.enable_raw_lead_contact": "Шикі қорғасынмен улану",
   "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Қорғасынмен ластанған су",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Бастапқы рецепттерді қайта жазу",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Қармақ рецепті",

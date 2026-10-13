@@ -12,6 +12,8 @@
     "PersistentEntitySectionManagerMixin"
   ],
   "client": [
+    "BiomeColorsMixin",
+    "LevelRendererMixin",
     "StonecutterScreenMixin"
   ],
   "injectors": {

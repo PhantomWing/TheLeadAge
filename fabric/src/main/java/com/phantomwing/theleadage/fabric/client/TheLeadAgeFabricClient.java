@@ -1,7 +1,6 @@
 package com.phantomwing.theleadage.fabric.client;
 
 import com.phantomwing.theleadage.block.ModBlocks;
-import com.phantomwing.theleadage.client.particle.LeadFumesParticles;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
 import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
@@ -37,10 +36,6 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         ModRenderLayers.register();
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
-        // The lead fumes: a campfire's stream over raw lead, and the gas over water raw lead contaminates.
-        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FUMES.get(), LeadFumesParticles.Stream.Provider::new);
-        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FUMES_GAS.get(), LeadFumesParticles.Gas.Provider::new);
-        ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FUMES_CLOUD.get(), new LeadFumesParticles.Cloud.Provider());
         EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
 
         // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersNeoForge.

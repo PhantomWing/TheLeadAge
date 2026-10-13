@@ -4,8 +4,9 @@
 - Leaded glass works with dye mods such as Dye Depot and Delicate Dyes: every colour they add gets its own dyed leaded glass, crafted like the vanilla colours, with its drops, tags and a name in every language.
 - Eight clear Leaded Glass Panes around a dye craft eight panes of its colour, as vanilla's glass panes do.
 - Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
-- Campfires and soul campfires lit on a Block of Raw Lead send up a stream of lead fumes with their smoke. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
-- A Block of Raw Lead with water on top contaminates it, as potent sulfur does: lead fumes rise at the surface above it, and players in that water within 3 blocks get Lead Sickness, worse the longer they stay.
+- Campfires and soul campfires lit on a Block of Raw Lead send up a stream of lead fumes as high as their smoke. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
+- Raw lead is poisonous to handle: standing on a Block of Raw Lead gives Lead Sickness, slowly worse the longer you stay, and it gives off a faint wisp of fumes.
+- A Block of Raw Lead in water leaches into it: over about half a minute the water up to 4 blocks around it turns grey, and players in it get Lead Sickness, worse the longer they stay.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.

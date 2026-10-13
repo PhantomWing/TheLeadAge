@@ -1,10 +1,10 @@
 package com.phantomwing.theleadage.effect;
 
-import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -17,9 +17,10 @@ import net.minecraft.world.phys.AABB;
 
 /**
  * A campfire burning over raw lead - a block in {@link ModTags.Blocks#CAMPFIRE_FUME_SOURCES} - sends a stream of lead
- * fumes up with its smoke, as high and as thick. A player touching the stream breathes it, worse the longer they
- * stay ({@link LeadFumes#touch}); creepers and pillagers keep away from it ({@code AvoidRepellentBlockGoal}). Soul
- * campfires too. Ticked by each loader's {@code CampfireBlockEntityMixin}.
+ * fumes up with its smoke, as high: the white smoke of the lead torch and of broken lead ore, filling the column. A
+ * player touching the stream breathes it, worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
+ * keep away from it ({@code AvoidRepellentBlockGoal}). Soul campfires too. Ticked by each loader's
+ * {@code CampfireBlockEntityMixin}.
  */
 public final class CampfireFumes {
     /** How far the stream rises over the fire: where the campfire's own smoke fades out. */
@@ -49,7 +50,7 @@ public final class CampfireFumes {
     public static void doseStream(ServerLevel level, BlockPos pos) {
         for (Player player : level.getEntitiesOfClass(Player.class, stream(level, pos),
                 player -> !player.isSpectator() && player.isAlive())) {
-            LeadFumes.touch(player);
+            LeadFumes.touch(player, LeadFumes.FUMES_STAGE_TICKS);
         }
     }
 
@@ -62,18 +63,22 @@ public final class CampfireFumes {
         return new AABB(pos.getX(), pos.getY() + 0.5, pos.getZ(), pos.getX() + 1, at.getY(), pos.getZ() + 1);
     }
 
-    /** A lit campfire's client tick: the fumes rise with its smoke, at the rate and from the spots vanilla's smoke does. */
+    /**
+     * A lit campfire's client tick: puffs of white smoke all the way up the stream. A puff only lives a moment, so one
+     * rising from the fire would never reach the smoke's height; filling the column keeps the stream as high as it.
+     */
     public static void particleTick(Level level, BlockPos pos, BlockState state) {
-        RandomSource random = level.getRandom();
-        if (random.nextFloat() >= 0.11F || !isFuming(level, pos, state)) {
+        if (!isFuming(level, pos, state)) {
             return;
         }
-        for (int i = random.nextInt(2) + 2; i > 0; i--) {
-            level.addAlwaysVisibleParticle(ModParticles.LEAD_FUMES.get(), true,
-                    pos.getX() + 0.5 + random.nextDouble() / 3.0 * (random.nextBoolean() ? 1 : -1),
-                    pos.getY() + random.nextDouble() + random.nextDouble(),
-                    pos.getZ() + 0.5 + random.nextDouble() / 3.0 * (random.nextBoolean() ? 1 : -1),
-                    0.0, 0.07, 0.0);
+        RandomSource random = level.getRandom();
+        AABB stream = stream(level, pos);
+        for (int i = random.nextInt(2) + 1; i > 0; i--) {
+            level.addAlwaysVisibleParticle(ParticleTypes.WHITE_SMOKE, true,
+                    pos.getX() + 0.25 + random.nextDouble() * 0.5,
+                    stream.minY + random.nextDouble() * (stream.maxY - stream.minY),
+                    pos.getZ() + 0.25 + random.nextDouble() * 0.5,
+                    0.0, 0.02, 0.0);
         }
     }
 }

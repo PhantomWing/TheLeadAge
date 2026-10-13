@@ -1,94 +1,91 @@
 package com.phantomwing.theleadage.effect;
 
+import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Water a block of raw lead contaminates, as potent sulfur's does in 26.2, with Lead Sickness where sulfur gives
- * Nausea and only players breathing it. A water source on top makes the block wet ({@code RawLeadBlock}); its
- * fumes come out at the surface above, when the water is at most {@value #WATER_ABOVE} blocks deep, and reach
- * whoever is in that water within {@value #RANGE} blocks of the spot and in sight of it.
+ * Water a block of raw lead leaches into. Raw lead touching water on any side, at any depth, leaks into the water
+ * around it, its reach growing a block at a time from the water beside it to {@value #MAX_RADIUS} blocks
+ * ({@link RawLeadBlock#CONTAMINATION}), through water and open space but not through walls. A player in that water
+ * gets Lead Sickness, worse the longer they stay. The water is tinted for it, and grey specks drift in it, which
+ * rendering mods that draw water their own way still show.
  */
 public final class LeadWater {
-    /** How often the fumes are breathed, as sulfur's. */
+    /** How often the water is checked for players, and the lead's reach for growing. */
     public static final int INTERVAL = 10;
-    public static final double RANGE = 3.0;
-    private static final int WATER_ABOVE = 4;
+    public static final int MAX_RADIUS = 4;
 
     private LeadWater() {
     }
 
-    /** Whether a block of raw lead at {@code pos} has a water source on top, so it contaminates the water. */
-    public static boolean isWet(BlockGetter level, BlockPos pos) {
-        return level.getFluidState(pos.above()).isSourceOfType(Fluids.WATER);
-    }
-
-    /**
-     * Where the fumes come out: the first block over the water above the lead, or {@code null} where the water is
-     * deeper than {@value #WATER_ABOVE} blocks or something solid caps it.
-     */
-    @Nullable
-    public static BlockPos gasSpot(BlockGetter level, BlockPos lead) {
-        int top = lead.getY() + WATER_ABOVE + 1;
-        for (BlockPos.MutableBlockPos at = lead.above().mutable(); at.getY() <= top; at.move(Direction.UP)) {
-            BlockState state = level.getBlockState(at);
-            if (level.getFluidState(at).isSourceOfType(Fluids.WATER) && (state.is(Blocks.WATER) || passable(state, level, at))) {
-                continue;
+    /** Whether raw lead at {@code pos} touches water on any side. */
+    public static boolean touchesWater(BlockGetter level, BlockPos pos) {
+        for (Direction direction : Direction.values()) {
+            if (level.getFluidState(pos.relative(direction)).is(FluidTags.WATER)) {
+                return true;
             }
-            return state.isAir() || passable(state, level, at) ? at.immutable() : null;
         }
-        return null;
+        return false;
     }
 
-    /**
-     * Whether the fumes from {@code spot} reach a point - a player's eyes, a puff's place: one in the open or in
-     * the water, with water below it, within {@value #RANGE} blocks of the spot and in sight of the water over the
-     * lead.
-     */
-    public static boolean reaches(Level level, BlockPos spot, Vec3 at) {
-        BlockPos atPos = BlockPos.containing(at);
-        if (!passable(level.getBlockState(atPos), level, atPos) || at.distanceToSqr(Vec3.atCenterOf(spot)) > RANGE * RANGE) {
+    /** Whether raw lead at {@code lead}, reaching {@code radius} blocks, contaminates the water at {@code water}. */
+    public static boolean contaminates(BlockGetter level, BlockPos lead, int radius, BlockPos water) {
+        if (radius <= 0 || lead.distSqr(water) > radius * radius || !level.getFluidState(water).is(FluidTags.WATER)) {
             return false;
         }
-        Vec3 below = at.with(Direction.Axis.Y, at.y - 1.0);
-        return level.getFluidState(BlockPos.containing(below)).isSourceOfType(Fluids.WATER)
-                && level.clip(new ClipContext(Vec3.atCenterOf(spot.below()), below, ClipContext.Block.COLLIDER,
-                ClipContext.Fluid.NONE, CollisionContext.empty())).getType() != HitResult.Type.BLOCK;
+        Vec3 from = Vec3.atCenterOf(lead);
+        Vec3 to = Vec3.atCenterOf(water);
+        // From just outside the lead, which would otherwise be the first thing the ray hits.
+        Vec3 start = from.add(to.subtract(from).normalize().scale(0.9));
+        BlockHitResult hit = level.clip(new ClipContext(start, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE,
+                CollisionContext.empty()));
+        return hit.getType() != HitResult.Type.BLOCK || hit.getBlockPos().equals(water);
     }
 
-    /** The fumes of the raw lead at {@code lead}: the players they reach breathe them. */
-    public static void contaminate(ServerLevel level, BlockPos lead) {
+    /** Raw lead reaching {@code radius} blocks: the players in the water it contaminates breathe it. */
+    public static void contaminate(ServerLevel level, BlockPos lead, int radius) {
         if (!CommonConfig.leadWaterContamination()) {
             return;
         }
-        BlockPos spot = gasSpot(level, lead);
-        if (spot == null) {
-            return;
-        }
-        for (Player player : level.getEntitiesOfClass(Player.class, new AABB(spot).inflate(RANGE - 0.5),
+        for (Player player : level.getEntitiesOfClass(Player.class, new AABB(lead).inflate(radius),
                 player -> !player.isSpectator() && player.isAlive())) {
-            if (reaches(level, spot, player.getEyePosition())) {
-                LeadFumes.touch(player);
+            if (contaminates(level, lead, radius, player.blockPosition())
+                    || contaminates(level, lead, radius, BlockPos.containing(player.getEyePosition()))) {
+                LeadFumes.touch(player, LeadFumes.FUMES_STAGE_TICKS);
             }
         }
     }
 
-    /** Air, water, or a block with nothing to collide with: what the fumes pass through. */
-    private static boolean passable(BlockState state, BlockGetter level, BlockPos pos) {
-        return state.isAir() || state.is(Blocks.WATER) || state.getCollisionShape(level, pos, CollisionContext.empty()).isEmpty();
+    /**
+     * How strongly the water at {@code water} is contaminated, from 0 to 1: strongest beside the lead, fading towards
+     * the edge of its reach, from the nearest raw lead that reaches it.
+     */
+    public static float strength(BlockGetter level, BlockPos water) {
+        float strongest = 0.0F;
+        for (BlockPos at : BlockPos.betweenClosed(water.offset(-MAX_RADIUS, -MAX_RADIUS, -MAX_RADIUS),
+                water.offset(MAX_RADIUS, MAX_RADIUS, MAX_RADIUS))) {
+            BlockState state = level.getBlockState(at);
+            if (!(state.getBlock() instanceof RawLeadBlock)) {
+                continue;
+            }
+            int radius = state.getValue(RawLeadBlock.CONTAMINATION);
+            if (contaminates(level, at, radius, water)) {
+                strongest = Math.max(strongest, 1.0F - (float) Math.sqrt(at.distSqr(water)) / (radius + 1));
+            }
+        }
+        return strongest;
     }
 }

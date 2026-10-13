@@ -30,6 +30,10 @@ public final class CommonConfigImpl {
         return Configuration.ENABLE_CAMPFIRE_LEAD_FUMES.get();
     }
 
+    public static boolean rawLeadContact() {
+        return Configuration.ENABLE_RAW_LEAD_CONTACT.get();
+    }
+
     public static boolean leadWaterContamination() {
         return Configuration.ENABLE_LEAD_WATER_CONTAMINATION.get();
     }

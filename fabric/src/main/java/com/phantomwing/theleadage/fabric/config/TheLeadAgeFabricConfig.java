@@ -29,6 +29,9 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String ENABLE_CAMPFIRE_LEAD_FUMES_ID = "enable_campfire_lead_fumes";
     public boolean enable_campfire_lead_fumes = true;
 
+    public static final String ENABLE_RAW_LEAD_CONTACT_ID = "enable_raw_lead_contact";
+    public boolean enable_raw_lead_contact = true;
+
     public static final String ENABLE_LEAD_WATER_CONTAMINATION_ID = "enable_lead_water_contamination";
     public boolean enable_lead_water_contamination = true;
 
@@ -65,6 +68,7 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case CREEPERS_AVOID_LEAD_FUMES_ID -> config.creepers_avoid_lead_fumes;
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> config.pillagers_avoid_lead_fumes;
             case ENABLE_CAMPFIRE_LEAD_FUMES_ID -> config.enable_campfire_lead_fumes;
+            case ENABLE_RAW_LEAD_CONTACT_ID -> config.enable_raw_lead_contact;
             case ENABLE_LEAD_WATER_CONTAMINATION_ID -> config.enable_lead_water_contamination;
             case ENABLE_RECIPE_OVERRIDES_ID -> config.enable_recipe_overrides;
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;

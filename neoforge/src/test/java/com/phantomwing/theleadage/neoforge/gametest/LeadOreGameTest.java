@@ -703,29 +703,46 @@ public class LeadOreGameTest {
         });
     }
 
-    /** Raw lead is wet with a water source on top, as potent sulfur is, and dry again once it's gone. */
-    public static void rawLeadIsWetUnderWater(GameTestHelper helper) {
+    /** Raw lead leaks into water touching any side of it, a block's reach at first, and stops once the water is gone. */
+    public static void rawLeadLeaksIntoWater(GameTestHelper helper) {
         BlockPos lead = new BlockPos(1, 2, 1);
         clearAround(helper);
         helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get());
-        if (wet(helper, lead)) {
-            fail(helper, "Raw lead with air on top is wet");
+        if (reach(helper, lead) != 0) {
+            fail(helper, "Raw lead out of water leaks");
             return;
         }
-        helper.setBlock(lead.above(), Blocks.WATER);
-        if (!wet(helper, lead)) {
-            fail(helper, "Raw lead with a water source on top isn't wet");
+        helper.setBlock(lead.east(), Blocks.WATER);
+        if (reach(helper, lead) != 1) {
+            fail(helper, "Raw lead with water beside it reaches " + reach(helper, lead) + " blocks, not 1 to start");
             return;
         }
-        helper.setBlock(lead.above(), Blocks.AIR);
-        if (wet(helper, lead)) {
-            fail(helper, "Raw lead stays wet once the water on top is gone");
+        helper.setBlock(lead.east(), Blocks.AIR);
+        if (reach(helper, lead) != 0) {
+            fail(helper, "Raw lead goes on leaking once the water is gone");
             return;
         }
         helper.succeed();
     }
 
-    /** Raw lead under water doses the player swimming in it near the fumes' spot, as potent sulfur's water does. */
+    /** Standing on raw lead gives a player Lead Sickness. */
+    public static void rawLeadDosesWhoStandsOnIt(GameTestHelper helper) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> {
+            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            player.setGameMode(GameType.SURVIVAL);
+            clearSickness(player);
+            BlockPos lead = helper.absolutePos(new BlockPos(1, 1, 1));
+            helper.setBlock(new BlockPos(1, 1, 1), ModBlocks.RAW_LEAD_BLOCK.get());
+            ModBlocks.RAW_LEAD_BLOCK.get().stepOn(helper.getLevel(), lead, helper.getLevel().getBlockState(lead), player);
+            if (player.hasEffect(MobEffects.HUNGER)) {
+                helper.succeed();
+            } else {
+                fail(helper, "Standing on raw lead didn't dose the player");
+            }
+        });
+    }
+
+    /** Raw lead in water doses the player swimming in the water it has leaked into. */
     public static void contaminatedWaterDosesSwimmer(GameTestHelper helper) {
         whenSpawnLoaded(helper, SPAWN_TICKS, () -> contaminatedWaterDosesSwimmerNow(helper));
     }
@@ -735,28 +752,29 @@ public class LeadOreGameTest {
         player.setGameMode(GameType.SURVIVAL);
         BlockPos lead = new BlockPos(1, 1, 1);
         clearAround(helper);
-        helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get());
-        // A pool one deep over the lead, the fumes' spot in the air above it.
+        // A pool one deep over the lead, which has leaked as far as it does.
         for (int x = 0; x <= 2; x++) {
             for (int z = 0; z <= 2; z++) {
                 helper.setBlock(new BlockPos(x, 2, z), Blocks.WATER);
             }
         }
+        helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState()
+                .setValue(RawLeadBlock.CONTAMINATION, LeadWater.MAX_RADIUS));
         moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 2, 1))));
         whenFumesFind(helper, player, lead.above(), FIND_TICKS, () -> {
             clearSickness(player);
-            LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead));
+            LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead), LeadWater.MAX_RADIUS);
             if (player.hasEffect(MobEffects.HUNGER)) {
                 helper.succeed();
             } else {
-                fail(helper, "Raw lead under water didn't dose the player swimming over it");
+                fail(helper, "Raw lead in water didn't dose the player swimming in it");
             }
         });
     }
 
-    private static boolean wet(GameTestHelper helper, BlockPos pos) {
+    private static int reach(GameTestHelper helper, BlockPos pos) {
         BlockState state = helper.getBlockState(pos);
-        return state.hasProperty(RawLeadBlock.WET) && state.getValue(RawLeadBlock.WET);
+        return state.hasProperty(RawLeadBlock.CONTAMINATION) ? state.getValue(RawLeadBlock.CONTAMINATION) : -1;
     }
 
     /** Open air over the floor of the test's structure, whose walls would stop the fumes' line of sight. */

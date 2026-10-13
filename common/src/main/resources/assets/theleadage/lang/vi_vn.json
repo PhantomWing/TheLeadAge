@@ -129,6 +129,7 @@
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creeper tránh khói chì",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Cướp tránh khói chì",
   "text.autoconfig.theleadage.option.enable_campfire_lead_fumes": "Khói chì từ lửa trại",
+  "text.autoconfig.theleadage.option.enable_raw_lead_contact": "Ngộ độc chì thô",
   "text.autoconfig.theleadage.option.enable_lead_water_contamination": "Nước nhiễm chì",
   "text.autoconfig.theleadage.option.enable_recipe_overrides": "Ghi đè công thức gốc",
   "text.autoconfig.theleadage.option.override_fishing_rod_recipe": "Công thức cần câu",

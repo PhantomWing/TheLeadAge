@@ -43,9 +43,11 @@ public final class LeadFumes {
 
     private static final double GEAR_DOSE_CHANCE = 1.0; // crumbling gear is point-blank: always a dose
 
-    /** How long a player stays in fumes they can stay in - a campfire's stream, contaminated water - per stage. */
-    private static final int STAGE_TICKS = 60;
-    /** When each player last took a dose from such fumes: one timer for every source, so two at once climb no faster. */
+    /** How long a player stays in lead fumes - a campfire's stream - or contaminated water per stage. */
+    public static final int FUMES_STAGE_TICKS = 60;
+    /** How long a player stands on raw lead per stage: the same ladder, much slower. */
+    public static final int CONTACT_STAGE_TICKS = 200;
+    /** When each player last took a dose from lead they stay in: one timer for every source, so two at once climb no faster. */
     private static final Map<Player, Long> LAST_TOUCH = new WeakHashMap<>();
 
     private LeadFumes() {
@@ -76,13 +78,13 @@ public final class LeadFumes {
     }
 
     /**
-     * A player in fumes they can stay in - a campfire's stream, contaminated water: a dose on contact, and another
-     * every {@value #STAGE_TICKS} ticks while they stay, so it worsens the longer they do.
+     * A player in lead they can stay in - a campfire's stream, contaminated water, a block of raw lead underfoot: a
+     * dose on contact, and another every {@code stageTicks} while they stay, so it worsens the longer they do.
      */
-    public static void touch(Player player) {
+    public static void touch(Player player, int stageTicks) {
         long now = player.level().getGameTime();
         Long last = LAST_TOUCH.get(player);
-        if (last != null && now >= last && now - last < STAGE_TICKS) {
+        if (last != null && now >= last && now - last < stageTicks) {
             return;
         }
         LAST_TOUCH.put(player, now);

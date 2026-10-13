@@ -25,6 +25,9 @@ public class Configuration {
     public static final String ENABLE_CAMPFIRE_LEAD_FUMES_ID = "enable_campfire_lead_fumes";
     public static final ModConfigSpec.BooleanValue ENABLE_CAMPFIRE_LEAD_FUMES;
 
+    public static final String ENABLE_RAW_LEAD_CONTACT_ID = "enable_raw_lead_contact";
+    public static final ModConfigSpec.BooleanValue ENABLE_RAW_LEAD_CONTACT;
+
     public static final String ENABLE_LEAD_WATER_CONTAMINATION_ID = "enable_lead_water_contamination";
     public static final ModConfigSpec.BooleanValue ENABLE_LEAD_WATER_CONTAMINATION;
 
@@ -50,6 +53,7 @@ public class Configuration {
             case CREEPERS_AVOID_LEAD_FUMES_ID -> CREEPERS_AVOID_LEAD_FUMES.get();
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> PILLAGERS_AVOID_LEAD_FUMES.get();
             case ENABLE_CAMPFIRE_LEAD_FUMES_ID -> ENABLE_CAMPFIRE_LEAD_FUMES.get();
+            case ENABLE_RAW_LEAD_CONTACT_ID -> ENABLE_RAW_LEAD_CONTACT.get();
             case ENABLE_LEAD_WATER_CONTAMINATION_ID -> ENABLE_LEAD_WATER_CONTAMINATION.get();
             case ENABLE_RECIPE_OVERRIDES_ID -> ENABLE_RECIPE_OVERRIDES.get();
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
@@ -83,8 +87,12 @@ public class Configuration {
                 .comment("Should a lit campfire or soul campfire on a block of raw lead give off a stream of lead fumes? Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away from it when their options above are on.")
                 .translation("text.autoconfig.theleadage.option.enable_campfire_lead_fumes")
                 .define(ENABLE_CAMPFIRE_LEAD_FUMES_ID, true);
+        ENABLE_RAW_LEAD_CONTACT = builder
+                .comment("Should standing on a block of raw lead give players Lead Sickness, slowly worse the longer they stay? Sneaking doesn't help.")
+                .translation("text.autoconfig.theleadage.option.enable_raw_lead_contact")
+                .define(ENABLE_RAW_LEAD_CONTACT_ID, true);
         ENABLE_LEAD_WATER_CONTAMINATION = builder
-                .comment("Should a block of raw lead contaminate the water on top of it, as potent sulfur does? Lead fumes rise at the surface above it, and players in that water within 3 blocks get Lead Sickness, worse the longer they stay.")
+                .comment("Should a block of raw lead leach into the water it touches? The contaminated water spreads to 4 blocks around it over about half a minute, is tinted grey, and gives players in it Lead Sickness, worse the longer they stay.")
                 .translation("text.autoconfig.theleadage.option.enable_lead_water_contamination")
                 .define(ENABLE_LEAD_WATER_CONTAMINATION_ID, true);
         ENABLE_RECIPE_OVERRIDES = builder

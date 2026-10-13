@@ -46,7 +46,13 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
-    /** Gate for raw lead contaminating the water on top of it. Read live. */
+    /** Gate for a block of raw lead poisoning the player standing on it. Read live. */
+    @ExpectPlatform
+    public static boolean rawLeadContact() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Gate for raw lead leaching into the water around it. Read live. */
     @ExpectPlatform
     public static boolean leadWaterContamination() {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
