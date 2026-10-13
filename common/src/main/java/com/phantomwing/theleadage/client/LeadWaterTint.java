@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Water raw lead contaminates, tinted lead grey: strongest beside the lead, fading towards the edge of its reach
  * ({@link LeadWater#strength}). Applied to the water colour every loader's water takes from the biome, by each loader's
  * {@code BiomeColorsMixin} - Sodium's and Embeddium's water too - and to the fog seen from inside that water, by its
- * {@code FogRendererMixin}. A shader pack may draw water in a colour of its own; the water's specks show whatever it
- * does.
+ * {@code FogRendererMixin}. A shader pack may draw water in a colour of its own; the specks drifting in the water
+ * ({@link LeadWaterSpecks}) show whatever it does.
  *
  * <p>The tint is read off the level itself rather than the copy of it a chunk is drawn from: Sodium's and Embeddium's
  * copies reach only two blocks past the chunk section, and the lead and the routes it leaks along reach further.</p>
@@ -37,15 +37,17 @@ public final class LeadWaterTint {
     private static final int LEAD_GREY = 0x464B53;
     private static final float MOST = 0.85F;
     /** The murk seen from inside contaminated water, as a share of the water's own fog at its brightest. */
-    private static final float MURK_RED = 0.58F;
-    private static final float MURK_GREEN = 0.61F;
-    private static final float MURK_BLUE = 0.66F;
+    private static final float MURK_RED = 0.20F;
+    private static final float MURK_GREEN = 0.22F;
+    private static final float MURK_BLUE = 0.25F;
+    /** The most the murk takes over the water's own fog. */
+    private static final float MURK_MOST = 0.92F;
     /** How long the murk takes to settle as the camera moves through the water, in milliseconds. */
     private static final float MURK_SETTLE = 400.0F;
     /** How long a lead's routes through the water are kept, in ticks, should a change to the water go unseen. */
     private static final long LEAK_KEPT = 200;
     /** How far past the lead's reach a change to it is drawn again: renderers that blend each corner read a block more. */
-    private static final int REDRAW = LeadWater.MAX_RADIUS + 1;
+    private static final int REDRAW = LeadWater.TINT_RADIUS + 1;
 
     /** Each raw lead's routes through the water, by position: the tint asks for them for every block of water drawn. */
     private static final Map<Long, Kept> LEAKS = new ConcurrentHashMap<>();
@@ -92,7 +94,7 @@ public final class LeadWaterTint {
         }
         BlockPos at = BlockPos.containing(camera.getPosition());
         float target = CommonConfig.leadWaterContamination() && mayHaveRawLeadNear(level, at) ? strength(level, at) : 0.0F;
-        murk += (target * MOST - murk) * settle;
+        murk += (target * MURK_MOST - murk) * settle;
         if (murk < 0.005F) {
             return null;
         }
@@ -115,7 +117,7 @@ public final class LeadWaterTint {
         if (!LEAKS.isEmpty() && oldState.getFluidState().is(FluidTags.WATER) != newState.getFluidState().is(FluidTags.WATER)) {
             LEAKS.keySet().removeIf(key -> {
                 BlockPos lead = BlockPos.of(key);
-                if (pos.distManhattan(lead) > LeadWater.MAX_RADIUS + 1) {
+                if (pos.distManhattan(lead) > LeadWater.TINT_RADIUS + 1) {
                     return false;
                 }
                 redraw(renderer, lead);
@@ -139,7 +141,8 @@ public final class LeadWaterTint {
         return strongest;
     }
 
-    private static LeadWater.Leak leakOf(ClientLevel level, BlockPos lead) {
+    /** The routes raw lead at {@code lead} leaks along, kept between draws. */
+    public static LeadWater.Leak leakOf(ClientLevel level, BlockPos lead) {
         if (leaksOf != level) {
             LEAKS.clear();
             leaksOf = level;
@@ -171,7 +174,7 @@ public final class LeadWaterTint {
      * the oceans' water skips the search: the tint is asked for every water block a chunk draws.
      */
     private static boolean mayHaveRawLeadNear(ClientLevel level, BlockPos pos) {
-        int reach = LeadWater.MAX_RADIUS + 1;
+        int reach = LeadWater.TINT_RADIUS + 1;
         for (int x = SectionPos.blockToSectionCoord(pos.getX() - reach); x <= SectionPos.blockToSectionCoord(pos.getX() + reach); x++) {
             for (int z = SectionPos.blockToSectionCoord(pos.getZ() - reach); z <= SectionPos.blockToSectionCoord(pos.getZ() + reach); z++) {
                 LevelChunk chunk = level.getChunkSource().getChunk(x, z, false);

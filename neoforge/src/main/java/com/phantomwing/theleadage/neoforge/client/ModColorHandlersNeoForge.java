@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
+import com.phantomwing.theleadage.client.LeadSpeckParticle;
 import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorItemRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorRenderer;
@@ -80,6 +81,7 @@ public final class ModColorHandlersNeoForge {
     static void particleProviders(RegisterParticleProvidersEvent event) {
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
         event.registerSpriteSet(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
+        event.registerSpriteSet(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Provider::new);
     }
 
     @SubscribeEvent

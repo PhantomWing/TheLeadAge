@@ -6,7 +6,7 @@
 - Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
 - Campfires and soul campfires lit on a Block of Raw Lead send up a stream of lead fumes as high as their smoke. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
 - Raw lead is poisonous to handle: standing on a Block of Raw Lead for a while gives Lead Sickness, slowly worse the longer you stay, and it gives off a faint wisp of fumes.
-- A Block of Raw Lead in water leaches into it: over about twenty seconds the water around it turns grey a block at a time, up to 4 blocks away through the water, flowing around whatever stands in it, murky from under the surface too and with grey specks drifting in it. Players in it get Lead Sickness, worse the longer they stay.
+- A Block of Raw Lead in water leaches into it: over about twenty seconds the water around it turns grey a block at a time, up to 4 blocks away through the water, flowing around whatever stands in it, and fades out over one more block. It is murky from under the surface too, with dark specks of lead drifting in it. Players in the contaminated water get Lead Sickness, worse the longer they stay; the faint edge does no harm.
 - Lead tools, armor and horse armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
 - Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
 
