@@ -125,6 +125,17 @@ public class LeadOreGameTest {
         });
     }
 
+    /** A block of raw lead fumes when mined, as the ore does. */
+    public static void rawLeadBlockSometimesGivesLeadSickness(GameTestHelper helper) {
+        countDoses(helper, ModBlocks.RAW_LEAD_BLOCK.get(), false, count -> {
+            if (count > 0 && count < TRIALS) {
+                helper.succeed();
+            } else {
+                fail(helper, "Expected a block of raw lead to dose sometimes but not always (got " + count + "/" + TRIALS + ")");
+            }
+        });
+    }
+
     /** Silk touch yields the ore block, not raw lead, so it NEVER gives fumes. */
     public static void silkTouchNeverGivesLeadSickness(GameTestHelper helper) {
         countDoses(helper, ModBlocks.LEAD_ORE.get(), true, count -> {

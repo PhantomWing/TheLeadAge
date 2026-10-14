@@ -11,13 +11,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The block of raw lead: unrefined lead, poisonous to handle. A player who stands on it a few seconds gets Lead
@@ -85,6 +88,19 @@ public class RawLeadBlock extends Block {
             level.setBlock(pos, state.setValue(CONTAMINATION, step + 1), Block.UPDATE_CLIENTS);
         }
         level.scheduleTick(pos, this, LeadWater.INTERVAL);
+    }
+
+    /**
+     * Mining it releases lead fumes, as mining lead ore does. Silk Touch makes no difference: the block drops
+     * itself either way, raw lead all the same. Only an actual harvest gets here (see {@link LeadOreBlock}).
+     */
+    @Override
+    public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state,
+                              @Nullable BlockEntity blockEntity, ItemStack tool) {
+        super.playerDestroy(level, player, pos, state, blockEntity, tool);
+        if (level instanceof ServerLevel serverLevel && CommonConfig.leadOreSickness()) {
+            LeadFumes.mined(serverLevel, pos);
+        }
     }
 
     @Override

@@ -14,6 +14,7 @@ public final class GameTests {
     public static final List<Test> ALL = List.of(
             test("lead_ore_sometimes_gives_lead_sickness", LeadOreGameTest::leadOreSometimesGivesLeadSickness),
             test("deepslate_lead_ore_sometimes_gives_lead_sickness", LeadOreGameTest::deepslateLeadOreSometimesGivesLeadSickness),
+            test("raw_lead_block_sometimes_gives_lead_sickness", LeadOreGameTest::rawLeadBlockSometimesGivesLeadSickness),
             test("silk_touch_never_gives_lead_sickness", LeadOreGameTest::silkTouchNeverGivesLeadSickness),
             test("lead_sickness_ladder_escalates", LeadOreGameTest::leadSicknessLadderEscalates),
             test("campfire_fumes_only_over_raw_lead", LeadOreGameTest::campfireFumesOnlyOverRawLead),

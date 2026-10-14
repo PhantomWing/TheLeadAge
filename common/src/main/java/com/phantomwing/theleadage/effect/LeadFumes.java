@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * "Lead fumes" exposure. Breaking lead ore (and the lead torch's periodic bursts) immediately exposes
+ * "Lead fumes" exposure. Breaking lead ore or a block of raw lead (and the lead torch's periodic bursts) immediately exposes
  * nearby <b>players</b>, with a distance-based chance (full within {@value #FULL_RANGE} blocks, falling
  * to 0 at {@value #RADIUS}) and only if nothing solid stands between them. Only players breathe the
  * fumes; other mobs ignore them.
@@ -42,6 +42,11 @@ public final class LeadFumes {
     private static final int NAUSEA_TICKS = 200;    // 10s — stage 3
 
     private static final double GEAR_DOSE_CHANCE = 1.0; // crumbling gear is point-blank: always a dose
+
+    /** Chance mining raw lead is a BIG release (hiss + guaranteed dose) rather than a small wisp. */
+    private static final float MINED_PLUME_CHANCE = 0.30f;
+    private static final double MINED_BIG_DOSE_CHANCE = 1.0;    // big release: guaranteed dose at point-blank
+    private static final double MINED_SMALL_DOSE_CHANCE = 0.25; // small wisp: low chance even up close
 
     /** How long a player stays in lead fumes - a campfire's stream - or contaminated water per stage. */
     public static final int FUMES_STAGE_TICKS = 60;
@@ -116,6 +121,23 @@ public final class LeadFumes {
         stand[1] = now;
         if (now - stand[0] >= stageTicks && touch(player, stageTicks)) {
             stand[0] = now;
+        }
+    }
+
+    /**
+     * Raw lead has been mined at {@code pos}, lead ore or a block of raw lead: every harvest fumes, and a roll
+     * decides a big release or a faint wisp. The fumes expose nearby players at once, so keeping clear of the
+     * block dodges them.
+     */
+    public static void mined(ServerLevel level, BlockPos pos) {
+        double x = pos.getX() + 0.5, y = pos.getY() + 0.6, z = pos.getZ() + 0.5;
+        if (level.getRandom().nextFloat() < MINED_PLUME_CHANCE) {
+            // A pale lead-oxide plume. The hiss plays when the fumes take hold, not here.
+            plume(level, x, y, z);
+            expose(level, pos, MINED_BIG_DOSE_CHANCE);
+        } else {
+            wisp(level, x, y - 0.05, z);
+            expose(level, pos, MINED_SMALL_DOSE_CHANCE);
         }
     }
 

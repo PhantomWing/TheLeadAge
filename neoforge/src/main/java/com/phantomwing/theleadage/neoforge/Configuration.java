@@ -75,7 +75,7 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.generate_lead_ore")
                 .define(GENERATE_LEAD_ORE_ID, true);
         ENABLE_LEAD_ORE_SICKNESS = builder
-                .comment("Should mining lead ore sometimes release fumes (the Lead Sickness effect + particles)?")
+                .comment("Should mining lead ore or a Block of Raw Lead release fumes (the Lead Sickness effect + particles)?")
                 .translation("text.autoconfig.theleadage.option.enable_lead_ore_sickness")
                 .define(ENABLE_LEAD_ORE_SICKNESS_ID, true);
         CREEPERS_AVOID_LEAD_FUMES = builder
