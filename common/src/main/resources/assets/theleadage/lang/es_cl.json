@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Pesadez",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Generar mena de plomo",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Generar vetas de mena de plomo",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Malestar por mena de plomo",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Los creepers evitan los vapores de plomo",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Los saqueadores evitan los vapores de plomo",

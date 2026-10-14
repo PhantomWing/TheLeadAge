@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Pesantezza",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Genera minerale di piombo",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Genera vene di minerale di piombo",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Malessere dal minerale di piombo",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "I creeper evitano i fumi di piombo",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "I predoni evitano i fumi di piombo",

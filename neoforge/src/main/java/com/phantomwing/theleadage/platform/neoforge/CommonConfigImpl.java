@@ -14,6 +14,10 @@ public final class CommonConfigImpl {
         return Configuration.GENERATE_LEAD_ORE.get();
     }
 
+    public static boolean generateLeadVeins() {
+        return Configuration.GENERATE_LEAD_VEINS.get();
+    }
+
     public static boolean leadOreSickness() {
         return Configuration.ENABLE_LEAD_ORE_SICKNESS.get();
     }

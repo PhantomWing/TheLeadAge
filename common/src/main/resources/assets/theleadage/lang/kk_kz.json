@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Ауырлық",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Қорғасын кенін генерациялау",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Қорғасын кен желілерін генерациялау",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Қорғасын кенінен дерт",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Криперлер қорғасын буынан аулақ жүреді",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Тонаушылар қорғасын буынан аулақ жүреді",

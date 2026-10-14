@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Zwaarte",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Looderts genereren",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Loodertsaders genereren",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Ziekte van looderts",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creepers mijden looddampen",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Plunderaars mijden looddampen",

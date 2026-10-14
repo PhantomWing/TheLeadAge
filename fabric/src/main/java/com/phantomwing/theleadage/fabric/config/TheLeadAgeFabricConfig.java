@@ -18,6 +18,9 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String GENERATE_LEAD_ORE_ID = "generate_lead_ore";
     public boolean generate_lead_ore = true;
 
+    public static final String GENERATE_LEAD_VEINS_ID = "generate_lead_veins";
+    public boolean generate_lead_veins = true;
+
     public static final String ENABLE_LEAD_ORE_SICKNESS_ID = "enable_lead_ore_sickness";
     public boolean enable_lead_ore_sickness = true;
 
@@ -70,6 +73,7 @@ public class TheLeadAgeFabricConfig implements ConfigData {
         TheLeadAgeFabricConfig config = get();
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> config.generate_lead_ore;
+            case GENERATE_LEAD_VEINS_ID -> config.generate_lead_veins;
             case ENABLE_LEAD_ORE_SICKNESS_ID -> config.enable_lead_ore_sickness;
             case CREEPERS_AVOID_LEAD_FUMES_ID -> config.creepers_avoid_lead_fumes;
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> config.pillagers_avoid_lead_fumes;

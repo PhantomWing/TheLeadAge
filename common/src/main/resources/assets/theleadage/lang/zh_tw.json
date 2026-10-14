@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "沉重",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "生成鉛礦石",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "生成鉛礦脈",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "鉛礦石不適",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "苦力怕躲避鉛煙",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "掠奪者躲避鉛煙",

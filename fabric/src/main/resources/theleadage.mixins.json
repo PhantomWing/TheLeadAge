@@ -7,10 +7,13 @@
     "BeaconBlockEntityMixin",
     "BuiltInPackSourceMixin",
     "CampfireBlockEntityMixin",
+    "ChunkMapMixin",
     "IronBarsBlockMixin",
     "LivingEntityMixin",
     "LootTableMixin",
-    "PersistentEntitySectionManagerMixin"
+    "NoiseChunkMixin",
+    "PersistentEntitySectionManagerMixin",
+    "RandomStateMixin"
   ],
   "client": [
     "BiomeColorsMixin",

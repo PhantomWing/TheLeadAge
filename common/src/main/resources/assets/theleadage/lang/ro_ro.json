@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Greutate",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Generează minereu de plumb",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Generează filoane de minereu de plumb",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Boală de la minereu de plumb",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creeperii evită vaporii de plumb",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Prădătorii evită vaporii de plumb",

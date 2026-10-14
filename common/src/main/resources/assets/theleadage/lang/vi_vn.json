@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Độ nặng",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Tạo quặng chì",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Tạo mạch quặng chì",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Bệnh từ quặng chì",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creeper tránh khói chì",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Cướp tránh khói chì",

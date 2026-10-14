@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Schwere",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Bleierz generieren",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Bleierzadern generieren",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Krankheit durch Bleierz",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creeper meiden Bleidämpfe",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Plünderer meiden Bleidämpfe",

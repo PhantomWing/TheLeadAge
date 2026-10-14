@@ -40,6 +40,8 @@ public final class GameTests {
             test("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset),
             test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers),
             test("horse_armor_has_no_durability", LeadOreGameTest::horseArmorHasNoDurability),
+            test("chunks_get_lead_veins_after_vanillas", LeadVeinGameTest::chunksGetLeadVeinsAfterVanillas),
+            test("lead_veins_form_in_their_band", LeadVeinGameTest::leadVeinsFormInTheirBand),
             test("lead_pressure_plate_counts_mobs", LeadPressurePlateGameTest::leadPressurePlateCountsMobs).maxTicks(200),
             test("dyed_glass_pack_matches_datagen", DyedLeadedGlassGameTest::dyedGlassPackMatchesDatagen),
             test("dyed_glass_pack_opens", DyedLeadedGlassGameTest::dyedGlassPackOpens),

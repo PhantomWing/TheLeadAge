@@ -4,6 +4,20 @@ import net.minecraft.world.item.Items;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.Beardifier;
+import net.minecraft.world.level.levelgen.NoiseChunk;
+import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.material.MaterialRuleList;
+import java.lang.reflect.Field;
+import java.util.List;
 import net.minecraft.server.packs.PackResources;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -88,6 +102,38 @@ public final class TestCompat {
     /** The recipe that crafts dyed leaded glass in a dye mod's colour. Its constructor lost the category in 26.1. */
     public static StainedLeadedGlassRecipe stainedLeadedGlassRecipe() {
         return new StainedLeadedGlassRecipe(CraftingBookCategory.BUILDING);
+    }
+
+    /** The level's noise settings of that name. Registry lookups were renamed in 1.21.2. */
+    public static NoiseGeneratorSettings noiseSettings(ServerLevel level, ResourceKey<NoiseGeneratorSettings> key) {
+        return level.registryAccess().registryOrThrow(Registries.NOISE_SETTINGS).getOrThrow(key);
+    }
+
+    /** A level's noises seeded from {@code seed}, as the level makes its own. */
+    public static RandomState randomState(ServerLevel level, NoiseGeneratorSettings settings, long seed) {
+        return RandomState.create(settings, level.registryAccess().lookupOrThrow(Registries.NOISE), seed);
+    }
+
+    /** The terrain filler for the chunk at the origin, as the level's generator makes one for each chunk it fills. */
+    public static NoiseChunk noiseChunk(ServerLevel level, RandomState random, NoiseGeneratorSettings settings) {
+        ChunkPos pos = new ChunkPos(0, 0);
+        ProtoChunk chunk = new ProtoChunk(pos, UpgradeData.EMPTY, level, level.registryAccess().registryOrThrow(Registries.BIOME), null);
+        return NoiseChunk.forChunk(chunk, random, Beardifier.forStructuresInChunk(level.structureManager(), pos), settings,
+                (x, y, z) -> new Aquifer.FluidStatus(-54, Blocks.LAVA.defaultBlockState()), Blender.empty());
+    }
+
+    /**
+     * The rules a chunk's terrain filler tries in turn for each solid block, the first block one gives being placed.
+     * They are a {@code MaterialRuleList} before 26.3.
+     */
+    public static List<NoiseChunk.BlockStateFiller> materialRules(NoiseChunk chunk) {
+        try {
+            Field rule = NoiseChunk.class.getDeclaredField("blockStateRule");
+            rule.setAccessible(true);
+            return ((MaterialRuleList) rule.get(chunk)).materialRuleList();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("can't read a NoiseChunk's rules", e);
+        }
     }
 
     /** Whether {@code pack} has the file {@code id}. 26.3's Pack#open gives a stream of the pack's parts. */

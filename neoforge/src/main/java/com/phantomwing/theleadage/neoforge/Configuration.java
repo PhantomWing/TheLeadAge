@@ -13,6 +13,9 @@ public class Configuration {
     public static final String GENERATE_LEAD_ORE_ID = "generate_lead_ore";
     public static final ModConfigSpec.BooleanValue GENERATE_LEAD_ORE;
 
+    public static final String GENERATE_LEAD_VEINS_ID = "generate_lead_veins";
+    public static final ModConfigSpec.BooleanValue GENERATE_LEAD_VEINS;
+
     public static final String ENABLE_LEAD_ORE_SICKNESS_ID = "enable_lead_ore_sickness";
     public static final ModConfigSpec.BooleanValue ENABLE_LEAD_ORE_SICKNESS;
 
@@ -52,6 +55,7 @@ public class Configuration {
     public static boolean getBooleanConfigurationValue(String id) {
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> GENERATE_LEAD_ORE.get();
+            case GENERATE_LEAD_VEINS_ID -> GENERATE_LEAD_VEINS.get();
             case ENABLE_LEAD_ORE_SICKNESS_ID -> ENABLE_LEAD_ORE_SICKNESS.get();
             case CREEPERS_AVOID_LEAD_FUMES_ID -> CREEPERS_AVOID_LEAD_FUMES.get();
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> PILLAGERS_AVOID_LEAD_FUMES.get();
@@ -74,6 +78,10 @@ public class Configuration {
                 .comment("Should lead ore generate in the world? (Applies to newly generated chunks.)")
                 .translation("text.autoconfig.theleadage.option.generate_lead_ore")
                 .define(GENERATE_LEAD_ORE_ID, true);
+        GENERATE_LEAD_VEINS = builder
+                .comment("Should large lead ore veins generate, as copper and iron ones do: lead ore in dripstone between Y 8 and 48, with the odd block of raw lead? (Applies to newly generated chunks.)")
+                .translation("text.autoconfig.theleadage.option.generate_lead_veins")
+                .define(GENERATE_LEAD_VEINS_ID, true);
         ENABLE_LEAD_ORE_SICKNESS = builder
                 .comment("Should mining lead ore or a Block of Raw Lead release fumes (the Lead Sickness effect + particles)?")
                 .translation("text.autoconfig.theleadage.option.enable_lead_ore_sickness")

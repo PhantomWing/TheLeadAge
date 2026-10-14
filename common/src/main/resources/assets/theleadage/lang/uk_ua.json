@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Важкість",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Генерувати свинцеву руду",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Генерувати свинцеві рудні жили",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Нездужання від свинцевої руди",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Кріпери уникають свинцевих випарів",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Розбійники уникають свинцевих випарів",

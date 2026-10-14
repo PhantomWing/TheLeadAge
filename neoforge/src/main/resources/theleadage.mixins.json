@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CampfireBlockEntityMixin",
+    "ChunkMapMixin",
     "IronBarsBlockMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "NoiseChunkMixin",
+    "RandomStateMixin"
   ],
   "client": [
     "BiomeColorsMixin",

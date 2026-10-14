@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Lourdeur",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Générer le minerai de plomb",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Générer les filons de minerai de plomb",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Malaise dû au minerai de plomb",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Les creepers évitent les vapeurs de plomb",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Les pillards évitent les vapeurs de plomb",

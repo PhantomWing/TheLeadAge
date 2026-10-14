@@ -126,6 +126,7 @@
   "attribute.name.theleadage.heaviness": "Heaviness",
   "text.autoconfig.theleadage.title": "The Lead Age",
   "text.autoconfig.theleadage.option.generate_lead_ore": "Generate Lead Ore",
+  "text.autoconfig.theleadage.option.generate_lead_veins": "Generate Lead Ore Veins",
   "text.autoconfig.theleadage.option.enable_lead_ore_sickness": "Lead Ore Sickness",
   "text.autoconfig.theleadage.option.creepers_avoid_lead_fumes": "Creepers Avoid Lead Fumes",
   "text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes": "Pillagers Avoid Lead Fumes",

@@ -19,6 +19,12 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
+    /** Gate for large lead ore veins, read as a chunk's terrain is generated (see {@code LeadVeins}). */
+    @ExpectPlatform
+    public static boolean generateLeadVeins() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
     /** Gate for the "lead fumes" Lead Sickness + particle effect when mining lead ore. */
     @ExpectPlatform
     public static boolean leadOreSickness() {

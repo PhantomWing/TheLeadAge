@@ -15,6 +15,11 @@ public final class CommonConfigImpl {
                 TheLeadAgeFabricConfig.GENERATE_LEAD_ORE_ID);
     }
 
+    public static boolean generateLeadVeins() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.GENERATE_LEAD_VEINS_ID);
+    }
+
     public static boolean leadOreSickness() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_LEAD_ORE_SICKNESS_ID);
