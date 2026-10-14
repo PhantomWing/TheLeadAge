@@ -24,7 +24,7 @@ final class LeadVeinifier implements NoiseChunk.BlockStateFiller {
     private final PositionalRandomFactory random;
     private final BlockState ore = ModBlocks.LEAD_ORE.get().defaultBlockState();
     private final BlockState rawOre = ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState();
-    private final BlockState filler = Blocks.DRIPSTONE_BLOCK.defaultBlockState();
+    private final BlockState filler = Blocks.TUFF.defaultBlockState();
 
     LeadVeinifier(DensityFunction density, DensityFunction richness, DensityFunction gap, PositionalRandomFactory random) {
         this.density = density;

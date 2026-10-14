@@ -79,7 +79,7 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.generate_lead_ore")
                 .define(GENERATE_LEAD_ORE_ID, true);
         GENERATE_LEAD_VEINS = builder
-                .comment("Should large lead ore veins generate, as copper and iron ones do: lead ore in dripstone between Y 8 and 48, with the odd block of raw lead? (Applies to newly generated chunks.)")
+                .comment("Should large lead ore veins generate, as copper and iron ones do: lead ore in tuff between Y 8 and 58, with the odd block of raw lead? (Applies to newly generated chunks.)")
                 .translation("text.autoconfig.theleadage.option.generate_lead_veins")
                 .define(GENERATE_LEAD_VEINS_ID, true);
         ENABLE_LEAD_ORE_SICKNESS = builder

@@ -79,7 +79,7 @@ public final class LeadVeinGameTest {
                         ore++;
                     } else if (state.is(ModBlocks.RAW_LEAD_BLOCK.get())) {
                         raw++;
-                    } else if (state.is(Blocks.DRIPSTONE_BLOCK)) {
+                    } else if (state.is(Blocks.TUFF)) {
                         filler++;
                     } else {
                         fail(helper, "a lead vein placed " + state);
@@ -89,12 +89,12 @@ public final class LeadVeinGameTest {
             }
         }
 
-        String counts = ore + " ore, " + raw + " raw lead, " + filler + " dripstone";
+        String counts = ore + " ore, " + raw + " raw lead, " + filler + " tuff";
         if (outside > 0) {
             fail(helper, outside + " vein blocks outside Y " + LeadVeins.MIN_Y + " to " + LeadVeins.MAX_Y);
         } else if (ore == 0 || raw == 0 || filler <= ore) {
             // Mostly filler, as vanilla's veins are, with lead ore through it and raw lead in that.
-            fail(helper, "expected veins of mostly dripstone with ore and some raw lead, found " + counts);
+            fail(helper, "expected veins of mostly tuff with ore and some raw lead, found " + counts);
         } else if (raw * 10 > ore + raw) {
             fail(helper, "raw lead should be about 2% of the ore, found " + counts);
         } else {

@@ -19,7 +19,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Large lead ore veins, made as vanilla's copper and iron ore veins are: long ribbons of lead ore in dripstone
+ * Large lead ore veins, made as vanilla's copper and iron ore veins are: long ribbons of lead ore in tuff
  * winding through the stone between Y {@value #MIN_Y} and {@value #MAX_Y}, now and then a block of raw lead in
  * them. Where a vanilla vein crosses one, the vanilla vein wins.
  *
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class LeadVeins {
     public static final int MIN_Y = 8;
-    public static final int MAX_Y = 48;
+    public static final int MAX_Y = 58;
 
     public static final ResourceKey<NormalNoise.NoiseParameters> VEININESS = noise("lead_veininess");
     public static final ResourceKey<NormalNoise.NoiseParameters> VEIN_A = noise("lead_vein_a");

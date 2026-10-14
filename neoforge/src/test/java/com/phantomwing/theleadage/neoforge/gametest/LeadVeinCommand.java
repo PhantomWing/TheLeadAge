@@ -13,7 +13,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
@@ -49,7 +48,8 @@ public final class LeadVeinCommand {
     private static final int SEARCH = 256;
     /** How many of the nearest veins found are weighed up before the richest is copied. */
     private static final int CANDIDATES = 32;
-    private static final int SURVEY_CHUNKS = 16;
+    /** Wide enough to cross dozens of either vein's noise, which changes over a few hundred blocks. */
+    private static final int SURVEY_CHUNKS = 64;
     private static final SimpleCommandExceptionType NONE_FOUND =
             new SimpleCommandExceptionType(Component.literal("No lead vein within " + SEARCH + " blocks"));
 
@@ -72,12 +72,12 @@ public final class LeadVeinCommand {
 
     private static int copy(CommandSourceStack source, BlockPos target, View view) throws CommandSyntaxException {
         ServerLevel level = source.getLevel();
-        BlockPos vein = richestVein(level, veins(level), target.getX(), target.getZ());
+        BlockPos vein = richestVein(veins(level), target.getX(), target.getZ());
         BlockPos from = vein.offset(-SIZE / 2, -SIZE / 2, -SIZE / 2);
         BlockPos to = target.offset(-SIZE / 2, 0, -SIZE / 2);
         int ore = 0;
         int raw = 0;
-        int dripstone = 0;
+        int tuff = 0;
         for (int x = 0; x < SIZE; x++) {
             for (int z = 0; z < SIZE; z++) {
                 for (int y = 0; y < SIZE; y++) {
@@ -91,8 +91,8 @@ public final class LeadVeinCommand {
                         ore++;
                     } else if (state.is(ModBlocks.RAW_LEAD_BLOCK.get())) {
                         raw++;
-                    } else if (state.is(Blocks.DRIPSTONE_BLOCK)) {
-                        dripstone++;
+                    } else if (state.is(Blocks.TUFF)) {
+                        tuff++;
                     } else {
                         isVein = false;
                     }
@@ -105,19 +105,17 @@ public final class LeadVeinCommand {
             }
         }
         String biome = level.getBiome(vein).unwrapKey().map(key -> key.location().toString()).orElse("?");
-        String said = String.format("Copied the lead vein at %d %d %d, in %s: %d lead ore, %d raw lead, %d dripstone",
-                vein.getX(), vein.getY(), vein.getZ(), biome, ore, raw, dripstone);
+        String said = String.format("Copied the lead vein at %d %d %d, in %s: %d lead ore, %d raw lead, %d tuff",
+                vein.getX(), vein.getY(), vein.getZ(), biome, ore, raw, tuff);
         source.sendSuccess(() -> Component.literal(said), true);
         return ore + raw;
     }
 
     /**
      * The middle of the richest of the nearest veins under the column at x, z, read from the vein functions, which is
-     * quick, rather than the world, which would have to generate every chunk looked in. One in dripstone caves is
-     * passed over: its dripstone can't be told from the cave's.
+     * quick, rather than the world, which would have to generate every chunk looked in.
      */
-    private static BlockPos richestVein(ServerLevel level, NoiseChunk.BlockStateFiller veins, int x, int z)
-            throws CommandSyntaxException {
+    private static BlockPos richestVein(NoiseChunk.BlockStateFiller veins, int x, int z) throws CommandSyntaxException {
         List<BlockPos> found = new ArrayList<>();
         for (int dx = -SEARCH; dx <= SEARCH; dx += 8) {
             for (int dz = -SEARCH; dz <= SEARCH; dz += 8) {
@@ -136,8 +134,7 @@ public final class LeadVeinCommand {
             if (weighed.size() == CANDIDATES) {
                 break;
             }
-            if (weighed.stream().anyMatch(other -> other.distManhattan(pos) < SIZE / 2)
-                    || level.getBiome(pos).is(Biomes.DRIPSTONE_CAVES)) {
+            if (weighed.stream().anyMatch(other -> other.distManhattan(pos) < SIZE / 2)) {
                 continue;
             }
             weighed.add(pos);
@@ -195,8 +192,8 @@ public final class LeadVeinCommand {
     }
 
     private static boolean hasLead(NoiseChunk.BlockStateFiller lead, int x0, int z0) {
-        for (int x = x0; x < x0 + 16; x += 2) {
-            for (int z = z0; z < z0 + 16; z += 2) {
+        for (int x = x0; x < x0 + 16; x += 4) {
+            for (int z = z0; z < z0 + 16; z += 4) {
                 for (int y = LeadVeins.MIN_Y; y < LeadVeins.MAX_Y; y += 2) {
                     if (lead.calculate(new DensityFunction.SinglePointContext(x, y, z)) != null) {
                         return true;
@@ -209,8 +206,8 @@ public final class LeadVeinCommand {
 
     /** Whether vanilla's copper vein places a block in the chunk, read as {@code OreVeinifier} reads it. */
     private static boolean hasCopper(RandomState random, NoiseRouter router, int x0, int z0) {
-        for (int x = x0; x < x0 + 16; x += 2) {
-            for (int z = z0; z < z0 + 16; z += 2) {
+        for (int x = x0; x < x0 + 16; x += 4) {
+            for (int z = z0; z < z0 + 16; z += 4) {
                 for (int y = 0; y <= 50; y += 2) {
                     DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
                     double toggle = router.veinToggle().compute(at);

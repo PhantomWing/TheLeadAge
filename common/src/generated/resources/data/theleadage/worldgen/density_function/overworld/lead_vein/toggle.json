@@ -5,7 +5,7 @@
     "argument": {
       "type": "minecraft:range_choice",
       "input": "minecraft:y",
-      "max_exclusive": 55.0,
+      "max_exclusive": 65.0,
       "min_inclusive": 4.0,
       "when_in_range": {
         "type": "minecraft:noise",
