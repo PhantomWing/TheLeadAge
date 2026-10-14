@@ -1,16 +1,13 @@
 package com.phantomwing.theleadage.effect;
 
-import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,8 +18,8 @@ import java.util.WeakHashMap;
 
 /**
  * A campfire burning over raw lead - a block in {@link ModTags.Blocks#CAMPFIRE_FUME_SOURCES} - sends a stream of lead
- * fumes up with its smoke: white puffs rising as the smoke does, so they climb together. A player touching the stream
- * breathes it - only where the fumes have got to: the stream climbs from the fire at the smoke's speed once it starts,
+ * fumes up with its smoke, which they taint the lead's dark purple ({@code LeadCampfireSmoke}). A player touching the
+ * stream breathes it - only where the fumes have got to: the stream climbs from the fire at the smoke's speed once it starts,
  * and clears from the bottom up as the last of it rises once it stops - worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
  * keep away from it ({@code AvoidRepellentBlockGoal}). Soul campfires too. Ticked by each loader's
  * {@code CampfireBlockEntityMixin}.
@@ -98,23 +95,5 @@ public final class CampfireFumes {
             at.move(Direction.UP);
         }
         return new AABB(pos.getX(), pos.getY() + 0.5, pos.getZ(), pos.getX() + 1, at.getY(), pos.getZ() + 1);
-    }
-
-    /**
-     * A lit campfire's client tick: a puff of fumes off the fire every few ticks, rising at the speed the campfire's
-     * smoke does ({@link com.phantomwing.theleadage.client.LeadFumesParticle}), so the stream climbs with it.
-     */
-    public static void particleTick(Level level, BlockPos pos, BlockState state) {
-        if (!isFuming(level, pos, state)) {
-            return;
-        }
-        RandomSource random = level.getRandom();
-        if (random.nextFloat() < 0.18F) {
-            level.addAlwaysVisibleParticle(ModParticles.LEAD_FUMES.get(), true,
-                    pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.4,
-                    pos.getY() + 0.5 + random.nextDouble() * 0.3,
-                    pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.4,
-                    0.0, 0.07, 0.0);
-        }
     }
 }

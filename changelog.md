@@ -4,7 +4,7 @@
 - Leaded glass works with dye mods such as Dye Depot and Delicate Dyes: every colour they add gets its own dyed leaded glass, crafted like the vanilla colours, with its drops, tags and a name in every language.
 - Eight clear Leaded Glass Panes around a dye craft eight panes of its colour, as vanilla's glass panes do.
 - Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
-- Campfires and soul campfires lit on a Block of Raw Lead send up a stream of lead fumes, rising with their smoke. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
+- Campfires and soul campfires lit on a Block of Raw Lead give off smoke tainted a dark purple by lead fumes. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
 - Raw lead is poisonous to handle: standing on a Block of Raw Lead for a few seconds gives Lead Sickness, worse the longer you stay, and lead dust lifts off it.
 - Mining a Block of Raw Lead releases lead fumes, as mining lead ore does.
 - A Block of Raw Lead in water leaches into it: over about half a minute the water around it turns grey a block at a time, up to 6 blocks away through the water, flowing around whatever stands in it, and fades out over one more block. Under the surface it is murky, the murk thickening as you swim towards it, with dark specks of lead drifting in it. Players in the contaminated water get Lead Sickness, worse the longer they stay; the faint edge does no harm. A config option sets how far it reaches, or turns it off.

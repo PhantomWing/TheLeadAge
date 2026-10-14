@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * A campfire's ticks, where one burning over raw lead gives off its fumes ({@link CampfireFumes}): on the server
+ * A campfire's server ticks, where one burning over raw lead gives off its fumes ({@link CampfireFumes}):
  * {@code cookTick} while it is lit and {@code cooldownTick} while it isn't, so the last of the fumes clear once it goes
- * out; on the client {@code particleTick}, while it is lit. The Fabric twin is the identically-named mixin in the
+ * out. How its smoke looks is {@code CampfireBlockMixin}'s. The Fabric twin is the identically-named mixin in the
  * {@code fabric} source set.
  */
 @Mixin(CampfireBlockEntity.class)
@@ -33,11 +33,5 @@ public class CampfireBlockEntityMixin {
         if (level instanceof ServerLevel serverLevel) {
             CampfireFumes.tick(serverLevel, pos, state, campfire);
         }
-    }
-
-    @Inject(method = "particleTick", at = @At("HEAD"))
-    private static void theleadage$leadFumeStream(Level level, BlockPos pos, BlockState state, CampfireBlockEntity campfire,
-                                                  CallbackInfo ci) {
-        CampfireFumes.particleTick(level, pos, state);
     }
 }

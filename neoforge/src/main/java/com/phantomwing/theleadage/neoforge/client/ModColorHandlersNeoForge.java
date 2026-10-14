@@ -4,7 +4,6 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
-import com.phantomwing.theleadage.client.LeadFumesParticle;
 import com.phantomwing.theleadage.client.LeadSpeckParticle;
 import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorItemRenderer;
@@ -84,7 +83,6 @@ public final class ModColorHandlersNeoForge {
         event.registerSpriteSet(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
         event.registerSpriteSet(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Speck::new);
         event.registerSpriteSet(ModParticles.LEAD_DUST.get(), LeadSpeckParticle.Dust::new);
-        event.registerSpriteSet(ModParticles.LEAD_FUMES.get(), LeadFumesParticle.Provider::new);
     }
 
     @SubscribeEvent
