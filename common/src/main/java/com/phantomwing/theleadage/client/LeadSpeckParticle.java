@@ -11,12 +11,13 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.tags.FluidTags;
 
 /**
- * A mote of lead, the size of vanilla's underwater speck, fading in and out so a steady stream of them reads as murk
- * or dust rather than as specks coming and going. Two kinds, registered per loader:
+ * A mote of lead, the size of vanilla's underwater speck, in the dark purple of the lead's fumes
+ * ({@link LeadCampfireSmoke}), fading in and out so a steady stream of them reads as murk or dust rather than as specks
+ * coming and going. Two kinds, registered per loader:
  * <ul>
- *     <li>{@link Speck}, in contaminated water ({@link LeadWaterSpecks}): dark grey, sinking slowly as it drifts, and
+ *     <li>{@link Speck}, in contaminated water ({@link LeadWaterSpecks}): darker, sinking slowly as it drifts, and
  *     gone once out of the water.</li>
- *     <li>{@link Dust}, off a block of raw lead: the raw lead's own grey, lifting slowly off it as it drifts.</li>
+ *     <li>{@link Dust}, off a block of raw lead: lighter, lifting slowly off it as it drifts.</li>
  * </ul>
  */
 public class LeadSpeckParticle extends TextureSheetParticle {
@@ -40,14 +41,15 @@ public class LeadSpeckParticle extends TextureSheetParticle {
             quadSize *= random.nextFloat() * 0.6F + 0.5F;
             lifetime = (int) (60.0F / (random.nextFloat() * 0.6F + 0.4F));
             yd = -0.002F - random.nextFloat() * 0.003F;
-            shade = 0.16F + random.nextFloat() * 0.12F;
+            shade = 0.55F + random.nextFloat() * 0.3F;
         } else {
             quadSize *= random.nextFloat() * 0.4F + 0.4F;
             lifetime = (int) (40.0F / (random.nextFloat() * 0.6F + 0.4F));
             yd = 0.003F + random.nextFloat() * 0.004F;
-            shade = 0.36F + random.nextFloat() * 0.14F;
+            shade = 0.95F + random.nextFloat() * 0.25F;
         }
-        setColor(shade, shade * 1.04F, shade * 1.12F);
+        setColor(Math.min(1.0F, LeadCampfireSmoke.RED * shade), Math.min(1.0F, LeadCampfireSmoke.GREEN * shade),
+                Math.min(1.0F, LeadCampfireSmoke.BLUE * shade));
         alpha = 0.0F;
     }
 
