@@ -22,6 +22,7 @@
   "block.theleadage.lead_wall_torch": "Свинцовый факел",
   "block.theleadage.lead_lantern": "Свинцовый фонарь",
   "block.theleadage.lead_bulb": "Свинцовая лампа",
+  "block.theleadage.lead_pressure_plate": "Свинцовая нажимная пластина",
   "block.theleadage.leaded_glass": "Свинцовое стекло",
   "tooltip.theleadage.frame.plain": "Простой",
   "tooltip.theleadage.frame.split_h": "Деление (вертикальное)",

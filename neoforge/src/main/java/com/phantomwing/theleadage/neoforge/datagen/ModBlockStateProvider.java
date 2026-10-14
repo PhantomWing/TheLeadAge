@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.WeightedPressurePlateBlock;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -67,6 +68,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         leadBars();
         leadTorchAndLantern();
         leadBulb();
+        leadPressurePlate();
         leadWeight();
 
         // Leaded glass blocks. Plain = cutout (like vanilla glass), dyed = translucent
@@ -388,6 +390,21 @@ public class ModBlockStateProvider extends BlockStateProvider {
             ModelFile model = models().cubeAll(name, modLoc("block/" + name));
             return ConfiguredModel.builder().modelFile(model).build();
         });
+    }
+
+    /**
+     * Vanilla's weighted plate models, drawn with the block of lead as the heavy plate is drawn with the
+     * block of iron: up at power 0, pressed at any other.
+     */
+    private void leadPressurePlate() {
+        RegistrySupplier<Block> block = ModBlocks.LEAD_PRESSURE_PLATE;
+        String name = blockName(block);
+        ModelFile up = models().withExistingParent(name, mcLoc("block/pressure_plate_up"))
+                .texture("texture", modLoc("block/lead_block"));
+        ModelFile down = models().withExistingParent(name + "_down", mcLoc("block/pressure_plate_down"))
+                .texture("texture", modLoc("block/lead_block"));
+        getVariantBuilder(block.get()).forAllStates(state ->
+                ConfiguredModel.builder().modelFile(state.getValue(WeightedPressurePlateBlock.POWER) > 0 ? down : up).build());
     }
 
     private void cutoutCube(RegistrySupplier<Block> block) {

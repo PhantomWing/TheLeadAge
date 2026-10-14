@@ -22,6 +22,7 @@
   "block.theleadage.lead_wall_torch": "Antorcha de plomo",
   "block.theleadage.lead_lantern": "Farol de plomo",
   "block.theleadage.lead_bulb": "Bombilla de plomo",
+  "block.theleadage.lead_pressure_plate": "Placa de presión de plomo",
   "block.theleadage.leaded_glass": "Vidrio plomado",
   "tooltip.theleadage.frame.plain": "Simple",
   "tooltip.theleadage.frame.split_h": "División (vertical)",

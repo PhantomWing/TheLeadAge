@@ -22,6 +22,7 @@
   "block.theleadage.lead_wall_torch": "鉛の松明",
   "block.theleadage.lead_lantern": "鉛のランタン",
   "block.theleadage.lead_bulb": "鉛の電球",
+  "block.theleadage.lead_pressure_plate": "鉛の感圧板",
   "block.theleadage.leaded_glass": "鉛ガラス",
   "tooltip.theleadage.frame.plain": "プレーン",
   "tooltip.theleadage.frame.split_h": "分割（縦）",

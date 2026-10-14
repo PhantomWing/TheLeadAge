@@ -39,6 +39,7 @@ public final class GameTests {
             test("lead_weight_vertical_offset", LeadOreGameTest::leadWeightVerticalOffset),
             test("armor_keeps_custom_attribute_modifiers", LeadOreGameTest::armorKeepsCustomAttributeModifiers),
             test("horse_armor_has_no_durability", LeadOreGameTest::horseArmorHasNoDurability),
+            test("lead_pressure_plate_counts_mobs", LeadPressurePlateGameTest::leadPressurePlateCountsMobs).maxTicks(200),
             test("dyed_glass_pack_matches_datagen", DyedLeadedGlassGameTest::dyedGlassPackMatchesDatagen),
             test("dyed_glass_pack_opens", DyedLeadedGlassGameTest::dyedGlassPackOpens),
             test("dyed_glass_recipes_stay_data", DyedLeadedGlassGameTest::dyedGlassRecipesStayData),

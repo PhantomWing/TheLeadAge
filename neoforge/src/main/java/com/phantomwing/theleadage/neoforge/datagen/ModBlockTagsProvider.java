@@ -65,6 +65,11 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.BEACON_BASE_BLOCKS).add(ModBlocks.LEAD_BLOCK.get());
 
+        // A pressure plate, which also forces a wall's centre post under it. Like vanilla's weighted
+        // plates it takes any pickaxe, so it stays out of NEEDS_STONE_TOOL with the rest of the lead.
+        tag(BlockTags.PRESSURE_PLATES).add(ModBlocks.LEAD_PRESSURE_PLATE.get());
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEAD_PRESSURE_PLATE.get());
+
         // A goat ramming lead ore loses a horn, as on iron or copper ore (vanilla lists only the stone ores).
         tag(BlockTags.SNAPS_GOAT_HORN).add(ModBlocks.LEAD_ORE.get());
 

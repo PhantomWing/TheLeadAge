@@ -196,6 +196,13 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(ModItems.LEAD_BLOCK.get()), has(ModItems.LEAD_BLOCK.get()))
                 .save(output);
 
+        // Lead Pressure Plate: two ingots side by side, as the weighted plates are made.
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ModItems.LEAD_PRESSURE_PLATE.get())
+                .pattern("##")
+                .define('#', LEAD_INGOTS)
+                .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
+                .save(output);
+
         // Lead Weight: 8 lead ingots around a lead block.
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
                 .pattern("III").pattern("ILI").pattern("III")

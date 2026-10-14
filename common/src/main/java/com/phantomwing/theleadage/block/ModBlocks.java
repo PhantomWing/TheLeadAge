@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.block;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.custom.LeadPressurePlateBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
@@ -114,6 +115,13 @@ public class ModBlocks {
             new CopperBulbBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BULB)
                     .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
                     .strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+
+    // Lead Pressure Plate: the weighted plate pressed by mobs alone, one signal level each (see
+    // LeadPressurePlateBlock). A thin plate, so it keeps the heavy plate's strength rather than lead's;
+    // its sound comes from the LEAD block set.
+    public static final RegistrySupplier<Block> LEAD_PRESSURE_PLATE = register("lead_pressure_plate", () ->
+            new LeadPressurePlateBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE)
+                    .mapColor(MapColor.COLOR_GRAY)));
 
     // Leaded glass: renders/behaves like glass, but requires a pickaxe to drop itself
     // (requiresCorrectToolForDrops + the mineable/pickaxe tag). It's pried from its lead

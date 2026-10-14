@@ -70,6 +70,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         // Bulb: the unlit, unpowered block model.
         blockItem("lead_bulb");
+        blockItem("lead_pressure_plate");
 
         blockItem("leaded_glass");
         // Lead Weight (+ chipped/damaged tiers): 3D item from each hand-authored block model.

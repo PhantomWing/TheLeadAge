@@ -22,6 +22,7 @@
   "block.theleadage.lead_wall_torch": "铅火把",
   "block.theleadage.lead_lantern": "铅灯笼",
   "block.theleadage.lead_bulb": "铅灯泡",
+  "block.theleadage.lead_pressure_plate": "铅压力板",
   "block.theleadage.leaded_glass": "铅玻璃",
   "tooltip.theleadage.frame.plain": "纯色",
   "tooltip.theleadage.frame.split_h": "分割（竖向）",

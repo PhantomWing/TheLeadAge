@@ -22,6 +22,7 @@
   "block.theleadage.lead_wall_torch": "Lead Torch",
   "block.theleadage.lead_lantern": "Lead Lantern",
   "block.theleadage.lead_bulb": "Lead Bulb",
+  "block.theleadage.lead_pressure_plate": "Lead Pressure Plate",
   "block.theleadage.leaded_glass": "Leaded Glass",
   "tooltip.theleadage.frame.plain": "Plain",
   "tooltip.theleadage.frame.split_h": "Split (vertical)",
