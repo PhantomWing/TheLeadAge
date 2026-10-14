@@ -48,10 +48,10 @@ public class LeadTorchBlockEntity extends BlockEntity {
         LeadFumes.expose(serverLevel, pos, DOSE_CHANCE);
     }
 
-    /** A toxic wisp at the torch — the same lead fumes as lead ore's release, smaller. */
+    /** A toxic burst at the torch — the same lead fumes as lead ore's release, smaller, spreading over where it doses. */
     private static void emitFumes(ServerLevel level, BlockPos pos) {
         double cx = pos.getX() + 0.5, cy = pos.getY() + 0.7, cz = pos.getZ() + 0.5;
-        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy, cz, 7, 0.12, 0.08, 0.12, 0.008);
-        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy + 0.15, cz, 4, 0.22, 0.12, 0.22, 0.003);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy, cz, 9, 0.3, 0.12, 0.3, 0.015);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy + 0.15, cz, 10, 0.8, 0.25, 0.8, 0.008);
     }
 }

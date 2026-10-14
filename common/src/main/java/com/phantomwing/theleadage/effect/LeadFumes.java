@@ -156,15 +156,19 @@ public final class LeadFumes {
         expose(level, at, GEAR_DOSE_CHANCE);
     }
 
-    /** The big release: a dense core plus a wider, slower halo, so it billows rather than puffs. */
+    /**
+     * The big release: a dense core, a halo billowing out over the {@value #FULL_RANGE} blocks it doses everyone in,
+     * and thin wisps out to where its reach runs out, so the cloud shows how far it is dangerous.
+     */
     public static void plume(ServerLevel level, double x, double y, double z) {
-        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y, z, 14, 0.18, 0.06, 0.18, 0.01);
-        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y + 0.15, z, 10, 0.34, 0.14, 0.34, 0.004);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y, z, 16, 0.3, 0.12, 0.3, 0.02);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y + 0.15, z, 18, 0.8, 0.25, 0.8, 0.015);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y + 0.25, z, 12, 1.3, 0.35, 1.3, 0.008);
     }
 
-    /** The small release: a faint wisp. */
+    /** The small release: a faint wisp, spreading a little way. */
     public static void wisp(ServerLevel level, double x, double y, double z) {
-        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y, z, 4, 0.16, 0.05, 0.16, 0.006);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y, z, 7, 0.45, 0.12, 0.45, 0.01);
     }
 
     /**
