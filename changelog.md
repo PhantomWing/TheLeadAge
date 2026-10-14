@@ -6,7 +6,7 @@
 - Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
 - Campfires and soul campfires lit on a Block of Raw Lead give off smoke tainted a dark purple by lead fumes. Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
 - Raw lead is poisonous to handle: standing on a Block of Raw Lead for a few seconds gives Lead Sickness, worse the longer you stay, and lead dust lifts off it.
-- Mining a Block of Raw Lead releases lead fumes, as mining lead ore does.
+- Mining a Block of Raw Lead releases lead fumes, as mining lead ore does, unless it is mined with Silk Touch.
 - A Block of Raw Lead in water leaches into it: over about half a minute the water around it turns grey a block at a time, up to 6 blocks away through the water, flowing around whatever stands in it, and fades out over one more block. Under the surface it is murky, the murk thickening as you swim towards it, with dark specks of lead drifting in it. Players in the contaminated water get Lead Sickness, worse the longer they stay; the faint edge does no harm. A config option sets how far it reaches, or turns it off.
 - Lead tools, armor and horse armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
 - Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
@@ -25,6 +25,7 @@
 - Leaded glass counts as glass for other mods, and dyed leaded glass by its colour. The Lead Chain counts as a chain, and lead ore as stone or deepslate ore (the c:glass_blocks, c:dyed, c:chains and c:ores_in_ground tags).
 - A falling Lead Weight strikes a helmet, which softens the blow, and goes through shields, as a falling anvil does.
 - Villagers open and close leaded glass doors, as they do wooden and copper ones.
+- Lead fumes, from mining lead ore, the lead torch and crumbling lead gear, are a dark purple, and the bigger releases spread out over the area where they can make you sick.
 
 ### Fixes
 - Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1, which made bricks as cheap as the ingots themselves.
