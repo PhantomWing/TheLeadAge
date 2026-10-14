@@ -39,7 +39,8 @@ import java.util.List;
  *   caves and all, to stand on {@code pos}, with its fluids and loose blocks left out. {@code section} copies the
  *   half beyond the vein's middle, so its face to the north is cut through the vein; {@code xray} copies the vein
  *   alone.</li>
- *   <li>{@code /leadvein survey} says how many chunks around have a lead vein, beside how many have a copper one.</li>
+ *   <li>{@code /leadvein survey} says how many chunks around have a lead vein, beside how many have a copper or an
+ *   iron one.</li>
  * </ul>
  */
 @EventBusSubscriber(modid = TheLeadAge.MOD_ID)
@@ -171,23 +172,29 @@ public final class LeadVeinCommand {
         int chunks = 0;
         int withLead = 0;
         int withCopper = 0;
+        int withIron = 0;
         for (int cx = centreX - SURVEY_CHUNKS; cx <= centreX + SURVEY_CHUNKS; cx++) {
             for (int cz = centreZ - SURVEY_CHUNKS; cz <= centreZ + SURVEY_CHUNKS; cz++) {
                 chunks++;
                 if (lead != null && hasLead(lead, cx << 4, cz << 4)) {
                     withLead++;
                 }
-                if (hasCopper(random, router, cx << 4, cz << 4)) {
+                if (hasVanillaVein(random, router, cx << 4, cz << 4, 1, 0, 50)) {
                     withCopper++;
+                }
+                if (hasVanillaVein(random, router, cx << 4, cz << 4, -1, -60, -8)) {
+                    withIron++;
                 }
             }
         }
         int seen = chunks;
         int leadChunks = withLead;
         int copperChunks = withCopper;
+        int ironChunks = withIron;
         source.sendSuccess(() -> Component.literal(String.format(
-                "Of %d chunks within %d blocks: %d have a lead vein (%.1f%%), %d a copper vein (%.1f%%)",
-                seen, SURVEY_CHUNKS * 16, leadChunks, 100.0 * leadChunks / seen, copperChunks, 100.0 * copperChunks / seen)), false);
+                "Of %d chunks within %d blocks: %d have a lead vein (%.1f%%), %d a copper vein (%.1f%%), %d an iron vein (%.1f%%)",
+                seen, SURVEY_CHUNKS * 16, leadChunks, 100.0 * leadChunks / seen, copperChunks, 100.0 * copperChunks / seen,
+                ironChunks, 100.0 * ironChunks / seen)), false);
         return leadChunks;
     }
 
@@ -204,17 +211,20 @@ public final class LeadVeinCommand {
         return false;
     }
 
-    /** Whether vanilla's copper vein places a block in the chunk, read as {@code OreVeinifier} reads it. */
-    private static boolean hasCopper(RandomState random, NoiseRouter router, int x0, int z0) {
+    /**
+     * Whether one of vanilla's veins places a block in the chunk, read as {@code OreVeinifier} reads it: copper on the
+     * toggle's positive side ({@code sign} 1) between Y 0 and 50, iron on its negative side between Y -60 and -8.
+     */
+    private static boolean hasVanillaVein(RandomState random, NoiseRouter router, int x0, int z0, int sign, int minY, int maxY) {
         for (int x = x0; x < x0 + 16; x += 4) {
             for (int z = z0; z < z0 + 16; z += 4) {
-                for (int y = 0; y <= 50; y += 2) {
+                for (int y = minY; y <= maxY; y += 2) {
                     DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
-                    double toggle = router.veinToggle().compute(at);
+                    double toggle = sign * router.veinToggle().compute(at);
                     if (toggle <= 0.0) {
                         continue;
                     }
-                    double edge = Mth.clampedMap(Math.min(50 - y, y), 0.0, 20.0, -0.2, 0.0);
+                    double edge = Mth.clampedMap(Math.min(maxY - y, y - minY), 0.0, 20.0, -0.2, 0.0);
                     if (toggle + edge < 0.4 || random.oreRandom().at(x, y, z).nextFloat() > 0.7F
                             || router.veinRidged().compute(at) >= 0.0) {
                         continue;
