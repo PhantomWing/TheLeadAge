@@ -13,9 +13,9 @@ import net.minecraft.world.level.Level;
  * place of the plain smoke by each loader's {@code CampfireBlockMixin}.
  */
 public final class LeadCampfireSmoke {
-    private static final float RED = 0x5F / 255.0F;
-    private static final float GREEN = 0x5E / 255.0F;
-    private static final float BLUE = 0x83 / 255.0F;
+    static final float RED = 0x5F / 255.0F;
+    static final float GREEN = 0x5E / 255.0F;
+    static final float BLUE = 0x83 / 255.0F;
 
     private LeadCampfireSmoke() {
     }

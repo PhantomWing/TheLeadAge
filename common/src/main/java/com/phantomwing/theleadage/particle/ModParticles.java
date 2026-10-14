@@ -10,7 +10,7 @@ import net.minecraft.core.registries.Registries;
 /**
  * Custom particles. {@code lead_flame} is the lead torch's grayish-white flame — vanilla has no
  * uncoloured flame particle, so this is vanilla's {@code FlameParticle} behaviour (registered per
- * loader) over a recoloured flame sprite. {@code lead_speck} is a speck of lead drifting in contaminated water, {@code lead_dust} the dust off a block of raw lead.
+ * loader) over a recoloured flame sprite. {@code lead_speck} is a speck of lead drifting in contaminated water, {@code lead_dust} the dust off a block of raw lead, {@code lead_fumes} the fumes lead gives off.
  */
 public class ModParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES =
@@ -26,6 +26,10 @@ public class ModParticles {
 
     public static final RegistrySupplier<SimpleParticleType> LEAD_DUST =
             PARTICLES.register("lead_dust", () -> new SimpleParticleType(false) {
+            });
+
+    public static final RegistrySupplier<SimpleParticleType> LEAD_FUMES =
+            PARTICLES.register("lead_fumes", () -> new SimpleParticleType(false) {
             });
 
     public static void register() {

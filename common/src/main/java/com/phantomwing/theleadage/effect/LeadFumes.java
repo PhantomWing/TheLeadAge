@@ -1,8 +1,8 @@
 package com.phantomwing.theleadage.effect;
 
+import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -156,15 +156,15 @@ public final class LeadFumes {
         expose(level, at, GEAR_DOSE_CHANCE);
     }
 
-    /** The big release: a dense pale core plus a wider, slower halo, so it billows rather than puffs. */
+    /** The big release: a dense core plus a wider, slower halo, so it billows rather than puffs. */
     public static void plume(ServerLevel level, double x, double y, double z) {
-        level.sendParticles(ParticleTypes.WHITE_SMOKE, x, y, z, 14, 0.18, 0.06, 0.18, 0.01);
-        level.sendParticles(ParticleTypes.WHITE_SMOKE, x, y + 0.15, z, 10, 0.34, 0.14, 0.34, 0.004);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y, z, 14, 0.18, 0.06, 0.18, 0.01);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y + 0.15, z, 10, 0.34, 0.14, 0.34, 0.004);
     }
 
     /** The small release: a faint wisp. */
     public static void wisp(ServerLevel level, double x, double y, double z) {
-        level.sendParticles(ParticleTypes.WHITE_SMOKE, x, y, z, 4, 0.16, 0.05, 0.16, 0.006);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), x, y, z, 4, 0.16, 0.05, 0.16, 0.006);
     }
 
     /**

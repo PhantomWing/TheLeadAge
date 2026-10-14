@@ -1,8 +1,8 @@
 package com.phantomwing.theleadage.block.entity;
 
 import com.phantomwing.theleadage.effect.LeadFumes;
+import com.phantomwing.theleadage.particle.ModParticles;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -48,10 +48,10 @@ public class LeadTorchBlockEntity extends BlockEntity {
         LeadFumes.expose(serverLevel, pos, DOSE_CHANCE);
     }
 
-    /** A toxic wisp at the torch — the same pale lead-oxide smoke as lead ore's release, smaller. */
+    /** A toxic wisp at the torch — the same lead fumes as lead ore's release, smaller. */
     private static void emitFumes(ServerLevel level, BlockPos pos) {
         double cx = pos.getX() + 0.5, cy = pos.getY() + 0.7, cz = pos.getZ() + 0.5;
-        level.sendParticles(ParticleTypes.WHITE_SMOKE, cx, cy, cz, 7, 0.12, 0.08, 0.12, 0.008);
-        level.sendParticles(ParticleTypes.WHITE_SMOKE, cx, cy + 0.15, cz, 4, 0.22, 0.12, 0.22, 0.003);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy, cz, 7, 0.12, 0.08, 0.12, 0.008);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy + 0.15, cz, 4, 0.22, 0.12, 0.22, 0.003);
     }
 }
