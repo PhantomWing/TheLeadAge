@@ -36,7 +36,7 @@ public final class LeadWater {
     /** The furthest the config lets raw lead contaminate. */
     public static final int MAX_RANGE = 8;
     /** How many blocks before the contaminated water the murk seen from inside it begins. */
-    public static final int MURK_AHEAD = 4;
+    public static final int MURK_AHEAD = 6;
     /** How strongly the edge is tinted, beside the weakest contaminated water's. */
     private static final float EDGE = 0.5F;
     /** The most steps a block of water waits after the one it was reached from: how ragged the spreading is. */
