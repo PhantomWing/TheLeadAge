@@ -97,7 +97,7 @@ public class Configuration {
         LEAD_WATER_RANGE = builder
                 .comment("How far a block of raw lead leaches into the water it touches, in blocks through the water and around what stands in it. The contaminated water spreads a block at a time, is tinted grey and murky, and gives players in it Lead Sickness, worse the longer they stay. 0 turns it off.")
                 .translation("text.autoconfig.theleadage.option.lead_water_range")
-                .defineInRange(LEAD_WATER_RANGE_ID, 4, 0, 8);
+                .defineInRange(LEAD_WATER_RANGE_ID, 6, 0, 8);
         ENABLE_RECIPE_OVERRIDES = builder
                 .comment("Master toggle for the lead recipe overrides below. When off, none of them apply and vanilla recipes are kept.")
                 .translation("text.autoconfig.theleadage.option.enable_recipe_overrides")
