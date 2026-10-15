@@ -21,7 +21,8 @@ import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.randomStat
 
 /**
  * Large lead ore veins, sampled from the overworld's own noises for a fixed seed, so the run is the same every time:
- * the veins' data loads and binds, and what they place is ore and filler in their band, with raw lead now and then.
+ * the veins' data loads and binds, and what they place is ore and filler in their band, with raw lead now and then,
+ * only ever on iron's side of vanilla's vein noise, so never where a copper vein can be.
  */
 public final class LeadVeinGameTest {
     private static final long SEED = 20261014L;
@@ -66,12 +67,18 @@ public final class LeadVeinGameTest {
         int raw = 0;
         int filler = 0;
         int outside = 0;
+        int onCoppersSide = 0;
+        DensityFunction vanillaToggle = random.router().veinToggle();
         for (int x = 0; x < SIZE; x += STEP) {
             for (int z = 0; z < SIZE; z += STEP) {
                 for (int y = LeadVeins.MIN_Y - 6; y < LeadVeins.MAX_Y + 6; y += 2) {
-                    BlockState state = veins.calculate(new DensityFunction.SinglePointContext(x, y, z));
+                    DensityFunction.SinglePointContext at = new DensityFunction.SinglePointContext(x, y, z);
+                    BlockState state = veins.calculate(at);
                     if (state == null) {
                         continue;
+                    }
+                    if (vanillaToggle.compute(at) > 0.0) {
+                        onCoppersSide++;
                     }
                     if (y < LeadVeins.MIN_Y || y >= LeadVeins.MAX_Y) {
                         outside++;
@@ -90,7 +97,9 @@ public final class LeadVeinGameTest {
         }
 
         String counts = ore + " ore, " + raw + " raw lead, " + filler + " tuff";
-        if (outside > 0) {
+        if (onCoppersSide > 0) {
+            fail(helper, onCoppersSide + " vein blocks where vanilla's vein noise is copper's");
+        } else if (outside > 0) {
             fail(helper, outside + " vein blocks outside Y " + LeadVeins.MIN_Y + " to " + LeadVeins.MAX_Y);
         } else if (ore == 0 || raw == 0 || filler <= ore) {
             // Mostly filler, as vanilla's veins are, with lead ore through it and raw lead in that.

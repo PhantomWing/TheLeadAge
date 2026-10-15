@@ -13,6 +13,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -21,24 +22,32 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Large lead ore veins, made as vanilla's copper and iron ore veins are: long ribbons of lead ore in tuff
  * winding through the stone between Y {@value #MIN_Y} and {@value #MAX_Y}, now and then a block of raw lead in
- * them. Where a vanilla vein crosses one, the vanilla vein wins.
+ * them.
  *
- * <p>Their shape is data, as it is from 26.3, where vanilla's veins became material rules: noises of their own,
- * so they wind their own way, and density functions under {@code theleadage:overworld/lead_vein/} built like
- * vanilla's {@code overworld/ore_vein/} ones. {@link LeadVeinifier} places the blocks as vanilla's ore vein rule
- * does. Before 26.3 the veins are hard-coded in {@code NoiseChunk}, so a mixin adds this one after them, with its
- * functions bound to the world's seed when the level's {@code RandomState} is made ({@link #bind}).</p>
+ * <p>They come from vanilla's own vein noises. Its {@code ore_veininess} decides where a vein lies and which: copper
+ * where it is over 0.4, between Y 0 and 50, iron where it is under -0.4, between Y -60 and -8. Iron's side is
+ * unused above that, and lead takes it, where the noise is under -{@value #THRESHOLD}: so lead never crosses a
+ * copper vein, vanilla's veins are as they were, and lead veins are rarer than theirs, only the noise's strongest
+ * reach being lead's. Its ribbons and gaps are vanilla's {@code ore_vein_a}, {@code ore_vein_b} and
+ * {@code ore_gap}.</p>
+ *
+ * <p>Their shape is data, as it is from 26.3, where vanilla's veins became material rules: density functions under
+ * {@code theleadage:overworld/lead_vein/}, built like vanilla's {@code overworld/ore_vein/} ones. {@link LeadVeinifier}
+ * places the blocks as vanilla's ore vein rule does. Before 26.3 the veins are hard-coded in {@code NoiseChunk}, so a
+ * mixin adds this one after them, with its functions bound to the world's seed when the level's {@code RandomState}
+ * is made ({@link #bind}).</p>
  */
 public final class LeadVeins {
     public static final int MIN_Y = 8;
     public static final int MAX_Y = 58;
+    /**
+     * How far under 0 vanilla's vein noise must reach for a lead vein, where copper and iron need 0.4: at 0.6 about a
+     * quarter as many chunks have a lead vein as have a copper one. Vanilla's richness is at its most from 0.6, so
+     * every lead vein is as rich as its richest.
+     */
+    public static final double THRESHOLD = 0.6;
 
-    public static final ResourceKey<NormalNoise.NoiseParameters> VEININESS = noise("lead_veininess");
-    public static final ResourceKey<NormalNoise.NoiseParameters> VEIN_A = noise("lead_vein_a");
-    public static final ResourceKey<NormalNoise.NoiseParameters> VEIN_B = noise("lead_vein_b");
-    public static final ResourceKey<NormalNoise.NoiseParameters> VEIN_GAP = noise("lead_vein_gap");
-
-    /** Where the veins run: a vein lies where it is over 0.4, and its richness grows with it. */
+    /** Vanilla's vein noise, over its range of heights, within the veins' band: a lead vein lies where it is under -{@value #THRESHOLD}. */
     public static final ResourceKey<DensityFunction> TOGGLE = function("toggle");
     /** At or above 0 along the ribbons, which two crossing noises draw through the veins. */
     public static final ResourceKey<DensityFunction> MASK = function("mask");
@@ -65,18 +74,9 @@ public final class LeadVeins {
                             PositionalRandomFactory random) {
     }
 
-    /** Vanilla's ore vein noises, each under a name of its own. */
-    public static void bootstrapNoises(BootstrapContext<NormalNoise.NoiseParameters> context) {
-        context.register(VEININESS, new NormalNoise.NoiseParameters(-8, 1.0));
-        context.register(VEIN_A, new NormalNoise.NoiseParameters(-7, 1.0));
-        context.register(VEIN_B, new NormalNoise.NoiseParameters(-7, 1.0));
-        context.register(VEIN_GAP, new NormalNoise.NoiseParameters(-5, 1.0));
-    }
-
     /**
-     * The density functions, each as vanilla 26.3's of the same name under {@code overworld/ore_vein/}, with copper's
-     * band moved to lead's. Like copper, a vein is where the toggle is over 0.4, so lead veins are as common in
-     * their band as copper's are in theirs.
+     * The density functions, each as vanilla 26.3's of the same name under {@code overworld/ore_vein/}, over vanilla's
+     * noises: iron's density, moved up to lead's band and needing the noise under -{@value #THRESHOLD}.
      */
     public static void bootstrapFunctions(BootstrapContext<DensityFunction> context) {
         HolderGetter<NormalNoise.NoiseParameters> noises = context.lookup(Registries.NOISE);
@@ -84,12 +84,12 @@ public final class LeadVeins {
         DensityFunction y = new DensityFunctions.HolderHolder(functions.getOrThrow(Y));
 
         context.register(TOGGLE, DensityFunctions.cacheOnce(inBand(y,
-                DensityFunctions.noise(noises.getOrThrow(VEININESS), 1.5, 1.5), 0.0)));
+                DensityFunctions.noise(noises.getOrThrow(Noises.ORE_VEININESS), 1.5, 1.5), 0.0)));
 
         DensityFunction toggle = new DensityFunctions.HolderHolder(functions.getOrThrow(TOGGLE));
         DensityFunction ridges = DensityFunctions.max(
-                inBand(y, DensityFunctions.noise(noises.getOrThrow(VEIN_A), 4.0, 4.0), 1.0).abs(),
-                inBand(y, DensityFunctions.noise(noises.getOrThrow(VEIN_B), 4.0, 4.0), 1.0).abs());
+                inBand(y, DensityFunctions.noise(noises.getOrThrow(Noises.ORE_VEIN_A), 4.0, 4.0), 1.0).abs(),
+                inBand(y, DensityFunctions.noise(noises.getOrThrow(Noises.ORE_VEIN_B), 4.0, 4.0), 1.0).abs());
         context.register(MASK, DensityFunctions.cacheOnce(DensityFunctions.rangeChoice(toggle, -0.4, 0.4,
                 DensityFunctions.constant(-1.0), minus(DensityFunctions.constant(0.08), ridges))));
 
@@ -101,13 +101,13 @@ public final class LeadVeins {
         DensityFunction never = DensityFunctions.constant(-1.0);
         context.register(DENSITY, DensityFunctions.rangeChoice(y, MIN_Y, MAX_Y,
                 DensityFunctions.rangeChoice(mask, 0.0, 1000000.0,
-                        DensityFunctions.rangeChoice(DensityFunctions.add(DensityFunctions.add(toggle, DensityFunctions.constant(-0.4)), edge),
+                        DensityFunctions.rangeChoice(DensityFunctions.add(minus(DensityFunctions.constant(-THRESHOLD), toggle), edge),
                                 0.0, 1000000.0, DensityFunctions.constant(0.7), never),
                         never),
                 never));
 
         context.register(RICHNESS, DensityFunctions.add(toggle.abs().clamp(0.4, 0.6), DensityFunctions.constant(-0.3)));
-        context.register(GAP, minus(DensityFunctions.constant(-0.3), DensityFunctions.noise(noises.getOrThrow(VEIN_GAP))));
+        context.register(GAP, minus(DensityFunctions.constant(-0.3), DensityFunctions.noise(noises.getOrThrow(Noises.ORE_GAP))));
     }
 
     /**
@@ -169,10 +169,6 @@ public final class LeadVeins {
 
     private static DensityFunction minus(DensityFunction left, DensityFunction right) {
         return DensityFunctions.add(left, DensityFunctions.mul(DensityFunctions.constant(-1.0), right));
-    }
-
-    private static ResourceKey<NormalNoise.NoiseParameters> noise(String name) {
-        return ResourceKey.create(Registries.NOISE, TheLeadAge.resourceLocation(name));
     }
 
     private static ResourceKey<DensityFunction> function(String name) {

@@ -14,7 +14,7 @@
 - Lead tools and armor sometimes turn up in chests in place of iron ones: in villages, strongholds, end cities, mineshafts, buried treasure, ancient cities, bastions and trial chambers.
 - A config option to stop mobs spawning with lead armor and tools.
 - The Lead Pressure Plate, made from two Lead Ingots: a weighted pressure plate that only mobs and players can press, since dropped items are too light for it. Each mob or player on it adds 1 to its signal, up to 15.
-- Large lead ore veins wind through the stone between Y 8 and 58, as copper and iron ones do: long ribbons of lead ore in tuff, with the odd Block of Raw Lead. A config option turns them off.
+- Large lead ore veins wind through the stone between Y 8 and 58, as copper and iron ones do: long ribbons of lead ore in tuff, with the odd Block of Raw Lead. They are rarer than copper and iron veins, as rich as their richest, and never cross a copper vein. A config option turns them off.
 
 ### Changes
 - Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.

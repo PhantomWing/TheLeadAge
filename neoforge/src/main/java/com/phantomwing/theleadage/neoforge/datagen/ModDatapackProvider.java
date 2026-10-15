@@ -20,7 +20,6 @@ import java.util.concurrent.CompletableFuture;
 public class ModDatapackProvider extends DatapackBuiltinEntriesProvider {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap)
-            .add(Registries.NOISE, LeadVeins::bootstrapNoises)
             .add(Registries.DENSITY_FUNCTION, LeadVeins::bootstrapFunctions)
             .add(Registries.TRIM_MATERIAL, ModTrimMaterials::bootstrap)
             .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::bootstrap)
