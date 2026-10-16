@@ -95,7 +95,7 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes")
                 .define(PILLAGERS_AVOID_LEAD_FUMES_ID, true);
         ENABLE_CAMPFIRE_LEAD_FUMES = builder
-                .comment("Should a lit campfire or soul campfire on a block of raw lead give off a stream of lead fumes? Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away from it when their options above are on.")
+                .comment("Should a lit campfire or soul campfire on a block of raw lead, or on a hay bale on one, give off a stream of lead fumes? Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away from it when their options above are on.")
                 .translation("text.autoconfig.theleadage.option.enable_campfire_lead_fumes")
                 .define(ENABLE_CAMPFIRE_LEAD_FUMES_ID, true);
         ENABLE_RAW_LEAD_CONTACT = builder
