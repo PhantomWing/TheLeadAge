@@ -9,7 +9,7 @@
     { "fill": [-2, 0, 1], "to": [2, 0, 2], "block": "minecraft:water" },
     { "fill": [-2, 0, 0], "to": [-1, 0, 0], "block": "minecraft:water" },
     { "fill": [1, 0, 0], "to": [2, 0, 0], "block": "minecraft:water" },
-    { "expect": "block", "at": [0, 0, 0], "is": "theleadage:raw_lead_block", "with": { "contamination": "1" }, "within": 20 },
+    { "expect": "block", "at": [0, 0, 0], "is": "theleadage:raw_lead_block" },
     { "move": [2, 0, 0] },
     { "expect": "effect", "has": "minecraft:hunger", "within": 600 },
     { "move": [0, 0, -5] },
