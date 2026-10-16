@@ -27,6 +27,7 @@
 - Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
 - Fixed a crash when breaking leaded glass in a colour a dye mod adds.
 - Fixed amethyst clusters giving fewer shards when mined with a Lead Pickaxe.
+- Fixed the mod not loading on Fabric for Minecraft 1.21.7.
 
 
 # 1.1.1
