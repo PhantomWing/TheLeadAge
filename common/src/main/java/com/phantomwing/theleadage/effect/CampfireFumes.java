@@ -1,6 +1,6 @@
 package com.phantomwing.theleadage.effect;
 
-import com.phantomwing.theleadage.platform.CommonConfig;
+import com.phantomwing.theleadage.platform.LeadSettings;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,12 +8,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -40,16 +43,19 @@ public final class CampfireFumes {
      */
     private static final int CLEAR_TICKS = 130;
     private static final int SIGNAL_CLEAR_TICKS = 330;
-    /** Each campfire's stream: when it started, and when it stopped or -1. */
-    private static final Map<CampfireBlockEntity, long[]> STREAMS = new WeakHashMap<>();
+    /**
+     * Each campfire's streams, the newest last: when each started, when it stopped or -1, and whether it was a signal
+     * fire's. A fire lit again while the last of its fumes still rise starts a stream under them, rather than losing them.
+     */
+    private static final Map<CampfireBlockEntity, List<long[]>> STREAMS = new WeakHashMap<>();
 
     private CampfireFumes() {
     }
 
     /** Whether the campfire at {@code pos} is lit over raw lead, or over a hay bale on raw lead, so it gives off fumes. */
-    public static boolean isFuming(BlockGetter level, BlockPos pos, BlockState state) {
+    public static boolean isFuming(Level level, BlockPos pos, BlockState state) {
         if (!state.is(BlockTags.CAMPFIRES) || !state.hasProperty(CampfireBlock.LIT) || !state.getValue(CampfireBlock.LIT)
-                || !CommonConfig.campfireLeadFumes()) {
+                || !LeadSettings.campfireFumes(level.isClientSide())) {
             return false;
         }
         BlockState below = level.getBlockState(pos.below());
@@ -65,28 +71,35 @@ public final class CampfireFumes {
     /** A campfire's server tick, lit or not: its stream starts, rises, stops and clears, and is breathed. */
     public static void tick(ServerLevel level, BlockPos pos, BlockState state, CampfireBlockEntity campfire) {
         long now = level.getGameTime();
-        long[] stream = STREAMS.get(campfire);
+        List<long[]> streams = STREAMS.get(campfire);
+        long[] last = streams == null || streams.isEmpty() ? null : streams.get(streams.size() - 1);
         if (isFuming(level, pos, state)) {
-            if (stream == null || stream[1] >= 0) {
-                stream = new long[] {now, -1};
-                STREAMS.put(campfire, stream);
+            if (last == null || last[1] >= 0) {
+                if (streams == null) {
+                    streams = new ArrayList<>();
+                    STREAMS.put(campfire, streams);
+                }
+                streams.add(new long[] {now, -1, isSignal(state) ? 1 : 0});
             }
-        } else if (stream != null && stream[1] < 0) {
-            stream[1] = now;
+        } else if (last != null && last[1] < 0) {
+            last[1] = now;
         }
-        if (stream == null) {
+        if (streams == null) {
             return;
         }
-        if (stream[1] >= 0 && now - stream[1] > (isSignal(state) ? SIGNAL_CLEAR_TICKS : CLEAR_TICKS)) {
+        streams.removeIf(stream -> stream[1] >= 0 && now - stream[1] > (stream[2] == 1 ? SIGNAL_CLEAR_TICKS : CLEAR_TICKS));
+        if (streams.isEmpty()) {
             STREAMS.remove(campfire);
             return;
         }
         if (now % INTERVAL == 0) {
-            double top = pos.getY() + 0.5 + (now - stream[0]) * RISE;
-            double bottom = pos.getY() + 0.5 + (stream[1] < 0 ? 0.0 : (now - stream[1]) * RISE);
-            AABB column = stream(level, pos);
-            if (bottom < Math.min(top, column.maxY)) {
-                dose(level, column.setMinY(bottom).setMaxY(Math.min(top, column.maxY)));
+            for (long[] stream : streams) {
+                double top = pos.getY() + 0.5 + (now - stream[0]) * RISE;
+                double bottom = pos.getY() + 0.5 + (stream[1] < 0 ? 0.0 : (now - stream[1]) * RISE);
+                AABB column = column(level, pos, stream[2] == 1);
+                if (bottom < Math.min(top, column.maxY)) {
+                    dose(level, column.setMinY(bottom).setMaxY(Math.min(top, column.maxY)));
+                }
             }
         }
     }
@@ -105,7 +118,12 @@ public final class CampfireFumes {
 
     /** The stream risen all the way: the column over the fire, up to where its smoke fades or the first block in the way. */
     public static AABB stream(BlockGetter level, BlockPos pos) {
-        int height = isSignal(level.getBlockState(pos)) ? SIGNAL_STREAM_HEIGHT : STREAM_HEIGHT;
+        return column(level, pos, isSignal(level.getBlockState(pos)));
+    }
+
+    /** The column a stream rises in, as high as a signal fire's smoke where it is one. */
+    private static AABB column(BlockGetter level, BlockPos pos, boolean signal) {
+        int height = signal ? SIGNAL_STREAM_HEIGHT : STREAM_HEIGHT;
         BlockPos.MutableBlockPos at = pos.above().mutable();
         while (at.getY() <= pos.getY() + height && level.getBlockState(at).getCollisionShape(level, at).isEmpty()) {
             at.move(Direction.UP);

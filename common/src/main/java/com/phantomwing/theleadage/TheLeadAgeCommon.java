@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage;
 
+import com.phantomwing.theleadage.network.LeadSettingsSync;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.armor.MonsterArmorHandler;
 import com.phantomwing.theleadage.entity.LeadFumeRepellent;
@@ -50,5 +51,6 @@ public final class TheLeadAgeCommon {
         MonsterArmorHandler.register();
         LeadFumeRepellent.register(); // lead torches repel creepers + pillagers (see the class doc)
         LeadArmorItem.register();     // ticks the Heaviness penalties so they clear when the armor comes off
+        LeadSettingsSync.register();  // the server's raw lead settings, which its players draw the water and smoke by
     }
 }

@@ -38,7 +38,7 @@ public final class LeadWaterSpecks {
     /** The level's ambient particle tick, around the player at {@code x, y, z}. */
     public static void tick(ClientLevel level, int x, int y, int z) {
         LeadWaterTint.tick(level);
-        int range = LeadWater.range();
+        int range = LeadWater.range(true);
         if (range == 0) {
             return;
         }

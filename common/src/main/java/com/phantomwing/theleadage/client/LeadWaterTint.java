@@ -73,11 +73,11 @@ public final class LeadWaterTint {
 
     private static int tinted(BlockPos pos, int color) {
         ClientLevel level = Minecraft.getInstance().level;
-        int range = LeadWater.range();
+        int range = LeadWater.range(true);
         if (level == null || range == 0 || !mayHaveRawLeadNear(level, pos, range + 2)) {
             return color;
         }
-        float strength = level.getFluidState(pos).is(FluidTags.WATER) ? strength(level, pos) : besideStrength(level, pos);
+        float strength = level.getFluidState(pos).is(FluidTags.WATER) ? strength(level, pos, range) : besideStrength(level, pos, range);
         strength *= MOST;
         if (strength <= 0.0F) {
             return color;
@@ -103,11 +103,11 @@ public final class LeadWaterTint {
             return null;
         }
         BlockPos at = BlockPos.containing(camera.getPosition());
-        int range = LeadWater.range();
+        int range = LeadWater.range(true);
         float target;
         try {
             target = range > 0 && mayHaveRawLeadNear(level, at, range + LeadWater.MURK_AHEAD)
-                    ? LeadWater.murk(level, at, lead -> leakOf(level, lead)) : 0.0F;
+                    ? LeadWater.murk(level, at, range, lead -> leakOf(level, lead)) : 0.0F;
         } catch (RuntimeException e) {
             target = 0.0F;
         }
@@ -134,7 +134,7 @@ public final class LeadWaterTint {
         if (!LEAKS.isEmpty() && oldState.getFluidState().is(FluidTags.WATER) != newState.getFluidState().is(FluidTags.WATER)) {
             LEAKS.keySet().removeIf(key -> {
                 BlockPos lead = BlockPos.of(key);
-                if (pos.distManhattan(lead) > LeadWater.range() + LeadWater.MURK_AHEAD) {
+                if (pos.distManhattan(lead) > LeadWater.range(true) + LeadWater.MURK_AHEAD) {
                     return false;
                 }
                 redraw(renderer, lead);
@@ -143,16 +143,16 @@ public final class LeadWaterTint {
         }
     }
 
-    private static float strength(ClientLevel level, BlockPos water) {
-        return LeadWater.strength(level, water, lead -> leakOf(level, lead));
+    private static float strength(ClientLevel level, BlockPos water, int range) {
+        return LeadWater.strength(level, water, range, lead -> leakOf(level, lead));
     }
 
-    private static float besideStrength(ClientLevel level, BlockPos pos) {
+    private static float besideStrength(ClientLevel level, BlockPos pos, int range) {
         float strongest = 0.0F;
         for (Direction side : Direction.values()) {
             BlockPos beside = pos.relative(side);
             if (level.getFluidState(beside).is(FluidTags.WATER)) {
-                strongest = Math.max(strongest, strength(level, beside));
+                strongest = Math.max(strongest, strength(level, beside, range));
             }
         }
         return strongest;
@@ -163,10 +163,10 @@ public final class LeadWaterTint {
         keepFor(level);
         long now = level.getGameTime();
         Kept kept = LEAKS.get(lead.asLong());
-        if (kept != null && now >= kept.at() && now - kept.at() <= LEAK_KEPT && kept.leak().range() == LeadWater.range()) {
+        if (kept != null && now >= kept.at() && now - kept.at() <= LEAK_KEPT && kept.leak().range() == LeadWater.range(true)) {
             return kept.leak();
         }
-        LeadWater.Leak leak = LeadWater.leak(level, lead);
+        LeadWater.Leak leak = LeadWater.leak(level, lead, LeadWater.range(true));
         // Routes found beside a chunk that hasn't arrived end short there; the chunk's arrival redraws the water near it,
         // which should find them again rather than these.
         if (leak.whole()) {
@@ -193,7 +193,7 @@ public final class LeadWaterTint {
 
     /** Draws the water a lead at {@code pos} tints again, and a block more for renderers that blend each corner. */
     private static void redraw(LevelRenderer renderer, BlockPos pos) {
-        int reach = LeadWater.range() + 2;
+        int reach = LeadWater.range(true) + 2;
         renderer.setBlocksDirty(pos.getX() - reach, pos.getY() - reach, pos.getZ() - reach,
                 pos.getX() + reach, pos.getY() + reach, pos.getZ() + reach);
     }

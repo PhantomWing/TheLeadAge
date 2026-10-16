@@ -5,6 +5,7 @@ import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
+import com.phantomwing.theleadage.platform.LeadSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Direction;
@@ -31,8 +32,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * The block of raw lead: unrefined lead, poisonous to handle. A player who stands on it a few seconds gets Lead
  * Sickness, worse the longer they stay, sneaking or not, and lead dust lifts off it. In water it leaks
- * ({@link LeadWater}). Only a block in water ticks, every {@value LeadWater#INTERVAL} ticks rather than with a
- * block entity, so the blocks in a storage room cost nothing.
+ * ({@link LeadWater}). Only a block in water ticks often, every {@value LeadWater#INTERVAL} ticks rather than with
+ * a block entity, so the blocks in a storage room cost next to nothing.
  */
 public class RawLeadBlock extends Block {
     public static final MapCodec<RawLeadBlock> CODEC = simpleCodec(RawLeadBlock::new);
@@ -61,13 +62,14 @@ public class RawLeadBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(CONTAMINATION,
-                LeadWater.range() > 0 && LeadWater.touchesWater(context.getLevel(), context.getClickedPos()) ? 1 : 0);
+                LeadWater.range(context.getLevel().isClientSide()) > 0
+                        && LeadWater.touchesWater(context.getLevel(), context.getClickedPos()) ? 1 : 0);
     }
 
     @Override
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
                                      BlockPos pos, BlockPos neighborPos) {
-        if (LeadWater.range() == 0 || !LeadWater.touchesWater(level, pos)) {
+        if (LeadWater.range(level.isClientSide()) == 0 || !LeadWater.touchesWater(level, pos)) {
             return state.setValue(CONTAMINATION, 0);
         }
         if (state.getValue(CONTAMINATION) == 0) {
@@ -91,13 +93,37 @@ public class RawLeadBlock extends Block {
         }
     }
 
+    /**
+     * Every block of raw lead looks now and then, by random tick, whether it should be leaking: what the world generated
+     * beside water - a lead vein by an aquifer - never had a neighbour change to wake it, nor did lead lying dry or
+     * waiting when the range was switched back on. A few lookups a minute a block, so a storage room costs next to nothing.
+     */
+    @Override
+    protected boolean isRandomlyTicking(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        boolean wet = LeadWater.range(false) > 0 && LeadWater.touchesWater(level, pos);
+        int step = state.getValue(CONTAMINATION);
+        if (wet && step == 0) {
+            level.setBlock(pos, state.setValue(CONTAMINATION, 1), STEP_FLAGS);
+            level.scheduleTick(pos, this, LeadWater.INTERVAL);
+        } else if (!wet && step > 0) {
+            level.setBlock(pos, state.setValue(CONTAMINATION, 0), STEP_FLAGS);
+        } else if (step > 0 && !level.getBlockTicks().hasScheduledTick(pos, this)) {
+            level.scheduleTick(pos, this, LeadWater.INTERVAL);
+        }
+    }
+
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         int step = state.getValue(CONTAMINATION);
         if (step == 0) {
             return;
         }
-        int range = LeadWater.range();
+        int range = LeadWater.range(false);
         if (range == 0) {
             level.setBlock(pos, state.setValue(CONTAMINATION, 0), STEP_FLAGS);
             return;
@@ -129,7 +155,7 @@ public class RawLeadBlock extends Block {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!level.isClientSide && entity instanceof Player player && !player.isSpectator() && CommonConfig.rawLeadContact()) {
+        if (!level.isClientSide && entity instanceof Player player && !player.isSpectator() && LeadSettings.rawLeadContact(false)) {
             LeadFumes.stand(player, LeadFumes.CONTACT_STAGE_TICKS);
         }
         super.stepOn(level, pos, state, entity);
@@ -137,7 +163,7 @@ public class RawLeadBlock extends Block {
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        if (CommonConfig.rawLeadContact() && level.getBlockState(pos.above()).isAir()) {
+        if (LeadSettings.rawLeadContact(true) && level.getBlockState(pos.above()).isAir()) {
             for (int i = random.nextInt(3); i > 0; i--) {
                 level.addParticle(ModParticles.LEAD_DUST.get(), pos.getX() + 0.1 + random.nextDouble() * 0.8,
                         pos.getY() + 1.02 + random.nextDouble() * 0.15, pos.getZ() + 0.1 + random.nextDouble() * 0.8, 0.0, 0.0, 0.0);

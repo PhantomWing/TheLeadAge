@@ -1,7 +1,7 @@
 package com.phantomwing.theleadage.effect;
 
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
-import com.phantomwing.theleadage.platform.CommonConfig;
+import com.phantomwing.theleadage.platform.LeadSettings;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.core.BlockPos;
@@ -35,7 +35,7 @@ public final class LeadWater {
     /** How often the water is checked for players, and the lead's spreading takes a step. */
     public static final int INTERVAL = 10;
     /** The furthest the config lets raw lead contaminate. */
-    public static final int MAX_RANGE = 8;
+    public static final int MAX_RANGE = LeadSettings.MAX_WATER_RANGE;
     /** How many blocks before the contaminated water the murk seen from inside it begins. */
     public static final int MURK_AHEAD = 6;
     /** How strongly the edge is tinted, beside the weakest contaminated water's. */
@@ -52,9 +52,12 @@ public final class LeadWater {
     private LeadWater() {
     }
 
-    /** How far raw lead contaminates, as configured: the longest route through the water, in blocks. 0 turns it off. */
-    public static int range() {
-        return Mth.clamp(CommonConfig.leadWaterRange(), 0, MAX_RANGE);
+    /**
+     * How far raw lead contaminates: the longest route through the water, in blocks, 0 turning it off. The server's
+     * setting, which a client has from the server it plays on ({@link LeadSettings}).
+     */
+    public static int range(boolean clientSide) {
+        return LeadSettings.waterRange(clientSide);
     }
 
     /** The step at which raw lead reaching {@code range} blocks has spread as far as it does and tinted all of it. */
@@ -73,21 +76,21 @@ public final class LeadWater {
     }
 
     /**
-     * Where raw lead at {@code lead} leaks to as the water around it stands now, and when, at the configured range:
+     * Where raw lead at {@code lead} leaks to as the water around it stands now, and when, reaching {@code range}:
      * the water it poisons, its edge and the murk ahead of it.
      */
-    public static Leak leak(BlockGetter level, BlockPos lead) {
-        return new Leak(level, lead.immutable(), range(), MURK_AHEAD);
+    public static Leak leak(BlockGetter level, BlockPos lead, int range) {
+        return new Leak(level, lead.immutable(), range, MURK_AHEAD);
     }
 
     /** As {@link #leak}, only as far as the water it poisons: all the server needs. */
     private static Leak poisonLeak(BlockGetter level, BlockPos lead) {
-        return new Leak(level, lead.immutable(), range(), 0);
+        return new Leak(level, lead.immutable(), range(false), 0);
     }
 
     /** Raw lead {@code step} steps into its spreading: the players in the water it contaminates breathe it. */
     public static void contaminate(ServerLevel level, BlockPos lead, int step) {
-        int range = range();
+        int range = range(false);
         if (range == 0) {
             return;
         }
@@ -107,22 +110,23 @@ public final class LeadWater {
     /**
      * How strongly the water at {@code water} is tinted, from 0 to 1: strongest beside the lead, fading to half at the
      * end of what it contaminates and to a quarter over the edge past it, and fading in over a few steps once reached,
-     * from the raw lead that tints it most, each lead's routes found by {@code leaks}.
+     * from the raw lead that tints it most, reaching {@code range}, each lead's routes found by {@code leaks}.
      */
-    public static float strength(BlockGetter level, BlockPos water, Function<BlockPos, Leak> leaks) {
-        return strongest(level, water, range() + 1, leaks, false);
+    public static float strength(BlockGetter level, BlockPos water, int range, Function<BlockPos, Leak> leaks) {
+        return strongest(level, water, range, range + 1, leaks, false);
     }
 
     /**
      * How thick the murk is seen from inside the water at {@code water}, from 0 to 1: at its thickest throughout the
      * contaminated water, thinning over the {@value #MURK_AHEAD} blocks before it, from the raw lead that murks it most.
      */
-    public static float murk(BlockGetter level, BlockPos water, Function<BlockPos, Leak> leaks) {
-        return strongest(level, water, range() + MURK_AHEAD, leaks, true);
+    public static float murk(BlockGetter level, BlockPos water, int range, Function<BlockPos, Leak> leaks) {
+        return strongest(level, water, range, range + MURK_AHEAD, leaks, true);
     }
 
-    private static float strongest(BlockGetter level, BlockPos water, int reach, Function<BlockPos, Leak> leaks, boolean murk) {
-        if (range() == 0) {
+    private static float strongest(BlockGetter level, BlockPos water, int range, int reach, Function<BlockPos, Leak> leaks,
+                                   boolean murk) {
+        if (range == 0) {
             return 0.0F;
         }
         float strongest = 0.0F;

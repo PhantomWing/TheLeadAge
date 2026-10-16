@@ -28,6 +28,8 @@ public final class GameTests {
             test("raw_lead_spreading_steps_on", RawLeadGameTest::rawLeadSpreadingStepsOn).maxTicks(200),
             test("raw_lead_leaks_around_a_wall", RawLeadGameTest::rawLeadLeaksAroundAWall),
             test("raw_lead_edge_tints_without_poisoning", RawLeadGameTest::rawLeadEdgeTintsWithoutPoisoning),
+            test("raw_lead_wakes_by_random_tick", RawLeadGameTest::rawLeadWakesByRandomTick),
+            test("campfire_relit_keeps_its_rising_fumes", RawLeadGameTest::campfireRelitKeepsItsRisingFumes).maxTicks(300),
             test("lead_gear_smelts_into_nuggets", LeadGearGameTest::leadGearSmeltsIntoNuggets),
             test("broken_lead_armor_releases_fumes", LeadGearGameTest::brokenLeadArmorReleasesFumes).maxTicks(150),
             test("lead_gear_turns_up_in_chests", LeadGearGameTest::leadGearTurnsUpInChests),
