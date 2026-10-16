@@ -12,6 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
@@ -71,9 +72,17 @@ public final class LeadWater {
         return false;
     }
 
-    /** Where raw lead at {@code lead} leaks to as the water around it stands now, and when, at the configured range. */
+    /**
+     * Where raw lead at {@code lead} leaks to as the water around it stands now, and when, at the configured range:
+     * the water it poisons, its edge and the murk ahead of it.
+     */
     public static Leak leak(BlockGetter level, BlockPos lead) {
-        return new Leak(level, lead.immutable(), range());
+        return new Leak(level, lead.immutable(), range(), MURK_AHEAD);
+    }
+
+    /** As {@link #leak}, only as far as the water it poisons: all the server needs. */
+    private static Leak poisonLeak(BlockGetter level, BlockPos lead) {
+        return new Leak(level, lead.immutable(), range(), 0);
     }
 
     /** Raw lead {@code step} steps into its spreading: the players in the water it contaminates breathe it. */
@@ -87,7 +96,7 @@ public final class LeadWater {
         if (players.isEmpty()) {
             return;
         }
-        Leak leak = leak(level, lead);
+        Leak leak = poisonLeak(level, lead);
         for (Player player : players) {
             if (leak.poisons(step, player.blockPosition()) || leak.poisons(step, BlockPos.containing(player.getEyePosition()))) {
                 LeadFumes.touch(player, LeadFumes.FUMES_STAGE_TICKS);
@@ -148,6 +157,8 @@ public final class LeadWater {
         private final BlockPos lead;
         private final int range;
         private final int extent;
+        /** Whether every chunk the routes could reach was loaded when they were found. */
+        private final boolean whole;
         private final int size;
         private final int[] arrival;
         /** The shortest route to each block, in blocks; 0 where nothing has looked yet, {@link #DRY} where no water is. */
@@ -155,10 +166,12 @@ public final class LeadWater {
         /** Every block of water the lead contaminates, once its spreading reaches it: the edge left out. */
         private final IntArrayList reach = new IntArrayList();
 
-        private Leak(BlockGetter level, BlockPos lead, int range) {
+        private Leak(BlockGetter level, BlockPos lead, int range, int ahead) {
             this.lead = lead;
             this.range = range;
-            this.extent = range == 0 ? 0 : range + MURK_AHEAD;
+            this.extent = range == 0 ? 0 : range + ahead;
+            this.whole = !(level instanceof LevelReader reader) || reader.hasChunksAt(lead.getX() - extent, lead.getZ() - extent,
+                    lead.getX() + extent, lead.getZ() + extent);
             this.size = extent * 2 + 1;
             this.arrival = new int[size * size * size];
             this.route = new byte[size * size * size];
@@ -204,6 +217,11 @@ public final class LeadWater {
         /** The range this was found for. */
         public int range() {
             return range;
+        }
+
+        /** Whether every chunk its routes could reach was loaded: routes found otherwise end short at the gap. */
+        public boolean whole() {
+            return whole;
         }
 
         /** Whether the water at {@code water} is contaminated, {@code step} steps into the spreading: the edge isn't. */

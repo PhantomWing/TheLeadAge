@@ -21,6 +21,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -39,6 +40,8 @@ public class RawLeadBlock extends Block {
     public static final IntegerProperty CONTAMINATION = IntegerProperty.create("contamination", 0, LeadWater.MAX_STEP);
     /** The spreading takes a step in this many of every three checks: about 20 seconds to spread as far as it does. */
     private static final int SPREAD_CHANCE = 2;
+    /** A step of the spreading is the client's to redraw and nothing else's: no shape updates, no observer pulses. */
+    private static final int STEP_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
 
     public RawLeadBlock(Properties properties) {
         super(properties);
@@ -67,11 +70,22 @@ public class RawLeadBlock extends Block {
         if (LeadWater.range() == 0 || !LeadWater.touchesWater(level, pos)) {
             return state.setValue(CONTAMINATION, 0);
         }
-        return state.getValue(CONTAMINATION) == 0 ? state.setValue(CONTAMINATION, 1) : state;
+        if (state.getValue(CONTAMINATION) == 0) {
+            // onPlace isn't called while the world generates, so the first wetting asks for its tick itself.
+            level.scheduleTick(pos, this, LeadWater.INTERVAL);
+            return state.setValue(CONTAMINATION, 1);
+        }
+        return state;
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        if (state.getValue(CONTAMINATION) > 1 && oldState.is(Blocks.MOVING_PISTON)) {
+            // Pushed into new water, it starts leaking there afresh rather than at once as far as it had got.
+            level.setBlock(pos, state.setValue(CONTAMINATION, 1), STEP_FLAGS);
+            level.scheduleTick(pos, this, LeadWater.INTERVAL);
+            return;
+        }
         if (state.getValue(CONTAMINATION) > 0 && !(oldState.is(this) && oldState.getValue(CONTAMINATION) > 0)) {
             level.scheduleTick(pos, this, LeadWater.INTERVAL);
         }
@@ -85,12 +99,12 @@ public class RawLeadBlock extends Block {
         }
         int range = LeadWater.range();
         if (range == 0) {
-            level.setBlock(pos, state.setValue(CONTAMINATION, 0), Block.UPDATE_CLIENTS);
+            level.setBlock(pos, state.setValue(CONTAMINATION, 0), STEP_FLAGS);
             return;
         }
         LeadWater.contaminate(level, pos, step);
         if (step < Math.min(LeadWater.lastStep(range), LeadWater.MAX_STEP) && random.nextInt(3) < SPREAD_CHANCE) {
-            level.setBlock(pos, state.setValue(CONTAMINATION, step + 1), Block.UPDATE_CLIENTS);
+            level.setBlock(pos, state.setValue(CONTAMINATION, step + 1), STEP_FLAGS);
         }
         level.scheduleTick(pos, this, LeadWater.INTERVAL);
     }

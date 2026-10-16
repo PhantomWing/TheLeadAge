@@ -19,6 +19,7 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.FogType;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,7 +49,8 @@ public final class LeadWaterTint {
 
     /** Each raw lead's routes through the water, by position: the tint asks for them for every block of water drawn. */
     private static final Map<Long, Kept> LEAKS = new ConcurrentHashMap<>();
-    private static volatile ClientLevel leaksOf;
+    /** The level the routes were found in, held weakly so a world left behind isn't kept alive by them. */
+    private static volatile WeakReference<ClientLevel> leaksOf = new WeakReference<>(null);
     private static float murk;
     private static long murkAt;
 
@@ -61,6 +63,15 @@ public final class LeadWaterTint {
      * or the tint would thin out where it is strongest.
      */
     public static int tint(BlockPos pos, int color) {
+        try {
+            return tinted(pos, color);
+        } catch (RuntimeException e) {
+            // Read off the live level from a chunk-drawing thread, which can catch a section mid-change: leave it plain.
+            return color;
+        }
+    }
+
+    private static int tinted(BlockPos pos, int color) {
         ClientLevel level = Minecraft.getInstance().level;
         int range = LeadWater.range();
         if (level == null || range == 0 || !mayHaveRawLeadNear(level, pos, range + 2)) {
@@ -93,8 +104,13 @@ public final class LeadWaterTint {
         }
         BlockPos at = BlockPos.containing(camera.getPosition());
         int range = LeadWater.range();
-        float target = range > 0 && mayHaveRawLeadNear(level, at, range + LeadWater.MURK_AHEAD)
-                ? LeadWater.murk(level, at, lead -> leakOf(level, lead)) : 0.0F;
+        float target;
+        try {
+            target = range > 0 && mayHaveRawLeadNear(level, at, range + LeadWater.MURK_AHEAD)
+                    ? LeadWater.murk(level, at, lead -> leakOf(level, lead)) : 0.0F;
+        } catch (RuntimeException e) {
+            target = 0.0F;
+        }
         murk += (target * MURK_MOST - murk) * settle;
         if (murk < 0.005F) {
             return null;
@@ -144,17 +160,35 @@ public final class LeadWaterTint {
 
     /** The routes raw lead at {@code lead} leaks along, kept between draws. */
     public static LeadWater.Leak leakOf(ClientLevel level, BlockPos lead) {
-        if (leaksOf != level) {
-            LEAKS.clear();
-            leaksOf = level;
-        }
+        keepFor(level);
         long now = level.getGameTime();
         Kept kept = LEAKS.get(lead.asLong());
-        if (kept == null || now < kept.at() || now - kept.at() > LEAK_KEPT || kept.leak().range() != LeadWater.range()) {
-            kept = new Kept(LeadWater.leak(level, lead), now);
-            LEAKS.put(lead.asLong(), kept);
+        if (kept != null && now >= kept.at() && now - kept.at() <= LEAK_KEPT && kept.leak().range() == LeadWater.range()) {
+            return kept.leak();
         }
-        return kept.leak();
+        LeadWater.Leak leak = LeadWater.leak(level, lead);
+        // Routes found beside a chunk that hasn't arrived end short there; the chunk's arrival redraws the water near it,
+        // which should find them again rather than these.
+        if (leak.whole()) {
+            LEAKS.put(lead.asLong(), new Kept(leak, now));
+        }
+        return leak;
+    }
+
+    /** The level's tick: routes kept for another level, or not asked for in a while, are let go. */
+    public static void tick(ClientLevel level) {
+        keepFor(level);
+        long now = level.getGameTime();
+        if (now % 20 == 0 && !LEAKS.isEmpty()) {
+            LEAKS.values().removeIf(kept -> now < kept.at() || now - kept.at() > LEAK_KEPT);
+        }
+    }
+
+    private static void keepFor(ClientLevel level) {
+        if (leaksOf.get() != level) {
+            LEAKS.clear();
+            leaksOf = new WeakReference<>(level);
+        }
     }
 
     /** Draws the water a lead at {@code pos} tints again, and a block more for renderers that blend each corner. */
@@ -189,13 +223,18 @@ public final class LeadWaterTint {
                         continue;
                     }
                     LevelChunkSection section = chunk.getSection(index);
-                    if (!section.hasOnlyAir() && section.maybeHas(state -> state.getBlock() instanceof RawLeadBlock)) {
+                    if (!section.hasOnlyAir() && section.maybeHas(LeadWaterTint::isLeaking)) {
                         return true;
                     }
                 }
             }
         }
         return false;
+    }
+
+    /** Whether a block is raw lead leaking into water: dry raw lead, in storage or a lead vein, tints nothing. */
+    static boolean isLeaking(BlockState state) {
+        return state.getBlock() instanceof RawLeadBlock && state.getValue(RawLeadBlock.CONTAMINATION) > 0;
     }
 
     private static int mix(int from, int to, float amount) {

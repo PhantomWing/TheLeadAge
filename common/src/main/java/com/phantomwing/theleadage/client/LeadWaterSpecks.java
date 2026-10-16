@@ -37,7 +37,9 @@ public final class LeadWaterSpecks {
 
     /** The level's ambient particle tick, around the player at {@code x, y, z}. */
     public static void tick(ClientLevel level, int x, int y, int z) {
-        if (LeadWater.range() == 0) {
+        LeadWaterTint.tick(level);
+        int range = LeadWater.range();
+        if (range == 0) {
             return;
         }
         long now = level.getGameTime();
@@ -54,7 +56,8 @@ public final class LeadWaterSpecks {
             }
             int step = state.getValue(RawLeadBlock.CONTAMINATION);
             LeadWater.Leak leak = LeadWaterTint.leakOf(level, lead);
-            float expected = leak.size() * RATE;
+            // Lead whose water overlaps shares out the specks, or a floor of raw lead would fill the water many times over.
+            float expected = leak.size() * RATE / sharing(lead, range);
             for (int i = (int) expected + (random.nextFloat() < expected % 1.0F ? 1 : 0); i > 0; i--) {
                 BlockPos at = leak.pick(step, random);
                 if (at != null && random.nextFloat() < leak.strength(step, at)) {
@@ -63,6 +66,17 @@ public final class LeadWaterSpecks {
                 }
             }
         }
+    }
+
+    /** How many of the leaking raw lead around the player, this one included, reach water this one's does. */
+    private static int sharing(BlockPos lead, int range) {
+        int count = 0;
+        for (BlockPos other : LEADS) {
+            if (other.distManhattan(lead) <= range * 2) {
+                count++;
+            }
+        }
+        return Math.max(1, count);
     }
 
     /** Finds the raw lead in water around the player, reading only the chunk sections whose palettes may hold it. */
@@ -80,14 +94,14 @@ public final class LeadWaterSpecks {
                         continue;
                     }
                     LevelChunkSection section = chunk.getSection(index);
-                    if (section.hasOnlyAir() || !section.maybeHas(state -> state.getBlock() instanceof RawLeadBlock)) {
+                    if (section.hasOnlyAir() || !section.maybeHas(LeadWaterTint::isLeaking)) {
                         continue;
                     }
                     for (int bx = 0; bx < 16; bx++) {
                         for (int by = 0; by < 16; by++) {
                             for (int bz = 0; bz < 16; bz++) {
                                 BlockState state = section.getBlockState(bx, by, bz);
-                                if (state.getBlock() instanceof RawLeadBlock && state.getValue(RawLeadBlock.CONTAMINATION) > 0) {
+                                if (LeadWaterTint.isLeaking(state)) {
                                     BlockPos lead = new BlockPos(SectionPos.sectionToBlockCoord(sx) + bx,
                                             SectionPos.sectionToBlockCoord(sy) + by, SectionPos.sectionToBlockCoord(sz) + bz);
                                     if (lead.distManhattan(new BlockPos(x, y, z)) <= RANGE * 2) {
