@@ -1,40 +1,42 @@
 # 1.2.0
 
 ### Additions
-- **Toxic raw lead** — Blocks of Raw Lead are now dangerous to be around.
-  - Standing on one gives Lead Sickness.
-  - Mining one releases lead fumes (unless mined with Silk Touch).
-  - In water, it slowly poisons the water around it: the water turns murky, and swimming in it gives Lead Sickness. The range is configurable.
-  - A campfire on top gives off poisonous purple smoke. Put a hay bale in between for a taller column.
-- **Lead ore veins** — large veins of lead ore in tuff between Y 8 and 58, like copper and iron veins.
-- **Lead Pressure Plate** — only mobs and players can press it, each one adding to its signal.
-- Lead tools and armor can be smelted into Lead Nuggets.
-- Dyed leaded glass panes tint beacon beams.
-- Eight leaded glass panes around a dye craft eight dyed panes.
-- Zombies, husks, zombie villagers and vindicators can spawn with lead weapons and tools.
-- Lead tools and armor can turn up in chests.
-- Config options for lead veins and lead mob gear.
+- Added toxic effects to the **Block of Raw Lead**:
+  - Standing on it gives Lead Sickness.
+  - Mining it releases lead fumes (except with Silk Touch).
+  - Placed in water, it contaminates the water around it. Swimming in contaminated water gives Lead Sickness.
+  - A campfire placed on it gives off toxic smoke. Add a hay bale in between for a signal fire.
+- Added **Lead Pressure Plate** (weighted, only pressed by mobs and players).
+- Added large lead ore veins between Y 8 and 58 (like copper and iron veins).
+- Added smelting and blasting recipes for lead tools and armor into Lead Nuggets.
+- Added a recipe to dye 8 Leaded Glass Panes at once.
+- Dyed leaded glass panes now tint beacon beams.
+- Zombies, husks, zombie villagers and vindicators can now spawn with lead weapons and tools.
+- Lead tools and armor can now be found in chests.
+- Added config options for lead water contamination range, lead ore veins and mobs spawning with lead gear.
 
 ### Changes
-- Lead fumes are now purple, and spread wider.
+- Lead fumes are now purple and spread out wider.
 - Dyed leaded glass is now tinted by its dye.
-- Husks can now wear lead armor.
-- Goats lose a horn ramming lead ore.
-- Trial chamber vaults can give Lead Ingots.
-- Falling Lead Weights now hit helmets and go through shields, like anvils.
-- Villagers can now open leaded glass doors.
+- Trial chamber vaults can now give Lead Ingots.
+- Added husks to the `theleadage:can_wear_lead_armor` tag.
+- Added Lead Ore to the `minecraft:snaps_goat_horn` tag.
+- Added the Leaded Glass Door to the `minecraft:mob_interactable_doors` tag.
+- Added the Lead Weight damage type to the `minecraft:damages_helmet` and `minecraft:bypasses_shield` tags.
 
 ### Compatibility
-- **Dye mods** (Dye Depot, Delicate Dyes, …) — leaded glass in every color they add.
-- Recipes accept lead from other mods, like **Mekanism** and **Immersive Engineering**.
-- Leaded glass, the Lead Chain and lead ore count as glass, chains and ores for other mods.
-- All tags have names in **JEI** and **EMI**.
+- Leaded glass now comes in every color added by dye mods (Dye Depot, Delicate Dyes).
+- Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags.
+- Added leaded glass to the `c:glass_blocks` and `c:dyed` tags.
+- Added the Lead Chain to the `c:chains` tag.
+- Added lead ore to the `c:ores_in_ground` tags.
+- Added names to all tags, shown in JEI and EMI.
 
 ### Fixes
 - Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1.
 - Fixed armor trims not showing on lead armor in the inventory.
 - Fixed dyed leaded glass names in several languages.
-- Fixed a crash when breaking leaded glass in a dye mod's color.
+- Fixed a crash when breaking leaded glass in a color from a dye mod.
 - Fixed amethyst clusters dropping fewer shards when mined with a Lead Pickaxe.
 
 
