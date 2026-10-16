@@ -1,41 +1,42 @@
 # 1.2.0
 
 ### Additions
-- Added toxic effects to the **Block of Raw Lead**:
-  - Standing on it gives Lead Sickness.
-  - Mining it releases lead fumes (except with Silk Touch).
-  - Placed in water, it contaminates the water around it. Swimming in contaminated water gives Lead Sickness.
-  - A campfire placed on it gives off toxic smoke. Add a hay bale in between for a signal fire.
-- Added **Lead Pressure Plate** (weighted, only pressed by mobs and players).
-- Added large lead ore veins between Y 8 and 58 (like copper and iron veins).
-- Added smelting and blasting recipes for lead tools and armor into Lead Nuggets.
-- Added a recipe to dye 8 Leaded Glass Panes at once.
-- Added leaded glass in every color from dye mods (Dye Depot, Delicate Dyes).
-- Added names to all tags (shown in JEI and EMI).
-- Dyed leaded glass panes now tint beacon beams.
-- Zombies, husks, zombie villagers and vindicators can now spawn with lead weapons and tools.
-- Lead tools and armor can now be found in chests.
-- Added config options for lead water contamination range, lead ore veins and mobs spawning with lead gear.
+- Added Lead Pressure Plate (weighted, can only be pressed by mobs and players)
+- Added large lead ore veins (similar to copper and iron veins)
+- Block of Raw Lead is now toxic
+  - Standing on it gives Lead Sickness
+  - Mining it releases lead fumes (except with Silk Touch)
+  - Placing it in water contaminates the water around it, giving Lead Sickness to players swimming in it
+  - Placing a campfire on it releases lead fumes (put a hay bale in between for a signal fire)
+- Added recipes to smelt lead tools and armor into Lead Nuggets
+- Added recipe to dye 8 Leaded Glass Panes at once
+- Added support for dye mods like Dye Depot and Delicate Dyes (leaded glass in all their colors)
+- Dyed Leaded Glass Panes now tint beacon beams
+- Zombies, husks, zombie villagers and vindicators can now spawn with lead weapons and tools
+- Lead tools and armor can now be found in chests
+- Trial chamber vaults can now give Lead Ingots
+- Added translations for all tags (shown in recipe viewers like JEI and EMI)
+- Added config options for the water contamination range, lead ore veins and mobs spawning with lead gear
+- Updated tags for better compatibility with vanilla and other mods
+  - Added husks to the `theleadage:can_wear_lead_armor` tag
+  - Added Lead Ore to the `minecraft:snaps_goat_horn` tag
+  - Added Leaded Glass Door to the `minecraft:mob_interactable_doors` tag
+  - Added Lead Pickaxe to the `minecraft:cluster_max_harvestables` tag
+  - Added Lead Weight damage to the `minecraft:damages_helmet` and `minecraft:bypasses_shield` tags
+  - Added leaded glass to the `c:glass_blocks` and `c:dyed` tags
+  - Added Lead Chain to the `c:chains` tag
+  - Added lead ore to the `c:ores_in_ground` tags
 
 ### Changes
-- Lead fumes are now purple and spread out wider.
-- Dyed leaded glass is now tinted by its dye.
-- Trial chamber vaults can now give Lead Ingots.
-- Added husks to the `theleadage:can_wear_lead_armor` tag.
-- Added Lead Ore to the `minecraft:snaps_goat_horn` tag.
-- Added the Leaded Glass Door to the `minecraft:mob_interactable_doors` tag.
-- Added the Lead Weight damage type to the `minecraft:damages_helmet` and `minecraft:bypasses_shield` tags.
-- Added the Lead Pickaxe to the `minecraft:cluster_max_harvestables` tag.
-- Added leaded glass to the `c:glass_blocks` and `c:dyed` tags.
-- Added the Lead Chain to the `c:chains` tag.
-- Added lead ore to the `c:ores_in_ground` tags.
-- Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags.
+- Lead fumes are now purple and spread out wider
+- Dyed Leaded Glass is now tinted by its dye
+- Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags, so lead from other mods can be used
 
 ### Fixes
-- Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1.
-- Fixed armor trims not showing on lead armor in the inventory.
-- Fixed dyed leaded glass names in several languages.
-- Fixed a crash when breaking leaded glass in a color from a dye mod.
+- Fixed 4 Lead Ingots crafting 4 Lead Bricks instead of 1
+- Fixed armor trims not showing on lead armor in the inventory
+- Fixed dyed leaded glass names in several languages
+- Fixed a crash when breaking leaded glass in a color from a dye mod
 
 
 # 1.1.2
