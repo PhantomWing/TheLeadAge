@@ -13,6 +13,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
@@ -40,7 +41,7 @@ import java.util.List;
  *   half beyond the vein's middle, so its face to the north is cut through the vein; {@code xray} copies the vein
  *   alone.</li>
  *   <li>{@code /leadvein survey} says how many chunks around have a lead vein, beside how many have a copper or an
- *   iron one.</li>
+ *   iron one, how big each kind runs and how much ore it holds.</li>
  * </ul>
  */
 @EventBusSubscriber(modid = TheLeadAge.MOD_ID)
@@ -169,55 +170,81 @@ public final class LeadVeinCommand {
         BlockPos at = BlockPos.containing(source.getPosition());
         int centreX = at.getX() >> 4;
         int centreZ = at.getZ() >> 4;
+        Tally leadVeins = new Tally("Lead");
+        Tally copperVeins = new Tally("Copper");
+        Tally ironVeins = new Tally("Iron");
         int chunks = 0;
-        int withLead = 0;
-        int withCopper = 0;
-        int withIron = 0;
         for (int cx = centreX - SURVEY_CHUNKS; cx <= centreX + SURVEY_CHUNKS; cx++) {
             for (int cz = centreZ - SURVEY_CHUNKS; cz <= centreZ + SURVEY_CHUNKS; cz++) {
                 chunks++;
-                if (lead != null && hasLead(lead, cx << 4, cz << 4)) {
-                    withLead++;
+                if (lead != null) {
+                    tallyLead(leadVeins, lead, cx << 4, cz << 4);
                 }
-                if (hasVanillaVein(random, router, cx << 4, cz << 4, 1, 0, 50)) {
-                    withCopper++;
-                }
-                if (hasVanillaVein(random, router, cx << 4, cz << 4, -1, -60, -8)) {
-                    withIron++;
-                }
+                tallyVanilla(copperVeins, random, router, cx << 4, cz << 4, 1, 0, 50);
+                tallyVanilla(ironVeins, random, router, cx << 4, cz << 4, -1, -60, -8);
             }
         }
         int seen = chunks;
-        int leadChunks = withLead;
-        int copperChunks = withCopper;
-        int ironChunks = withIron;
-        source.sendSuccess(() -> Component.literal(String.format(
-                "Of %d chunks within %d blocks: %d have a lead vein (%.1f%%), %d a copper vein (%.1f%%), %d an iron vein (%.1f%%)",
-                seen, SURVEY_CHUNKS * 16, leadChunks, 100.0 * leadChunks / seen, copperChunks, 100.0 * copperChunks / seen,
-                ironChunks, 100.0 * ironChunks / seen)), false);
-        return leadChunks;
+        source.sendSuccess(() -> Component.literal(String.format("Of %d chunks within %d blocks:", seen, SURVEY_CHUNKS * 16)), false);
+        for (Tally tally : List.of(copperVeins, ironVeins, leadVeins)) {
+            source.sendSuccess(() -> Component.literal(tally.say(seen)), false);
+        }
+        return leadVeins.chunks;
     }
 
-    private static boolean hasLead(NoiseChunk.BlockStateFiller lead, int x0, int z0) {
-        for (int x = x0; x < x0 + 16; x += 4) {
-            for (int z = z0; z < z0 + 16; z += 4) {
+    /**
+     * What one kind of vein places in the chunks surveyed, counted every {@value #SURVEY_STEP} blocks across and every
+     * other block up, so each sample stands for {@value #SAMPLE_VOLUME} blocks.
+     */
+    private static final class Tally {
+        private final String name;
+        private int chunks;
+        private long blocks;
+        private long ore;
+
+        Tally(String name) {
+            this.name = name;
+        }
+
+        String say(int seen) {
+            return String.format("%s: %.1f%% of chunks; about %d vein blocks where it runs, %.0f%% of them ore; %.1f ore a chunk overall",
+                    name, 100.0 * chunks / seen, chunks == 0 ? 0 : blocks * SAMPLE_VOLUME / chunks,
+                    blocks == 0 ? 0.0 : 100.0 * ore / blocks, (double) ore * SAMPLE_VOLUME / seen);
+        }
+    }
+
+    private static final int SURVEY_STEP = 4;
+    private static final int SAMPLE_VOLUME = SURVEY_STEP * SURVEY_STEP * 2;
+
+    private static void tallyLead(Tally tally, NoiseChunk.BlockStateFiller lead, int x0, int z0) {
+        long before = tally.blocks;
+        for (int x = x0; x < x0 + 16; x += SURVEY_STEP) {
+            for (int z = z0; z < z0 + 16; z += SURVEY_STEP) {
                 for (int y = LeadVeins.MIN_Y; y < LeadVeins.MAX_Y; y += 2) {
-                    if (lead.calculate(new DensityFunction.SinglePointContext(x, y, z)) != null) {
-                        return true;
+                    BlockState state = lead.calculate(new DensityFunction.SinglePointContext(x, y, z));
+                    if (state == null) {
+                        continue;
+                    }
+                    tally.blocks++;
+                    if (!state.is(Blocks.TUFF)) {
+                        tally.ore++;
                     }
                 }
             }
         }
-        return false;
+        if (tally.blocks > before) {
+            tally.chunks++;
+        }
     }
 
     /**
-     * Whether one of vanilla's veins places a block in the chunk, read as {@code OreVeinifier} reads it: copper on the
-     * toggle's positive side ({@code sign} 1) between Y 0 and 50, iron on its negative side between Y -60 and -8.
+     * What one of vanilla's veins places in the chunk, read as {@code OreVeinifier} reads it: copper on the toggle's
+     * positive side ({@code sign} 1) between Y 0 and 50, iron on its negative side between Y -60 and -8.
      */
-    private static boolean hasVanillaVein(RandomState random, NoiseRouter router, int x0, int z0, int sign, int minY, int maxY) {
-        for (int x = x0; x < x0 + 16; x += 4) {
-            for (int z = z0; z < z0 + 16; z += 4) {
+    private static void tallyVanilla(Tally tally, RandomState random, NoiseRouter router, int x0, int z0, int sign, int minY, int maxY) {
+        long before = tally.blocks;
+        for (int x = x0; x < x0 + 16; x += SURVEY_STEP) {
+            for (int z = z0; z < z0 + 16; z += SURVEY_STEP) {
                 for (int y = minY; y <= maxY; y += 2) {
                     DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
                     double toggle = sign * router.veinToggle().compute(at);
@@ -225,15 +252,23 @@ public final class LeadVeinCommand {
                         continue;
                     }
                     double edge = Mth.clampedMap(Math.min(maxY - y, y - minY), 0.0, 20.0, -0.2, 0.0);
-                    if (toggle + edge < 0.4 || random.oreRandom().at(x, y, z).nextFloat() > 0.7F
-                            || router.veinRidged().compute(at) >= 0.0) {
+                    if (toggle + edge < 0.4) {
                         continue;
                     }
-                    return true;
+                    RandomSource roll = random.oreRandom().at(x, y, z);
+                    if (roll.nextFloat() > 0.7F || router.veinRidged().compute(at) >= 0.0) {
+                        continue;
+                    }
+                    tally.blocks++;
+                    if (roll.nextFloat() < Mth.clampedMap(toggle, 0.4, 0.6, 0.1, 0.3) && router.veinGap().compute(at) > -0.3) {
+                        tally.ore++;
+                    }
                 }
             }
         }
-        return false;
+        if (tally.blocks > before) {
+            tally.chunks++;
+        }
     }
 
     private static NoiseChunk.BlockStateFiller veins(ServerLevel level) throws CommandSyntaxException {
