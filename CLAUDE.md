@@ -29,6 +29,6 @@ plain JSON and copy across lines unchanged.
 - Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited.
 - Game tests in `neoforge/src/test`, run with `:neoforge:runGameTest`. Laid out with the test shim above.
 - 5 play scenarios in `scenarios/`.
-- Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`.
+- Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`, the NeoForge one from `neoforge_minecraft_versions` (1.21.3 alone: it needs NeoForge 21.3, which 1.21.2 doesn't have). `fabric.mod.json` asks for Fabric API from 0.106.1, 1.21.2's newest, not the 0.114.1 it builds against, so the jar loads on 1.21.2 too.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.
