@@ -2,8 +2,8 @@
   "name": "Standing on a Block of Raw Lead in survival gives Lead Sickness after a few seconds, not at once",
   "gamemode": "survival",
   "steps": [
-    { "setblock": [0, -1, 0], "block": "theleadage:raw_lead_block" },
-    { "move": [0, 0, 0] },
+    { "setblock": [0, 0, 0], "block": "theleadage:raw_lead_block" },
+    { "move": [0, 1, 0] },
     { "wait": 20 },
     { "expect": "effect", "lacks": "minecraft:hunger", "within": 1 },
     { "expect": "effect", "has": "minecraft:hunger", "within": 200 },

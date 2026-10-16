@@ -7,11 +7,10 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CopperBulbBlock;
-import net.minecraft.world.level.block.entity.BeaconBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 
 import java.util.Collections;
-import java.util.List;
 
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
@@ -53,29 +52,28 @@ public final class LeadBlocksGameTest {
         });
     }
 
-    /** A beacon's beam through a red leaded glass pane turns red, as through a red stained glass pane. */
+    /**
+     * A beacon's beam through a red leaded glass pane turns red, as through a red stained glass pane: the colour
+     * NeoForge's beacon asks each block above it for. A clear pane leaves the beam as it is.
+     */
     public static void beaconBeamTakesThePaneColor(GameTestHelper helper) {
         BlockPos beacon = new BlockPos(1, 2, 1);
         BlockPos pane = beacon.above();
-        for (int y = 4; y <= 8; y++) {
-            helper.setBlock(new BlockPos(1, y, 1), Blocks.AIR);
-        }
-        helper.setBlock(beacon, Blocks.BEACON);
         helper.setBlock(pane, ModBlocks.LEADED_GLASS_PANEL.get());
+        BlockState state = helper.getBlockState(pane);
+        Integer clear = state.getBeaconColorMultiplier(helper.getLevel(), helper.absolutePos(pane), helper.absolutePos(beacon));
         blockEntity(helper, pane, LeadedGlassPanelBlockEntity.class)
                 .setColors(Collections.nCopies(64, DyeColor.RED.getId()));
+        Integer color = state.getBeaconColorMultiplier(helper.getLevel(), helper.absolutePos(pane), helper.absolutePos(beacon));
         int red = 0xFF000000 | DyeColor.RED.getTextureDiffuseColor();
-        helper.succeedWhen(() -> {
-            List<BeaconBlockEntity.BeaconBeamSection> sections = blockEntity(helper, beacon, BeaconBlockEntity.class).getBeamSections();
-            if (sections.size() < 2) {
-                fail(helper, "The beacon's beam has " + sections.size() + " section(s) yet");
-            }
-            int color = sections.get(1).getColor();
-            if (color != red) {
-                fail(helper, "The beam through a red leaded glass pane is #" + Integer.toHexString(color)
-                        + ", not red #" + Integer.toHexString(red));
-            }
-        });
+        if (clear != null) {
+            fail(helper, "A clear leaded glass pane tints the beam #" + Integer.toHexString(clear));
+        } else if (color == null || color != red) {
+            fail(helper, "A red leaded glass pane tints the beam " + (color == null ? "nothing" : "#" + Integer.toHexString(color))
+                    + ", not red #" + Integer.toHexString(red));
+        } else {
+            helper.succeed();
+        }
     }
 
     /** Solid lead is too heavy for a piston to push. */

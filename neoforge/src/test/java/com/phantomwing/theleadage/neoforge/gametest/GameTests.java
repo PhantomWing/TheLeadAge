@@ -33,7 +33,7 @@ public final class GameTests {
             test("lead_gear_turns_up_in_chests", LeadGearGameTest::leadGearTurnsUpInChests),
             test("trial_vaults_give_lead_ingots", LeadGearGameTest::trialVaultsGiveLeadIngots),
             test("lead_bulb_toggles_on_each_pulse", LeadBlocksGameTest::leadBulbTogglesOnEachPulse),
-            test("beacon_beam_takes_the_pane_color", LeadBlocksGameTest::beaconBeamTakesThePaneColor).maxTicks(200),
+            test("beacon_beam_takes_the_pane_color", LeadBlocksGameTest::beaconBeamTakesThePaneColor),
             test("pistons_cant_push_solid_lead", LeadBlocksGameTest::pistonsCantPushSolidLead),
             test("door_recipe_combines", LeadOreGameTest::doorRecipeCombines),
             test("lead_bricks_recipe_yields_one", LeadOreGameTest::leadBricksRecipeYieldsOne),
