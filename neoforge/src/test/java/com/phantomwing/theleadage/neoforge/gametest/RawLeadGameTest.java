@@ -1,0 +1,196 @@
+package com.phantomwing.theleadage.neoforge.gametest;
+
+import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.block.custom.RawLeadBlock;
+import com.phantomwing.theleadage.effect.CampfireFumes;
+import com.phantomwing.theleadage.effect.LeadWater;
+import net.minecraft.core.BlockPos;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
+
+import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.FIND_TICKS;
+import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.SPAWN_TICKS;
+import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.clearSickness;
+import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.countDoses;
+import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.whenFumesFind;
+import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.whenSpawnLoaded;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
+
+/**
+ * Game tests for the Block of Raw Lead's toxicity: Silk Touch mining it, a campfire over it with a hay bale between,
+ * the campfire's stream rising with its smoke, and the water it leaches into - how its spreading steps on, the routes
+ * it takes around what stands in the water, and the edge it tints without poisoning. Listed in {@link GameTests}.
+ */
+public final class RawLeadGameTest {
+    private RawLeadGameTest() {
+    }
+
+    /** Mining a block of raw lead with Silk Touch never releases fumes. */
+    public static void rawLeadSilkTouchNeverFumes(GameTestHelper helper) {
+        countDoses(helper, ModBlocks.RAW_LEAD_BLOCK.get(), true, count -> {
+            if (count == 0) {
+                helper.succeed();
+            } else {
+                fail(helper, "Mining raw lead with Silk Touch dosed the player " + count + " times");
+            }
+        });
+    }
+
+    /** A campfire over a hay bale over raw lead gives off fumes; one over hay over anything else doesn't. */
+    public static void campfireOverHayOverRawLeadFumes(GameTestHelper helper) {
+        record Case(Block bottom, Block middle, boolean fumes) {
+        }
+        BlockPos fire = new BlockPos(1, 3, 1);
+        BlockPos at = helper.absolutePos(fire);
+        ServerLevel level = helper.getLevel();
+        for (Case c : List.of(
+                new Case(ModBlocks.RAW_LEAD_BLOCK.get(), Blocks.HAY_BLOCK, true),
+                new Case(ModBlocks.LEAD_BLOCK.get(), Blocks.HAY_BLOCK, false),
+                new Case(ModBlocks.RAW_LEAD_BLOCK.get(), Blocks.STONE, false),
+                new Case(Blocks.STONE, Blocks.HAY_BLOCK, false))) {
+            helper.setBlock(fire.below(2), c.bottom());
+            helper.setBlock(fire.below(), c.middle());
+            helper.setBlock(fire, Blocks.CAMPFIRE);
+            if (CampfireFumes.isFuming(level, at, level.getBlockState(at)) != c.fumes()) {
+                fail(helper, "A campfire over " + c.middle() + " over " + c.bottom()
+                        + (c.fumes() ? " gives off no fumes" : " gives off fumes"));
+                return;
+            }
+        }
+        helper.succeed();
+    }
+
+    /**
+     * The stream a player breathes climbs from the fire at the smoke's speed: three blocks up, it hasn't reached the
+     * player right after the fire is lit, and has a couple of seconds later.
+     */
+    public static void campfireStreamRisesWithTheSmoke(GameTestHelper helper) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> campfireStreamRisesWithTheSmokeNow(helper));
+    }
+
+    private static void campfireStreamRisesWithTheSmokeNow(GameTestHelper helper) {
+        BlockPos fire = new BlockPos(1, 2, 1);
+        for (int y = 3; y <= 7; y++) {
+            helper.setBlock(new BlockPos(1, y, 1), Blocks.AIR);
+        }
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
+        moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(fire.above(3))));
+        whenFumesFind(helper, player, fire, FIND_TICKS, () -> {
+            clearSickness(player);
+            helper.setBlock(fire.below(), ModBlocks.RAW_LEAD_BLOCK.get());
+            helper.setBlock(fire, Blocks.CAMPFIRE);
+            helper.runAfterDelay(20, () -> {
+                if (player.hasEffect(MobEffects.HUNGER)) {
+                    fail(helper, "The stream dosed a player three blocks up a second after the fire was lit");
+                    return;
+                }
+                helper.runAfterDelay(60, () -> {
+                    if (player.hasEffect(MobEffects.HUNGER)) {
+                        helper.succeed();
+                    } else {
+                        fail(helper, "The stream never rose to a player three blocks over the fire");
+                    }
+                });
+            });
+        });
+    }
+
+    /** Raw lead in water spreads on: its contamination steps up as it ticks. */
+    public static void rawLeadSpreadingStepsOn(GameTestHelper helper) {
+        BlockPos lead = new BlockPos(1, 2, 1);
+        BlockPos water = lead.above();
+        // A sealed pocket of water over the lead, so nothing flows out of the test.
+        for (BlockPos wall : List.of(water.north(), water.south(), water.east(), water.west(), water.above())) {
+            helper.setBlock(wall, Blocks.STONE);
+        }
+        helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get());
+        helper.setBlock(water, Blocks.WATER);
+        helper.runAfterDelay(120, () -> {
+            int step = helper.getBlockState(lead).getValue(RawLeadBlock.CONTAMINATION);
+            if (step > 1) {
+                helper.succeed();
+            } else {
+                fail(helper, "Raw lead in water was still at step " + step + " of its spreading after 6 seconds");
+            }
+        });
+    }
+
+    /**
+     * Raw lead leaks around what stands in the water: the water behind a wall is reached by the way round, and the
+     * wall itself is not.
+     */
+    public static void rawLeadLeaksAroundAWall(GameTestHelper helper) {
+        BlockPos lead = new BlockPos(0, 2, 0);
+        BlockPos wall = new BlockPos(1, 2, 0);
+        BlockPos behind = new BlockPos(2, 2, 0);
+        helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get());
+        helper.setBlock(wall, Blocks.STONE);
+        List<BlockPos> water = List.of(behind, new BlockPos(0, 2, 1), new BlockPos(1, 2, 1), new BlockPos(2, 2, 1));
+        for (BlockPos at : water) {
+            helper.setBlock(at, Blocks.WATER);
+        }
+        // Read at once, before the water can flow anywhere.
+        LeadWater.Leak leak = LeadWater.leak(helper.getLevel(), helper.absolutePos(lead));
+        boolean behindPoisoned = leak.poisons(LeadWater.MAX_STEP, helper.absolutePos(behind));
+        boolean wallPoisoned = leak.poisons(LeadWater.MAX_STEP, helper.absolutePos(wall));
+        for (BlockPos at : water) {
+            helper.setBlock(at, Blocks.AIR);
+        }
+        if (LeadWater.range() < 4) {
+            fail(helper, "The lead water range is " + LeadWater.range() + ", too short for the way round the wall");
+        } else if (!behindPoisoned) {
+            fail(helper, "Raw lead didn't leak round a wall to the water behind it");
+        } else if (wallPoisoned) {
+            fail(helper, "Raw lead leaked into the wall");
+        } else {
+            helper.succeed();
+        }
+    }
+
+    /**
+     * Raw lead poisons the water as far as its range, tints one block further without poisoning it, and the murk
+     * goes further still: a column of water over the lead, read at each height.
+     */
+    public static void rawLeadEdgeTintsWithoutPoisoning(GameTestHelper helper) {
+        int range = LeadWater.range();
+        if (range == 0) {
+            fail(helper, "The lead water range is 0");
+            return;
+        }
+        BlockPos lead = new BlockPos(1, 2, 1);
+        helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get());
+        int top = range + LeadWater.MURK_AHEAD;
+        for (int d = 1; d <= top; d++) {
+            helper.setBlock(lead.above(d), Blocks.WATER);
+        }
+        LeadWater.Leak leak = LeadWater.leak(helper.getLevel(), helper.absolutePos(lead));
+        int step = LeadWater.MAX_STEP;
+        BlockPos last = helper.absolutePos(lead.above(range));
+        BlockPos edge = helper.absolutePos(lead.above(range + 1));
+        BlockPos murk = helper.absolutePos(lead.above(range + 2));
+        String problem = !leak.poisons(step, last) ? "the water " + range + " blocks up isn't poisoned"
+                : leak.poisons(step, edge) ? "the edge, " + (range + 1) + " blocks up, poisons"
+                : leak.strength(step, edge) <= 0.0F ? "the edge isn't tinted"
+                : leak.strength(step, murk) > 0.0F ? "the water past the edge is tinted"
+                : leak.murk(step, murk) <= 0.0F ? "the murk doesn't reach past the edge"
+                : null;
+        for (int d = 1; d <= top; d++) {
+            helper.setBlock(lead.above(d), Blocks.AIR);
+        }
+        if (problem == null) {
+            helper.succeed();
+        } else {
+            fail(helper, "In a column of water over raw lead, " + problem);
+        }
+    }
+}

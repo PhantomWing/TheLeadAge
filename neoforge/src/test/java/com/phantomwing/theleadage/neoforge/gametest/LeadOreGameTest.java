@@ -95,9 +95,9 @@ import dev.architectury.registry.registries.RegistrySupplier;
 public class LeadOreGameTest {
     private static final int TRIALS = 100;
     /** How long a dose test waits for the fumes to find its player ({@link #whenFumesFind}). */
-    private static final int FIND_TICKS = 40;
+    static final int FIND_TICKS = 40;
     /** Ticks a test waits for the entities around the world spawn, before it can make a mock player. */
-    private static final int SPAWN_TICKS = 40;
+    static final int SPAWN_TICKS = 40;
 
     /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
     private static final List<Holder<MobEffect>> SICKNESS_EFFECTS =
@@ -823,7 +823,7 @@ public class LeadOreGameTest {
      * to them: every break scored nothing, the 0 of {@value #TRIALS} that failed the first of these tests now and then,
      * and that the silk-touch test would have passed without noticing.</p>
      */
-    private static void countDoses(GameTestHelper helper, Block ore, boolean silkTouch, IntConsumer verdict) {
+    static void countDoses(GameTestHelper helper, Block ore, boolean silkTouch, IntConsumer verdict) {
         whenSpawnLoaded(helper, SPAWN_TICKS, () -> countDosesNow(helper, ore, silkTouch, verdict));
     }
 
@@ -870,7 +870,7 @@ public class LeadOreGameTest {
      * first: on 1.21.6 to 1.21.8 placing one waits for them, and they only load as the level ticks,
      * which it can't while a test holds it. A mock player made too soon hung the whole run.
      */
-    private static void whenSpawnLoaded(GameTestHelper helper, int ticksLeft, Runnable then) {
+    static void whenSpawnLoaded(GameTestHelper helper, int ticksLeft, Runnable then) {
         if (entitiesLoadedAroundSpawn(helper.getLevel(), 2)) {
             then.run();
         } else if (ticksLeft <= 0) {
@@ -881,7 +881,7 @@ public class LeadOreGameTest {
     }
 
     /** Runs {@code then} once a search for players around {@code ore}, as the fumes make, finds {@code player}. */
-    private static void whenFumesFind(GameTestHelper helper, ServerPlayer player, BlockPos ore, int ticksLeft, Runnable then) {
+    static void whenFumesFind(GameTestHelper helper, ServerPlayer player, BlockPos ore, int ticksLeft, Runnable then) {
         AABB around = AABB.ofSize(Vec3.atCenterOf(helper.absolutePos(ore)), 6.0, 6.0, 6.0);
         if (helper.getLevel().getEntitiesOfClass(Player.class, around).contains(player)) {
             then.run();
@@ -893,7 +893,7 @@ public class LeadOreGameTest {
     }
 
     /** Wipe every Lead Sickness effect, so the next dose starts the ladder from stage 0. */
-    private static void clearSickness(ServerPlayer player) {
+    static void clearSickness(ServerPlayer player) {
         for (Holder<MobEffect> effect : SICKNESS_EFFECTS) {
             player.removeEffect(effect);
         }
