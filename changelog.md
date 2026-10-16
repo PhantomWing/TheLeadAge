@@ -1,38 +1,41 @@
 # 1.2.0
 
 ### Additions
-- Leaded glass works with dye mods such as Dye Depot and Delicate Dyes: every colour they add gets its own dyed leaded glass, crafted like the vanilla colours, with its drops, tags and a name in every language.
-- Eight clear Leaded Glass Panes around a dye craft eight panes of its colour, as vanilla's glass panes do.
-- Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
-- Campfires and soul campfires lit on a Block of Raw Lead give off smoke tainted a dark purple by lead fumes. A hay bale between the raw lead and the campfire makes it a signal fire, its tainted smoke rising much higher. Players touching the smoke get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away.
-- Raw lead is poisonous to handle: standing on a Block of Raw Lead for a few seconds gives Lead Sickness, worse the longer you stay, and lead dust lifts off it.
-- Mining a Block of Raw Lead releases lead fumes, as mining lead ore does, unless it is mined with Silk Touch.
-- A Block of Raw Lead in water leaches into it: over about half a minute the water around it turns grey a block at a time, up to 6 blocks away through the water, flowing around whatever stands in it, and fades out over one more block. Under the surface it is murky, the murk thickening as you swim towards it, with dark purple specks of lead drifting in it. Players in the contaminated water get Lead Sickness, worse the longer they stay; the faint edge does no harm. A config option sets how far it reaches, or turns it off.
-- Lead tools, armor and horse armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
-- Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
-- Zombies, husks and zombie villagers sometimes spawn holding a Lead Sword or Lead Shovel where they would have had an iron one, and vindicators a Lead Axe.
-- Lead tools and armor sometimes turn up in chests in place of iron ones: in villages, strongholds, end cities, mineshafts, buried treasure, ancient cities, bastions and trial chambers.
-- A config option to stop mobs spawning with lead armor and tools.
-- The Lead Pressure Plate, made from two Lead Ingots: a weighted pressure plate that only mobs and players can press, since dropped items are too light for it. Each mob or player on it adds 1 to its signal, up to 15.
-- Large lead ore veins wind through the stone between Y 8 and 58, as copper and iron ones do: long ribbons of lead ore in tuff, with the odd Block of Raw Lead. They are rarer than copper and iron veins, as rich as their richest, and never cross a copper vein. A config option turns them off.
+- **Toxic raw lead** — Blocks of Raw Lead are now dangerous to be around.
+  - Standing on one gives Lead Sickness.
+  - Mining one releases lead fumes (unless mined with Silk Touch).
+  - In water, it slowly poisons the water around it: the water turns murky, and swimming in it gives Lead Sickness. The range is configurable.
+  - A campfire on top gives off poisonous purple smoke. Put a hay bale in between for a taller column.
+- **Lead ore veins** — large veins of lead ore in tuff between Y 8 and 58, like copper and iron veins.
+- **Lead Pressure Plate** — only mobs and players can press it, each one adding to its signal.
+- Lead tools and armor can be smelted into Lead Nuggets.
+- Dyed leaded glass panes tint beacon beams.
+- Eight leaded glass panes around a dye craft eight dyed panes.
+- Zombies, husks, zombie villagers and vindicators can spawn with lead weapons and tools.
+- Lead tools and armor can turn up in chests.
+- Config options for lead veins and lead mob gear.
 
 ### Changes
-- Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
-- Recipes that use Lead Ingots or Lead Nuggets also accept lead from other mods, such as Mekanism's or Immersive Engineering's (the c:ingots/lead and c:nuggets/lead tags).
-- Husks can spawn wearing lead armor, as zombies and skeletons do.
-- Goats ramming Lead Ore lose a horn, as on iron and copper ore.
-- Trial chamber vaults can give Lead Ingots in place of iron ones.
-- Leaded glass counts as glass for other mods, and dyed leaded glass by its colour. The Lead Chain counts as a chain, and lead ore as stone or deepslate ore (the c:glass_blocks, c:dyed, c:chains and c:ores_in_ground tags).
-- A falling Lead Weight strikes a helmet, which softens the blow, and goes through shields, as a falling anvil does.
-- Villagers open and close leaded glass doors, as they do wooden and copper ones.
-- Lead fumes, from mining lead ore, the lead torch and crumbling lead gear, are a dark purple, and the bigger releases spread out over the area where they can make you sick.
+- Lead fumes are now purple, and spread wider.
+- Dyed leaded glass is now tinted by its dye.
+- Husks can now wear lead armor.
+- Goats lose a horn ramming lead ore.
+- Trial chamber vaults can give Lead Ingots.
+- Falling Lead Weights now hit helmets and go through shields, like anvils.
+- Villagers can now open leaded glass doors.
+
+### Compatibility
+- **Dye mods** (Dye Depot, Delicate Dyes, …) — leaded glass in every color they add.
+- Recipes accept lead from other mods, like **Mekanism** and **Immersive Engineering**.
+- Leaded glass, the Lead Chain and lead ore count as glass, chains and ores for other mods.
+- All tags have names in **JEI** and **EMI**.
 
 ### Fixes
-- Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1, which made bricks as cheap as the ingots themselves.
+- Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1.
 - Fixed armor trims not showing on lead armor in the inventory.
-- Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
-- Fixed a crash when breaking leaded glass in a colour a dye mod adds.
-- Fixed amethyst clusters giving fewer shards when mined with a Lead Pickaxe.
+- Fixed dyed leaded glass names in several languages.
+- Fixed a crash when breaking leaded glass in a dye mod's color.
+- Fixed amethyst clusters dropping fewer shards when mined with a Lead Pickaxe.
 
 
 # 1.1.2
