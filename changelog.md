@@ -10,6 +10,8 @@
 - Added large lead ore veins between Y 8 and 58 (like copper and iron veins).
 - Added smelting and blasting recipes for lead tools and armor into Lead Nuggets.
 - Added a recipe to dye 8 Leaded Glass Panes at once.
+- Added leaded glass in every color from dye mods (Dye Depot, Delicate Dyes).
+- Added names to all tags (shown in JEI and EMI).
 - Dyed leaded glass panes now tint beacon beams.
 - Zombies, husks, zombie villagers and vindicators can now spawn with lead weapons and tools.
 - Lead tools and armor can now be found in chests.
@@ -24,14 +26,10 @@
 - Added the Leaded Glass Door to the `minecraft:mob_interactable_doors` tag.
 - Added the Lead Weight damage type to the `minecraft:damages_helmet` and `minecraft:bypasses_shield` tags.
 - Added the Lead Pickaxe to the `minecraft:cluster_max_harvestables` tag.
-
-### Compatibility
-- Leaded glass now comes in every color added by dye mods (Dye Depot, Delicate Dyes).
-- Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags.
 - Added leaded glass to the `c:glass_blocks` and `c:dyed` tags.
 - Added the Lead Chain to the `c:chains` tag.
 - Added lead ore to the `c:ores_in_ground` tags.
-- Added names to all tags, shown in JEI and EMI.
+- Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags.
 
 ### Fixes
 - Fixed 4 lead ingots crafting 4 Lead Bricks instead of 1.
