@@ -94,16 +94,21 @@ public final class LeadFumes {
      * every {@code stageTicks} while they stay, so it worsens the longer they do. Whether it dosed them.
      */
     public static boolean touch(Player player, int stageTicks) {
-        long now = player.level().getGameTime();
-        Long last = LAST_TOUCH.get(player);
-        if (last != null && now >= last && now - last < stageTicks) {
+        if (!isDue(player, stageTicks)) {
             return false;
         }
-        LAST_TOUCH.put(player, now);
+        LAST_TOUCH.put(player, player.level().getGameTime());
         escalate(player);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
         return true;
+    }
+
+    /** Whether {@link #touch} would dose the player now, rather than let them wait out the stage of their last dose. */
+    public static boolean isDue(Player player, int stageTicks) {
+        long now = player.level().getGameTime();
+        Long last = LAST_TOUCH.get(player);
+        return last == null || now < last || now - last >= stageTicks;
     }
 
     /**

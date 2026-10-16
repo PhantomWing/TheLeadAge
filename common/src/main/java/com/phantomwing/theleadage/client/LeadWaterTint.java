@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.client;
 
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.LeadWater;
+import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -14,20 +15,20 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.FogType;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Water raw lead contaminates, tinted lead grey: strongest beside the lead, fading towards the edge of its reach
- * ({@link LeadWater#strength}). Applied to the water colour every loader's water takes from the biome, by each loader's
- * {@code BiomeColorsMixin} - Sodium's and Embeddium's water too - and to the fog seen from inside that water, by its
- * {@code FogRendererMixin}. A shader pack may draw water in a colour of its own; the specks drifting in the water
+ * ({@link LeadWater.Nearby#strength}). Applied to the water colour every loader's water takes from the biome, by each
+ * loader's {@code BiomeColorsMixin} - Sodium's and Embeddium's water too - and to the fog seen from inside that water, by
+ * its {@code FogRendererMixin}. A shader pack may draw water in a colour of its own; the specks drifting in the water
  * ({@link LeadWaterSpecks}) show whatever it does.
  *
  * <p>The tint is read off the level itself rather than the copy of it a chunk is drawn from: Sodium's and Embeddium's
@@ -44,13 +45,23 @@ public final class LeadWaterTint {
     private static final float MURK_MOST = 0.92F;
     /** How long the murk takes to settle as the camera moves through the water, in milliseconds. */
     private static final float MURK_SETTLE = 400.0F;
-    /** How long a lead's routes through the water are kept, in ticks, should a change to the water go unseen. */
+    /**
+     * How long a lead's routes through the water are kept at least, in ticks, should a change to the water go unseen:
+     * each lead keeps its own for up to twice that, so a floor of raw lead doesn't find all its routes again in one frame.
+     */
     private static final long LEAK_KEPT = 200;
 
     /** Each raw lead's routes through the water, by position: the tint asks for them for every block of water drawn. */
     private static final Map<Long, Kept> LEAKS = new ConcurrentHashMap<>();
     /** The level the routes were found in, held weakly so a world left behind isn't kept alive by them. */
     private static volatile WeakReference<ClientLevel> leaksOf = new WeakReference<>(null);
+    /**
+     * The leaking lead around the chunk section each thread last asked about, for the tick: a chunk is drawn block by
+     * block, and finding it for every block of water cost every ocean drawn in a world a look at eight palettes a block.
+     */
+    private static final ThreadLocal<Near> NEAR = new ThreadLocal<>();
+    /** Counts the changes to raw lead and the water it leaks into, so no thread's {@link #NEAR} outlives one. */
+    private static final AtomicInteger CHANGES = new AtomicInteger();
     private static float murk;
     private static long murkAt;
 
@@ -74,11 +85,14 @@ public final class LeadWaterTint {
     private static int tinted(BlockPos pos, int color) {
         ClientLevel level = Minecraft.getInstance().level;
         int range = LeadWater.range(true);
-        if (level == null || range == 0 || !mayHaveRawLeadNear(level, pos, range + 2)) {
+        if (level == null || range == 0) {
             return color;
         }
-        float strength = level.getFluidState(pos).is(FluidTags.WATER) ? strength(level, pos, range) : besideStrength(level, pos, range);
-        strength *= MOST;
+        Near near = near(level, pos);
+        if (near.nearby().isEmpty()) {
+            return color;
+        }
+        float strength = near.strengthAt(level, pos, range) * MOST;
         if (strength <= 0.0F) {
             return color;
         }
@@ -91,7 +105,7 @@ public final class LeadWaterTint {
     /**
      * The fog seen from inside contaminated water, as {@code red, green, blue}: the water's own fog, turned towards a
      * lead grey as bright as it - at its thickest all through the contaminated water, thinning over the few blocks
-     * before it ({@link LeadWater#murk}). Null outside it.
+     * before it ({@link LeadWater.Nearby#murk}). Null outside it.
      */
     @Nullable
     public static float[] fog(Camera camera, ClientLevel level, float red, float green, float blue) {
@@ -106,8 +120,7 @@ public final class LeadWaterTint {
         int range = LeadWater.range(true);
         float target;
         try {
-            target = range > 0 && mayHaveRawLeadNear(level, at, range + LeadWater.MURK_AHEAD)
-                    ? LeadWater.murk(level, at, range, lead -> leakOf(level, lead)) : 0.0F;
+            target = range > 0 ? near(level, at).nearby().murk(at, range) : 0.0F;
         } catch (RuntimeException e) {
             target = 0.0F;
         }
@@ -126,6 +139,7 @@ public final class LeadWaterTint {
      */
     public static void blockChanged(LevelRenderer renderer, BlockPos pos, BlockState oldState, BlockState newState) {
         if (changesTint(oldState, newState)) {
+            CHANGES.incrementAndGet();
             if (!(newState.getBlock() instanceof RawLeadBlock)) {
                 LEAKS.remove(pos.asLong());
             }
@@ -137,42 +151,51 @@ public final class LeadWaterTint {
                 if (pos.distManhattan(lead) > LeadWater.range(true) + LeadWater.MURK_AHEAD) {
                     return false;
                 }
+                CHANGES.incrementAndGet();
                 redraw(renderer, lead);
                 return true;
             });
         }
     }
 
-    private static float strength(ClientLevel level, BlockPos water, int range) {
-        return LeadWater.strength(level, water, range, lead -> leakOf(level, lead));
-    }
-
-    private static float besideStrength(ClientLevel level, BlockPos pos, int range) {
-        float strongest = 0.0F;
-        for (Direction side : Direction.values()) {
-            BlockPos beside = pos.relative(side);
-            if (level.getFluidState(beside).is(FluidTags.WATER)) {
-                strongest = Math.max(strongest, strength(level, beside, range));
-            }
+    /** The leaking lead around the chunk section of {@code pos}, kept for the tick by the thread asking. */
+    private static Near near(ClientLevel level, BlockPos pos) {
+        keepFor(level);
+        long section = SectionPos.asLong(pos);
+        long time = level.getGameTime();
+        int changes = CHANGES.get();
+        Near near = NEAR.get();
+        if (near != null && near.section == section && near.time == time && near.changes == changes) {
+            return near;
         }
-        return strongest;
+        near = new Near(section, time, changes, LeadWater.nearby(level, SectionPos.of(pos), lead -> leakOf(level, lead)));
+        NEAR.set(near);
+        return near;
     }
 
     /** The routes raw lead at {@code lead} leaks along, kept between draws. */
     public static LeadWater.Leak leakOf(ClientLevel level, BlockPos lead) {
-        keepFor(level);
-        long now = level.getGameTime();
-        Kept kept = LEAKS.get(lead.asLong());
-        if (kept != null && now >= kept.at() && now - kept.at() <= LEAK_KEPT && kept.leak().range() == LeadWater.range(true)) {
-            return kept.leak();
+        LeadWater.Leak kept = keptLeakOf(level, lead);
+        if (kept != null) {
+            return kept;
         }
         LeadWater.Leak leak = LeadWater.leak(level, lead, LeadWater.range(true));
         // Routes found beside a chunk that hasn't arrived end short there; the chunk's arrival redraws the water near it,
         // which should find them again rather than these.
         if (leak.whole()) {
-            LEAKS.put(lead.asLong(), new Kept(leak, now));
+            LEAKS.put(lead.asLong(), new Kept(leak, level.getGameTime()));
         }
         return leak;
+    }
+
+    /** The routes raw lead at {@code lead} leaks along, where they are kept, else null. */
+    @Nullable
+    public static LeadWater.Leak keptLeakOf(ClientLevel level, BlockPos lead) {
+        keepFor(level);
+        long key = lead.asLong();
+        Kept kept = LEAKS.get(key);
+        return kept != null && !isStale(key, kept, level.getGameTime()) && kept.leak().range() == LeadWater.range(true)
+                ? kept.leak() : null;
     }
 
     /** The level's tick: routes kept for another level, or not asked for in a while, are let go. */
@@ -180,13 +203,18 @@ public final class LeadWaterTint {
         keepFor(level);
         long now = level.getGameTime();
         if (now % 20 == 0 && !LEAKS.isEmpty()) {
-            LEAKS.values().removeIf(kept -> now < kept.at() || now - kept.at() > LEAK_KEPT);
+            LEAKS.entrySet().removeIf(entry -> isStale(entry.getKey(), entry.getValue(), now));
         }
+    }
+
+    private static boolean isStale(long lead, Kept kept, long now) {
+        return now < kept.at() || now - kept.at() > LEAK_KEPT + Math.floorMod(HashCommon.mix(lead), LEAK_KEPT);
     }
 
     private static void keepFor(ClientLevel level) {
         if (leaksOf.get() != level) {
             LEAKS.clear();
+            CHANGES.incrementAndGet();
             leaksOf = new WeakReference<>(level);
         }
     }
@@ -206,42 +234,66 @@ public final class LeadWaterTint {
                 || !oldState.getValue(RawLeadBlock.CONTAMINATION).equals(newState.getValue(RawLeadBlock.CONTAMINATION)));
     }
 
-    /**
-     * Whether any chunk section within {@code reach} of {@code pos} may hold raw lead, read off the sections' palettes, so
-     * the oceans' water skips the search: the tint is asked for every water block a chunk draws.
-     */
-    private static boolean mayHaveRawLeadNear(ClientLevel level, BlockPos pos, int reach) {
-        for (int x = SectionPos.blockToSectionCoord(pos.getX() - reach); x <= SectionPos.blockToSectionCoord(pos.getX() + reach); x++) {
-            for (int z = SectionPos.blockToSectionCoord(pos.getZ() - reach); z <= SectionPos.blockToSectionCoord(pos.getZ() + reach); z++) {
-                LevelChunk chunk = level.getChunkSource().getChunk(x, z, false);
-                if (chunk == null) {
-                    continue;
-                }
-                for (int y = SectionPos.blockToSectionCoord(pos.getY() - reach); y <= SectionPos.blockToSectionCoord(pos.getY() + reach); y++) {
-                    int index = chunk.getSectionIndexFromSectionY(y);
-                    if (index < 0 || index >= chunk.getSectionsCount()) {
-                        continue;
-                    }
-                    LevelChunkSection section = chunk.getSection(index);
-                    if (!section.hasOnlyAir() && section.maybeHas(LeadWaterTint::isLeaking)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /** Whether a block is raw lead leaking into water: dry raw lead, in storage or a lead vein, tints nothing. */
-    static boolean isLeaking(BlockState state) {
-        return state.getBlock() instanceof RawLeadBlock && state.getValue(RawLeadBlock.CONTAMINATION) > 0;
-    }
-
     private static int mix(int from, int to, float amount) {
         return Math.round(from + (to - from) * amount);
     }
 
     /** A lead's routes, and the tick they were found at. */
     private record Kept(LeadWater.Leak leak, long at) {
+    }
+
+    /**
+     * The leaking lead around a chunk section, as it stood at a tick and a count of changes, and the tint of each of the
+     * section's blocks once asked for: renderers that blend each corner ask for one block's colour many times over.
+     */
+    private static final class Near {
+        private final long section;
+        private final long time;
+        private final int changes;
+        private final LeadWater.Nearby nearby;
+        @Nullable
+        private float[] strengths;
+
+        private Near(long section, long time, int changes, LeadWater.Nearby nearby) {
+            this.section = section;
+            this.time = time;
+            this.changes = changes;
+            this.nearby = nearby;
+        }
+
+        LeadWater.Nearby nearby() {
+            return nearby;
+        }
+
+        /** How strongly the block at {@code pos} is tinted: its water's, or the strongest water beside it. */
+        float strengthAt(ClientLevel level, BlockPos pos, int range) {
+            if (SectionPos.asLong(pos) != section) {
+                return strengthOf(level, pos, range);
+            }
+            if (strengths == null) {
+                strengths = new float[SectionPos.SECTION_SIZE * SectionPos.SECTION_SIZE * SectionPos.SECTION_SIZE];
+                Arrays.fill(strengths, Float.NaN);
+            }
+            int index = (SectionPos.sectionRelative(pos.getY()) << 8) | (SectionPos.sectionRelative(pos.getZ()) << 4)
+                    | SectionPos.sectionRelative(pos.getX());
+            if (Float.isNaN(strengths[index])) {
+                strengths[index] = strengthOf(level, pos, range);
+            }
+            return strengths[index];
+        }
+
+        private float strengthOf(ClientLevel level, BlockPos pos, int range) {
+            if (level.getFluidState(pos).is(FluidTags.WATER)) {
+                return nearby.strength(pos, range);
+            }
+            float strongest = 0.0F;
+            for (Direction side : Direction.values()) {
+                BlockPos beside = pos.relative(side);
+                if (level.getFluidState(beside).is(FluidTags.WATER)) {
+                    strongest = Math.max(strongest, nearby.strength(beside, range));
+                }
+            }
+            return strongest;
+        }
     }
 }

@@ -4,8 +4,10 @@ import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.platform.LeadSettings;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -14,6 +16,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,8 +99,12 @@ public final class LeadWater {
         if (range == 0) {
             return;
         }
+        // The routes are found only for a player a dose would reach now: in water a route could reach, and past the stage of
+        // their last dose. Raw lead under a pond someone swims in looks for them a few times a minute, not every check.
         List<Player> players = level.getEntitiesOfClass(Player.class, new AABB(lead).inflate(range),
-                player -> !player.isSpectator() && player.isAlive());
+                player -> !player.isSpectator() && player.isAlive() && LeadFumes.isDue(player, LeadFumes.FUMES_STAGE_TICKS)
+                        && (mayReach(level, lead, player.blockPosition(), range)
+                        || mayReach(level, lead, BlockPos.containing(player.getEyePosition()), range)));
         if (players.isEmpty()) {
             return;
         }
@@ -107,45 +116,101 @@ public final class LeadWater {
         }
     }
 
-    /**
-     * How strongly the water at {@code water} is tinted, from 0 to 1: strongest beside the lead, fading to half at the
-     * end of what it contaminates and to a quarter over the edge past it, and fading in over a few steps once reached,
-     * from the raw lead that tints it most, reaching {@code range}, each lead's routes found by {@code leaks}.
-     */
-    public static float strength(BlockGetter level, BlockPos water, int range, Function<BlockPos, Leak> leaks) {
-        return strongest(level, water, range, range + 1, leaks, false);
+    /** Whether a route from raw lead at {@code lead} could reach {@code at}: water no further away than the range. */
+    private static boolean mayReach(BlockGetter level, BlockPos lead, BlockPos at, int range) {
+        return at.distManhattan(lead) <= range && level.getFluidState(at).is(FluidTags.WATER);
+    }
+
+    /** Whether a block is raw lead leaking into water: dry raw lead, in storage or a lead vein, tints nothing. */
+    public static boolean isLeaking(BlockState state) {
+        return state.getBlock() instanceof RawLeadBlock && state.getValue(RawLeadBlock.CONTAMINATION) > 0;
     }
 
     /**
-     * How thick the murk is seen from inside the water at {@code water}, from 0 to 1: at its thickest throughout the
-     * contaminated water, thinning over the {@value #MURK_AHEAD} blocks before it, from the raw lead that murks it most.
+     * The raw lead leaking into water in the chunk section {@code section} and the 26 around it, each with how far it has
+     * spread and its routes ({@code leaks}): all the lead that can tint or murk water within 16 blocks of the section. Only
+     * the sections whose palettes may hold leaking lead are read block by block, so an ocean costs a look at 27 palettes.
      */
-    public static float murk(BlockGetter level, BlockPos water, int range, Function<BlockPos, Leak> leaks) {
-        return strongest(level, water, range, range + MURK_AHEAD, leaks, true);
-    }
-
-    private static float strongest(BlockGetter level, BlockPos water, int range, int reach, Function<BlockPos, Leak> leaks,
-                                   boolean murk) {
-        if (range == 0) {
-            return 0.0F;
-        }
-        float strongest = 0.0F;
-        BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();
-        for (int dx = -reach; dx <= reach; dx++) {
-            int restY = reach - Math.abs(dx);
-            for (int dy = -restY; dy <= restY; dy++) {
-                int restZ = restY - Math.abs(dy);
-                for (int dz = -restZ; dz <= restZ; dz++) {
-                    BlockState state = level.getBlockState(at.setWithOffset(water, dx, dy, dz));
-                    if (state.getBlock() instanceof RawLeadBlock && state.getValue(RawLeadBlock.CONTAMINATION) > 0) {
-                        Leak leak = leaks.apply(at);
-                        int step = state.getValue(RawLeadBlock.CONTAMINATION);
-                        strongest = Math.max(strongest, murk ? leak.murk(step, water) : leak.strength(step, water));
+    public static Nearby nearby(LevelReader level, SectionPos section, Function<BlockPos, Leak> leaks) {
+        LongArrayList leads = new LongArrayList();
+        IntArrayList steps = new IntArrayList();
+        for (int x = section.x() - 1; x <= section.x() + 1; x++) {
+            for (int z = section.z() - 1; z <= section.z() + 1; z++) {
+                ChunkAccess chunk = level.getChunk(x, z, ChunkStatus.FULL, false);
+                if (chunk == null) {
+                    continue;
+                }
+                for (int y = section.y() - 1; y <= section.y() + 1; y++) {
+                    int index = chunk.getSectionIndexFromSectionY(y);
+                    if (index < 0 || index >= chunk.getSectionsCount()) {
+                        continue;
+                    }
+                    LevelChunkSection blocks = chunk.getSection(index);
+                    if (blocks.hasOnlyAir() || !blocks.maybeHas(LeadWater::isLeaking)) {
+                        continue;
+                    }
+                    for (int bx = 0; bx < SectionPos.SECTION_SIZE; bx++) {
+                        for (int by = 0; by < SectionPos.SECTION_SIZE; by++) {
+                            for (int bz = 0; bz < SectionPos.SECTION_SIZE; bz++) {
+                                BlockState state = blocks.getBlockState(bx, by, bz);
+                                if (isLeaking(state)) {
+                                    leads.add(BlockPos.asLong(SectionPos.sectionToBlockCoord(x, bx),
+                                            SectionPos.sectionToBlockCoord(y, by), SectionPos.sectionToBlockCoord(z, bz)));
+                                    steps.add(state.getValue(RawLeadBlock.CONTAMINATION));
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-        return strongest;
+        if (leads.isEmpty()) {
+            return Nearby.NONE;
+        }
+        Leak[] found = new Leak[leads.size()];
+        for (int i = 0; i < found.length; i++) {
+            found[i] = leaks.apply(BlockPos.of(leads.getLong(i)));
+        }
+        return new Nearby(leads.toLongArray(), steps.toIntArray(), found);
+    }
+
+    /** The raw lead leaking into the water around a chunk section ({@link #nearby}): each lead, its step and its routes. */
+    public record Nearby(long[] leads, int[] steps, Leak[] leaks) {
+        public static final Nearby NONE = new Nearby(new long[0], new int[0], new Leak[0]);
+
+        public boolean isEmpty() {
+            return leads.length == 0;
+        }
+
+        /**
+         * How strongly the water at {@code water} is tinted, from 0 to 1: strongest beside the lead, fading to half at the
+         * end of what it contaminates and to a quarter over the edge past it, and fading in over a few steps once
+         * reached, from the raw lead that tints it most, reaching {@code range}.
+         */
+        public float strength(BlockPos water, int range) {
+            return strongest(water, range + 1, false);
+        }
+
+        /**
+         * How thick the murk is seen from inside the water at {@code water}, from 0 to 1: at its thickest throughout the
+         * contaminated water, thinning over the {@value #MURK_AHEAD} blocks before it, from the raw lead that murks it most.
+         */
+        public float murk(BlockPos water, int range) {
+            return strongest(water, range + MURK_AHEAD, true);
+        }
+
+        private float strongest(BlockPos water, int reach, boolean murk) {
+            float strongest = 0.0F;
+            for (int i = 0; i < leads.length; i++) {
+                long lead = leads[i];
+                if (Math.abs(BlockPos.getX(lead) - water.getX()) + Math.abs(BlockPos.getY(lead) - water.getY())
+                        + Math.abs(BlockPos.getZ(lead) - water.getZ()) > reach) {
+                    continue;
+                }
+                strongest = Math.max(strongest, murk ? leaks[i].murk(steps[i], water) : leaks[i].strength(steps[i], water));
+            }
+            return strongest;
+        }
     }
 
     /**
