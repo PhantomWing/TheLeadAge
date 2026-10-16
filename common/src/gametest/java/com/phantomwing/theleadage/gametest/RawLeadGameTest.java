@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
@@ -17,14 +17,14 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.FIND_TICKS;
-import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.SPAWN_TICKS;
-import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.clearSickness;
-import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.countDoses;
-import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.whenFumesFind;
-import static com.phantomwing.theleadage.neoforge.gametest.LeadOreGameTest.whenSpawnLoaded;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.gametest.LeadOreGameTest.FIND_TICKS;
+import static com.phantomwing.theleadage.gametest.LeadOreGameTest.SPAWN_TICKS;
+import static com.phantomwing.theleadage.gametest.LeadOreGameTest.clearSickness;
+import static com.phantomwing.theleadage.gametest.LeadOreGameTest.countDoses;
+import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenFumesFind;
+import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenSpawnLoaded;
+import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 
 /**
  * Game tests for the Block of Raw Lead's toxicity: Silk Touch mining it, a campfire over it with a hay bale between,

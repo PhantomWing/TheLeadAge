@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
@@ -7,13 +7,12 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CopperBulbBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 
 import java.util.Collections;
 
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
+import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 
 /**
  * Game tests for lead blocks: the Lead Bulb's redstone toggle, a dyed leaded glass pane tinting a beacon's beam, and
@@ -54,17 +53,16 @@ public final class LeadBlocksGameTest {
 
     /**
      * A beacon's beam through a red leaded glass pane turns red, as through a red stained glass pane: the colour
-     * NeoForge's beacon asks each block above it for. A clear pane leaves the beam as it is.
+     * the modloader's beacon asks each block above it for. A clear pane leaves the beam as it is.
      */
     public static void beaconBeamTakesThePaneColor(GameTestHelper helper) {
         BlockPos beacon = new BlockPos(1, 2, 1);
         BlockPos pane = beacon.above();
         helper.setBlock(pane, ModBlocks.LEADED_GLASS_PANEL.get());
-        BlockState state = helper.getBlockState(pane);
-        Integer clear = state.getBeaconColorMultiplier(helper.getLevel(), helper.absolutePos(pane), helper.absolutePos(beacon));
+        Integer clear = TestLoader.beaconColor(helper, pane, beacon);
         blockEntity(helper, pane, LeadedGlassPanelBlockEntity.class)
                 .setColors(Collections.nCopies(64, DyeColor.RED.getId()));
-        Integer color = state.getBeaconColorMultiplier(helper.getLevel(), helper.absolutePos(pane), helper.absolutePos(beacon));
+        Integer color = TestLoader.beaconColor(helper, pane, beacon);
         int red = 0xFF000000 | DyeColor.RED.getTextureDiffuseColor();
         if (clear != null) {
             fail(helper, "A clear leaded glass pane tints the beam #" + Integer.toHexString(clear));

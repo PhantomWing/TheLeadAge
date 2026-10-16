@@ -92,9 +92,13 @@ configurations {
 
 // Test-only source set for game tests. Kept out of `main` so neither the test
 // classes nor the empty.nbt structure ship in the production jar. It inherits
-// main's full compile/runtime classpath plus main's output.
+// main's full compile/runtime classpath plus main's output. The tests themselves
+// are common/src/gametest, which Fabric's game tests run too; only the registration
+// and TestLoader are NeoForge's own.
 sourceSets {
     test {
+        java.srcDir project(':common').file('src/gametest/java')
+        resources.srcDir project(':common').file('src/gametest/resources')
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
         runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
     }

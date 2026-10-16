@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.world.vein.LeadVeins;
@@ -13,11 +13,11 @@ import net.minecraft.world.level.levelgen.RandomState;
 
 import java.util.List;
 
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.materialRules;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.noiseChunk;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.noiseSettings;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.randomState;
+import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.materialRules;
+import static com.phantomwing.theleadage.gametest.TestCompat.noiseChunk;
+import static com.phantomwing.theleadage.gametest.TestCompat.noiseSettings;
+import static com.phantomwing.theleadage.gametest.TestCompat.randomState;
 
 /**
  * Large lead ore veins, sampled from the overworld's own noises for a fixed seed, so the run is the same every time:

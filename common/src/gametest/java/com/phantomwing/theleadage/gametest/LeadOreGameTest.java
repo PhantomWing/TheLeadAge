@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
@@ -59,14 +59,14 @@ import java.util.function.IntConsumer;
 import java.util.List;
 import java.util.Optional;
 
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.ITEM_ENTITY;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.NAUSEA;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.blockEntity;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.defaultModifiers;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.moveTo;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.entitiesLoadedAroundSpawn;
+import static com.phantomwing.theleadage.gametest.TestCompat.ITEM_ENTITY;
+import static com.phantomwing.theleadage.gametest.TestCompat.NAUSEA;
+import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
+import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
+import static com.phantomwing.theleadage.gametest.TestCompat.defaultModifiers;
+import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
@@ -78,7 +78,7 @@ import dev.architectury.registry.registries.RegistrySupplier;
 /**
  * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy} and {@link LeadFumes}):
  * a non-silk-touch harvest sometimes doses the player with Lead Sickness; silk touch never does.
- * Listed in {@link GameTests}. Run headless with {@code ./gradlew :neoforge:runGameTest}.
+ * Listed in {@link GameTests}. Run headless with {@code ./gradlew :neoforge:runGameTest} or {@code :fabric:runGameTest}.
  *
  * <p>These bodies read the same on every line: a call whose shape differs between Minecraft versions
  * goes through {@link TestCompat} rather than being written out here.</p>

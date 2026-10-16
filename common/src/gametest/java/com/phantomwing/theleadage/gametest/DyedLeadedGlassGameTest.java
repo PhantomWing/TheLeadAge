@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.assemble;
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
+import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 
 /**
  * Dyed leaded glass in any dye colour. A dye mod's colours can't be added in a test, so these hold the parts

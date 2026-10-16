@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -11,16 +11,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WeightedPressurePlateBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.phantomwing.theleadage.neoforge.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 
 /** The Lead Pressure Plate: pressed by living things only, one signal level for each. */
 public final class LeadPressurePlateGameTest {
-    private static final BlockPos PLATE = new BlockPos(1, 2, 1);
+    /**
+     * Straight over the structure, whose chunk alone the test is sure ticks entities: a stand a block aside lands, now
+     * and then, in the next chunk, which ticks blocks but not entities, so it never steps on the plate. The structure
+     * block and the template's one block are under it, at 0 and 1.
+     */
+    private static final BlockPos PLATE = new BlockPos(0, 3, 0);
 
     private LeadPressurePlateGameTest() {
     }
@@ -32,7 +38,7 @@ public final class LeadPressurePlateGameTest {
     public static void leadPressurePlateCountsMobs(GameTestHelper helper) {
         // The template is enclosed in barriers: open a room over a stone floor for the plate.
         for (int x = 0; x <= 2; x++) {
-            for (int y = 2; y <= 3; y++) {
+            for (int y = 2; y <= 4; y++) {
                 for (int z = 0; z <= 2; z++) {
                     helper.setBlock(new BlockPos(x, y, z), Blocks.AIR);
                 }
@@ -59,11 +65,11 @@ public final class LeadPressurePlateGameTest {
                     }
                 })
                 .thenExecute(() -> addStands(level, centre, stands, 3))
-                .thenWaitUntil(() -> expectPower(helper, 3))
+                .thenWaitUntil(() -> expectPower(helper, 3, stands))
                 .thenExecute(() -> addStands(level, centre, stands, 14))
-                .thenWaitUntil(() -> expectPower(helper, 15))
+                .thenWaitUntil(() -> expectPower(helper, 15, stands))
                 .thenExecute(() -> stands.forEach(Entity::discard))
-                .thenWaitUntil(() -> expectPower(helper, 0))
+                .thenWaitUntil(() -> expectPower(helper, 0, stands))
                 .thenSucceed();
     }
 
@@ -75,13 +81,23 @@ public final class LeadPressurePlateGameTest {
         }
     }
 
-    private static void expectPower(GameTestHelper helper, int expected) {
+    /** Says, where it fails, where the stands are and whether the world ticks them, which presses the plate. */
+    private static void expectPower(GameTestHelper helper, int expected, List<Entity> stands) {
         if (power(helper) != expected) {
-            fail(helper, "expected the plate at " + expected + ", found " + power(helper));
+            Entity first = stands.isEmpty() ? null : stands.get(0);
+            String where = first == null ? "" : " with " + stands.stream().filter(Entity::isAlive).count() + " stands, the first at "
+                    + helper.relativePos(first.blockPosition()).toShortString() + " ticked " + first.tickCount + " times"
+                    + (helper.getLevel().isPositionEntityTicking(first.blockPosition()) ? "" : " in a chunk that doesn't tick entities");
+            fail(helper, "expected the plate at " + expected + ", found " + power(helper) + where);
         }
     }
 
+    /** The plate's signal, failing the test rather than the server where the plate is gone. */
     private static int power(GameTestHelper helper) {
-        return helper.getBlockState(PLATE).getValue(WeightedPressurePlateBlock.POWER);
+        BlockState state = helper.getBlockState(PLATE);
+        if (!state.hasProperty(WeightedPressurePlateBlock.POWER)) {
+            fail(helper, "the plate is gone, " + state.getBlock().getName().getString() + " in its place");
+        }
+        return state.getValue(WeightedPressurePlateBlock.POWER);
     }
 }

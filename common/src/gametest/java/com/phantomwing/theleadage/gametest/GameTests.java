@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import net.minecraft.gametest.framework.GameTestHelper;
 
@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Every game test on this line. A test is its body and its entry here, and both read the same on
- * every line: how the list is registered changed at 1.21.5 and belongs to {@link GameTestRegistration}
- * alone, so porting a test never touches a registration class or a JSON.
+ * Every game test on this line, run on both modloaders. A test is its body and its entry here, and both
+ * read the same on every line: how the list is registered changed at 1.21.5 and differs between the
+ * modloaders, which belongs to each loader's {@code GameTestRegistration} alone, so porting a test never
+ * touches a registration class or a JSON.
  */
 public final class GameTests {
     public static final List<Test> ALL = List.of(

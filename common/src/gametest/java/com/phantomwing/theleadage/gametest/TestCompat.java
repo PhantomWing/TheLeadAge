@@ -1,4 +1,4 @@
-package com.phantomwing.theleadage.neoforge.gametest;
+package com.phantomwing.theleadage.gametest;
 
 import net.minecraft.world.item.Items;
 import net.minecraft.server.packs.PackType;
@@ -42,7 +42,8 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 /**
  * The calls a test makes whose shape differs between Minecraft versions, each behind a signature every
  * line shares. This is the one test file that differs from line to line, so the bodies don't have to:
- * when a port turns up another such call, it goes here rather than into a body.
+ * when a port turns up another such call, it goes here rather than into a body. A call each modloader
+ * answers its own way goes in {@link TestLoader} instead.
  */
 public final class TestCompat {
     /** {@code MobEffects.CONFUSION} before 1.21.5. */

@@ -7,8 +7,42 @@ architectury {
     fabric()
 }
 
+// The dev niceties below can only get in the way of the headless game-test server, which tests this mod alone.
+def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
+
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
+
+    // The test source set is a mod of its own, theleadage_gametest, whose fabric.mod.json names the
+    // fabric-gametest entrypoint: an entrypoint in the shipped manifest would name a class the jar doesn't have.
+    mods {
+        register('theleadage_gametest') {
+            sourceSet sourceSets.test
+        }
+    }
+
+    runs {
+        // Headless Fabric game-test server: runs the same tests as NeoForge's, prints PASS/FAIL, and exits.
+        //   ./gradlew :fabric:runGameTest
+        gameTest {
+            server()
+            name = "Game Test"
+            runDir "run/gametest"
+            source sourceSets.test
+            vmArg '-Dfabric-api.gametest'
+        }
+    }
+}
+
+// Test-only source set for game tests, kept out of `main` so nothing in it ships. The tests are
+// common/src/gametest, shared with NeoForge; only the registration and TestLoader are Fabric's own.
+sourceSets {
+    test {
+        java.srcDir project(':common').file('src/gametest/java')
+        resources.srcDir project(':common').file('src/gametest/resources')
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
 }
 
 // Which recipe viewer to load in the dev run (same property as NeoForge; the mod ships plugins
@@ -49,15 +83,17 @@ dependencies {
     //      never shipped, never a hard dependency). ----
     // Recipe viewer: both the JEI and EMI plugins live in :common, so both work on Fabric too.
     //   ./gradlew :fabric:runClient -Precipe_viewer=jei|emi|both|none
-    if (loadJei) {
+    if (loadJei && !runningGameTest) {
         modLocalRuntime("mezz.jei:jei-1.21.1-fabric:${rootProject.jei_version}")
     }
-    if (loadEmi) {
+    if (loadEmi && !runningGameTest) {
         modLocalRuntime("dev.emi:emi-fabric:${rootProject.emi_version}")
     }
-    modLocalRuntime("squeek.appleskin:appleskin-fabric:mc1.21-3.0.6")
-    // The Silver Age (sibling mod) from CurseForge, for side-by-side comparison.
-    modLocalRuntime("curse.maven:the-silver-age-1355287:8174931")
+    if (!runningGameTest) {
+        modLocalRuntime("squeek.appleskin:appleskin-fabric:mc1.21-3.0.6")
+        // The Silver Age (sibling mod) from CurseForge, for side-by-side comparison.
+        modLocalRuntime("curse.maven:the-silver-age-1355287:8174931")
+    }
 }
 
 processResources {

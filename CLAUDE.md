@@ -27,7 +27,7 @@ plain JSON and copy across lines unchanged.
 
 - Java 21, Mojang mappings with Parchment. `org.gradle.java.home` is pinned in `gradle.properties` to a JDK on this machine; if the daemon fails to start, check that path first.
 - Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited.
-- Game tests in `neoforge/src/test`, run with `:neoforge:runGameTest`. Laid out with the test shim above.
+- Game tests in `common/src/gametest`, run on both loaders: `:neoforge:runGameTest` and `:fabric:runGameTest`. Laid out with the test shim above; each loader's `GameTestRegistration` and `TestLoader` are in its own `src/test` (`architectury.md`, "Game tests on Fabric too").
 - 5 play scenarios in `scenarios/`.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`, which leaves out `1.21` of the rung.
 - GitHub Actions: `release.yml`.
