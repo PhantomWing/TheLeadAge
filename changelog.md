@@ -23,6 +23,7 @@
 - Added Lead Ore to the `minecraft:snaps_goat_horn` tag.
 - Added the Leaded Glass Door to the `minecraft:mob_interactable_doors` tag.
 - Added the Lead Weight damage type to the `minecraft:damages_helmet` and `minecraft:bypasses_shield` tags.
+- Added the Lead Pickaxe to the `minecraft:cluster_max_harvestables` tag.
 
 ### Compatibility
 - Leaded glass now comes in every color added by dye mods (Dye Depot, Delicate Dyes).
@@ -37,7 +38,6 @@
 - Fixed armor trims not showing on lead armor in the inventory.
 - Fixed dyed leaded glass names in several languages.
 - Fixed a crash when breaking leaded glass in a color from a dye mod.
-- Fixed amethyst clusters dropping fewer shards when mined with a Lead Pickaxe.
 
 
 # 1.1.2
