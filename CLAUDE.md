@@ -21,7 +21,9 @@ with registration, and `TestCompat` holds each call whose shape differs between 
 Porting a test is its body plus its `GameTests` entry, copied as-is; see `verification.md`.
 
 `scenarios/` holds the play scenarios the portal's Play scenarios check runs as a player. They are
-plain JSON and copy across lines unchanged.
+plain JSON and copy across lines unchanged. `scenarios/server` holds those its Play scenarios on a server check
+plays on the line's dedicated server, which `scenarios/server/<loader>/config` gives a `lead_water_range` of 2
+against the client's 6, so the tint shows whose setting the client draws by.
 
 ## This line
 
