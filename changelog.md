@@ -6,7 +6,8 @@
 - Block of Raw Lead is now toxic
   - Standing on it gives Lead Sickness
   - Mining it releases lead fumes (except with Silk Touch)
-  - Placing it in water contaminates the water around it, giving Lead Sickness to players swimming in it
+  - Placing it in water contaminates the water around it, giving Lead Sickness to players and mobs swimming in it
+  - Contaminated water turns purple and murky, follows the current, fades away once the raw lead is removed and kills coral
   - Placing a campfire on it releases lead fumes (put a hay bale in between for a signal fire)
 - Added recipes to smelt lead tools and armor into Lead Nuggets
 - Added recipe to dye 8 Leaded Glass Panes at once
@@ -29,6 +30,7 @@
 
 ### Changes
 - Lead fumes are now purple and spread out wider
+- Lead Sickness now affects mobs too (except undead mobs)
 - Dyed Leaded Glass is now tinted by its dye
 - Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags, so lead from other mods can be used
 

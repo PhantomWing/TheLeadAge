@@ -95,15 +95,15 @@ public class Configuration {
                 .translation("text.autoconfig.theleadage.option.pillagers_avoid_lead_fumes")
                 .define(PILLAGERS_AVOID_LEAD_FUMES_ID, true);
         ENABLE_CAMPFIRE_LEAD_FUMES = builder
-                .comment("Should a lit campfire or soul campfire on a block of raw lead, or on a hay bale on one, give off a stream of lead fumes? Players touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away from it when their options above are on.")
+                .comment("Should a lit campfire or soul campfire on a block of raw lead, or on a hay bale on one, give off a stream of lead fumes? Players and mobs touching it get Lead Sickness, worse the longer they stay, and creepers and pillagers keep away from it when their options above are on.")
                 .translation("text.autoconfig.theleadage.option.enable_campfire_lead_fumes")
                 .define(ENABLE_CAMPFIRE_LEAD_FUMES_ID, true);
         ENABLE_RAW_LEAD_CONTACT = builder
-                .comment("Should standing on a block of raw lead for a few seconds give players Lead Sickness, worse the longer they stay? Sneaking doesn't help.")
+                .comment("Should standing on a block of raw lead for a few seconds give players and mobs Lead Sickness, worse the longer they stay? Sneaking doesn't help.")
                 .translation("text.autoconfig.theleadage.option.enable_raw_lead_contact")
                 .define(ENABLE_RAW_LEAD_CONTACT_ID, true);
         LEAD_WATER_RANGE = builder
-                .comment("How far a block of raw lead leaches into the water it touches, in blocks through the water and around what stands in it. The contaminated water spreads a block at a time, is tinted grey and murky, and gives players in it Lead Sickness, worse the longer they stay. 0 turns it off.")
+                .comment("How far a block of raw lead leaches into the water it touches, in blocks through the water and around what stands in it. The contaminated water spreads a block at a time, is tinted purple and murky, and gives players and mobs in it Lead Sickness, worse the longer they stay. 0 turns it off.")
                 .translation("text.autoconfig.theleadage.option.lead_water_range")
                 .defineInRange(LEAD_WATER_RANGE_ID, 6, 0, 8);
         ENABLE_RECIPE_OVERRIDES = builder

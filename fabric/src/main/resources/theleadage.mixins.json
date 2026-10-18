@@ -4,10 +4,12 @@
   "package": "com.phantomwing.theleadage.fabric.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BaseCoralPlantTypeBlockMixin",
     "BeaconBlockEntityMixin",
     "BuiltInPackSourceMixin",
     "CampfireBlockEntityMixin",
     "ChunkMapMixin",
+    "CoralBlockMixin",
     "IronBarsBlockMixin",
     "LivingEntityMixin",
     "LootTableMixin",
@@ -21,6 +23,7 @@
     "ClientLevelMixin",
     "FogRendererMixin",
     "LevelRendererMixin",
+    "ParticleEngineMixin",
     "StonecutterScreenMixin"
   ],
   "injectors": {

@@ -1,6 +1,6 @@
 package com.phantomwing.theleadage.client;
 
-import com.phantomwing.theleadage.block.custom.RawLeadBlock;
+import com.phantomwing.theleadage.effect.RecedingLeads;
 import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.particle.ModParticles;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -27,7 +27,7 @@ public final class LeadWaterSpecks {
     /** How often the lead around the player is looked for again, in ticks. */
     private static final int LOOK_EVERY = 20;
     /** Specks a tick for each block of water the lead contaminates, at full strength. */
-    private static final float RATE = 0.05F;
+    private static final float RATE = 0.10F;
     /**
      * How many leads' routes are found in a tick at most: a floor of raw lead coming into view would otherwise find all of
      * theirs in one frame. The rest drift their specks a tick or two later.
@@ -61,11 +61,11 @@ public final class LeadWaterSpecks {
         int found = 0;
         for (int i = 0; i < LEADS.size(); i++) {
             BlockPos lead = LEADS.get(i);
-            BlockState state = level.getBlockState(lead);
-            if (!LeadWater.isLeaking(state)) {
+            int step = LeadWater.stepAt(level, lead);
+            if (step <= 0) {
                 continue;
             }
-            int step = state.getValue(RawLeadBlock.CONTAMINATION);
+            int cut = LeadWater.cutAt(level, lead);
             LeadWater.Leak leak = LeadWaterTint.keptLeakOf(level, lead);
             if (leak == null) {
                 if (found++ >= FIND_PER_TICK) {
@@ -77,7 +77,7 @@ public final class LeadWaterSpecks {
             float expected = leak.size() * RATE / SHARING.getInt(i);
             for (int specks = (int) expected + (random.nextFloat() < expected % 1.0F ? 1 : 0); specks > 0; specks--) {
                 BlockPos at = leak.pick(step, random);
-                if (at != null && random.nextFloat() < leak.strength(step, at)) {
+                if (at != null && random.nextFloat() < leak.strength(step, cut, at)) {
                     level.addParticle(ModParticles.LEAD_SPECK.get(), at.getX() + random.nextDouble(),
                             at.getY() + random.nextDouble(), at.getZ() + random.nextDouble(), 0.0, 0.0, 0.0);
                 }
@@ -136,6 +136,13 @@ public final class LeadWaterSpecks {
                         }
                     }
                 }
+            }
+        }
+        // Where raw lead stopped leaking, what it left recedes: its specks with it.
+        for (long receding : RecedingLeads.of(level).keySet()) {
+            BlockPos lead = BlockPos.of(receding);
+            if (lead.distManhattan(new BlockPos(x, y, z)) <= RANGE * 2 && !LEADS.contains(lead)) {
+                LEADS.add(lead);
             }
         }
     }

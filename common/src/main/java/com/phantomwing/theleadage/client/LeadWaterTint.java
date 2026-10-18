@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.client;
 
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.LeadWater;
+import com.phantomwing.theleadage.effect.RecedingLeads;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
@@ -25,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Water raw lead contaminates, tinted lead grey: strongest beside the lead, fading towards the edge of its reach
+ * Water raw lead contaminates, tinted the lead's purple: strongest beside the lead, fading towards the edge of its reach
  * ({@link LeadWater.Nearby#strength}). Applied to the water colour every loader's water takes from the biome, by each
  * loader's {@code BiomeColorsMixin} - Sodium's and Embeddium's water too - and to the fog seen from inside that water, by
  * its {@code FogRendererMixin}. A shader pack may draw water in a colour of its own; the specks drifting in the water
@@ -35,12 +36,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * copies reach only two blocks past the chunk section, and the lead and the routes it leaks along reach further.</p>
  */
 public final class LeadWaterTint {
-    private static final int LEAD_GREY = 0x464B53;
-    private static final float MOST = 0.85F;
-    /** The murk seen from inside contaminated water, as a share of the water's own fog at its brightest. */
-    private static final float MURK_RED = 0.20F;
-    private static final float MURK_GREEN = 0.22F;
-    private static final float MURK_BLUE = 0.25F;
+    /**
+     * The lead's purple ({@link LeadCampfireSmoke#COLOR}), more violet: darkness is the murky textures' to give
+     * ({@link MurkyWater}), since the tint is only multiplied with them. Its green stays above the 0.39 Complementary's
+     * default water ("Biome Based (Clamped)") raises it to, which turned a darker purple teal-grey under that shader pack.
+     */
+    private static final int LEAD_TINT = 0x7366B4;
+    private static final float MOST = 0.90F;
+    /** The murk seen from inside contaminated water, a dark purple, as a share of the water's own fog at its brightest. */
+    private static final float MURK_RED = 0.19F;
+    private static final float MURK_GREEN = 0.15F;
+    private static final float MURK_BLUE = 0.26F;
     /** The most the murk takes over the water's own fog. */
     private static final float MURK_MOST = 0.92F;
     /** How long the murk takes to settle as the camera moves through the water, in milliseconds. */
@@ -82,6 +88,25 @@ public final class LeadWaterTint {
         }
     }
 
+    /**
+     * How strongly the water at {@code pos} is contaminated, from 0 to 1, as the tint takes it: which of the murkier
+     * textures it is drawn with ({@link MurkyWater}). 0 where it isn't, or can't be told.
+     */
+    public static float strength(BlockPos pos) {
+        try {
+            ClientLevel level = Minecraft.getInstance().level;
+            int range = LeadWater.range(true);
+            if (level == null || range == 0) {
+                return 0.0F;
+            }
+            Near near = near(level, pos);
+            return near.nearby().isEmpty() ? 0.0F : near.strengthAt(level, pos, range);
+        } catch (RuntimeException e) {
+            // As tint(): a section caught mid-change from a chunk-drawing thread is drawn plain.
+            return 0.0F;
+        }
+    }
+
     private static int tinted(BlockPos pos, int color) {
         ClientLevel level = Minecraft.getInstance().level;
         int range = LeadWater.range(true);
@@ -92,19 +117,20 @@ public final class LeadWaterTint {
         if (near.nearby().isEmpty()) {
             return color;
         }
-        float strength = near.strengthAt(level, pos, range) * MOST;
+        // Eased in a little, so the first steps of the spreading already read as fouled water rather than a faint wash.
+        float strength = (float) Math.pow(near.strengthAt(level, pos, range), 0.75) * MOST;
         if (strength <= 0.0F) {
             return color;
         }
         return FastColor.ARGB32.color(FastColor.ARGB32.alpha(color),
-                mix(FastColor.ARGB32.red(color), FastColor.ARGB32.red(LEAD_GREY), strength),
-                mix(FastColor.ARGB32.green(color), FastColor.ARGB32.green(LEAD_GREY), strength),
-                mix(FastColor.ARGB32.blue(color), FastColor.ARGB32.blue(LEAD_GREY), strength));
+                mix(FastColor.ARGB32.red(color), FastColor.ARGB32.red(LEAD_TINT), strength),
+                mix(FastColor.ARGB32.green(color), FastColor.ARGB32.green(LEAD_TINT), strength),
+                mix(FastColor.ARGB32.blue(color), FastColor.ARGB32.blue(LEAD_TINT), strength));
     }
 
     /**
      * The fog seen from inside contaminated water, as {@code red, green, blue}: the water's own fog, turned towards a
-     * lead grey as bright as it - at its thickest all through the contaminated water, thinning over the few blocks
+     * lead purple as bright as it - at its thickest all through the contaminated water, thinning over the few blocks
      * before it ({@link LeadWater.Nearby#murk}). Null outside it.
      */
     @Nullable
@@ -138,6 +164,12 @@ public final class LeadWaterTint {
      * water it changes, is drawn again.
      */
     public static void blockChanged(LevelRenderer renderer, BlockPos pos, BlockState oldState, BlockState newState) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null && LeadWater.isLeaking(oldState) && !LeadWater.isLeaking(newState)) {
+            // Without it, water raw lead the player breaks shows clean until the server says what recedes there.
+            RecedingLeads.predict(pos, LeadWater.recedeFrom(level, pos, oldState.getValue(RawLeadBlock.CONTAMINATION),
+                    LeadWater.range(true)));
+        }
         if (changesTint(oldState, newState)) {
             CHANGES.incrementAndGet();
             if (!(newState.getBlock() instanceof RawLeadBlock)) {
@@ -145,7 +177,9 @@ public final class LeadWaterTint {
             }
             redraw(renderer, pos);
         }
-        if (!LEAKS.isEmpty() && oldState.getFluidState().is(FluidTags.WATER) != newState.getFluidState().is(FluidTags.WATER)) {
+        // The routes follow the water's currents as well as where it is, so any change to water near lead finds them again.
+        if (!LEAKS.isEmpty() && oldState.getFluidState() != newState.getFluidState()
+                && (oldState.getFluidState().is(FluidTags.WATER) || newState.getFluidState().is(FluidTags.WATER))) {
             LEAKS.keySet().removeIf(key -> {
                 BlockPos lead = BlockPos.of(key);
                 if (pos.distManhattan(lead) > LeadWater.range(true) + LeadWater.MURK_AHEAD) {
@@ -156,6 +190,12 @@ public final class LeadWaterTint {
                 return true;
             });
         }
+    }
+
+    /** Contamination receding from where raw lead used to leak took a step: the water it leaves is drawn again. */
+    public static void leadChanged(BlockPos lead) {
+        CHANGES.incrementAndGet();
+        redraw(Minecraft.getInstance().levelRenderer, lead);
     }
 
     /** The leaking lead around the chunk section of {@code pos}, kept for the tick by the thread asking. */
@@ -221,7 +261,7 @@ public final class LeadWaterTint {
 
     /** Draws the water a lead at {@code pos} tints again, and a block more for renderers that blend each corner. */
     private static void redraw(LevelRenderer renderer, BlockPos pos) {
-        int reach = LeadWater.range(true) + 2;
+        int reach = LeadWater.range(true) + LeadWater.FADE_PAST + 1;
         renderer.setBlocksDirty(pos.getX() - reach, pos.getY() - reach, pos.getZ() - reach,
                 pos.getX() + reach, pos.getY() + reach, pos.getZ() + reach);
     }

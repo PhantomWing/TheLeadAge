@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -48,24 +49,34 @@ public final class LeadFumes {
     private static final double MINED_BIG_DOSE_CHANCE = 1.0;    // big release: guaranteed dose at point-blank
     private static final double MINED_SMALL_DOSE_CHANCE = 0.25; // small wisp: low chance even up close
 
-    /** How long a player stays in lead fumes - a campfire's stream - or contaminated water per stage. */
+    /** How long a player or mob stays in lead fumes - a campfire's stream - or contaminated water per stage. */
     public static final int FUMES_STAGE_TICKS = 60;
-    /** How long a player stands on raw lead per stage, the first included: the same pace as the fumes, after a moment. */
+    /** How long a player or mob stands on raw lead per stage, the first included: the same pace as the fumes, after a moment. */
     public static final int CONTACT_STAGE_TICKS = 60;
-    /** When each player last took a dose from lead they stay in: one timer for every source, so two at once climb no faster. */
-    private static final Map<Player, Long> LAST_TOUCH = new WeakHashMap<>();
+    /** When each player or mob last took a dose from lead they stay in: one timer for every source, so two at once climb no faster. */
+    private static final Map<LivingEntity, Long> LAST_TOUCH = new WeakHashMap<>();
     /**
      * How long a player's stand on raw lead can go unfelt before it starts over: a player standing still only tells
      * the server where they are once a second.
      */
     private static final int STAND_LAPSE = 40;
-    /** Each player's stand on raw lead: when it last dosed them (or began), and when it was last felt. */
-    private static final Map<Player, long[]> STANDING = new WeakHashMap<>();
+    /** Each player's or mob's stand on raw lead: when it last dosed them (or began), and when it was last felt. */
+    private static final Map<LivingEntity, long[]> STANDING = new WeakHashMap<>();
 
     private LeadFumes() {
     }
 
-    /** Immediately expose nearby players to fumes released by a block (distance-based chance per player). */
+    /**
+     * Whether lead can make {@code entity} sick: players and living mobs - fish in contaminated water, a cow by a lead
+     * torch - but not the undead, which no poison touches, nor what takes no effects at all, like an armour stand. Every
+     * source of Lead Sickness asks this, so none of them leaves the mobs out.
+     */
+    public static boolean canSicken(LivingEntity entity) {
+        return entity.isAlive() && !entity.isSpectator() && entity.isAffectedByPotions()
+                && !entity.getType().is(EntityTypeTags.UNDEAD);
+    }
+
+    /** Immediately expose nearby players and mobs to fumes released by a block (distance-based chance for each). */
     public static void expose(ServerLevel level, BlockPos pos, double baseChance) {
         expose(level, Vec3.atCenterOf(pos), pos, baseChance);
     }
@@ -77,55 +88,63 @@ public final class LeadFumes {
 
     private static void expose(ServerLevel level, Vec3 center, @Nullable BlockPos sourceBlock, double baseChance) {
         AABB box = AABB.ofSize(center, RADIUS * 2.0, RADIUS * 2.0, RADIUS * 2.0);
-        for (Player player : level.getEntitiesOfClass(Player.class, box)) {
-            double chance = baseChance * falloff(player.position().distanceTo(center));
+        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, box, LeadFumes::canSicken)) {
+            double chance = baseChance * falloff(entity.position().distanceTo(center));
             if (chance > 0.0 && level.getRandom().nextDouble() < chance
-                    && hasClearPath(level, sourceBlock, center, player)) {
-                escalate(player);
-                // A toxic hiss the moment the fumes take hold (at the affected player).
-                level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                        SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
+                    && hasClearPath(level, sourceBlock, center, entity)) {
+                escalate(entity);
+                hiss(entity);
             }
         }
     }
 
     /**
-     * A player in lead they can stay in - a campfire's stream, contaminated water: a dose on contact, and another
+     * A player or mob in lead they can stay in - a campfire's stream, contaminated water: a dose on contact, and another
      * every {@code stageTicks} while they stay, so it worsens the longer they do. Whether it dosed them.
      */
-    public static boolean touch(Player player, int stageTicks) {
-        if (!isDue(player, stageTicks)) {
+    public static boolean touch(LivingEntity entity, int stageTicks) {
+        if (!isDue(entity, stageTicks)) {
             return false;
         }
-        LAST_TOUCH.put(player, player.level().getGameTime());
-        escalate(player);
-        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
+        LAST_TOUCH.put(entity, entity.level().getGameTime());
+        escalate(entity);
+        hiss(entity);
         return true;
     }
 
-    /** Whether {@link #touch} would dose the player now, rather than let them wait out the stage of their last dose. */
-    public static boolean isDue(Player player, int stageTicks) {
-        long now = player.level().getGameTime();
-        Long last = LAST_TOUCH.get(player);
+    /** Whether {@link #touch} would dose the player or mob now, rather than let them wait out the stage of their last dose. */
+    public static boolean isDue(LivingEntity entity, int stageTicks) {
+        long now = entity.level().getGameTime();
+        Long last = LAST_TOUCH.get(entity);
         return last == null || now < last || now - last >= stageTicks;
     }
 
     /**
-     * A player standing on a block of raw lead: nothing at first, a dose once they have stood there
+     * A player or mob standing on a block of raw lead: nothing at first, a dose once they have stood there
      * {@code stageTicks}, and another every {@code stageTicks} after. Stepping off for a couple of seconds starts it
      * over.
      */
-    public static void stand(Player player, int stageTicks) {
-        long now = player.level().getGameTime();
-        long[] stand = STANDING.get(player);
+    public static void stand(LivingEntity entity, int stageTicks) {
+        long now = entity.level().getGameTime();
+        long[] stand = STANDING.get(entity);
         if (stand == null || now < stand[1] || now - stand[1] > STAND_LAPSE) {
-            STANDING.put(player, new long[] {now, now});
+            STANDING.put(entity, new long[] {now, now});
             return;
         }
         stand[1] = now;
-        if (now - stand[0] >= stageTicks && touch(player, stageTicks)) {
+        if (now - stand[0] >= stageTicks && touch(entity, stageTicks)) {
             stand[0] = now;
+        }
+    }
+
+    /**
+     * The toxic hiss the moment lead takes hold, at whoever it took hold of: players only, or a pond of fish dosed each on
+     * its own clock would hiss without pause. A mob shows its effects' swirls instead.
+     */
+    private static void hiss(LivingEntity entity) {
+        if (entity instanceof Player) {
+            entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(),
+                    SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
         }
     }
 
@@ -177,15 +196,15 @@ public final class LeadFumes {
     }
 
     /**
-     * Whether the fumes can actually reach the player — a solid wall between the source and the
-     * player's head blocks them. Cast from the player's eyes toward the source (the player end sits
-     * in open air, unlike the source, which may be inside a full-cube ore block); a ray that only
-     * strikes the source block's own position counts as clear. {@code sourceBlock} is null when the
-     * fumes come from open air, where there is no block to exempt.
+     * Whether the fumes can actually reach the player or mob — a solid wall between the source and
+     * their head blocks them. Cast from their eyes toward the source (that end sits in open air,
+     * unlike the source, which may be inside a full-cube ore block); a ray that only strikes the
+     * source block's own position counts as clear. {@code sourceBlock} is null when the fumes come
+     * from open air, where there is no block to exempt.
      */
-    private static boolean hasClearPath(ServerLevel level, @Nullable BlockPos sourceBlock, Vec3 center, Player player) {
-        BlockHitResult hit = level.clip(new ClipContext(player.getEyePosition(), center,
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+    private static boolean hasClearPath(ServerLevel level, @Nullable BlockPos sourceBlock, Vec3 center, LivingEntity entity) {
+        BlockHitResult hit = level.clip(new ClipContext(entity.getEyePosition(), center,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity));
         return hit.getType() == HitResult.Type.MISS
                 || (sourceBlock != null && hit.getBlockPos().equals(sourceBlock));
     }

@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -23,7 +23,7 @@ import java.util.WeakHashMap;
 /**
  * A campfire burning over raw lead - a block in {@link ModTags.Blocks#CAMPFIRE_FUME_SOURCES} - sends a stream of lead
  * fumes up with its smoke, which they taint the lead's dark purple ({@code LeadCampfireSmoke}). A hay bale between the
- * two makes it a signal fire, as it would anywhere: its smoke, and the fumes with it, rise much higher. A player touching the
+ * two makes it a signal fire, as it would anywhere: its smoke, and the fumes with it, rise much higher. A player or mob touching the
  * stream breathes it - only where the fumes have got to: the stream climbs from the fire at the smoke's speed once it starts,
  * and clears from the bottom up as the last of it rises once it stops - worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
  * keep away from it ({@code AvoidRepellentBlockGoal}). Soul campfires too. Ticked by each loader's
@@ -104,15 +104,14 @@ public final class CampfireFumes {
         }
     }
 
-    /** The players touching the stream off the campfire at {@code pos}, risen all the way, breathe it. */
+    /** The players and mobs touching the stream off the campfire at {@code pos}, risen all the way, breathe it. */
     public static void doseStream(ServerLevel level, BlockPos pos) {
         dose(level, stream(level, pos));
     }
 
     private static void dose(ServerLevel level, AABB stream) {
-        for (Player player : level.getEntitiesOfClass(Player.class, stream,
-                player -> !player.isSpectator() && player.isAlive())) {
-            LeadFumes.touch(player, LeadFumes.FUMES_STAGE_TICKS);
+        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, stream, LeadFumes::canSicken)) {
+            LeadFumes.touch(entity, LeadFumes.FUMES_STAGE_TICKS);
         }
     }
 

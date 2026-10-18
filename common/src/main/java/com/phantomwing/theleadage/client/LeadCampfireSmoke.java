@@ -13,9 +13,11 @@ import net.minecraft.world.level.Level;
  * place of the plain smoke by each loader's {@code CampfireBlockMixin}.
  */
 public final class LeadCampfireSmoke {
-    static final float RED = 0x5F / 255.0F;
-    static final float GREEN = 0x5E / 255.0F;
-    static final float BLUE = 0x83 / 255.0F;
+    /** The lead's purple, which its fumes and its specks are drawn in, and the water it contaminates a deeper shade of. */
+    static final int COLOR = 0x5F5E83;
+    static final float RED = (COLOR >> 16 & 0xFF) / 255.0F;
+    static final float GREEN = (COLOR >> 8 & 0xFF) / 255.0F;
+    static final float BLUE = (COLOR & 0xFF) / 255.0F;
 
     private LeadCampfireSmoke() {
     }

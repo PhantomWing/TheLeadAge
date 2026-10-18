@@ -17,3 +17,11 @@ accessible	field	net/minecraft/world/entity/Mob	goalSelector	Lnet/minecraft/worl
 # and sets the carried block state in its spawn factory (the vanilla position
 # constructor that does this is private and hardcodes EntityType.FALLING_BLOCK).
 accessible	field	net/minecraft/world/entity/item/FallingBlockEntity	blockState	Lnet/minecraft/world/level/block/state/BlockState;
+
+# SpriteSources.TYPES (private): Fabric has no API for a mod's own sprite source type, which MurkyWater makes
+# contaminated water's textures with; TheLeadAgeFabricClient puts it in the registry directly.
+accessible	field	net/minecraft/client/renderer/texture/atlas/SpriteSources	TYPES	Lcom/google/common/collect/BiMap;
+
+# TextureSheetParticle.setSprite (protected): LeadWaterParticles draws splashes and bubbles in contaminated water
+# with purple copies of their textures.
+accessible	method	net/minecraft/client/particle/TextureSheetParticle	setSprite	(Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V

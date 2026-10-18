@@ -36,6 +36,7 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModRenderLayers.register();
+        MurkyWaterRenderHandler.register();
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Speck::new);

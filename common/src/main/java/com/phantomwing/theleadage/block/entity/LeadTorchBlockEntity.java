@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * The lead torch's open lead-salt flame periodically coughs out a burst of toxic fumes — the same
  * smoke + sickly olive swirl as broken lead ore — at random intervals ({@value #MIN_INTERVAL}–
- * {@value #MAX_INTERVAL} ticks apart). Any player near the block when a burst fires takes a dose of
+ * {@value #MAX_INTERVAL} ticks apart). Any player or mob near the block when a burst fires takes a dose of
  * Lead Sickness (or climbs a stage), with the same hiss as the ore; the whole exposure just reuses
  * {@link LeadFumes#expose}. The enclosed lead lantern is the safe alternative.
  *
@@ -38,7 +38,7 @@ public class LeadTorchBlockEntity extends BlockEntity {
             return;
         }
         // Re-arm the timer with a fresh random gap. The first pass after load only arms it; every later
-        // firing puffs out a burst of fumes and doses nearby players — like breaking lead ore, on a timer.
+        // firing puffs out a burst of fumes and doses nearby players and mobs — like breaking lead ore, on a timer.
         boolean arming = torch.ticksUntilBurst < 0;
         torch.ticksUntilBurst = MIN_INTERVAL + serverLevel.getRandom().nextInt(MAX_INTERVAL - MIN_INTERVAL + 1);
         if (arming) {

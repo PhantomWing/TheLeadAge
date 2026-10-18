@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.block.custom;
 import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
+import com.phantomwing.theleadage.effect.RecedingLeads;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import com.phantomwing.theleadage.platform.LeadSettings;
@@ -13,6 +14,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -39,8 +41,6 @@ public class RawLeadBlock extends Block {
     public static final MapCodec<RawLeadBlock> CODEC = simpleCodec(RawLeadBlock::new);
     /** How far it has leaked into the water it touches: 0 out of water, else the steps its spreading has taken. */
     public static final IntegerProperty CONTAMINATION = IntegerProperty.create("contamination", 0, LeadWater.MAX_STEP);
-    /** The spreading takes a step in this many of every three checks: about 20 seconds to spread as far as it does. */
-    private static final int SPREAD_CHANCE = 2;
     /** A step of the spreading is the client's to redraw and nothing else's: no shape updates, no observer pulses. */
     private static final int STEP_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
 
@@ -94,6 +94,20 @@ public class RawLeadBlock extends Block {
     }
 
     /**
+     * The block changed: where it stops leaking - mined, blown up, pushed away or dried out - what it left in the water
+     * recedes rather than clearing at once ({@link RecedingLeads}). A step further into its spreading is no stop.
+     */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        int step = state.getValue(CONTAMINATION);
+        boolean stillLeaking = newState.is(this) && newState.getValue(CONTAMINATION) > 0;
+        if (step > 0 && !stillLeaking && level instanceof ServerLevel server) {
+            RecedingLeads.start(server, pos, step);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    /**
      * Every block of raw lead looks now and then, by random tick, whether it should be leaking: what the world generated
      * beside water - a lead vein by an aquifer - never had a neighbour change to wake it, nor did lead lying dry or
      * waiting when the range was switched back on. A few lookups a minute a block, so a storage room costs next to nothing.
@@ -129,8 +143,9 @@ public class RawLeadBlock extends Block {
             return;
         }
         LeadWater.contaminate(level, pos, step);
-        if (step < Math.min(LeadWater.lastStep(range), LeadWater.MAX_STEP) && random.nextInt(3) < SPREAD_CHANCE) {
+        if (step < Math.min(LeadWater.lastStep(range), LeadWater.MAX_STEP)) {
             level.setBlock(pos, state.setValue(CONTAMINATION, step + 1), STEP_FLAGS);
+            LeadWater.wakeCoral(level, pos, step + 1);
         }
         level.scheduleTick(pos, this, LeadWater.INTERVAL);
     }
@@ -155,8 +170,9 @@ public class RawLeadBlock extends Block {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!level.isClientSide && entity instanceof Player player && !player.isSpectator() && LeadSettings.rawLeadContact(false)) {
-            LeadFumes.stand(player, LeadFumes.CONTACT_STAGE_TICKS);
+        if (!level.isClientSide && entity instanceof LivingEntity living && LeadFumes.canSicken(living)
+                && LeadSettings.rawLeadContact(false)) {
+            LeadFumes.stand(living, LeadFumes.CONTACT_STAGE_TICKS);
         }
         super.stepOn(level, pos, state, entity);
     }
