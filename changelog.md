@@ -37,6 +37,7 @@
 - Fixed armor trims not showing on lead armor in the inventory
 - Fixed dyed leaded glass names in several languages
 - Fixed a crash when breaking leaded glass in a color from a dye mod
+- Fixed leaded glass door designs being mirrored on one door of a double door, and when the door is opened or placed facing another way
 
 
 # 1.1.2

@@ -43,7 +43,6 @@ public final class GameTests {
             test("bars_connect_to_leaded_glass", LeadOreGameTest::barsConnectToLeadedGlass),
             test("frame_region_mapping", LeadOreGameTest::frameRegionMapping),
             test("glass_placement_stays_inside_panel", LeadOreGameTest::glassPlacementStaysInsidePanel),
-            test("door_glass_mirror_matches_frame", LeadOreGameTest::doorGlassMirrorMatchesFrame),
             test("lead_weight_transforms_from_data", LeadOreGameTest::leadWeightTransformsFromData),
             test("lead_weight_tier_chain", LeadOreGameTest::leadWeightTierChain),
             test("lead_weight_break_chance", LeadOreGameTest::leadWeightBreakChance),
@@ -66,7 +65,10 @@ public final class GameTests {
             test("dyed_glass_recipes_stay_data", DyedLeadedGlassGameTest::dyedGlassRecipesStayData),
             test("shattered_glass_is_its_colour", DyedLeadedGlassGameTest::shatteredGlassIsItsColour),
             test("dyed_glass_names_are_their_own", DyedLeadedGlassGameTest::dyedGlassNamesAreTheirOwn),
-            test("clear_panes_take_a_dye", DyedLeadedGlassGameTest::clearPanesTakeADye));
+            test("clear_panes_take_a_dye", DyedLeadedGlassGameTest::clearPanesTakeADye),
+            test("leaded_glass_door_glass_faces_the_placer", LeadedGlassPlacementGameTest::leadedGlassDoorGlassFacesThePlacer),
+            test("leaded_glass_trapdoor_glass_swings_about_its_hinge",
+                    LeadedGlassPlacementGameTest::leadedGlassTrapdoorGlassSwingsAboutItsHinge));
 
     private GameTests() {
     }
