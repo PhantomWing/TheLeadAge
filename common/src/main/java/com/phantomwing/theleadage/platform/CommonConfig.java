@@ -52,6 +52,12 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
+    /** Gate for mobs keeping out of the water raw lead poisons ({@code PoisonedWaterAvoidance}). Read live. */
+    @ExpectPlatform
+    public static boolean mobsAvoidLeadWater() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
     /** Gate for a block of raw lead poisoning the player standing on it. Read live. */
     @ExpectPlatform
     public static boolean rawLeadContact() {

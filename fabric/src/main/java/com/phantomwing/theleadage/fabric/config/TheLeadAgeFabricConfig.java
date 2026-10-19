@@ -41,6 +41,9 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 0, max = 8)
     public int lead_water_range = 6;
 
+    public static final String MOBS_AVOID_LEAD_WATER_ID = "mobs_avoid_lead_water";
+    public boolean mobs_avoid_lead_water = true;
+
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public boolean enable_recipe_overrides = true;
 
@@ -79,6 +82,7 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> config.pillagers_avoid_lead_fumes;
             case ENABLE_CAMPFIRE_LEAD_FUMES_ID -> config.enable_campfire_lead_fumes;
             case ENABLE_RAW_LEAD_CONTACT_ID -> config.enable_raw_lead_contact;
+            case MOBS_AVOID_LEAD_WATER_ID -> config.mobs_avoid_lead_water;
             case ENABLE_RECIPE_OVERRIDES_ID -> config.enable_recipe_overrides;
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> config.override_heavy_core_recipe;

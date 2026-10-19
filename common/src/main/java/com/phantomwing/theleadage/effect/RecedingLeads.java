@@ -66,6 +66,7 @@ public final class RecedingLeads {
         State before = receding.get(pos.asLong());
         if (before == null || before.cut() < from.cut()) {
             receding.put(pos.asLong(), from);
+            PoisonedWaterAvoidance.leadChanged();
             send(level, pos, from);
         }
     }
@@ -93,6 +94,7 @@ public final class RecedingLeads {
             Long2ObjectMap.Entry<State> entry = entries.next();
             BlockPos pos = BlockPos.of(entry.getLongKey());
             State state = new State(entry.getValue().step(), entry.getValue().cut() - 1);
+            PoisonedWaterAvoidance.leadChanged();
             if (state.cut() <= 0 || !level.isLoaded(pos)) {
                 entries.remove();
                 send(level, pos, null);

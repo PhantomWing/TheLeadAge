@@ -7,13 +7,20 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +33,8 @@ import java.util.WeakHashMap;
  * two makes it a signal fire, as it would anywhere: its smoke, and the fumes with it, rise much higher. A player or mob touching the
  * stream breathes it - only where the fumes have got to: the stream climbs from the fire at the smoke's speed once it starts,
  * and clears from the bottom up as the last of it rises once it stops - worse the longer they stay ({@link LeadFumes#touch}); creepers and pillagers
- * keep away from it ({@code AvoidRepellentBlockGoal}). Soul campfires too. Ticked by each loader's
- * {@code CampfireBlockEntityMixin}.
+ * keep away from it ({@code AvoidRepellentBlockGoal}). Its smoke calms no bees: the bees about a hive it rises into breathe
+ * it instead ({@link #fumesHive}). Soul campfires too. Ticked by each loader's {@code CampfireBlockEntityMixin}.
  */
 public final class CampfireFumes {
     /** How far the stream rises over the fire: where the campfire's own smoke fades out, and a signal fire's. */
@@ -43,6 +50,12 @@ public final class CampfireFumes {
      */
     private static final int CLEAR_TICKS = 130;
     private static final int SIGNAL_CLEAR_TICKS = 330;
+    /** How far under a hive a campfire's smoke reaches it, as vanilla's calms its bees. */
+    private static final int HIVE_SMOKE_DISTANCE = 5;
+    /** What stops a campfire's smoke on its way up to a hive: anything as solid as a fence post, as in vanilla. */
+    private static final VoxelShape SMOKE_STOPPER = Block.box(6.0, 0.0, 6.0, 10.0, 16.0, 10.0);
+    /** How far from its hive a bee breathes the fumes rising into it: about its entrance. */
+    private static final double HIVE_REACH = 2.0;
     /**
      * Each campfire's streams, the newest last: when each started, when it stopped or -1, and whether it was a signal
      * fire's. A fire lit again while the last of its fumes still rise starts a stream under them, rather than losing them.
@@ -63,6 +76,47 @@ public final class CampfireFumes {
                 || below.is(Blocks.HAY_BLOCK) && level.getBlockState(pos.below(2)).is(ModTags.Blocks.CAMPFIRE_FUME_SOURCES);
     }
 
+    /**
+     * Whether the smoke reaching the hive at {@code hive} is a campfire's giving off lead fumes: vanilla's smoke calms a
+     * hive's bees, so harvesting it doesn't anger them, and this doesn't - it sickens them ({@link #sickenBees}). Each
+     * loader's {@code CampfireSmokeMixin} asks it.
+     */
+    public static boolean fumesHive(Level level, BlockPos hive) {
+        BlockPos campfire = smokingCampfire(level, hive);
+        return campfire != null && isFuming(level, campfire, level.getBlockState(campfire));
+    }
+
+    /** The lit campfire whose smoke reaches the hive at {@code hive}, found as vanilla finds it, or null. */
+    @Nullable
+    private static BlockPos smokingCampfire(BlockGetter level, BlockPos hive) {
+        for (int i = 1; i <= HIVE_SMOKE_DISTANCE; i++) {
+            BlockPos below = hive.below(i);
+            BlockState state = level.getBlockState(below);
+            if (CampfireBlock.isLitCampfire(state)) {
+                return below;
+            }
+            if (Shapes.joinIsNotEmpty(SMOKE_STOPPER, state.getCollisionShape(level, hive, CollisionContext.empty()), BooleanOp.AND)) {
+                return CampfireBlock.isLitCampfire(level.getBlockState(below.below())) ? below.below() : null;
+            }
+        }
+        return null;
+    }
+
+    /** The bees about the hive the fumes off the campfire at {@code pos} rise into, if any, breathe them. */
+    private static void sickenBees(ServerLevel level, BlockPos pos) {
+        for (int i = 1; i <= HIVE_SMOKE_DISTANCE; i++) {
+            BlockPos hive = pos.above(i);
+            if (level.getBlockState(hive).is(BlockTags.BEEHIVES)) {
+                if (pos.equals(smokingCampfire(level, hive))) {
+                    for (Bee bee : level.getEntitiesOfClass(Bee.class, new AABB(hive).inflate(HIVE_REACH), LeadFumes::canSicken)) {
+                        LeadFumes.touch(bee, LeadFumes.FUMES_STAGE_TICKS);
+                    }
+                }
+                return;
+            }
+        }
+    }
+
     /** Whether the campfire is a signal fire, its smoke rising much higher: a hay bale under it. */
     private static boolean isSignal(BlockState state) {
         return state.hasProperty(CampfireBlock.SIGNAL_FIRE) && state.getValue(CampfireBlock.SIGNAL_FIRE);
@@ -73,7 +127,8 @@ public final class CampfireFumes {
         long now = level.getGameTime();
         List<long[]> streams = STREAMS.get(campfire);
         long[] last = streams == null || streams.isEmpty() ? null : streams.get(streams.size() - 1);
-        if (isFuming(level, pos, state)) {
+        boolean fuming = isFuming(level, pos, state);
+        if (fuming) {
             if (last == null || last[1] >= 0) {
                 if (streams == null) {
                     streams = new ArrayList<>();
@@ -93,6 +148,9 @@ public final class CampfireFumes {
             return;
         }
         if (now % INTERVAL == 0) {
+            if (fuming) {
+                sickenBees(level, pos);
+            }
             for (long[] stream : streams) {
                 double top = pos.getY() + 0.5 + (now - stream[0]) * RISE;
                 double bottom = pos.getY() + 0.5 + (stream[1] < 0 ? 0.0 : (now - stream[1]) * RISE);

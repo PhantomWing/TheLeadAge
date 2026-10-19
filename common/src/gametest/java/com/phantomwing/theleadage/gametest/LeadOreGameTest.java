@@ -1,6 +1,8 @@
 package com.phantomwing.theleadage.gametest;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
+import dev.architectury.platform.Platform;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
@@ -216,6 +218,21 @@ public class LeadOreGameTest {
         } else {
             fail(helper, "Matched " + match.get().id() + " but result was " + result);
         }
+    }
+
+    /**
+     * The mod loads after NeoForge, so its Fishing Rod override outranks NeoForge's own copy of that recipe. Mods' data
+     * is layered in load order, which without the mods.toml's ordering followed a hash of the mod ids. A dev run can't
+     * show the recipe itself: there the mod's generated data is a mod of its own that nothing orders.
+     */
+    public static void leadDataOutranksNeoForge(GameTestHelper helper) {
+        List<String> loadOrder = List.copyOf(Platform.getModIds());
+        int neoForge = loadOrder.indexOf("neoforge");
+        if (neoForge >= 0 && loadOrder.indexOf(TheLeadAge.MOD_ID) < neoForge) {
+            fail(helper, "The Lead Age loads before NeoForge, so NeoForge's Fishing Rod recipe replaces its override");
+            return;
+        }
+        helper.succeed();
     }
 
     /**

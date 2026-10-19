@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.block.custom;
 import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
+import com.phantomwing.theleadage.effect.PoisonedWaterAvoidance;
 import com.phantomwing.theleadage.effect.RecedingLeads;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
@@ -82,6 +83,9 @@ public class RawLeadBlock extends Block {
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        if (!level.isClientSide()) {
+            PoisonedWaterAvoidance.leadChanged();
+        }
         if (state.getValue(CONTAMINATION) > 1 && oldState.is(Blocks.MOVING_PISTON)) {
             // Pushed into new water, it starts leaking there afresh rather than at once as far as it had got.
             level.setBlock(pos, state.setValue(CONTAMINATION, 1), STEP_FLAGS);
@@ -99,6 +103,7 @@ public class RawLeadBlock extends Block {
      */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        PoisonedWaterAvoidance.leadChanged();
         int step = state.getValue(CONTAMINATION);
         boolean stillLeaking = newState.is(this) && newState.getValue(CONTAMINATION) > 0;
         if (step > 0 && !stillLeaking && level instanceof ServerLevel server) {

@@ -1,21 +1,26 @@
 package com.phantomwing.theleadage.gametest;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.effect.RecedingLeads;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.monster.Drowned;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -219,6 +224,32 @@ public final class LeadWaterGameTest {
             LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead), LeadWater.MAX_STEP);
             succeedUnless(helper, !cod.hasEffect(MobEffects.HUNGER) ? "fouled water didn't dose a cod swimming in it"
                     : drowned.hasEffect(MobEffects.HUNGER) ? "fouled water dosed a drowned" : null);
+        });
+    }
+
+    /** A player swimming in fouled water, and breathing it, earns the advancement for it. */
+    public static void swimmingInPoisonedWaterEarnsItsAdvancement(GameTestHelper helper) {
+        LeadOreGameTest.whenSpawnLoaded(helper, LeadOreGameTest.SPAWN_TICKS, () -> {
+            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            player.setGameMode(GameType.SURVIVAL);
+            BlockPos lead = new BlockPos(0, 2, 0);
+            helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState().setValue(RawLeadBlock.CONTAMINATION, LeadWater.MAX_STEP));
+            helper.setBlock(lead.above(), Blocks.WATER);
+            helper.setBlock(lead.above(2), Blocks.WATER);
+            TestCompat.moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(lead.above())));
+            AdvancementHolder advancement = helper.getLevel().getServer().getAdvancements()
+                    .get(TheLeadAge.resourceLocation("main/poisoned_water"));
+            if (advancement == null) {
+                fail(helper, "There is no advancement for swimming in fouled water");
+                return;
+            }
+            LeadOreGameTest.whenFumesFind(helper, player, lead.above(), LeadOreGameTest.FIND_TICKS, () -> {
+                LeadOreGameTest.clearSickness(player);
+                LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead), LeadWater.MAX_STEP);
+                boolean earned = player.getAdvancements().getOrStartProgress(advancement).isDone();
+                clear(helper, lead.above(), lead.above(2));
+                succeedUnless(helper, earned ? null : "a player swimming in it didn't earn its advancement");
+            });
         });
     }
 

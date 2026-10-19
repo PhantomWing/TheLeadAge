@@ -15,6 +15,8 @@ import com.phantomwing.theleadage.dispenser.ModDispenserBehaviors;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.particle.ModParticles;
+import com.phantomwing.theleadage.sound.ModSounds;
+import com.phantomwing.theleadage.advancement.ModTriggers;
 import com.phantomwing.theleadage.recipe.ModRecipes;
 import com.phantomwing.theleadage.ui.ModCreativeModeTab;
 
@@ -44,6 +46,8 @@ public final class TheLeadAgeCommon {
         ModDataComponents.register();
         ModRecipes.register();
         ModParticles.register();
+        ModSounds.register();
+        ModTriggers.register();
         ModCreativeModeTab.register();
         LeadWeightTransforms.register(); // datapack loader for heavy-weight impact block transforms
         ModDispenserBehaviors.register(); // dispensers set a Lead Weight down instead of spitting it out

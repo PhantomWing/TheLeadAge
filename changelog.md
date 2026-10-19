@@ -8,7 +8,9 @@
   - Mining it releases lead fumes (except with Silk Touch)
   - Placing it in water contaminates the water around it, giving Lead Sickness to players and mobs swimming in it
   - Contaminated water turns purple and murky, follows the current, fades away once the raw lead is removed and kills coral
+  - Mobs keep out of contaminated water when they can (except undead mobs)
   - Placing a campfire on it releases lead fumes (put a hay bale in between for a signal fire)
+  - Lead fumes from a campfire make bees sick instead of calming them
 - Added recipes to smelt lead tools and armor into Lead Nuggets
 - Added recipe to dye 8 Leaded Glass Panes at once
 - Added support for dye mods like Dye Depot and Delicate Dyes (leaded glass in all their colors)
@@ -16,8 +18,9 @@
 - Zombies, husks, zombie villagers and vindicators can now spawn with lead weapons and tools
 - Lead tools and armor can now be found in chests
 - Trial chamber vaults can now give Lead Ingots
+- Added an advancement for swimming in contaminated water
 - Added translations for all tags (shown in recipe viewers like JEI and EMI)
-- Added config options for the water contamination range, lead ore veins and mobs spawning with lead gear
+- Added config options for the water contamination range, mobs avoiding contaminated water, lead ore veins and mobs spawning with lead gear
 - Updated tags for better compatibility with vanilla and other mods
   - Added husks to the `theleadage:can_wear_lead_armor` tag
   - Added Lead Ore to the `minecraft:snaps_goat_horn` tag
@@ -30,15 +33,18 @@
 
 ### Changes
 - Lead fumes are now purple and spread out wider
+- Lead Torch smoke is now the same color as a normal torch's
 - Lead Sickness now affects mobs too (except undead mobs)
 - Dyed Leaded Glass is now tinted by its dye
 - Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags, so lead from other mods can be used
 
 ### Fixes
 - Fixed 4 Lead Ingots crafting 4 Lead Bricks instead of 1
+- Fixed the Fishing Rod recipe with a Lead Nugget not replacing the vanilla one on NeoForge
 - Fixed armor trims not showing on lead armor in the inventory
 - Fixed dyed leaded glass names in several languages
 - Fixed a crash when breaking leaded glass in a color from a dye mod
+- Fixed the lead fumes subtitle saying "Fire extinguished"
 - Fixed leaded glass door designs being mirrored on one door of a double door, and when the door is opened or placed facing another way
 
 

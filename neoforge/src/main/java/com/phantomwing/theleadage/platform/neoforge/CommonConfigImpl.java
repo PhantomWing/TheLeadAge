@@ -42,6 +42,10 @@ public final class CommonConfigImpl {
         return Configuration.LEAD_WATER_RANGE.get();
     }
 
+    public static boolean mobsAvoidLeadWater() {
+        return Configuration.MOBS_AVOID_LEAD_WATER.get();
+    }
+
     public static boolean enableStructureLoot() {
         return Configuration.ENABLE_STRUCTURE_LOOT.get();
     }

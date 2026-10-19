@@ -34,6 +34,9 @@ public class Configuration {
     public static final String LEAD_WATER_RANGE_ID = "lead_water_range";
     public static final ModConfigSpec.IntValue LEAD_WATER_RANGE;
 
+    public static final String MOBS_AVOID_LEAD_WATER_ID = "mobs_avoid_lead_water";
+    public static final ModConfigSpec.BooleanValue MOBS_AVOID_LEAD_WATER;
+
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
     public static final ModConfigSpec.BooleanValue ENABLE_RECIPE_OVERRIDES;
 
@@ -61,6 +64,7 @@ public class Configuration {
             case PILLAGERS_AVOID_LEAD_FUMES_ID -> PILLAGERS_AVOID_LEAD_FUMES.get();
             case ENABLE_CAMPFIRE_LEAD_FUMES_ID -> ENABLE_CAMPFIRE_LEAD_FUMES.get();
             case ENABLE_RAW_LEAD_CONTACT_ID -> ENABLE_RAW_LEAD_CONTACT.get();
+            case MOBS_AVOID_LEAD_WATER_ID -> MOBS_AVOID_LEAD_WATER.get();
             case ENABLE_RECIPE_OVERRIDES_ID -> ENABLE_RECIPE_OVERRIDES.get();
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> OVERRIDE_FISHING_ROD_RECIPE.get();
             case OVERRIDE_HEAVY_CORE_RECIPE_ID -> OVERRIDE_HEAVY_CORE_RECIPE.get();
@@ -106,6 +110,10 @@ public class Configuration {
                 .comment("How far a block of raw lead leaches into the water it touches, in blocks through the water and around what stands in it. The contaminated water spreads a block at a time, is tinted purple and murky, and gives players and mobs in it Lead Sickness, worse the longer they stay. 0 turns it off.")
                 .translation("text.autoconfig.theleadage.option.lead_water_range")
                 .defineInRange(LEAD_WATER_RANGE_ID, 6, 0, 8);
+        MOBS_AVOID_LEAD_WATER = builder
+                .comment("Should mobs keep out of water raw lead contaminates, as they keep out of fire? Fish, squid, axolotls and turtles swim round it where they can and out of it when it spreads over them, and animals and villagers walk round it. The undead, which it can't hurt, take no notice.")
+                .translation("text.autoconfig.theleadage.option.mobs_avoid_lead_water")
+                .define(MOBS_AVOID_LEAD_WATER_ID, true);
         ENABLE_RECIPE_OVERRIDES = builder
                 .comment("Master toggle for the lead recipe overrides below. When off, none of them apply and vanilla recipes are kept.")
                 .translation("text.autoconfig.theleadage.option.enable_recipe_overrides")

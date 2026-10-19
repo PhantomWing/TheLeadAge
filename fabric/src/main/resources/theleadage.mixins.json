@@ -8,6 +8,7 @@
     "BeaconBlockEntityMixin",
     "BuiltInPackSourceMixin",
     "CampfireBlockEntityMixin",
+    "CampfireSmokeMixin",
     "ChunkMapMixin",
     "CoralBlockMixin",
     "IronBarsBlockMixin",
@@ -15,7 +16,11 @@
     "LootTableMixin",
     "NoiseChunkMixin",
     "PersistentEntitySectionManagerMixin",
-    "RandomStateMixin"
+    "RandomPosMixin",
+    "RandomStateMixin",
+    "SquidRandomMovementGoalMixin",
+    "SwimNodeEvaluatorMixin",
+    "WalkNodeEvaluatorMixin"
   ],
   "client": [
     "BiomeColorsMixin",

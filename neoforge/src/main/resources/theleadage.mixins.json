@@ -6,12 +6,17 @@
   "mixins": [
     "BaseCoralPlantTypeBlockMixin",
     "CampfireBlockEntityMixin",
+    "CampfireSmokeMixin",
     "ChunkMapMixin",
     "CoralBlockMixin",
     "IronBarsBlockMixin",
     "LivingEntityMixin",
     "NoiseChunkMixin",
-    "RandomStateMixin"
+    "RandomPosMixin",
+    "RandomStateMixin",
+    "SquidRandomMovementGoalMixin",
+    "SwimNodeEvaluatorMixin",
+    "WalkNodeEvaluatorMixin"
   ],
   "client": [
     "BiomeColorsMixin",

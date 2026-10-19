@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.advancement.ModTriggers;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
@@ -14,6 +15,7 @@ import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.KilledTrigger;
+import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -48,6 +50,17 @@ public class ModAdvancementProvider implements AdvancementProvider.AdvancementGe
         AdvancementHolder ingot = obtain(consumer, root, ModItems.LEAD_INGOT.get());
         crushEnemy(consumer, ingot);
         leadedLights(consumer, ingot);
+        poisonedWater(consumer, root);
+    }
+
+    /** Swim in water raw lead poisons, and breathe it. */
+    private static void poisonedWater(Consumer<AdvancementHolder> consumer, AdvancementHolder parent) {
+        Advancement.Builder.advancement().parent(parent)
+                .display(ModBlocks.RAW_LEAD_BLOCK.get(), title("poisoned_water"), description("poisoned_water"),
+                        null, AdvancementType.TASK, true, true, false)
+                .addCriterion("poisoned_water", ModTriggers.SWAM_IN_POISONED_WATER.get()
+                        .createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty())))
+                .save(consumer, id("poisoned_water"));
     }
 
     /** Obtain any full leaded glass block (clear or stained). Any one of them satisfies it (OR requirements). */

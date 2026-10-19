@@ -49,6 +49,11 @@ public final class CommonConfigImpl {
         return TheLeadAgeFabricConfig.get().lead_water_range;
     }
 
+    public static boolean mobsAvoidLeadWater() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.MOBS_AVOID_LEAD_WATER_ID);
+    }
+
     public static boolean enableStructureLoot() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_STRUCTURE_LOOT_ID);

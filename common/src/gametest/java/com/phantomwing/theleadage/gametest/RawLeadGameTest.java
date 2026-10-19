@@ -9,6 +9,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -28,8 +30,9 @@ import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 
 /**
  * Game tests for the Block of Raw Lead's toxicity: Silk Touch mining it, a campfire over it with a hay bale between,
- * the campfire's stream rising with its smoke, and the water it leaches into - how its spreading steps on, the routes
- * it takes around what stands in the water, and the edge it tints without poisoning. Listed in {@link GameTests}.
+ * the campfire's stream rising with its smoke and the bees over it, and the water it leaches into - how its spreading
+ * steps on, the routes it takes around what stands in the water, and the edge it tints without poisoning. Listed in
+ * {@link GameTests}.
  */
 public final class RawLeadGameTest {
     private RawLeadGameTest() {
@@ -221,6 +224,54 @@ public final class RawLeadGameTest {
         } else {
             helper.succeed();
         }
+    }
+
+    /** A campfire's smoke calms the bees of a hive over it, so harvesting doesn't anger them; one giving off lead fumes doesn't. */
+    public static void leadFumesCalmNoBees(GameTestHelper helper) {
+        BlockPos fire = new BlockPos(1, 3, 1);
+        BlockPos hive = fire.above(2);
+        helper.setBlock(fire.below(), ModBlocks.RAW_LEAD_BLOCK.get());
+        helper.setBlock(fire, Blocks.CAMPFIRE);
+        helper.setBlock(hive, Blocks.BEEHIVE);
+        ServerLevel level = helper.getLevel();
+        boolean fumesCalm = CampfireBlock.isSmokeyPos(level, helper.absolutePos(hive));
+        helper.setBlock(fire.below(), Blocks.STONE);
+        boolean smokeCalms = CampfireBlock.isSmokeyPos(level, helper.absolutePos(hive));
+        helper.setBlock(hive, Blocks.AIR);
+        helper.setBlock(fire, Blocks.AIR);
+        if (fumesCalm) {
+            fail(helper, "A campfire giving off lead fumes calmed the bees over it");
+        } else if (!smokeCalms) {
+            fail(helper, "A plain campfire's smoke didn't calm the bees over it - the test's setup failed, not the mod");
+        } else {
+            helper.succeed();
+        }
+    }
+
+    /** A bee at its hive over a campfire giving off lead fumes breathes them. */
+    public static void leadFumesSickenBeesAtTheirHive(GameTestHelper helper) {
+        BlockPos fire = new BlockPos(1, 2, 1);
+        BlockPos hive = fire.above(2);
+        for (int y = 3; y <= 6; y++) {
+            helper.setBlock(new BlockPos(1, y, 1), Blocks.AIR);
+            helper.setBlock(new BlockPos(2, y, 1), Blocks.AIR);
+        }
+        helper.setBlock(fire.below(), ModBlocks.RAW_LEAD_BLOCK.get());
+        helper.setBlock(fire, Blocks.CAMPFIRE);
+        helper.setBlock(hive, Blocks.BEEHIVE);
+        Bee bee = helper.spawn(EntityType.BEE, hive.east());
+        bee.setNoAi(true);
+        bee.setNoGravity(true);
+        helper.runAfterDelay(30, () -> {
+            boolean sick = bee.hasEffect(MobEffects.HUNGER);
+            helper.setBlock(hive, Blocks.AIR);
+            helper.setBlock(fire, Blocks.AIR);
+            if (sick) {
+                helper.succeed();
+            } else {
+                fail(helper, "A bee at its hive over a campfire giving off lead fumes didn't breathe them");
+            }
+        });
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.effect;
 
+import com.phantomwing.theleadage.advancement.ModTriggers;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.platform.LeadSettings;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
@@ -12,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -162,7 +164,7 @@ public final class LeadWater {
     }
 
     /** As {@link #leak}, only as far as the water it poisons: all the server needs. */
-    private static Leak poisonLeak(BlockGetter level, BlockPos lead) {
+    public static Leak poisonLeak(BlockGetter level, BlockPos lead) {
         return new Leak(level, lead.immutable(), range(false), 0);
     }
 
@@ -191,6 +193,9 @@ public final class LeadWater {
             if (leak.poisons(step, cut, swimmer.blockPosition())
                     || leak.poisons(step, cut, BlockPos.containing(swimmer.getEyePosition()))) {
                 LeadFumes.touch(swimmer, LeadFumes.FUMES_STAGE_TICKS);
+                if (swimmer instanceof ServerPlayer player) {
+                    ModTriggers.SWAM_IN_POISONED_WATER.get().trigger(player);
+                }
             }
         }
     }
@@ -381,12 +386,18 @@ public final class LeadWater {
 
         /** Whether any of the lead poisons the water at {@code water} now: as {@link Leak#poisons}, over every lead. */
         public boolean poisons(BlockPos water) {
+            return poisoner(water) != null;
+        }
+
+        /** The raw lead poisoning the water at {@code water} now, the first found, or null where none does. */
+        @Nullable
+        public BlockPos poisoner(BlockPos water) {
             for (int i = 0; i < leads.length; i++) {
                 if (leaks[i].poisons(steps[i], cuts[i], water)) {
-                    return true;
+                    return BlockPos.of(leads[i]);
                 }
             }
-            return false;
+            return null;
         }
 
         private float strongest(BlockPos water, int reach, boolean murk) {

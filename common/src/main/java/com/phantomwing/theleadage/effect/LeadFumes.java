@@ -1,10 +1,10 @@
 package com.phantomwing.theleadage.effect;
 
 import com.phantomwing.theleadage.particle.ModParticles;
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -24,9 +24,9 @@ import java.util.WeakHashMap;
 
 /**
  * "Lead fumes" exposure. Breaking lead ore or a block of raw lead (and the lead torch's periodic bursts) immediately exposes
- * nearby <b>players</b>, with a distance-based chance (full within {@value #FULL_RANGE} blocks, falling
- * to 0 at {@value #RADIUS}) and only if nothing solid stands between them. Only players breathe the
- * fumes; other mobs ignore them.
+ * nearby players and mobs, with a distance-based chance (full within {@value #FULL_RANGE} blocks, falling
+ * to 0 at {@value #RADIUS}) and only if nothing solid stands between them. The undead, and what takes no effects, are
+ * spared ({@link #canSicken}).
  *
  * <p>Built entirely from vanilla effects — no custom effect, overlay or mixin, so it reads like a
  * pufferfish. The sickness escalates in stages that <em>stack</em>: <b>Hunger → +Weakness →
@@ -144,7 +144,7 @@ public final class LeadFumes {
     private static void hiss(LivingEntity entity) {
         if (entity instanceof Player) {
             entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(),
-                    SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.6f, 0.7f);
+                    ModSounds.LEAD_FUMES_HISS.get(), SoundSource.PLAYERS, 0.6f, 0.7f);
         }
     }
 
