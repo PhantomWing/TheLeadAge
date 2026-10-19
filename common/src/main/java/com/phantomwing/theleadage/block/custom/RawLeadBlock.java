@@ -3,7 +3,7 @@ package com.phantomwing.theleadage.block.custom;
 import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
-import com.phantomwing.theleadage.effect.PoisonedWaterAvoidance;
+import com.phantomwing.theleadage.effect.PoisonedWater;
 import com.phantomwing.theleadage.effect.RecedingLeads;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.platform.CommonConfig;
@@ -84,7 +84,7 @@ public class RawLeadBlock extends Block {
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!level.isClientSide()) {
-            PoisonedWaterAvoidance.leadChanged();
+            PoisonedWater.leadChanged();
         }
         if (state.getValue(CONTAMINATION) > 1 && oldState.is(Blocks.MOVING_PISTON)) {
             // Pushed into new water, it starts leaking there afresh rather than at once as far as it had got.
@@ -103,7 +103,7 @@ public class RawLeadBlock extends Block {
      */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        PoisonedWaterAvoidance.leadChanged();
+        PoisonedWater.leadChanged();
         int step = state.getValue(CONTAMINATION);
         boolean stillLeaking = newState.is(this) && newState.getValue(CONTAMINATION) > 0;
         if (step > 0 && !stillLeaking && level instanceof ServerLevel server) {
@@ -143,7 +143,9 @@ public class RawLeadBlock extends Block {
             return;
         }
         int range = LeadWater.range(false);
-        if (range == 0) {
+        // Water can go without a shape update reaching the lead - a structure placed, a command, another mod - and lead
+        // left leaking in no water would tick on for good.
+        if (range == 0 || !LeadWater.touchesWater(level, pos)) {
             level.setBlock(pos, state.setValue(CONTAMINATION, 0), STEP_FLAGS);
             return;
         }

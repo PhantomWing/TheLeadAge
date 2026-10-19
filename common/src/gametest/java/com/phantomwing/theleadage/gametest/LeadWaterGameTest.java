@@ -311,4 +311,36 @@ public final class LeadWaterGameTest {
             helper.runAfterDelay(1, () -> whenFound(helper, lead, mobs, ticksLeft - 1, then));
         }
     }
+
+    /**
+     * What a client was told recedes is let go once the server has said nothing of it for two seconds - the player left
+     * for elsewhere, or a break it predicted never came - and kept while the server still speaks of it.
+     */
+    public static void clientForgetsRecedingItHearsNoMoreOf(GameTestHelper helper) {
+        BlockPos quiet = helper.absolutePos(new BlockPos(1, 2, 1));
+        BlockPos told = helper.absolutePos(new BlockPos(3, 2, 3));
+        RecedingLeads.State state = new RecedingLeads.State(4, 3);
+        try {
+            RecedingLeads.forgetClient();
+            RecedingLeads.received(quiet, state, 100);
+            RecedingLeads.received(told, state, 100);
+            RecedingLeads.received(told, state, 130);
+            if (!RecedingLeads.forgetStale(135).isEmpty()) {
+                fail(helper, "The client let go of receding lead it heard of a second ago");
+                return;
+            }
+            List<BlockPos> forgotten = RecedingLeads.forgetStale(160);
+            if (!forgotten.equals(List.of(quiet))) {
+                fail(helper, "Two seconds after the last word, the client let go of " + forgotten + " rather than " + quiet);
+                return;
+            }
+            if (!RecedingLeads.forgetStale(200).equals(List.of(told))) {
+                fail(helper, "The client kept receding lead it last heard of 70 ticks ago");
+                return;
+            }
+            helper.succeed();
+        } finally {
+            RecedingLeads.forgetClient();
+        }
+    }
 }

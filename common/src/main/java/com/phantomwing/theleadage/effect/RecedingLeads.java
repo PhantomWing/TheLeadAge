@@ -7,6 +7,8 @@ import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
+import it.unimi.dsi.fastutil.longs.Long2LongMap;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -19,7 +21,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,8 +37,16 @@ public final class RecedingLeads {
     /** How far from receding lead a player is told of it: farther than any water it leaves is drawn. */
     private static final double SEND_DISTANCE = 96.0;
     private static final Map<ResourceKey<Level>, Long2ObjectOpenHashMap<State>> SERVER = new HashMap<>();
+    /**
+     * How long this client keeps what receding lead left without word of it, in ticks. The server tells a player near it
+     * every {@value LeadWater#RECEDE_TICKS} ticks, and stops once the player is farther than {@link #SEND_DISTANCE} or in
+     * another dimension, or never confirms a break this client predicted: then what was kept goes.
+     */
+    private static final int CLIENT_KEPT = 40;
     /** What the server last told this client, replaced whole on each change: chunk-drawing threads read it. */
     private static volatile Long2ObjectMap<State> client = Long2ObjectMaps.emptyMap();
+    /** When this client last heard of each receding lead it keeps, by its level's game time. Its main thread's alone. */
+    private static final Long2LongMap HEARD = new Long2LongOpenHashMap();
 
     private RecedingLeads() {
     }
@@ -66,7 +78,7 @@ public final class RecedingLeads {
         State before = receding.get(pos.asLong());
         if (before == null || before.cut() < from.cut()) {
             receding.put(pos.asLong(), from);
-            PoisonedWaterAvoidance.leadChanged();
+            PoisonedWater.leadChanged();
             send(level, pos, from);
         }
     }
@@ -94,7 +106,7 @@ public final class RecedingLeads {
             Long2ObjectMap.Entry<State> entry = entries.next();
             BlockPos pos = BlockPos.of(entry.getLongKey());
             State state = new State(entry.getValue().step(), entry.getValue().cut() - 1);
-            PoisonedWaterAvoidance.leadChanged();
+            PoisonedWater.leadChanged();
             if (state.cut() <= 0 || !level.isLoaded(pos)) {
                 entries.remove();
                 send(level, pos, null);
@@ -118,13 +130,15 @@ public final class RecedingLeads {
         }
     }
 
-    /** The server told this client what receding lead at {@code pos} has left, nothing once it has gone. */
-    public static void received(BlockPos pos, @Nullable State state) {
+    /** The server told this client at {@code now} what receding lead at {@code pos} has left, nothing once it has gone. */
+    public static void received(BlockPos pos, @Nullable State state, long now) {
         Long2ObjectOpenHashMap<State> next = new Long2ObjectOpenHashMap<>(client);
         if (state != null) {
             next.put(pos.asLong(), state);
+            HEARD.put(pos.asLong(), now);
         } else {
             next.remove(pos.asLong());
+            HEARD.remove(pos.asLong());
         }
         client = next;
     }
@@ -133,14 +147,40 @@ public final class RecedingLeads {
      * This client changed raw lead at {@code pos} so it stopped leaking before the server said so - breaking a block shows
      * at once - and what it left recedes from {@code from} until the server's word on it comes.
      */
-    public static void predict(BlockPos pos, @Nullable State from) {
+    public static void predict(BlockPos pos, @Nullable State from, long now) {
         if (from != null && !client.containsKey(pos.asLong())) {
-            received(pos, from);
+            received(pos, from, now);
         }
     }
 
-    /** The client left the server: nothing it was told recedes there any more. */
+    /**
+     * What this client has heard nothing of for {@link #CLIENT_KEPT} ticks by {@code now} is let go, as the server would
+     * have said it had gone: the receding lead it let go, for their water to be drawn again.
+     */
+    public static List<BlockPos> forgetStale(long now) {
+        List<BlockPos> forgotten = new ArrayList<>();
+        if (HEARD.isEmpty()) {
+            return forgotten;
+        }
+        HEARD.long2LongEntrySet().removeIf(entry -> {
+            long heard = entry.getLongValue();
+            if (now >= heard && now - heard <= CLIENT_KEPT) {
+                return false;
+            }
+            forgotten.add(BlockPos.of(entry.getLongKey()));
+            return true;
+        });
+        if (!forgotten.isEmpty()) {
+            Long2ObjectOpenHashMap<State> next = new Long2ObjectOpenHashMap<>(client);
+            forgotten.forEach(lead -> next.remove(lead.asLong()));
+            client = next;
+        }
+        return forgotten;
+    }
+
+    /** The client left the server, or its level for another: nothing it was told recedes there any more. */
     public static void forgetClient() {
         client = Long2ObjectMaps.emptyMap();
+        HEARD.clear();
     }
 }

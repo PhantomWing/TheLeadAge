@@ -4,6 +4,8 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.CampfireFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
+import com.phantomwing.theleadage.entity.ai.AvoidRepellentBlockGoal;
+import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -224,6 +227,60 @@ public final class RawLeadGameTest {
         } else {
             helper.succeed();
         }
+    }
+
+    /** Raw lead left leaking where its water went without a shape update reaching it dries out at its next tick. */
+    public static void rawLeadDriesOutWithoutAnUpdate(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        BlockPos at = helper.absolutePos(new BlockPos(1, 2, 1));
+        level.setBlock(at, ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState().setValue(RawLeadBlock.CONTAMINATION, 2),
+                Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+        if (!level.getBlockTicks().hasScheduledTick(at, ModBlocks.RAW_LEAD_BLOCK.get())) {
+            fail(helper, "Leaking raw lead set down has no tick - the test's setup failed, not the mod");
+            return;
+        }
+        helper.runAfterDelay(LeadWater.INTERVAL + 2, () -> {
+            int step = level.getBlockState(at).getValue(RawLeadBlock.CONTAMINATION);
+            if (step != 0) {
+                fail(helper, "Raw lead in no water still leaks, at step " + step);
+            } else if (level.getBlockTicks().hasScheduledTick(at, ModBlocks.RAW_LEAD_BLOCK.get())) {
+                fail(helper, "Dried-out raw lead still ticks");
+            } else {
+                helper.succeed();
+            }
+        });
+    }
+
+    /** A creeper finds a lead torch and a campfire fuming over raw lead to keep away from. */
+    public static void creepersFindWhatRepelsThem(GameTestHelper helper) {
+        Creeper creeper = helper.spawnWithNoFreeWill(EntityType.CREEPER, new BlockPos(0, 2, 0));
+        BlockPos torch = new BlockPos(2, 2, 1);
+        helper.setBlock(torch.below(), Blocks.STONE);
+        helper.setBlock(torch, ModBlocks.LEAD_TORCH.get());
+        BlockPos found = repellentFoundBy(creeper);
+        if (!helper.absolutePos(torch).equals(found)) {
+            fail(helper, "A creeper beside a lead torch found " + found + " to keep away from");
+            return;
+        }
+        helper.setBlock(torch, Blocks.AIR);
+        BlockPos fire = new BlockPos(1, 3, 2);
+        helper.setBlock(fire.below(), ModBlocks.RAW_LEAD_BLOCK.get());
+        helper.setBlock(fire, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true));
+        found = repellentFoundBy(creeper);
+        if (helper.absolutePos(fire).equals(found)) {
+            helper.succeed();
+        } else {
+            fail(helper, "A creeper beside a campfire over raw lead found " + found + " to keep away from");
+        }
+    }
+
+    /** What a new creeper's goal finds to keep away from, given the goal ticks it takes to search. */
+    private static BlockPos repellentFoundBy(Creeper creeper) {
+        AvoidRepellentBlockGoal goal = new AvoidRepellentBlockGoal(creeper, ModTags.Blocks.CREEPER_REPELLENTS, () -> true, 1.0, 1.2);
+        for (int i = 0; i < 10 && goal.repellent() == null; i++) {
+            goal.canUse();
+        }
+        return goal.repellent();
     }
 
     /** A campfire's smoke calms the bees of a hive over it, so harvesting doesn't anger them; one giving off lead fumes doesn't. */

@@ -11,6 +11,7 @@ import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.CampfireFumes;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
+import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
@@ -68,6 +69,7 @@ import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
 import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import net.minecraft.core.component.DataComponentMap;
@@ -429,6 +431,20 @@ public class LeadOreGameTest {
             fail(helper, "damaged should have no next tier (it shatters)");
         } else {
             helper.succeed();
+        }
+    }
+
+    /** A falling lead weight saved part way down keeps where it started, which its crush is measured from. */
+    public static void leadWeightKeepsItsStartWhenSaved(GameTestHelper helper) {
+        LeadWeightEntity weight = new LeadWeightEntity(ModEntities.LEAD_WEIGHT.get(), helper.getLevel());
+        weight.setPos(Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(1, 12, 1))));
+        weight.setStartPos(weight.blockPosition());
+        weight.setPos(Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(1, 4, 1))));
+        BlockPos loaded = reloaded(weight).getStartPos();
+        if (loaded.equals(weight.getStartPos())) {
+            helper.succeed();
+        } else {
+            fail(helper, "A lead weight saved falling from " + weight.getStartPos() + " was loaded as falling from " + loaded);
         }
     }
 

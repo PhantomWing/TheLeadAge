@@ -15,11 +15,12 @@ import org.spongepowered.asm.mixin.injection.At;
 
 /**
  * Binds the lead veins to the level's seed as its {@code RandomState} is made, here because the level's registries,
- * which hold the veins' density functions, are at hand: {@code RandomState} itself is given only the noises.
+ * which hold the veins' density functions, are at hand: {@code RandomState} itself is given only the noises. Optional,
+ * as {@code NoiseChunkMixin} is: unbound, the veins are left out.
  */
 @Mixin(ChunkMap.class)
 public abstract class ChunkMapMixin {
-    @WrapOperation(method = "<init>", at = @At(value = "INVOKE",
+    @WrapOperation(method = "<init>", require = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/levelgen/RandomState;create(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;Lnet/minecraft/core/HolderGetter;J)Lnet/minecraft/world/level/levelgen/RandomState;"))
     private RandomState theleadage$bindLeadVeins(NoiseGeneratorSettings settings, HolderGetter<NormalNoise.NoiseParameters> noises,
                                                   long seed, Operation<RandomState> original,

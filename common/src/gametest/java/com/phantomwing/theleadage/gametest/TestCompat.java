@@ -30,6 +30,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -73,6 +74,18 @@ public final class TestCompat {
             helper.fail("expected a " + type.getSimpleName() + " at " + pos + ", found " + found);
         }
         return type.cast(found);
+    }
+
+    /**
+     * A copy of {@code entity} made from its save data, as loading the world makes it, not yet in the level. Entities save
+     * through {@code ValueOutput} from 1.21.6, and {@code EntityType.create} takes a spawn reason from 1.21.3.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Entity> T reloaded(T entity) {
+        CompoundTag saved = entity.saveWithoutId(new CompoundTag());
+        T copy = (T) entity.getType().create(entity.level());
+        copy.load(saved);
+        return copy;
     }
 
     /** Puts an entity at {@code at}, looking south and level. {@code moveTo} became {@code snapTo} in 1.21.5. */

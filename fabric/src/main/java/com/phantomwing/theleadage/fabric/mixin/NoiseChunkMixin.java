@@ -16,14 +16,16 @@ import java.util.List;
 
 /**
  * Adds the lead veins to a chunk's terrain, after vanilla's copper and iron veins, which so come first where they
- * meet. The rules are tried in order and the first block one gives is placed; a block none gives is stone.
+ * meet. The rules are tried in order and the first block one gives is placed; a block none gives is stone. Optional
+ * ({@code require = 0}): a worldgen mod that builds the terrain its own way leaves the world without lead veins, not
+ * the game unable to start.
  */
 @Mixin(NoiseChunk.class)
 public abstract class NoiseChunkMixin {
     @Shadow
     protected abstract DensityFunction wrap(DensityFunction function);
 
-    @ModifyArg(method = "<init>", at = @At(value = "INVOKE",
+    @ModifyArg(method = "<init>", require = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/levelgen/material/MaterialRuleList;<init>(Ljava/util/List;)V"))
     private List<NoiseChunk.BlockStateFiller> theleadage$addLeadVeins(List<NoiseChunk.BlockStateFiller> rules,
                                                                       @Local(argsOnly = true) RandomState random,

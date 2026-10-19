@@ -168,7 +168,7 @@ public final class LeadWaterTint {
         if (level != null && LeadWater.isLeaking(oldState) && !LeadWater.isLeaking(newState)) {
             // Without it, water raw lead the player breaks shows clean until the server says what recedes there.
             RecedingLeads.predict(pos, LeadWater.recedeFrom(level, pos, oldState.getValue(RawLeadBlock.CONTAMINATION),
-                    LeadWater.range(true)));
+                    LeadWater.range(true)), level.getGameTime());
         }
         if (changesTint(oldState, newState)) {
             CHANGES.incrementAndGet();
@@ -238,12 +238,20 @@ public final class LeadWaterTint {
                 ? kept.leak() : null;
     }
 
-    /** The level's tick: routes kept for another level, or not asked for in a while, are let go. */
+    /**
+     * The level's tick: routes kept for another level, or not asked for in a while, are let go, and so is receding lead
+     * the server has said nothing of in a while, its water drawn again.
+     */
     public static void tick(ClientLevel level) {
         keepFor(level);
         long now = level.getGameTime();
-        if (now % 20 == 0 && !LEAKS.isEmpty()) {
-            LEAKS.entrySet().removeIf(entry -> isStale(entry.getKey(), entry.getValue(), now));
+        if (now % 20 == 0) {
+            if (!LEAKS.isEmpty()) {
+                LEAKS.entrySet().removeIf(entry -> isStale(entry.getKey(), entry.getValue(), now));
+            }
+            for (BlockPos lead : RecedingLeads.forgetStale(now)) {
+                leadChanged(lead);
+            }
         }
     }
 

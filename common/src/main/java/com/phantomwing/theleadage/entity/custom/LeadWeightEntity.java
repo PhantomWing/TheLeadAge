@@ -252,6 +252,8 @@ public class LeadWeightEntity extends FallingBlockEntity {
             tag.putUUID("Owner", ownerUUID);
         }
         tag.putFloat("Momentum", momentum);
+        // Vanilla doesn't save where a falling block started, and the crush is measured from it.
+        tag.putLong("StartPos", getStartPos().asLong());
     }
 
     @Override
@@ -263,5 +265,7 @@ public class LeadWeightEntity extends FallingBlockEntity {
         if (tag.contains("Momentum")) {
             momentum = tag.getFloat("Momentum");
         }
+        // Saved before it kept its start, it counts its fall from where it was saved, not from y = 0.
+        setStartPos(tag.contains("StartPos") ? BlockPos.of(tag.getLong("StartPos")) : blockPosition());
     }
 }

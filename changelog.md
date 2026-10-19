@@ -37,6 +37,7 @@
 - Lead Sickness now affects mobs too (except undead mobs)
 - Dyed Leaded Glass is now tinted by its dye
 - Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags, so lead from other mods can be used
+- Improved performance of creepers and pillagers avoiding lead torches
 
 ### Fixes
 - Fixed 4 Lead Ingots crafting 4 Lead Bricks instead of 1
@@ -46,6 +47,8 @@
 - Fixed a crash when breaking leaded glass in a color from a dye mod
 - Fixed the lead fumes subtitle saying "Fire extinguished"
 - Fixed leaded glass door designs being mirrored on one door of a double door, and when the door is opened or placed facing another way
+- Fixed mobs wearing lead armor not being slowed by it
+- Fixed a falling Lead Weight dealing the wrong damage after reloading the world
 
 
 # 1.1.2

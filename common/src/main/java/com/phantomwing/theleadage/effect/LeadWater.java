@@ -208,17 +208,12 @@ public final class LeadWater {
         if (!(getter instanceof ServerLevel level) || range(false) == 0) {
             return false;
         }
-        Nearby nearby = nearby(level, SectionPos.of(pos), lead -> poisonLeak(level, lead));
-        if (nearby.isEmpty()) {
-            return false;
-        }
         if (state != null && state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)
-                && nearby.poisons(pos)) {
+                && PoisonedWater.poisoner(level, pos) != null) {
             return true;
         }
         for (Direction side : SIDES) {
-            BlockPos beside = pos.relative(side);
-            if (level.getFluidState(beside).is(FluidTags.WATER) && nearby.poisons(beside)) {
+            if (PoisonedWater.poisoner(level, pos.relative(side)) != null) {
                 return true;
             }
         }
@@ -238,7 +233,10 @@ public final class LeadWater {
                 continue;
             }
             for (Direction side : SIDES) {
-                BlockState state = level.getBlockState(coral.setWithOffset(water, side));
+                if (!level.isLoaded(coral.setWithOffset(water, side))) {
+                    continue;
+                }
+                BlockState state = level.getBlockState(coral);
                 if (state.is(BlockTags.CORALS) || state.is(BlockTags.CORAL_BLOCKS) || state.is(BlockTags.WALL_CORALS)) {
                     level.scheduleTick(coral.immutable(), state.getBlock(), 60 + level.getRandom().nextInt(40));
                 }
@@ -459,9 +457,13 @@ public final class LeadWater {
             Arrays.fill(arrival, Integer.MAX_VALUE);
             int center = index(0, 0, 0);
             arrival[center] = 0;
+            // Past a chunk that isn't loaded the routes end at the gap rather than load it to look: on the server a look
+            // would load or even generate it, on the tick's own thread.
+            LevelReader gaps = whole ? null : (LevelReader) level;
             // Where the lead used to be, receding, water may have flowed into its place: that water was the nearest to it.
             // It stays still water there, as the lead was, so its routes don't change with how that water settles.
-            boolean wet = level.getFluidState(lead).is(FluidTags.WATER);
+            boolean wet = (gaps == null || gaps.hasChunk(SectionPos.blockToSectionCoord(lead.getX()), SectionPos.blockToSectionCoord(lead.getZ())))
+                    && level.getFluidState(lead).is(FluidTags.WATER);
             route[center] = wet ? 1 : DRY;
             flow[center] = STILL;
             if (wet && range > 0) {
@@ -485,8 +487,13 @@ public final class LeadWater {
                         int z = fz + side.getStepZ();
                         int to = index(x, y, z);
                         if (flow[to] == 0) {
-                            FluidState fluid = level.getFluidState(at.setWithOffset(lead, x, y, z));
-                            flow[to] = fluid.is(FluidTags.WATER) ? flowOf(fluid) : NOT_WATER;
+                            at.setWithOffset(lead, x, y, z);
+                            if (gaps != null && !gaps.hasChunk(SectionPos.blockToSectionCoord(at.getX()), SectionPos.blockToSectionCoord(at.getZ()))) {
+                                flow[to] = NOT_WATER;
+                            } else {
+                                FluidState fluid = level.getFluidState(at);
+                                flow[to] = fluid.is(FluidTags.WATER) ? flowOf(fluid) : NOT_WATER;
+                            }
                         }
                         if (flow[to] == NOT_WATER) {
                             route[to] = DRY;

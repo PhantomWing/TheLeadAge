@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.gametest;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.item.ModItems;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
@@ -11,7 +12,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -26,6 +30,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.FIND_TICKS;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.SPAWN_TICKS;
@@ -34,10 +39,11 @@ import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenFumesFind;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenSpawnLoaded;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
 
 /**
- * Game tests for lead gear: smelting it back into nuggets, the fumes a piece gives off as it breaks, and the chests it
- * turns up in. Listed in {@link GameTests}.
+ * Game tests for lead gear: smelting it back into nuggets, the fumes a piece gives off as it breaks, the weight of its
+ * armour on a mob, and the chests it turns up in. Listed in {@link GameTests}.
  */
 public final class LeadGearGameTest {
     /** How many times a chest's loot is rolled: the swaps are rare, one in ten of a roll with the iron item. */
@@ -93,6 +99,38 @@ public final class LeadGearGameTest {
                     helper.succeed();
                 } else {
                     fail(helper, "A lead chestplate broke on its wearer without dosing them");
+                }
+            });
+        });
+    }
+
+    /**
+     * Lead armour slows a mob as it slows a player: one that put it on, and one loaded from a save wearing it, whose
+     * slowness, never saved, comes back on its first tick. Taking it off takes the slowness away.
+     */
+    public static void leadArmorWeighsOnMobs(GameTestHelper helper) {
+        ResourceLocation slowness = TheLeadAge.resourceLocation("lead_heaviness_slowness");
+        ServerLevel level = helper.getLevel();
+        Zombie wearing = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
+        wearing.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.LEAD_CHESTPLATE.get()));
+        Zombie loaded = reloaded(wearing);
+        loaded.setUUID(UUID.randomUUID());
+        level.addFreshEntity(loaded);
+        helper.runAfterDelay(3, () -> {
+            if (!wearing.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(slowness)) {
+                fail(helper, "A zombie that put on a lead chestplate isn't slowed by it");
+                return;
+            }
+            if (!loaded.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(slowness)) {
+                fail(helper, "A zombie loaded wearing a lead chestplate isn't slowed by it");
+                return;
+            }
+            wearing.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            helper.runAfterDelay(3, () -> {
+                if (wearing.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(slowness)) {
+                    fail(helper, "A zombie that took off its lead chestplate is still slowed");
+                } else {
+                    helper.succeed();
                 }
             });
         });
