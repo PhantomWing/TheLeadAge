@@ -29,6 +29,7 @@
 - Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
 - Fixed a crash when breaking leaded glass in a colour a dye mod adds.
 - Fixed amethyst clusters giving fewer shards when mined with a Lead Pickaxe.
+- Fixed the Fabric version accepting Fabric Loader versions older than 0.19.5, which Architectury API needs
 
 
 # 1.1.0
