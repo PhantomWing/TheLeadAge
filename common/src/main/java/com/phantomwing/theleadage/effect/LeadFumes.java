@@ -56,12 +56,14 @@ public final class LeadFumes {
     /** When each player or mob last took a dose from lead they stay in: one timer for every source, so two at once climb no faster. */
     private static final Map<LivingEntity, Long> LAST_TOUCH = new WeakHashMap<>();
     /**
-     * How long a player's stand on raw lead can go unfelt before it starts over: a player standing still only tells
-     * the server where they are once a second.
+     * How long a player's stand on raw lead, or stay in contaminated water, can go unfelt before it starts over: a player
+     * standing still only tells the server where they are once a second.
      */
     private static final int STAND_LAPSE = 40;
     /** Each player's or mob's stand on raw lead: when it last dosed them (or began), and when it was last felt. */
     private static final Map<LivingEntity, long[]> STANDING = new WeakHashMap<>();
+    /** Each player's or mob's stay in contaminated water, as {@link #STANDING}. */
+    private static final Map<LivingEntity, long[]> SOAKING = new WeakHashMap<>();
     /** Each player's or mob's last dose of lead: when, and the stage it brought them to. */
     private static final Map<LivingEntity, long[]> DOSED = new WeakHashMap<>();
 
@@ -93,8 +95,7 @@ public final class LeadFumes {
         for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, box, LeadFumes::canSicken)) {
             double chance = baseChance * falloff(entity.position().distanceTo(center));
             if (chance > 0.0 && level.getRandom().nextDouble() < chance
-                    && hasClearPath(level, sourceBlock, center, entity)) {
-                escalate(entity);
+                    && hasClearPath(level, sourceBlock, center, entity) && escalate(entity)) {
                 hiss(entity);
             }
         }
@@ -109,8 +110,9 @@ public final class LeadFumes {
             return false;
         }
         LAST_TOUCH.put(entity, entity.level().getGameTime());
-        escalate(entity);
-        hiss(entity);
+        if (escalate(entity)) {
+            hiss(entity);
+        }
         return true;
     }
 
@@ -127,21 +129,46 @@ public final class LeadFumes {
      * over.
      */
     public static void stand(LivingEntity entity, int stageTicks) {
+        stay(STANDING, entity, stageTicks);
+    }
+
+    /**
+     * A player or mob in contaminated water, as {@link #stand} on raw lead: nothing at first, a dose once they have been in
+     * it {@code stageTicks}, and another every {@code stageTicks} after. Out of it for a couple of seconds starts it over.
+     */
+    public static void soak(LivingEntity entity, int stageTicks) {
+        stay(SOAKING, entity, stageTicks);
+    }
+
+    /**
+     * That a player or mob in contaminated water is still in water there, between the doses: the water is only looked
+     * through for them when a dose is due, which would otherwise leave their stay unfelt and start it over.
+     */
+    public static void stillSoaking(LivingEntity entity) {
         long now = entity.level().getGameTime();
-        long[] stand = STANDING.get(entity);
-        if (stand == null || now < stand[1] || now - stand[1] > STAND_LAPSE) {
-            STANDING.put(entity, new long[] {now, now});
+        long[] soak = SOAKING.get(entity);
+        if (soak != null && now >= soak[1] && now - soak[1] <= STAND_LAPSE) {
+            soak[1] = now;
+        }
+    }
+
+    private static void stay(Map<LivingEntity, long[]> stays, LivingEntity entity, int stageTicks) {
+        long now = entity.level().getGameTime();
+        long[] stay = stays.get(entity);
+        if (stay == null || now < stay[1] || now - stay[1] > STAND_LAPSE) {
+            stays.put(entity, new long[] {now, now});
             return;
         }
-        stand[1] = now;
-        if (now - stand[0] >= stageTicks && touch(entity, stageTicks)) {
-            stand[0] = now;
+        stay[1] = now;
+        if (now - stay[0] >= stageTicks && touch(entity, stageTicks)) {
+            stay[0] = now;
         }
     }
 
     /**
-     * The toxic hiss the moment lead takes hold, at whoever it took hold of: players only, or a pond of fish dosed each on
-     * its own clock would hiss without pause. A mob shows its effects' swirls instead.
+     * The toxic hiss as lead takes hold, and each time it gets worse, at whoever it took hold of: not for a dose that only
+     * keeps the worst stage going, which every few seconds in contaminated water was all one heard. Players only, or a
+     * pond of fish dosed each on its own clock would hiss without pause; a mob shows its effects' swirls instead.
      */
     private static void hiss(LivingEntity entity) {
         if (entity instanceof Player) {
@@ -214,12 +241,15 @@ public final class LeadFumes {
     /**
      * One dose: climb one stage, then (re)apply every effect up to it, so the sickness STACKS rather
      * than swaps. Shared by the ore fumes ({@link #expose}) and the lead torch, so both walk the same
-     * <b>Hunger → +Weakness → +Poison +Nausea</b> ladder on repeated exposure.
+     * <b>Hunger → +Weakness → +Poison +Nausea</b> ladder on repeated exposure. Whether it made them worse: false at the
+     * last stage, which a dose only keeps going.
      */
-    public static void escalate(LivingEntity entity) {
-        int stage = Math.min(currentStage(entity) + 1, 3);
+    public static boolean escalate(LivingEntity entity) {
+        int current = currentStage(entity);
+        int stage = Math.min(current + 1, 3);
         applyStack(entity, stage);
         DOSED.put(entity, new long[] {entity.level().getGameTime(), stage});
+        return stage > current;
     }
 
     /**

@@ -31,6 +31,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -180,11 +181,18 @@ public final class LeadWater {
             return;
         }
         // The routes are found only for a player or mob a dose would reach now: in water a route could reach, and past the stage of
-        // their last dose. Raw lead under a pond someone swims in looks for them a few times a minute, not every check.
-        List<LivingEntity> swimmers = level.getEntitiesOfClass(LivingEntity.class, new AABB(lead).inflate(range),
-                entity -> LeadFumes.canSicken(entity) && LeadFumes.isDue(entity, LeadFumes.FUMES_STAGE_TICKS)
-                        && (mayReach(level, lead, entity.blockPosition(), range)
-                        || mayReach(level, lead, BlockPos.containing(entity.getEyePosition()), range)));
+        // their last dose. Raw lead under a pond someone swims in looks for them a few times a minute, not every check; in
+        // between, being in water a route could reach keeps their stay in it going.
+        List<LivingEntity> swimmers = new ArrayList<>();
+        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, new AABB(lead).inflate(range),
+                entity -> LeadFumes.canSicken(entity) && (mayReach(level, lead, entity.blockPosition(), range)
+                        || mayReach(level, lead, BlockPos.containing(entity.getEyePosition()), range)))) {
+            if (LeadFumes.isDue(entity, LeadFumes.FUMES_STAGE_TICKS)) {
+                swimmers.add(entity);
+            } else {
+                LeadFumes.stillSoaking(entity);
+            }
+        }
         if (swimmers.isEmpty()) {
             return;
         }
@@ -192,7 +200,7 @@ public final class LeadWater {
         for (LivingEntity swimmer : swimmers) {
             if (leak.poisons(step, cut, swimmer.blockPosition())
                     || leak.poisons(step, cut, BlockPos.containing(swimmer.getEyePosition()))) {
-                LeadFumes.touch(swimmer, LeadFumes.FUMES_STAGE_TICKS);
+                LeadFumes.soak(swimmer, LeadFumes.FUMES_STAGE_TICKS);
                 if (swimmer instanceof ServerPlayer player) {
                     ModTriggers.SWAM_IN_POISONED_WATER.get().trigger(player);
                 }

@@ -44,6 +44,7 @@
 - Lead Bricks are now crafted from 4 Cut Lead
 - Improved performance of creepers and pillagers avoiding lead torches
 - Improved performance of lead armor on servers
+- The lead fumes sound now only plays when Lead Sickness gets worse
 
 ### Fixes
 - Fixed Lead Bars and Lead Trapdoor sharing a recipe

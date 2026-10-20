@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.gametest;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
+import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.effect.RecedingLeads;
 import net.minecraft.advancements.AdvancementHolder;
@@ -205,7 +206,7 @@ public final class LeadWaterGameTest {
         });
     }
 
-    /** Fouled water doses the mobs in it as it does players, but not the undead. */
+    /** Fouled water doses the mobs in it as it does players, after a moment in it, but not the undead. */
     public static void contaminatedWaterDosesMobs(GameTestHelper helper) {
         BlockPos lead = new BlockPos(0, 2, 0);
         // A sealed shaft of water over the lead, tall enough for a drowned.
@@ -220,11 +221,22 @@ public final class LeadWaterGameTest {
         helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState().setValue(RawLeadBlock.CONTAMINATION, LeadWater.MAX_STEP));
         Cod cod = helper.spawn(EntityType.COD, lead.above());
         Drowned drowned = helper.spawn(EntityType.DROWNED, lead.above());
-        whenFound(helper, lead, List.of(cod, drowned), 40, () -> {
-            LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead), LeadWater.MAX_STEP);
-            succeedUnless(helper, !cod.hasEffect(MobEffects.HUNGER) ? "fouled water didn't dose a cod swimming in it"
-                    : drowned.hasEffect(MobEffects.HUNGER) ? "fouled water dosed a drowned" : null);
-        });
+        whenFound(helper, lead, List.of(cod, drowned), 40, () -> soak(helper, helper.absolutePos(lead), cod, drowned, 0));
+    }
+
+    /** The cod and the drowned stay in the fouled water, looked through as often as the game does, until it should dose them. */
+    private static void soak(GameTestHelper helper, BlockPos lead, Cod cod, Drowned drowned, int soaked) {
+        LeadWater.contaminate(helper.getLevel(), lead, LeadWater.MAX_STEP);
+        if (soaked < LeadFumes.FUMES_STAGE_TICKS) {
+            if (cod.hasEffect(MobEffects.HUNGER)) {
+                fail(helper, "fouled water dosed a cod after " + soaked + " ticks in it, before " + LeadFumes.FUMES_STAGE_TICKS);
+            } else {
+                helper.runAfterDelay(LeadWater.INTERVAL, () -> soak(helper, lead, cod, drowned, soaked + LeadWater.INTERVAL));
+            }
+            return;
+        }
+        succeedUnless(helper, !cod.hasEffect(MobEffects.HUNGER) ? "fouled water didn't dose a cod swimming in it"
+                : drowned.hasEffect(MobEffects.HUNGER) ? "fouled water dosed a drowned" : null);
     }
 
     /** A player swimming in fouled water, and breathing it, earns the advancement for it. */

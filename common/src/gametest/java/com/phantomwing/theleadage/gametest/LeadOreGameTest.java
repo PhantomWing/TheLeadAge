@@ -74,6 +74,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -208,6 +209,29 @@ public class LeadOreGameTest {
             return;
         }
         helper.succeed();
+    }
+
+    /**
+     * Lead Sickness hisses as it takes hold and each time it gets worse, but not for a dose that only keeps its worst stage
+     * going: in contaminated water that was every three seconds. Once its effects are gone it takes hold, and hisses, again.
+     */
+    public static void leadSicknessHissesOnlyAsItWorsens(GameTestHelper helper) {
+        whenSpawnLoaded(helper, SPAWN_TICKS, () -> {
+            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            clearSickness(player);
+            List<Boolean> worse = new ArrayList<>();
+            for (int dose = 0; dose < 5; dose++) {
+                worse.add(LeadFumes.escalate(player));
+            }
+            clearSickness(player);
+            worse.add(LeadFumes.escalate(player));
+            if (worse.equals(List.of(true, true, true, false, false, true))) {
+                helper.succeed();
+            } else {
+                fail(helper, "Doses that made the sickness worse, the last after its effects were cleared: " + worse
+                        + ", not [true, true, true, false, false, true]");
+            }
+        });
     }
 
     /** Lead Door + a leaded glass pane must resolve to the leaded glass door recipe. */
@@ -870,7 +894,7 @@ public class LeadOreGameTest {
         }
     }
 
-    /** Raw lead in water doses the player swimming in the water it has leaked into. */
+    /** Raw lead in water doses the player swimming in the water it has leaked into, after a moment, as standing on it does. */
     public static void contaminatedWaterDosesSwimmer(GameTestHelper helper) {
         whenSpawnLoaded(helper, SPAWN_TICKS, () -> contaminatedWaterDosesSwimmerNow(helper));
     }
@@ -891,13 +915,25 @@ public class LeadOreGameTest {
         moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(2, 2, 1))));
         whenFumesFind(helper, player, lead.above(), FIND_TICKS, () -> {
             clearSickness(player);
-            LeadWater.contaminate(helper.getLevel(), helper.absolutePos(lead), LeadWater.MAX_STEP);
-            if (player.hasEffect(MobEffects.HUNGER)) {
-                helper.succeed();
-            } else {
-                fail(helper, "Raw lead in water didn't dose the player swimming in it");
-            }
+            swimInFouledWater(helper, player, helper.absolutePos(lead), 0);
         });
+    }
+
+    /** The player swims in the fouled water, looked through as often as the game does, until it should dose them. */
+    private static void swimInFouledWater(GameTestHelper helper, ServerPlayer player, BlockPos lead, int swum) {
+        LeadWater.contaminate(helper.getLevel(), lead, LeadWater.MAX_STEP);
+        boolean dosed = player.hasEffect(MobEffects.HUNGER);
+        if (swum < LeadFumes.FUMES_STAGE_TICKS) {
+            if (dosed) {
+                fail(helper, "Fouled water dosed the player after " + swum + " ticks in it, before " + LeadFumes.FUMES_STAGE_TICKS);
+            } else {
+                helper.runAfterDelay(LeadWater.INTERVAL, () -> swimInFouledWater(helper, player, lead, swum + LeadWater.INTERVAL));
+            }
+        } else if (dosed) {
+            helper.succeed();
+        } else {
+            fail(helper, "Swimming in fouled water for " + swum + " ticks didn't dose the player");
+        }
     }
 
     private static int reach(GameTestHelper helper, BlockPos pos) {
