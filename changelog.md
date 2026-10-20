@@ -77,6 +77,8 @@
 - Fixed mobs losing their armor trims and names when their armor turns into lead armor
 - Fixed armorers not buying Lead Ingots with the Villager Trade Rebalance experiment on NeoForge
 - Fixed the Fabric config not reloading with /reload
+- Fixed the mod icon using the old Lead Ingot colors
+- Fixed leaded glass panes flashing white for a moment when dyed
 
 
 # 1.1.2

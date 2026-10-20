@@ -217,11 +217,12 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             if (colors == null) {
                 return ItemInteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
             }
-            pane.setColors(colors);
             // Dynamic (cell-based) panes carry no clear_N state — the wrapper model reads the block
             // entity, and setColors already triggered the client re-render; the others flip the state.
-            if (!type.isDynamic()) {
-                level.setBlock(pos, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
+            if (type.isDynamic()) {
+                pane.setColors(colors);
+            } else {
+                pane.setColorsAndState(colors, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
             }
             LeadedGlassRecolor.consume(stack, player, hand, level, pos);
         }
@@ -307,12 +308,13 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                         colors.add(LeadedGlassConfig.CLEAR);
                     }
                     Collections.reverse(colors);
-                    pane.setColors(colors);
                     for (int i = 0; i < type.regions; i++) {
                         rotated = rotated.setValue(CLEAR[i], colors.get(i) == LeadedGlassConfig.CLEAR);
                     }
+                    pane.setColorsAndState(colors, rotated, Block.UPDATE_ALL);
+                } else {
+                    level.setBlock(pos, rotated, Block.UPDATE_ALL);
                 }
-                level.setBlock(pos, rotated, Block.UPDATE_ALL);
             } else if (level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
                 List<Integer> colors = new ArrayList<>(pane.getColors());
                 while (colors.size() < type.regions) {
@@ -326,15 +328,16 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                         rotated.set(i, colors.get(rotation[i]));
                     }
                 }
-                pane.setColors(rotated);
                 // Dynamic panes have no clear_N state to flip; setColors already synced to the client and
                 // re-rendered the wrapper model. The others flip the state so their block-state model updates.
-                if (!type.isDynamic()) {
+                if (type.isDynamic()) {
+                    pane.setColors(rotated);
+                } else {
                     BlockState rotatedState = state;
                     for (int i = 0; i < type.regions; i++) {
                         rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
                     }
-                    level.setBlock(pos, rotatedState, Block.UPDATE_ALL);
+                    pane.setColorsAndState(rotated, rotatedState, Block.UPDATE_ALL);
                 }
             }
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 0.7f, 1.1f);

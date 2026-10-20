@@ -27,6 +27,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -232,15 +233,33 @@ public class LeadOreGameTest {
     }
 
     /**
-     * The mod loads after NeoForge, so its Fishing Rod override outranks NeoForge's own copy of that recipe. Mods' data
-     * is layered in load order, which without the mods.toml's ordering followed a hash of the mod ids. A dev run can't
-     * show the recipe itself: there the mod's generated data is a mod of its own that nothing orders.
+     * The Fishing Rod override outranks NeoForge's own copy of that recipe. Mods' data is layered in load order, which
+     * without the mods.toml's ordering followed a hash of the mod ids, and in a NeoForge dev run common's jar was a mod
+     * of its own that nothing ordered, so the dev client crafted NeoForge's. With the overrides off in the config the
+     * fallback stands in, and there is nothing to outrank.
      */
     public static void leadDataOutranksNeoForge(GameTestHelper helper) {
         List<String> loadOrder = List.copyOf(Platform.getModIds());
         int neoForge = loadOrder.indexOf("neoforge");
         if (neoForge >= 0 && loadOrder.indexOf(TheLeadAge.MOD_ID) < neoForge) {
             fail(helper, "The Lead Age loads before NeoForge, so NeoForge's Fishing Rod recipe replaces its override");
+            return;
+        }
+        ServerLevel level = helper.getLevel();
+        RecipeManager recipes = level.getServer().getRecipeManager();
+        if (recipes.byKey(ResourceLocation.withDefaultNamespace("fishing_rod_fallback")).isPresent()) {
+            helper.succeed();
+            return;
+        }
+        ItemStack stick = new ItemStack(Items.STICK);
+        CraftingInput input = CraftingInput.of(3, 3, List.of(
+                ItemStack.EMPTY, ItemStack.EMPTY, stick,
+                ItemStack.EMPTY, stick, new ItemStack(Items.STRING),
+                stick, ItemStack.EMPTY, new ItemStack(ModItems.LEAD_NUGGET.get())));
+        Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, level);
+        if (match.isEmpty() || !assemble(match.get().value(), input, level).is(Items.FISHING_ROD)) {
+            fail(helper, "Sticks, a string and a lead nugget don't craft a Fishing Rod: another minecraft:fishing_rod "
+                    + "outranks the override");
             return;
         }
         helper.succeed();
