@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +41,9 @@ import java.util.Map;
  * }</pre>
  *
  * {@code input} is a block id, or a block tag when prefixed with {@code #}; {@code output} is a
- * block id (its default state). Direct-block entries win over tag entries; among tags, the first
- * match (in load order) is used.
+ * block id (its default state). Direct-block entries win over tag entries. Files are read in the order of
+ * their ids, so packs that disagree resolve the same way every time: for one block the last file read wins,
+ * among tags the first match. An entry that names a block no mod adds is skipped, not the rest of its file.
  */
 public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener {
     public static final String DIRECTORY = "lead_weight_transforms";
@@ -84,18 +86,23 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     protected void apply(Map<ResourceLocation, JsonElement> files, ResourceManager manager, ProfilerFiller profiler) {
         Map<Block, BlockState> blocks = new HashMap<>();
         List<TagRule> tags = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, JsonElement> file : files.entrySet()) {
-            try {
-                JsonElement root = file.getValue();
-                if (root.isJsonArray()) {
-                    for (JsonElement element : root.getAsJsonArray()) {
-                        parse(GsonHelper.convertToJsonObject(element, "transform"), blocks, tags);
-                    }
-                } else {
-                    parse(GsonHelper.convertToJsonObject(root, "transform"), blocks, tags);
+        // The reload hands the files over in a HashMap's order.
+        List<ResourceLocation> ids = new ArrayList<>(files.keySet());
+        ids.sort(Comparator.naturalOrder());
+        for (ResourceLocation id : ids) {
+            JsonElement root = files.get(id);
+            List<JsonElement> entries = new ArrayList<>();
+            if (root.isJsonArray()) {
+                root.getAsJsonArray().forEach(entries::add);
+            } else {
+                entries.add(root);
+            }
+            for (JsonElement entry : entries) {
+                try {
+                    parse(GsonHelper.convertToJsonObject(entry, "transform"), blocks, tags);
+                } catch (Exception e) {
+                    LOGGER.error("Skipping an invalid lead weight transform in {}: {}", id, e.getMessage());
                 }
-            } catch (Exception e) {
-                LOGGER.error("Skipping invalid lead weight transform file {}: {}", file.getKey(), e.getMessage());
             }
         }
         byBlock = Map.copyOf(blocks);

@@ -1,26 +1,44 @@
 package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.armor.ModTrimMaterials;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.item.custom.LeadArmorItem;
+import com.phantomwing.theleadage.utils.ItemUtils;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.armortrim.TrimMaterials;
+import net.minecraft.world.item.armortrim.TrimPatterns;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -171,5 +189,80 @@ public final class LeadGearGameTest {
             }
         }
         return found;
+    }
+
+    /**
+     * Iron gear swapped for lead keeps how worn it was as a share of its durability, its name and its trim: loot wears
+     * iron by a share of its 250, which as damage would break a lead tool on first use.
+     */
+    public static void swappedGearKeepsItsWear(GameTestHelper helper) {
+        ItemStack sword = new ItemStack(Items.IRON_SWORD);
+        sword.setDamageValue(sword.getMaxDamage() / 2);
+        sword.set(DataComponents.CUSTOM_NAME, Component.literal("Old Faithful"));
+        ItemStack lead = ItemUtils.tryTransmuteStack(sword, ModItems.LEAD_SWORD.get());
+        if (lead.getDamageValue() != Math.round(lead.getMaxDamage() / 2.0F) || !lead.has(DataComponents.CUSTOM_NAME)) {
+            fail(helper, "A half-worn named iron sword became a lead one worn " + lead.getDamageValue() + " of "
+                    + lead.getMaxDamage() + (lead.has(DataComponents.CUSTOM_NAME) ? "" : ", its name lost"));
+            return;
+        }
+        ItemStack nearlyBroken = new ItemStack(Items.IRON_AXE);
+        nearlyBroken.setDamageValue(nearlyBroken.getMaxDamage() - 1);
+        ItemStack leadAxe = ItemUtils.tryTransmuteStack(nearlyBroken, ModItems.LEAD_AXE.get());
+        if (leadAxe.getDamageValue() != leadAxe.getMaxDamage() - 1) {
+            fail(helper, "An iron axe with one use left became a lead one worn " + leadAxe.getDamageValue() + " of " + leadAxe.getMaxDamage());
+            return;
+        }
+        ServerLevel level = helper.getLevel();
+        ArmorTrim trim = new ArmorTrim(level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL).getHolderOrThrow(TrimMaterials.COPPER),
+                level.registryAccess().registryOrThrow(Registries.TRIM_PATTERN).getHolderOrThrow(TrimPatterns.FLOW));
+        ItemStack helmet = new ItemStack(Items.IRON_HELMET);
+        helmet.set(DataComponents.TRIM, trim);
+        if (!trim.equals(ItemUtils.tryTransmuteStack(helmet, ModItems.LEAD_HELMET.get()).get(DataComponents.TRIM))) {
+            fail(helper, "A trimmed iron helmet became an untrimmed lead one");
+            return;
+        }
+        helper.succeed();
+    }
+
+    /** The lead trim on worn lead armour takes its darker palette, which only the registry's holder of the material finds. */
+    public static void leadTrimDarkensOnLeadArmor(GameTestHelper helper) {
+        Holder<TrimMaterial> lead = helper.getLevel().registryAccess().registryOrThrow(Registries.TRIM_MATERIAL)
+                .getHolderOrThrow(ModTrimMaterials.LEAD);
+        String palette = lead.value().overrideArmorMaterials().get(((ArmorItem) ModItems.LEAD_CHESTPLATE.get()).getMaterial());
+        if ("lead_darker".equals(palette)) {
+            helper.succeed();
+        } else {
+            fail(helper, "A lead trim on lead armour draws with the palette " + palette + ", not lead_darker");
+        }
+    }
+
+    /** Lead armour sets its slowness once, not anew every tick: each set sends the wearer's speed to everyone near. */
+    public static void leadArmorSetsItsSlownessOnce(GameTestHelper helper) {
+        Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
+        zombie.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.LEAD_CHESTPLATE.get()));
+        ResourceLocation slowness = TheLeadAge.resourceLocation("lead_heaviness_slowness");
+        LeadArmorItem.refreshHeaviness(zombie);
+        AttributeModifier first = zombie.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(slowness);
+        LeadArmorItem.refreshHeaviness(zombie);
+        if (first != null && first == zombie.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(slowness)) {
+            helper.succeed();
+        } else {
+            fail(helper, "Lead armour's slowness was set again though nothing changed");
+        }
+    }
+
+    /** The armorer buys lead ingots in a world with the Villager Trade Rebalance experiment, as in any other. */
+    public static void armorersBuyLeadInRebalancedWorlds(GameTestHelper helper) {
+        Villager villager = helper.spawnWithNoFreeWill(EntityType.VILLAGER, new BlockPos(0, 2, 0));
+        RandomSource random = RandomSource.create(1L);
+        VillagerTrades.ItemListing[] apprentice = VillagerTrades.EXPERIMENTAL_TRADES.get(VillagerProfession.ARMORER).get(2);
+        for (VillagerTrades.ItemListing listing : apprentice) {
+            MerchantOffer offer = listing.getOffer(villager, random);
+            if (offer != null && offer.getCostA().is(ModItems.LEAD_INGOT.get())) {
+                helper.succeed();
+                return;
+            }
+        }
+        fail(helper, "No apprentice armorer buys lead ingots with the trade rebalance on");
     }
 }

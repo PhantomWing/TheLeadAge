@@ -52,7 +52,7 @@ public class LeadedGlassTrapdoorBlock extends TrapDoorBlock implements EntityBlo
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!LeadedGlassRecolor.isTool(stack)
+        if (!LeadedGlassRecolor.isTool(stack) || !player.mayBuild()
                 || !(level.getBlockEntity(pos) instanceof LeadedGlassTrapdoorBlockEntity be)) {
             return super.useItemOn(stack, state, level, pos, player, hand, hit);
         }

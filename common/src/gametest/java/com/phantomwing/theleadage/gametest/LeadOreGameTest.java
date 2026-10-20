@@ -1,12 +1,13 @@
 package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.attribute.ModAttributes;
 import com.phantomwing.theleadage.block.ModBlocks;
-import dev.architectury.platform.Platform;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightTransforms;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.CampfireFumes;
 import com.phantomwing.theleadage.effect.LeadFumes;
@@ -15,32 +16,34 @@ import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
-import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
-import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.TrapDoorBlock;
-import net.minecraft.world.level.block.state.properties.DoorHingeSide;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.Half;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import dev.architectury.platform.Platform;
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -48,36 +51,42 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
-import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.IronBarsBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoorHingeSide;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
-import java.util.function.IntConsumer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntConsumer;
 
 import static com.phantomwing.theleadage.gametest.TestCompat.ITEM_ENTITY;
 import static com.phantomwing.theleadage.gametest.TestCompat.NAUSEA;
 import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
 import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.defaultModifiers;
+import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
-import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
-import com.phantomwing.theleadage.attribute.ModAttributes;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import dev.architectury.registry.registries.RegistrySupplier;
 
 /**
  * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy} and {@link LeadFumes}):
@@ -242,26 +251,106 @@ public class LeadOreGameTest {
      * an item-to-block recipe. It read 4 for a long time (copied from the block-to-block cut-lead line
      * above it), which made bricks as cheap as the ingots themselves.
      */
-    public static void leadBricksRecipeYieldsOne(GameTestHelper helper) {
+    public static void leadIngotRecipesDontClash(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ItemStack ingot = new ItemStack(ModItems.LEAD_INGOT.get());
-        CraftingInput input = CraftingInput.of(2, 2, List.of(ingot, ingot, ingot, ingot));
-        Optional<RecipeHolder<CraftingRecipe>> match =
-                level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
-        if (match.isEmpty()) {
-            fail(helper, "no crafting recipe matched a 2x2 of lead ingots");
-            return;
+        ItemStack cut = new ItemStack(ModItems.CUT_LEAD.get());
+        record Grid(String name, CraftingInput input, Item result, int count) {
         }
-        ItemStack result = assemble(match.get().value(), input, level);
-        if (!result.is(ModItems.LEAD_BRICKS.get())) {
-            fail(helper, "2x2 lead ingots produced " + result + ", expected lead bricks");
-            return;
-        }
-        if (result.getCount() != 1) {
-            fail(helper, "expected 1 lead bricks from 4 ingots, got " + result.getCount());
-            return;
+        for (Grid grid : List.of(
+                new Grid("4 lead ingots in a square", CraftingInput.of(2, 2, Collections.nCopies(4, ingot)), ModItems.LEAD_TRAPDOOR.get(), 1),
+                new Grid("6 lead ingots in two rows", CraftingInput.of(3, 2, Collections.nCopies(6, ingot)), ModItems.LEAD_BARS.get(), 16),
+                new Grid("4 cut lead in a square", CraftingInput.of(2, 2, Collections.nCopies(4, cut)), ModItems.LEAD_BRICKS.get(), 4))) {
+            List<RecipeHolder<CraftingRecipe>> matches = level.getServer().getRecipeManager()
+                    .getRecipesFor(RecipeType.CRAFTING, grid.input(), level);
+            if (matches.size() != 1) {
+                fail(helper, grid.name() + " match " + matches.size() + " recipes, not one");
+                return;
+            }
+            ItemStack result = assemble(matches.get(0).value(), grid.input(), level);
+            if (!result.is(grid.result()) || result.getCount() != grid.count()) {
+                fail(helper, grid.name() + " craft " + result + ", not " + grid.count() + " " + grid.result());
+                return;
+            }
         }
         helper.succeed();
+    }
+
+    /** Caves and canyons carve through the lead veins' ore and raw lead, as they do vanilla's iron and copper veins. */
+    public static void leadVeinsCarveAway(GameTestHelper helper) {
+        for (RegistrySupplier<Block> block : List.of(ModBlocks.LEAD_ORE, ModBlocks.DEEPSLATE_LEAD_ORE, ModBlocks.RAW_LEAD_BLOCK)) {
+            if (!block.get().defaultBlockState().is(BlockTags.OVERWORLD_CARVER_REPLACEABLES)) {
+                fail(helper, block.getId() + " isn't carved by caves, so a vein crossing one floats");
+                return;
+            }
+        }
+        helper.succeed();
+    }
+
+    /** A weight dropped from high up crushes a mob shorter than a block standing where it lands, on its landing tick. */
+    public static void leadWeightCrushesOnLanding(GameTestHelper helper) {
+        helper.setBlock(new BlockPos(0, 1, 0), Blocks.STONE); // the ground the chicken stands on
+        Chicken chicken = helper.spawnWithNoFreeWill(EntityType.CHICKEN, new BlockPos(0, 2, 0));
+        Vec3 high = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(0, 31, 0)));
+        LeadWeightEntity weight = LeadWeightEntity.inAir(helper.getLevel(), high.x, high.y, high.z,
+                ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null);
+        helper.succeedWhen(() -> {
+            helper.assertTrue(weight.isRemoved(), "the weight hasn't landed yet");
+            helper.assertTrue(chicken.isDeadOrDying() || chicken.getHealth() < chicken.getMaxHealth(),
+                    "a weight dropped 29 blocks landed on a chicken without hurting it");
+        });
+    }
+
+    /** A weight thrown from the hand places or drops a block, so it is held back where the player may not build. */
+    public static void leadWeightNeedsBuildPermission(GameTestHelper helper) {
+        Player player = helper.makeMockPlayer(GameType.ADVENTURE);
+        player.getAbilities().mayBuild = false;
+        moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(1, 2, 1))));
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.LEAD_WEIGHT.get()));
+        InteractionResult result = ModItems.LEAD_WEIGHT.get().use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult();
+        if (result == InteractionResult.PASS && player.getMainHandItem().getCount() == 1) {
+            helper.succeed();
+        } else {
+            fail(helper, "A player who may not build threw a lead weight (" + result + ")");
+        }
+    }
+
+    /** A dispenser in a ceiling, facing down, drops the weight: it doesn't hang it from itself. */
+    public static void downwardDispenserDropsTheWeight(GameTestHelper helper) {
+        BlockPos dispenser = new BlockPos(0, 5, 0);
+        helper.setBlock(new BlockPos(0, 1, 0), Blocks.STONE); // the floor it lands on
+        for (int y = 2; y <= 4; y++) {
+            helper.setBlock(new BlockPos(0, y, 0), Blocks.AIR);
+        }
+        helper.setBlock(dispenser, Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, Direction.DOWN));
+        blockEntity(helper, dispenser, DispenserBlockEntity.class).setItem(0, new ItemStack(ModItems.LEAD_WEIGHT.get()));
+        helper.setBlock(new BlockPos(1, 5, 0), Blocks.REDSTONE_BLOCK);
+        helper.succeedWhen(() -> helper.assertTrue(helper.getBlockState(new BlockPos(0, 2, 0)).is(ModBlocks.LEAD_WEIGHT.get())
+                        && !helper.getBlockState(new BlockPos(0, 4, 0)).is(ModBlocks.LEAD_WEIGHT.get()),
+                "the dispensed weight isn't on the floor: " + helper.getBlockState(new BlockPos(0, 4, 0)) + " under the dispenser, "
+                        + helper.getBlockState(new BlockPos(0, 3, 0)) + " below it, " + helper.getBlockState(new BlockPos(0, 2, 0))
+                        + " on the floor, " + blockEntity(helper, dispenser, DispenserBlockEntity.class).getItem(0) + " in the dispenser"));
+    }
+
+    /** A weight's death message names who threw it, whatever they hold, and only the weight when nobody did. */
+    public static void leadWeightNamesItsThrower(GameTestHelper helper) {
+        Zombie victim = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
+        LeadWeightEntity weight = new LeadWeightEntity(ModEntities.LEAD_WEIGHT.get(), helper.getLevel());
+        Player thrower = helper.makeMockPlayer(GameType.SURVIVAL);
+        ItemStack named = new ItemStack(Items.IRON_SWORD);
+        named.set(DataComponents.CUSTOM_NAME, Component.literal("Squasher"));
+        thrower.setItemInHand(InteractionHand.MAIN_HAND, named);
+        String thrown = keyOf(LeadWeightEntity.crushDamage(weight, thrower).getLocalizedDeathMessage(victim));
+        String dropped = keyOf(LeadWeightEntity.crushDamage(weight, null).getLocalizedDeathMessage(victim));
+        if (!"death.attack.lead_weight.player".equals(thrown) || !"death.attack.lead_weight".equals(dropped)) {
+            fail(helper, "A thrown weight's death message is " + thrown + " and a dropped one's " + dropped);
+        } else {
+            helper.succeed();
+        }
+    }
+
+    private static String keyOf(Component message) {
+        return message.getContents() instanceof TranslatableContents translatable ? translatable.getKey() : message.getString();
     }
 
     /** The IronBarsBlock mixin: bars/panes attach to a wall leaded glass pane, but not floor panes, and vanilla still works. */

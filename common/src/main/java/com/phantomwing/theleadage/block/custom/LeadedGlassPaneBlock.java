@@ -26,6 +26,8 @@ import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,6 +40,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
@@ -199,7 +202,8 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!LeadedGlassRecolor.isTool(stack)) {
+        // Changing a design is building, which adventure mode leaves to the map, as it does a sign's dye.
+        if (!LeadedGlassRecolor.isTool(stack) || !player.mayBuild()) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         int region = regionAt(state, pos, hit);
@@ -282,7 +286,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         int[] rotation = type.colorRotation();
-        if ((type.orientation == null && rotation == null) || !player.isShiftKeyDown()) {
+        if ((type.orientation == null && rotation == null) || !player.isShiftKeyDown() || !player.mayBuild()) {
             return InteractionResult.PASS;
         }
         boolean reverse = isBackFace(state, hit);
@@ -384,11 +388,37 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
 
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        ItemStack stack = new ItemStack(this);
+        // The loot table decides whether it drops - an explosion's chance, a datapack's own table - and the design
+        // goes onto what it drops, as a door's does.
+        List<ItemStack> drops = super.getDrops(state, params);
         if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof LeadedGlassPanelBlockEntity pane) {
-            stack.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame(state), pane.getColors()));
+            for (ItemStack drop : drops) {
+                if (drop.is(asItem())) {
+                    drop.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame(state), pane.getColors()));
+                }
+            }
         }
-        return List.of(stack);
+        return drops;
+    }
+
+    /** Turns with a structure or schematic it is placed with: on a wall to stay in it, on a floor with the floor. */
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    /**
+     * A pane in a wall stands in the way of a mob's path, as a glass pane does: vanilla takes any block that isn't a full
+     * cube for open. One on a floor or ceiling is walked over or under.
+     */
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType type) {
+        return state.getValue(FACE) != AttachFace.WALL && super.isPathfindable(state, type);
     }
 
     @Nullable

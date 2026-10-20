@@ -72,6 +72,10 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 
         // A goat ramming lead ore loses a horn, as on iron or copper ore (vanilla lists only the stone ores).
         tag(BlockTags.SNAPS_GOAT_HORN).add(ModBlocks.LEAD_ORE.get());
+        // The lead veins are laid down with the terrain, before caves are carved: as vanilla's iron and copper
+        // veins are, their ore and raw lead are carved through, or they float in every cave and canyon crossing them.
+        tag(BlockTags.OVERWORLD_CARVER_REPLACEABLES).add(ModBlocks.LEAD_ORE.get(), ModBlocks.DEEPSLATE_LEAD_ORE.get(),
+                ModBlocks.RAW_LEAD_BLOCK.get());
 
         // A standing lead torch on a wall forces the wall's centre post, like a vanilla torch
         // (vanilla lists only the standing torches here, not the wall variants).

@@ -63,8 +63,8 @@ public final class MurkyWater {
     @Nullable
     public static SpriteSourceType type;
 
-    private static TextureAtlas atlas;
-    private static TextureAtlasSprite[][] sprites;
+    /** Each step's still and flowing sprite, published whole: chunk-building threads read and set it. */
+    private static volatile TextureAtlasSprite[][] sprites;
 
     private MurkyWater() {
     }
@@ -89,18 +89,22 @@ public final class MurkyWater {
         return murky;
     }
 
-    /** Each step's still and flowing sprite, looked up again whenever the block atlas has been rebuilt. */
+    /**
+     * Each step's still and flowing sprite, looked up again whenever the block atlas has been rebuilt: the atlas stays
+     * the same object for the whole game, and a reload swaps its sprites, so the first sprite is what tells.
+     */
     private static TextureAtlasSprite[][] stepSprites() {
         TextureAtlas blocks = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS);
-        if (blocks != atlas || sprites == null) {
+        TextureAtlasSprite[][] kept = sprites;
+        if (kept == null || blocks.getSprite(STILL[0]) != kept[0][0]) {
             TextureAtlasSprite[][] found = new TextureAtlasSprite[STEPS][];
             for (int i = 0; i < STEPS; i++) {
                 found[i] = new TextureAtlasSprite[] {blocks.getSprite(STILL[i]), blocks.getSprite(FLOWING[i])};
             }
             sprites = found;
-            atlas = blocks;
+            kept = found;
         }
-        return sprites;
+        return kept;
     }
 
     /**

@@ -15,6 +15,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FogType;
 import org.jetbrains.annotations.Nullable;
@@ -205,7 +206,10 @@ public final class LeadWaterTint {
         long time = level.getGameTime();
         int changes = CHANGES.get();
         Near near = NEAR.get();
-        if (near != null && near.section == section && near.time == time && near.changes == changes) {
+        // A renderer blending each corner's colour asks for the blocks around one too, which cross into the next section
+        // at every edge: the lead around a section reaches far enough past it to answer those, so the asking thread's
+        // stays, rather than being found again for each look across the edge.
+        if (near != null && near.time == time && near.changes == changes && (near.section == section || near.covers(pos))) {
             return near;
         }
         near = new Near(section, time, changes, LeadWater.nearby(level, SectionPos.of(pos), lead -> leakOf(level, lead)));
@@ -295,6 +299,9 @@ public final class LeadWaterTint {
      * section's blocks once asked for: renderers that blend each corner ask for one block's colour many times over.
      */
     private static final class Near {
+        /** How far past its section a thread's lead answers, in blocks: the corners a renderer blends from. */
+        private static final int EDGE = 2;
+
         private final long section;
         private final long time;
         private final int changes;
@@ -311,6 +318,20 @@ public final class LeadWaterTint {
 
         LeadWater.Nearby nearby() {
             return nearby;
+        }
+
+        /**
+         * Whether {@code pos} is within {@value #EDGE} blocks of the section, where the section's lead is still all the
+         * lead that tints or murks it: that lead is all within the sections around it, 16 blocks past every edge, and
+         * lead reaches at most {@value LeadWater#MAX_RANGE} + {@value LeadWater#MURK_AHEAD} blocks.
+         */
+        boolean covers(BlockPos pos) {
+            int x = SectionPos.sectionToBlockCoord(SectionPos.x(section));
+            int y = SectionPos.sectionToBlockCoord(SectionPos.y(section));
+            int z = SectionPos.sectionToBlockCoord(SectionPos.z(section));
+            int far = SectionPos.SECTION_SIZE - 1 + EDGE;
+            return pos.getX() >= x - EDGE && pos.getX() <= x + far && pos.getY() >= y - EDGE && pos.getY() <= y + far
+                    && pos.getZ() >= z - EDGE && pos.getZ() <= z + far;
         }
 
         /** How strongly the block at {@code pos} is tinted: its water's, or the strongest water beside it. */
@@ -333,6 +354,11 @@ public final class LeadWaterTint {
         private float strengthOf(ClientLevel level, BlockPos pos, int range) {
             if (level.getFluidState(pos).is(FluidTags.WATER)) {
                 return nearby.strength(pos, range);
+            }
+            // A water cauldron asks for the water colour too: it holds water nothing contaminates, beside poisoned
+            // water or not.
+            if (level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock) {
+                return 0.0F;
             }
             float strongest = 0.0F;
             for (Direction side : Direction.values()) {

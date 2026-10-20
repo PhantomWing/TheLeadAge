@@ -1,10 +1,12 @@
 package com.phantomwing.theleadage.compat.emi;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.compat.LeadedGlassDisplayRecipe;
 import com.phantomwing.theleadage.compat.LeadedGlassInfo;
+import com.phantomwing.theleadage.compat.LeadedGlassSubtypes;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
@@ -13,12 +15,12 @@ import dev.emi.emi.api.recipe.EmiCraftingRecipe;
 import dev.emi.emi.api.recipe.EmiInfoRecipe;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.EmiWorldInteractionRecipe;
+import dev.emi.emi.api.stack.Comparison;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -61,6 +63,11 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
 
     @Override
     public void register(@NotNull EmiRegistry registry) {
+        // Each design its own stack, in the index and when a recipe is filled in (LeadedGlassSubtypes).
+        for (Item item : LeadedGlassSubtypes.items()) {
+            registry.setDefaultComparison(item, Comparison.compareData(stack -> LeadedGlassSubtypes.designOf(stack.getItemStack())));
+        }
+
         for (LeadedGlassDisplayRecipe recipe : LeadedGlassDisplayRecipe.all()) {
             addArrangement(registry, recipe);
         }
@@ -85,19 +92,24 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
     private static void addWorldInteractions(EmiRegistry registry) {
         int clear = LeadedGlassConfig.CLEAR;
 
-        // Dye a glass region — the dye is consumed.
-        for (DyeColor dye : DyeColor.values()) {
+        // Dye a glass region — the dye is consumed. One colour of each name, so each id is one recipe's, and only
+        // those that have a dye.
+        for (DyeColor dye : LeadedGlassDyes.colors()) {
+            Item dyeItem = LeadedGlassDyes.dyeOf(dye);
+            if (dyeItem == Items.AIR) {
+                continue;
+            }
             addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
                     .id(synthetic("world/dye/" + dye.getName()))
                     .leftInput(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(clear)))
-                    .rightInput(EmiStack.of(DyeItem.byColor(dye)), false)
+                    .rightInput(EmiStack.of(dyeItem), false)
                     .output(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(dye.getId())))
                     .build());
         }
 
         // Shear a region back to clear — the shears only take durability, so they're a catalyst.
         List<EmiIngredient> dyedPanes = new ArrayList<>();
-        for (DyeColor dye : DyeColor.values()) {
+        for (DyeColor dye : LeadedGlassDyes.colors()) {
             dyedPanes.add(EmiStack.of(LeadedGlassDisplayRecipe.plainPane(dye.getId())));
         }
         addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
@@ -131,7 +143,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
 
         // Re-glazing: sneak-right-click a placed door/trapdoor with a pane in hand. The held pane
         // goes in and the old one is handed back — hence the second output.
-        for (DyeColor dye : DyeColor.values()) {
+        for (DyeColor dye : LeadedGlassDyes.colors()) {
             int color = dye.getId();
             addRecipe(registry, () -> EmiWorldInteractionRecipe.builder()
                     .id(synthetic("world/reglaze_trapdoor/" + dye.getName()))

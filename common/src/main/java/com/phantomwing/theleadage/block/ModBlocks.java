@@ -86,10 +86,10 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> CUT_LEAD = registerLeadBlock("cut_lead");
     public static final RegistrySupplier<Block> LEAD_BRICKS = registerLeadBlock("lead_bricks");
     public static final RegistrySupplier<SlabBlock> LEAD_BRICK_SLAB = registerLeadSlab("lead_brick_slab");
-    public static final RegistrySupplier<StairBlock> LEAD_BRICK_STAIRS = registerLeadStairs("lead_brick_stairs");
+    public static final RegistrySupplier<StairBlock> LEAD_BRICK_STAIRS = registerLeadStairs("lead_brick_stairs", LEAD_BRICKS);
     public static final RegistrySupplier<WallBlock> LEAD_BRICK_WALL = registerLeadWall("lead_brick_wall");
     public static final RegistrySupplier<SlabBlock> CUT_LEAD_SLAB = registerLeadSlab("cut_lead_slab");
-    public static final RegistrySupplier<StairBlock> CUT_LEAD_STAIRS = registerLeadStairs("cut_lead_stairs");
+    public static final RegistrySupplier<StairBlock> CUT_LEAD_STAIRS = registerLeadStairs("cut_lead_stairs", CUT_LEAD);
     public static final RegistrySupplier<HorizontalFacingBlock> CHISELED_LEAD = registerLeadChiseled("chiseled_lead");
     public static final RegistrySupplier<RotatedPillarBlock> LEAD_PILLAR = registerLeadPillar("lead_pillar");
     public static final RegistrySupplier<Block> LEAD_GRATE = registerLeadGrate("lead_grate");
@@ -102,8 +102,10 @@ public class ModBlocks {
     // beside it (LeadTorchBlockEntity). The lead lantern is the enclosed — and safe — version.
     public static final RegistrySupplier<Block> LEAD_TORCH = register("lead_torch", () ->
             new LeadTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TORCH)));
+    // dropsLike, as vanilla's wall torch has: the copy would otherwise carry its loot table, a torch's, which
+    // Fabric keeps where NeoForge doesn't.
     public static final RegistrySupplier<Block> LEAD_WALL_TORCH = register("lead_wall_torch", () ->
-            new LeadWallTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WALL_TORCH)));
+            new LeadWallTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WALL_TORCH).dropsLike(LEAD_TORCH.get())));
     public static final RegistrySupplier<Block> LEAD_LANTERN = register("lead_lantern", () ->
             new LanternBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LANTERN)));
 
@@ -249,8 +251,9 @@ public class ModBlocks {
         return register(name, () -> new SlabBlock(leadProps()));
     }
 
-    private static RegistrySupplier<StairBlock> registerLeadStairs(String name) {
-        return register(name, () -> new StairBlock(Blocks.IRON_BLOCK.defaultBlockState(), leadProps()));
+    /** Stairs take their blast resistance from the block they are made of, so it is lead, not iron. */
+    private static RegistrySupplier<StairBlock> registerLeadStairs(String name, RegistrySupplier<Block> base) {
+        return register(name, () -> new StairBlock(base.get().defaultBlockState(), leadProps()));
     }
 
     private static RegistrySupplier<WallBlock> registerLeadWall(String name) {

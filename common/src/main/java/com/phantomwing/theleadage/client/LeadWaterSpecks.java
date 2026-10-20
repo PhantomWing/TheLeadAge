@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,12 @@ public final class LeadWaterSpecks {
     /** Specks a tick for each block of water the lead contaminates, at full strength. */
     private static final float RATE = 0.10F;
     /**
+     * The most blocks of water a lead's specks are counted over: past it they spread thinner rather than more of them.
+     * A speck lives about 90 ticks, so open water a lead contaminates by the hundreds kept thousands alive, which pushes
+     * the other translucent particles - smoke, potion swirls - out at the game's cap.
+     */
+    private static final int SPECK_BLOCKS = 64;
+    /**
      * How many leads' routes are found in a tick at most: a floor of raw lead coming into view would otherwise find all of
      * theirs in one frame. The rest drift their specks a tick or two later.
      */
@@ -37,7 +44,8 @@ public final class LeadWaterSpecks {
     private static final List<BlockPos> LEADS = new ArrayList<>();
     /** How many of the leaking lead around the player reach water each one's does, found with {@link #LEADS}. */
     private static final IntArrayList SHARING = new IntArrayList();
-    private static ClientLevel lookedIn;
+    /** The level the lead was last looked for in, weakly: a world left behind isn't kept alive by it. */
+    private static WeakReference<ClientLevel> lookedIn = new WeakReference<>(null);
     private static long lookedAt;
 
     private LeadWaterSpecks() {
@@ -51,10 +59,10 @@ public final class LeadWaterSpecks {
             return;
         }
         long now = level.getGameTime();
-        if (level != lookedIn || now < lookedAt || now - lookedAt >= LOOK_EVERY) {
+        if (level != lookedIn.get() || now < lookedAt || now - lookedAt >= LOOK_EVERY) {
             look(level, x, y, z);
             countSharing(range);
-            lookedIn = level;
+            lookedIn = new WeakReference<>(level);
             lookedAt = now;
         }
         RandomSource random = level.getRandom();
@@ -74,7 +82,7 @@ public final class LeadWaterSpecks {
                 leak = LeadWaterTint.leakOf(level, lead);
             }
             // Lead whose water overlaps shares out the specks, or a floor of raw lead would fill the water many times over.
-            float expected = leak.size() * RATE / SHARING.getInt(i);
+            float expected = Math.min(leak.size(), SPECK_BLOCKS) * RATE / SHARING.getInt(i);
             for (int specks = (int) expected + (random.nextFloat() < expected % 1.0F ? 1 : 0); specks > 0; specks--) {
                 BlockPos at = leak.pick(step, random);
                 if (at != null && random.nextFloat() < leak.strength(step, cut, at)) {

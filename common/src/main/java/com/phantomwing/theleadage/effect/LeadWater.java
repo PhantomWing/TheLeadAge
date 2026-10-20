@@ -233,7 +233,7 @@ public final class LeadWater {
                 continue;
             }
             for (Direction side : SIDES) {
-                if (!level.isLoaded(coral.setWithOffset(water, side))) {
+                if (!isLoaded(level, coral.setWithOffset(water, side))) {
                     continue;
                 }
                 BlockState state = level.getBlockState(coral);
@@ -293,6 +293,33 @@ public final class LeadWater {
     }
 
     /**
+     * The chunk at {@code x, z} where it has loaded whole, else null, never waiting for it: on the server a chunk with the
+     * tickets to load can still be loading, or not yet generated, and asking the level for it waits until it is - on the
+     * tick's own thread, for a mob planning a path to the edge of what is loaded. Vanilla's own path finding asks so.
+     */
+    @Nullable
+    public static ChunkAccess loadedChunk(LevelReader level, int x, int z) {
+        return level instanceof ServerLevel server ? server.getChunkSource().getChunkNow(x, z)
+                : level.getChunk(x, z, ChunkStatus.FULL, false);
+    }
+
+    /** Whether the chunk {@code pos} is in has loaded whole ({@link #loadedChunk}). */
+    public static boolean isLoaded(LevelReader level, BlockPos pos) {
+        return loadedChunk(level, SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ())) != null;
+    }
+
+    private static boolean allLoaded(LevelReader level, BlockPos center, int extent) {
+        for (int x = SectionPos.blockToSectionCoord(center.getX() - extent); x <= SectionPos.blockToSectionCoord(center.getX() + extent); x++) {
+            for (int z = SectionPos.blockToSectionCoord(center.getZ() - extent); z <= SectionPos.blockToSectionCoord(center.getZ() + extent); z++) {
+                if (loadedChunk(level, x, z) == null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * The raw lead leaking into water in the chunk section {@code section} and the 26 around it, each with how far it has
      * spread and its routes ({@code leaks}): all the lead that can tint or murk water within 16 blocks of the section. Only
      * the sections whose palettes may hold leaking lead are read block by block, so an ocean costs a look at 27 palettes.
@@ -303,7 +330,7 @@ public final class LeadWater {
         IntArrayList cuts = new IntArrayList();
         for (int x = section.x() - 1; x <= section.x() + 1; x++) {
             for (int z = section.z() - 1; z <= section.z() + 1; z++) {
-                ChunkAccess chunk = level.getChunk(x, z, ChunkStatus.FULL, false);
+                ChunkAccess chunk = loadedChunk(level, x, z);
                 if (chunk == null) {
                     continue;
                 }
@@ -448,8 +475,7 @@ public final class LeadWater {
             this.lead = lead;
             this.range = range;
             this.extent = range == 0 ? 0 : range + ahead;
-            this.whole = !(level instanceof LevelReader reader) || reader.hasChunksAt(lead.getX() - extent, lead.getZ() - extent,
-                    lead.getX() + extent, lead.getZ() + extent);
+            this.whole = !(level instanceof LevelReader reader) || allLoaded(reader, lead, extent);
             this.size = extent * 2 + 1;
             this.arrival = new int[size * size * size];
             this.route = new byte[size * size * size];
@@ -462,7 +488,7 @@ public final class LeadWater {
             LevelReader gaps = whole ? null : (LevelReader) level;
             // Where the lead used to be, receding, water may have flowed into its place: that water was the nearest to it.
             // It stays still water there, as the lead was, so its routes don't change with how that water settles.
-            boolean wet = (gaps == null || gaps.hasChunk(SectionPos.blockToSectionCoord(lead.getX()), SectionPos.blockToSectionCoord(lead.getZ())))
+            boolean wet = (gaps == null || isLoaded(gaps, lead))
                     && level.getFluidState(lead).is(FluidTags.WATER);
             route[center] = wet ? 1 : DRY;
             flow[center] = STILL;
@@ -488,7 +514,7 @@ public final class LeadWater {
                         int to = index(x, y, z);
                         if (flow[to] == 0) {
                             at.setWithOffset(lead, x, y, z);
-                            if (gaps != null && !gaps.hasChunk(SectionPos.blockToSectionCoord(at.getX()), SectionPos.blockToSectionCoord(at.getZ()))) {
+                            if (gaps != null && !isLoaded(gaps, at)) {
                                 flow[to] = NOT_WATER;
                             } else {
                                 FluidState fluid = level.getFluidState(at);

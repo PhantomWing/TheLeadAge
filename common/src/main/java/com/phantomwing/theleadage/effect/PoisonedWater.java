@@ -42,7 +42,7 @@ public final class PoisonedWater {
     public static BlockPos poisoner(ServerLevel level, BlockPos pos) {
         // Most water asked about is nowhere near raw lead: that is told by the section alone, before the block is read.
         LeadWater.Nearby nearby = KEPT.get().computeIfAbsent(level.dimension(), key -> new Kept()).nearby(level, SectionPos.asLong(pos));
-        if (nearby.isEmpty() || !level.isLoaded(pos) || !level.getFluidState(pos).is(FluidTags.WATER)) {
+        if (nearby.isEmpty() || !LeadWater.isLoaded(level, pos) || !level.getFluidState(pos).is(FluidTags.WATER)) {
             return null;
         }
         return nearby.poisoner(pos);

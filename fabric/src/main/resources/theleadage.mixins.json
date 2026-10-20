@@ -29,7 +29,8 @@
     "FogRendererMixin",
     "LevelRendererMixin",
     "ParticleEngineMixin",
-    "StonecutterScreenMixin"
+    "StonecutterScreenMixin",
+    "WaterRenderHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

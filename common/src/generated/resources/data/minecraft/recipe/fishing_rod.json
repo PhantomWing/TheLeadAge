@@ -33,13 +33,13 @@
   ],
   "key": {
     "#": {
-      "item": "minecraft:stick"
+      "tag": "c:rods/wooden"
     },
     "N": {
       "tag": "c:nuggets/lead"
     },
     "X": {
-      "item": "minecraft:string"
+      "tag": "c:strings"
     }
   },
   "pattern": [

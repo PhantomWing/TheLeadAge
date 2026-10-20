@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.attribute.ModAttributes;
 import dev.architectury.event.events.common.TickEvent;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Lead armor: heavy plate. Keeps the material's (very high) protection and adds a
@@ -47,9 +49,28 @@ public class LeadArmorItem extends ArmorItem {
             {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
     private ItemAttributeModifiers modifiers;
+    @Nullable
+    private Holder<ArmorMaterial> registered;
 
     public LeadArmorItem(Holder<ArmorMaterial> material, Type type, Properties properties) {
         super(material, type, properties);
+    }
+
+    /**
+     * The registry's own holder of the material rather than Architectury's: a trim material's palette for an armour
+     * material - lead's darker one on lead armour - is found in a map keyed by the registry's holders, and on Fabric
+     * those don't count Architectury's as equal, so worn lead armour drew its lead trim in the palette that vanishes.
+     */
+    @Override
+    public Holder<ArmorMaterial> getMaterial() {
+        if (registered != null) {
+            return registered;
+        }
+        Holder<ArmorMaterial> holder = BuiltInRegistries.ARMOR_MATERIAL.wrapAsHolder(super.getMaterial().value());
+        if (holder instanceof Holder.Reference<ArmorMaterial>) {
+            registered = holder; // kept once the material is registered, which it is before any trim is drawn
+        }
+        return holder;
     }
 
     @Override
@@ -146,9 +167,14 @@ public class LeadArmorItem extends ArmorItem {
         if (instance == null) {
             return;
         }
+        AttributeModifier current = instance.getModifier(id);
         if (amount == 0.0) {
-            instance.removeModifier(id);
-        } else {
+            if (current != null) {
+                instance.removeModifier(id);
+            }
+        } else if (current == null || current.amount() != amount || current.operation() != operation) {
+            // Set only when it changes: each set marks the attribute changed, and a player's is sent to everyone
+            // tracking them, every tick.
             instance.addOrUpdateTransientModifier(new AttributeModifier(id, amount, operation));
         }
     }

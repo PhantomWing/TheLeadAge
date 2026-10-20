@@ -5,6 +5,8 @@ import com.phantomwing.theleadage.platform.CommonConfig;
 import com.phantomwing.theleadage.tags.ModTags;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Pillager;
 
@@ -51,19 +53,35 @@ public final class LeadFumeRepellent {
 
     public static void register() {
         EntityEvent.ADD.register((entity, level) -> {
-            if (level.isClientSide()) {
-                return EventResult.pass();
-            }
-            if (entity instanceof Creeper creeper) {
-                creeper.goalSelector.addGoal(CREEPER_PRIORITY, new AvoidRepellentBlockGoal(
-                        creeper, ModTags.Blocks.CREEPER_REPELLENTS,
-                        CommonConfig::creepersAvoidLeadFumes, WALK_SPEED, SPRINT_SPEED));
-            } else if (entity instanceof Pillager pillager) {
-                pillager.goalSelector.addGoal(PILLAGER_PRIORITY, new AvoidRepellentBlockGoal(
-                        pillager, ModTags.Blocks.PILLAGER_REPELLENTS,
-                        CommonConfig::pillagersAvoidLeadFumes, WALK_SPEED, SPRINT_SPEED));
+            if (!level.isClientSide()) {
+                addAvoidance(entity);
             }
             return EventResult.pass();
         });
+    }
+
+    /**
+     * Gives a creeper or pillager joining a server level its fear of burning lead, once. Architectury's
+     * {@link EntityEvent#ADD} misses a mob loaded with its chunk on Fabric, so Fabric's
+     * {@code PersistentEntitySectionManagerMixin} calls this too.
+     */
+    public static void addAvoidance(Entity entity) {
+        if (!(entity instanceof Mob mob) || hasAvoidance(mob)) {
+            return;
+        }
+        if (mob instanceof Creeper creeper) {
+            creeper.goalSelector.addGoal(CREEPER_PRIORITY, new AvoidRepellentBlockGoal(
+                    creeper, ModTags.Blocks.CREEPER_REPELLENTS,
+                    CommonConfig::creepersAvoidLeadFumes, WALK_SPEED, SPRINT_SPEED));
+        } else if (mob instanceof Pillager pillager) {
+            pillager.goalSelector.addGoal(PILLAGER_PRIORITY, new AvoidRepellentBlockGoal(
+                    pillager, ModTags.Blocks.PILLAGER_REPELLENTS,
+                    CommonConfig::pillagersAvoidLeadFumes, WALK_SPEED, SPRINT_SPEED));
+        }
+    }
+
+    /** Whether {@code mob} already keeps away from burning lead. */
+    public static boolean hasAvoidance(Mob mob) {
+        return mob.goalSelector.getAvailableGoals().stream().anyMatch(goal -> goal.getGoal() instanceof AvoidRepellentBlockGoal);
     }
 }

@@ -8,18 +8,18 @@
     "components": {
       "theleadage:leaded_glass_config": {
         "colors": [
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear",
+          "clear"
         ],
         "frame": "lattice"
       }

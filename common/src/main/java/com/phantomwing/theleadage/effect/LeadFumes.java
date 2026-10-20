@@ -62,6 +62,8 @@ public final class LeadFumes {
     private static final int STAND_LAPSE = 40;
     /** Each player's or mob's stand on raw lead: when it last dosed them (or began), and when it was last felt. */
     private static final Map<LivingEntity, long[]> STANDING = new WeakHashMap<>();
+    /** Each player's or mob's last dose of lead: when, and the stage it brought them to. */
+    private static final Map<LivingEntity, long[]> DOSED = new WeakHashMap<>();
 
     private LeadFumes() {
     }
@@ -215,21 +217,33 @@ public final class LeadFumes {
      * <b>Hunger → +Weakness → +Poison +Nausea</b> ladder on repeated exposure.
      */
     public static void escalate(LivingEntity entity) {
-        applyStack(entity, Math.min(currentStage(entity) + 1, 3));
+        int stage = Math.min(currentStage(entity) + 1, 3);
+        applyStack(entity, stage);
+        DOSED.put(entity, new long[] {entity.level().getGameTime(), stage});
     }
 
-    /** The stage an entity is already in, read from the highest lead effect present (0 = none). */
+    /**
+     * The stage an entity is already in (0 = none): the highest the lead brought it to whose effect it still has from
+     * the lead. Weakness from a potion, Poison from a cave spider or Hunger from rotten flesh are no stage of it, and
+     * milk, which clears the effects, clears the stage with them.
+     */
     private static int currentStage(LivingEntity entity) {
-        if (entity.hasEffect(MobEffects.POISON)) {
+        long[] dose = DOSED.get(entity);
+        if (dose == null) {
+            return 0;
+        }
+        long since = entity.level().getGameTime() - dose[0];
+        int stage = (int) dose[1];
+        if (since < 0) {
+            return 0;
+        }
+        if (stage >= 3 && since < POISON_TICKS && entity.hasEffect(MobEffects.POISON)) {
             return 3;
         }
-        if (entity.hasEffect(MobEffects.WEAKNESS)) {
+        if (stage >= 2 && since < WEAKNESS_TICKS && entity.hasEffect(MobEffects.WEAKNESS)) {
             return 2;
         }
-        if (entity.hasEffect(MobEffects.HUNGER)) {
-            return 1;
-        }
-        return 0;
+        return since < HUNGER_TICKS && entity.hasEffect(MobEffects.HUNGER) ? 1 : 0;
     }
 
     /** Apply and refresh every effect up to {@code stage}: Hunger, then +Weakness, then +Poison +Nausea. */

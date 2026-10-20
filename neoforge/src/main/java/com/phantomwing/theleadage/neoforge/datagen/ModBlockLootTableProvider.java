@@ -41,8 +41,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.LEADED_GLASS_TRAPDOOR.get());
         dropSelf(ModBlocks.LEAD_CHAIN.get());
         dropSelf(ModBlocks.LEAD_TORCH.get());
-        // The wall torch drops the (standing) torch item, like vanilla.
-        dropOther(ModBlocks.LEAD_WALL_TORCH.get(), ModItems.LEAD_TORCH.get());
+        // The wall torch has no table of its own: it drops as the standing torch, as vanilla's does (dropsLike).
         dropSelf(ModBlocks.LEAD_LANTERN.get());
         dropSelf(ModBlocks.LEAD_BULB.get());
         dropSelf(ModBlocks.LEAD_PRESSURE_PLATE.get());

@@ -23,7 +23,8 @@ public final class LeadSettings {
     /** How far raw lead contaminates the water around it, in blocks through the water; 0 turns it off. */
     public static int waterRange(boolean clientSide) {
         LeadSettingsPayload synced = clientSide ? fromServer : null;
-        return synced != null ? synced.waterRange() : ofConfig().waterRange();
+        // Read for every block of water a mob's path finding looks at: the one setting, not a whole payload made.
+        return synced != null ? synced.waterRange() : Mth.clamp(CommonConfig.leadWaterRange(), 0, MAX_WATER_RANGE);
     }
 
     /** Whether a campfire over raw lead gives off fumes. */

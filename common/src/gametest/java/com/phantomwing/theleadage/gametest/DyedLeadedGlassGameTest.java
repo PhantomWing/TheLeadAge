@@ -11,8 +11,10 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.pack.DyedLeadedGlassPack;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
@@ -55,7 +57,17 @@ public final class DyedLeadedGlassGameTest {
     public static void dyedGlassPackMatchesDatagen(GameTestHelper helper) {
         ResourceManager resources = helper.getLevel().getServer().getResourceManager();
         // var keeps the id's type out of the body: it is Identifier from 1.21.11.
-        for (var file : DyedLeadedGlassPack.files(PackType.SERVER_DATA, List.of("white")).entrySet()) {
+        var written = DyedLeadedGlassPack.files(PackType.SERVER_DATA, List.of("white"));
+        // And the other way: every tag datagen puts white glass in, the pack puts a dye mod's colour in too.
+        for (var tag : resources.listResourceStacks("tags", id -> id.getPath().endsWith(".json")).entrySet()) {
+            boolean listsWhite = tag.getValue().stream().map(DyedLeadedGlassGameTest::read).anyMatch(json ->
+                    json.has("values") && json.get("values").toString().contains("\"theleadage:white_leaded_glass\""));
+            if (listsWhite && !written.containsKey(tag.getKey())) {
+                fail(helper, "Datagen puts white leaded glass in " + tag.getKey() + ", but the pack puts no dye mod's colour there");
+                return;
+            }
+        }
+        for (var file : written.entrySet()) {
             var id = file.getKey();
             List<Resource> stack = resources.getResourceStack(id);
             if (stack.isEmpty()) {
@@ -76,6 +88,42 @@ public final class DyedLeadedGlassGameTest {
                         : "The pack writes " + id + " as " + file.getValue() + ", datagen as " + read(stack.get(0)));
                 return;
             }
+        }
+        helper.succeed();
+    }
+
+    /**
+     * A design's colours are written by name, which keeps a dye mod's colour its own whatever dye mods load and in what
+     * order, and read by name or by number, as 1.1.2 wrote them and as a command or datapack may still give them:
+     * on an item, and in a block entity's data. A colour no installed mod has reads as clear.
+     */
+    public static void glassColoursReadAsNamesOrNumbers(GameTestHelper helper) {
+        int red = DyeColor.RED.getId();
+        List<Integer> redAndClear = List.of(red, LeadedGlassConfig.CLEAR);
+        JsonObject written = LeadedGlassConfig.CODEC
+                .encodeStart(JsonOps.INSTANCE, new LeadedGlassConfig(LeadedGlassFrame.SPLIT_V, redAndClear)).getOrThrow()
+                .getAsJsonObject();
+        if (!written.get("colors").toString().equals("[\"red\",\"clear\"]")) {
+            fail(helper, "A design's colours are written as " + written.get("colors") + ", not by name");
+            return;
+        }
+        for (String colors : List.of("[14,-1]", "[\"red\",-1]", "[\"red\",\"clear\"]", "[14,\"no_such_dye\"]")) {
+            JsonObject saved = written.deepCopy();
+            saved.add("colors", JsonParser.parseString(colors));
+            List<Integer> read = LeadedGlassConfig.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow().colors();
+            if (!read.equals(redAndClear)) {
+                fail(helper, "A design saved with colours " + colors + " reads as " + read + ", not red and clear");
+                return;
+            }
+        }
+        CompoundTag old = new CompoundTag();
+        old.putIntArray("Colors", new int[] {red, LeadedGlassConfig.CLEAR});
+        CompoundTag now = new CompoundTag();
+        LeadedGlassConfig.putColors(now, redAndClear);
+        if (!LeadedGlassConfig.getColors(old).equals(redAndClear) || !LeadedGlassConfig.getColors(now).equals(redAndClear)) {
+            fail(helper, "Block entity colours read as " + LeadedGlassConfig.getColors(old) + " from numbers and "
+                    + LeadedGlassConfig.getColors(now) + " from names, not red and clear");
+            return;
         }
         helper.succeed();
     }

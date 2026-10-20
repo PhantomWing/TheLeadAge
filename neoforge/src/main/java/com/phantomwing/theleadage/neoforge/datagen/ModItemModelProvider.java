@@ -148,6 +148,10 @@ public class ModItemModelProvider extends ItemModelProvider {
         }
         entries.sort(Comparator.comparing(Entry::index));
 
+        // Another mod's trim material whose index falls between lead's and quartz's would otherwise reach lead's
+        // override and draw as lead: just past it, the piece draws untrimmed, as vanilla armour does for one it
+        // doesn't know.
+        ModelFile untrimmed = withExistingParent(name + "_untrimmed", "item/generated").texture("layer0", texture);
         for (Entry entry : entries) {
             ResourceLocation sprite = mcLoc("trims/items/" + slot + "_trim_" + entry.suffix());
             existingFileHelper.trackGenerated(sprite, TEXTURE);
@@ -155,6 +159,9 @@ public class ModItemModelProvider extends ItemModelProvider {
                     .texture("layer0", texture)
                     .texture("layer1", sprite);
             base.override().predicate(TRIM_TYPE, entry.index()).model(trim).end();
+            if (entry.index() == ModTrimMaterials.LEAD_INDEX) {
+                base.override().predicate(TRIM_TYPE, Math.nextUp(ModTrimMaterials.LEAD_INDEX)).model(untrimmed).end();
+            }
         }
     }
 

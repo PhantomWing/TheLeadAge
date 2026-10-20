@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.neoforge;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
@@ -71,7 +72,11 @@ public class Configuration {
             case ENABLE_STRUCTURE_LOOT_ID -> ENABLE_STRUCTURE_LOOT.get();
             case ENABLE_MOB_LEAD_EQUIPMENT_ID -> ENABLE_MOB_LEAD_EQUIPMENT.get();
             case ENABLE_VILLAGER_TRADES_ID -> ENABLE_VILLAGER_TRADES.get();
-            default -> throw new Error("Invalid setting ID: " + id);
+            default -> {
+                // A datapack's config_boolean condition can name anything: one that names no setting is false.
+                TheLeadAge.LOGGER.warn("theleadage:config_boolean names no setting: {}", id);
+                yield false;
+            }
         };
     }
 

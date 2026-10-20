@@ -158,7 +158,8 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     @Override
     protected void onProjectileHit(Level level, BlockState state, BlockHitResult hit, Projectile projectile) {
         super.onProjectileHit(level, state, hit, projectile);
-        if (!level.isClientSide && state.getValue(HANGING)) {
+        // Only what the shooter may interact with, as TNT asks: no mob griefing, no spawn protection broken.
+        if (!level.isClientSide && state.getValue(HANGING) && projectile.mayInteract(level, hit.getBlockPos())) {
             Player shooter = projectile.getOwner() instanceof Player player ? player : null;
             detach(level, hit.getBlockPos(), state, shooter);
         }

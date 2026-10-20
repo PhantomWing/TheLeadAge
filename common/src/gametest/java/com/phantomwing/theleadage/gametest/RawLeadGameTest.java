@@ -3,16 +3,20 @@ package com.phantomwing.theleadage.gametest;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.CampfireFumes;
+import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
+import com.phantomwing.theleadage.entity.LeadFumeRepellent;
 import com.phantomwing.theleadage.entity.ai.AvoidRepellentBlockGoal;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -21,6 +25,8 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.FIND_TICKS;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.SPAWN_TICKS;
@@ -30,6 +36,7 @@ import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenFumesFind;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenSpawnLoaded;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
 
 /**
  * Game tests for the Block of Raw Lead's toxicity: Silk Touch mining it, a campfire over it with a hay bale between,
@@ -367,5 +374,32 @@ public final class RawLeadGameTest {
                 });
             });
         });
+    }
+
+    /** A creeper loaded with its chunk keeps away from lead torches, as one that spawned does. */
+    public static void creepersLoadedFromDiskAvoidLeadTorches(GameTestHelper helper) {
+        // Not spawnWithNoFreeWill, which takes every goal away.
+        Creeper spawned = helper.spawn(EntityType.CREEPER, new BlockPos(0, 2, 0));
+        Creeper loaded = reloaded(spawned);
+        loaded.setUUID(UUID.randomUUID());
+        helper.getLevel().addLegacyChunkEntities(Stream.of(loaded));
+        if (LeadFumeRepellent.hasAvoidance(spawned) && LeadFumeRepellent.hasAvoidance(loaded)) {
+            helper.succeed();
+        } else {
+            fail(helper, "A creeper " + (LeadFumeRepellent.hasAvoidance(spawned) ? "loaded from disk" : "that spawned")
+                    + " doesn't keep away from lead torches");
+        }
+    }
+
+    /** Weakness from a potion is no stage of Lead Sickness: the first dose of lead brings the first stage only. */
+    public static void unrelatedEffectsDontAdvanceLeadSickness(GameTestHelper helper) {
+        Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, new BlockPos(0, 2, 0));
+        pig.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 1200));
+        LeadFumes.escalate(pig);
+        if (!pig.hasEffect(MobEffects.HUNGER) || pig.hasEffect(MobEffects.POISON)) {
+            fail(helper, "A first dose of lead on a weakened pig gave " + pig.getActiveEffects() + ", not its first stage");
+        } else {
+            helper.succeed();
+        }
     }
 }

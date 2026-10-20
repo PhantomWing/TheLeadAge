@@ -79,3 +79,8 @@ type = "optional"
 versionRange = "[0,)"
 ordering = "AFTER"
 side = "CLIENT"
+
+# A lit campfire over raw lead gives off lead fumes from its block entity's tick, which Lithium stops once nothing
+# cooks on it.
+["lithium:options"]
+"mixin.world.block_entity_ticking.sleeping.campfire" = false

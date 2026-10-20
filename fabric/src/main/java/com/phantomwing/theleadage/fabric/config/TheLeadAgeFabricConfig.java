@@ -6,6 +6,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
 /**
  * Fabric config, backed by Cloth Config's AutoConfig. Persists to
@@ -67,9 +68,15 @@ public class TheLeadAgeFabricConfig implements ConfigData {
         return AutoConfig.getConfigHolder(TheLeadAgeFabricConfig.class).getConfig();
     }
 
-    /** Registers the config holder + serializer. MUST be called before the first {@link #get()}. */
+    /**
+     * Registers the config holder + serializer. MUST be called before the first {@link #get()}. The file is read again
+     * on every {@code /reload}, before the recipes' conditions are, as NeoForge reads its own whenever it changes: an
+     * edit to it takes without a restart, as the settings that are read live say.
+     */
     public static void register() {
         AutoConfig.register(TheLeadAgeFabricConfig.class, GsonConfigSerializer::new);
+        ServerLifecycleEvents.START_DATA_PACK_RELOAD.register((server, resources) ->
+                AutoConfig.getConfigHolder(TheLeadAgeFabricConfig.class).load());
     }
 
     public static boolean getBooleanConfigurationValue(String id) {
@@ -89,7 +96,11 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case ENABLE_STRUCTURE_LOOT_ID -> config.enable_structure_loot;
             case ENABLE_MOB_LEAD_EQUIPMENT_ID -> config.enable_mob_lead_equipment;
             case ENABLE_VILLAGER_TRADES_ID -> config.enable_villager_trades;
-            default -> throw new Error("Invalid setting ID: " + id);
+            default -> {
+                // A datapack's config_boolean condition can name anything: one that names no setting is false.
+                TheLeadAge.LOGGER.warn("theleadage:config_boolean names no setting: {}", id);
+                yield false;
+            }
         };
     }
 }

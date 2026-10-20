@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,11 +53,7 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        List<Integer> loaded = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors")) {
-            loaded.add(id);
-        }
-        this.colors = loaded.isEmpty() ? List.of(LeadedGlassConfig.CLEAR) : List.copyOf(loaded);
+        this.colors = LeadedGlassConfig.getColors(tag);
         // A live colour update (e.g. dyeing in place) arrives here on the client; the tints are baked
         // into the chunk mesh, so force a re-render. setBlocksDirty is gated by requiresRender(old,new),
         // which is false for the same state — so pass a sentinel old state to force the section re-mesh.
@@ -70,7 +65,7 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putIntArray("Colors", colors.stream().mapToInt(Integer::intValue).toArray());
+        LeadedGlassConfig.putColors(tag, colors);
     }
 
     // ---- Client sync (colours must reach the client for tinting) ----
