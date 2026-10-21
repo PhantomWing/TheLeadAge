@@ -107,7 +107,8 @@ public final class DyedLeadedGlassGameTest {
             fail(helper, "A design's colours are written as " + written.get("colors") + ", not by name");
             return;
         }
-        for (String colors : List.of("[14,-1]", "[\"red\",-1]", "[\"red\",\"clear\"]", "[14,\"no_such_dye\"]")) {
+        // 999 is a number no dye has here, as a dye mod's colour is once the mod is gone: clear, not the game's white.
+        for (String colors : List.of("[14,-1]", "[\"red\",-1]", "[\"red\",\"clear\"]", "[14,\"no_such_dye\"]", "[14,999]")) {
             JsonObject saved = written.deepCopy();
             saved.add("colors", JsonParser.parseString(colors));
             List<Integer> read = LeadedGlassConfig.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow().colors();
@@ -117,7 +118,7 @@ public final class DyedLeadedGlassGameTest {
             }
         }
         CompoundTag old = new CompoundTag();
-        old.putIntArray("Colors", new int[] {red, LeadedGlassConfig.CLEAR});
+        old.putIntArray("Colors", new int[] {red, 999});
         CompoundTag now = new CompoundTag();
         LeadedGlassConfig.putColors(now, redAndClear);
         if (!LeadedGlassConfig.getColors(old).equals(redAndClear) || !LeadedGlassConfig.getColors(now).equals(redAndClear)) {

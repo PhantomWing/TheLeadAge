@@ -66,14 +66,15 @@ public final class LeadFumeRepellent {
      * {@code PersistentEntitySectionManagerMixin} calls this too.
      */
     public static void addAvoidance(Entity entity) {
-        if (!(entity instanceof Mob mob) || hasAvoidance(mob)) {
+        // The type first: every mob joining a level comes through here, and only these two have goals to look through.
+        if (!(entity instanceof Creeper || entity instanceof Pillager) || hasAvoidance((Mob) entity)) {
             return;
         }
-        if (mob instanceof Creeper creeper) {
+        if (entity instanceof Creeper creeper) {
             creeper.goalSelector.addGoal(CREEPER_PRIORITY, new AvoidRepellentBlockGoal(
                     creeper, ModTags.Blocks.CREEPER_REPELLENTS,
                     CommonConfig::creepersAvoidLeadFumes, WALK_SPEED, SPRINT_SPEED));
-        } else if (mob instanceof Pillager pillager) {
+        } else if (entity instanceof Pillager pillager) {
             pillager.goalSelector.addGoal(PILLAGER_PRIORITY, new AvoidRepellentBlockGoal(
                     pillager, ModTags.Blocks.PILLAGER_REPELLENTS,
                     CommonConfig::pillagersAvoidLeadFumes, WALK_SPEED, SPRINT_SPEED));

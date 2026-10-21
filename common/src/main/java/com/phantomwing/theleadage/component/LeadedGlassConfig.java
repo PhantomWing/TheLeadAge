@@ -31,7 +31,7 @@ public record LeadedGlassConfig(LeadedGlassFrame frame, List<Integer> colors) {
 
     /** One region's colour: a dye's name or {@value #CLEAR_NAME}, or the number a world saved before 1.2 holds. */
     public static final Codec<Integer> COLOR_CODEC = Codec.either(Codec.STRING, Codec.INT).xmap(
-            saved -> saved.map(LeadedGlassConfig::idOf, id -> id),
+            saved -> saved.map(LeadedGlassConfig::idOf, LeadedGlassConfig::known),
             id -> Either.left(nameOf(id)));
     private static final StreamCodec<ByteBuf, Integer> COLOR_STREAM_CODEC =
             ByteBufCodecs.STRING_UTF8.map(LeadedGlassConfig::idOf, LeadedGlassConfig::nameOf);
@@ -57,6 +57,14 @@ public record LeadedGlassConfig(LeadedGlassFrame frame, List<Integer> colors) {
         return color == null ? CLEAR : color.getId();
     }
 
+    /**
+     * A colour saved by number, clear where no installed mod has a dye with it, as a name none has reads: the game's
+     * own lookup gives white for any number past its dyes, which saving would then have written as white.
+     */
+    private static int known(int id) {
+        return id >= 0 && DyeColor.byId(id).getId() == id ? id : CLEAR;
+    }
+
     /** Writes {@code colors} into a block entity's data, by name. */
     public static void putColors(CompoundTag tag, List<Integer> colors) {
         ListTag names = new ListTag();
@@ -71,7 +79,7 @@ public record LeadedGlassConfig(LeadedGlassFrame frame, List<Integer> colors) {
         List<Integer> colors = new ArrayList<>();
         if (tag.contains("Colors", Tag.TAG_INT_ARRAY)) {
             for (int id : tag.getIntArray("Colors")) {
-                colors.add(id);
+                colors.add(known(id));
             }
         } else {
             for (Tag name : tag.getList("Colors", Tag.TAG_STRING)) {

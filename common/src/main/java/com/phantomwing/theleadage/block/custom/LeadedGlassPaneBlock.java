@@ -217,13 +217,10 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             if (colors == null) {
                 return ItemInteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
             }
-            // Dynamic (cell-based) panes carry no clear_N state — the wrapper model reads the block
-            // entity, and setColors already triggered the client re-render; the others flip the state.
-            if (type.isDynamic()) {
-                pane.setColors(colors);
-            } else {
-                pane.setColorsAndState(colors, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
-            }
+            // Dynamic (cell-based) panes carry no clear_N state - the wrapper model reads the block
+            // entity, which re-renders it as the colours arrive; the others flip the state too.
+            pane.setColorsAndState(colors, type.isDynamic() ? state : state.setValue(CLEAR[region], target == null),
+                    Block.UPDATE_CLIENTS);
             LeadedGlassRecolor.consume(stack, player, hand, level, pos);
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
@@ -328,17 +325,13 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                         rotated.set(i, colors.get(rotation[i]));
                     }
                 }
-                // Dynamic panes have no clear_N state to flip; setColors already synced to the client and
-                // re-rendered the wrapper model. The others flip the state so their block-state model updates.
-                if (type.isDynamic()) {
-                    pane.setColors(rotated);
-                } else {
-                    BlockState rotatedState = state;
-                    for (int i = 0; i < type.regions; i++) {
-                        rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
-                    }
-                    pane.setColorsAndState(rotated, rotatedState, Block.UPDATE_ALL);
+                // Dynamic panes have no clear_N state to flip: the colours re-render the wrapper model. The others
+                // flip the state so their block-state model updates.
+                BlockState rotatedState = state;
+                for (int i = 0; !type.isDynamic() && i < type.regions; i++) {
+                    rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
                 }
+                pane.setColorsAndState(rotated, rotatedState, Block.UPDATE_ALL);
             }
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 0.7f, 1.1f);
         }

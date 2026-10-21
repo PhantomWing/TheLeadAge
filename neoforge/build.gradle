@@ -65,6 +65,13 @@ loom {
             // FD's existing resources only exist when FD is on the run classpath; asking for them
             // otherwise fails datagen outright.
             if (loadFD) programArgs('--existing-mod', 'farmersdelight')
+            // The mod without the test source set, which carries the datagen output into dev runs: datagen would
+            // otherwise load the output of the run before as the mod's own while it writes the new one.
+            mods {
+                register('main') {
+                    sourceSet sourceSets.main
+                }
+            }
         }
 
         // Headless NeoForge game-test server: runs every @GameTest in the
@@ -113,9 +120,9 @@ processTestResources {
     exclude '.cache/**'
 }
 
-// Every run loads the test source set as part of the mod, but only the game-test run builds it: the client and server
-// would load whatever the last game tests copied.
-tasks.withType(net.fabricmc.loom.task.AbstractRunTask).configureEach {
+// Every run but datagen's loads the test source set as part of the mod, but only the game-test run builds it: the
+// client and server would load whatever the last game tests copied.
+tasks.withType(net.fabricmc.loom.task.AbstractRunTask).matching { it.name != 'runData' }.configureEach {
     dependsOn tasks.named('processTestResources')
 }
 

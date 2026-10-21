@@ -80,6 +80,7 @@
 - Fixed the Fabric config not reloading with /reload
 - Fixed the mod icon using the old Lead Ingot colors
 - Fixed leaded glass panes flashing white for a moment when dyed
+- Fixed leaded glass in a color from a removed dye mod turning white
 
 
 # 1.1.2
