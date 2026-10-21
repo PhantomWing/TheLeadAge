@@ -16,8 +16,9 @@ import org.jetbrains.annotations.Nullable;
  * {@code break} sound. Knocked out with anything else it is simply destroyed, and glass that is not
  * recovered has shattered, so it gets the glass sound instead.
  *
- * <p>Vanilla bundles the two: {@link LevelEvent#PARTICLES_DESTROY_BLOCK} carries a single block-state
- * id, and the client reads <em>both</em> the break sound and the destroy particles off it. So the
+ * <p>Vanilla bundles the two: {@link LevelEvent#PARTICLES_AND_SOUND_DESTROY_BLOCK} carries a single
+ * block-state id, and the client reads <em>both</em> the break sound and the destroy particles off it
+ * (26.3's {@code PARTICLES_DESTROY_BLOCK} draws the particles alone, silently). So the
  * shatter case reports the equivalent stained glass instead of the leaded glass — which also swaps the
  * particles to plain glass shards. That reads correctly (it shattered into glass), and it is the only
  * way to split the sound without a client-side mixin.</p>
@@ -41,7 +42,7 @@ public final class LeadedGlassShatter {
         // (or a creative one, or one without the right tool) shatters the glass.
         boolean recovered = breaker instanceof Player player
                 && !player.isCreative() && player.hasCorrectToolForDrops(state);
-        level.levelEvent(breaker, LevelEvent.PARTICLES_DESTROY_BLOCK, pos,
+        level.levelEvent(breaker, LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK, pos,
                 Block.getId(recovered ? state : shattered));
     }
 
