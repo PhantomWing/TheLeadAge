@@ -1,3 +1,9 @@
+# 1.2.1
+
+### Fixes
+- Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
+
+
 # 1.2.0
 
 ### Additions
