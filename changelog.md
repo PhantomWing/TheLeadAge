@@ -79,6 +79,7 @@
 - Fixed leaded glass in a color from a removed dye mod turning white
 - Fixed Lead Horse Armor wearing out
 - Fixed the mod not loading on Fabric for Minecraft 1.21.2
+- Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
 
 
 # 1.1.2
