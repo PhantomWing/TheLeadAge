@@ -11,10 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 
 /**
  * Contaminated water drawn with its murkier textures ({@link MurkyWater}), through Fabric's own water render handler,
- * which vanilla's fluid renderer and Sodium's both ask for a block's sprites. Registering a handler of our own would do
- * it too, but Sodium takes any registered one for a mod's fluid and stops blending the water's colour from one biome to
- * the next, in every world; and a handler another mod registers for water would be wrapped and lose its own rendering.
- * Fabric's handler is internal, so this is allowed not to apply: the water then draws with vanilla's textures, tinted.
+ * which vanilla's fluid renderer and Sodium's both ask for a block's sprites, also through the mod's own pass-through
+ * handler ({@code MurkyWaterFabric}). Here rather than in a handler of the mod's, which would wrap a handler another mod
+ * registers for water and lose its own rendering. Fabric's handler is internal, so this is allowed not to apply: the
+ * water then draws with vanilla's textures, tinted.
  */
 @Mixin(targets = "net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderHandlerRegistryImpl$WaterRenderHandler")
 public abstract class WaterRenderHandlerMixin {
