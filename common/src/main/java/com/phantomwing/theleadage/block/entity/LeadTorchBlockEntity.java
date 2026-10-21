@@ -1,8 +1,8 @@
 package com.phantomwing.theleadage.block.entity;
 
 import com.phantomwing.theleadage.effect.LeadFumes;
+import com.phantomwing.theleadage.particle.ModParticles;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * The lead torch's open lead-salt flame periodically coughs out a burst of toxic fumes — the same
  * smoke + sickly olive swirl as broken lead ore — at random intervals ({@value #MIN_INTERVAL}–
- * {@value #MAX_INTERVAL} ticks apart). Any player near the block when a burst fires takes a dose of
+ * {@value #MAX_INTERVAL} ticks apart). Any player or mob near the block when a burst fires takes a dose of
  * Lead Sickness (or climbs a stage), with the same hiss as the ore; the whole exposure just reuses
  * {@link LeadFumes#expose}. The enclosed lead lantern is the safe alternative.
  *
@@ -38,7 +38,7 @@ public class LeadTorchBlockEntity extends BlockEntity {
             return;
         }
         // Re-arm the timer with a fresh random gap. The first pass after load only arms it; every later
-        // firing puffs out a burst of fumes and doses nearby players — like breaking lead ore, on a timer.
+        // firing puffs out a burst of fumes and doses nearby players and mobs — like breaking lead ore, on a timer.
         boolean arming = torch.ticksUntilBurst < 0;
         torch.ticksUntilBurst = MIN_INTERVAL + serverLevel.getRandom().nextInt(MAX_INTERVAL - MIN_INTERVAL + 1);
         if (arming) {
@@ -48,10 +48,10 @@ public class LeadTorchBlockEntity extends BlockEntity {
         LeadFumes.expose(serverLevel, pos, DOSE_CHANCE);
     }
 
-    /** A toxic wisp at the torch — the same pale lead-oxide smoke as lead ore's release, smaller. */
+    /** A toxic burst at the torch — the same lead fumes as lead ore's release, smaller, spreading over where it doses. */
     private static void emitFumes(ServerLevel level, BlockPos pos) {
         double cx = pos.getX() + 0.5, cy = pos.getY() + 0.7, cz = pos.getZ() + 0.5;
-        level.sendParticles(ParticleTypes.WHITE_SMOKE, cx, cy, cz, 7, 0.12, 0.08, 0.12, 0.008);
-        level.sendParticles(ParticleTypes.WHITE_SMOKE, cx, cy + 0.15, cz, 4, 0.22, 0.12, 0.22, 0.003);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy, cz, 9, 0.3, 0.12, 0.3, 0.015);
+        level.sendParticles(ModParticles.LEAD_FUMES.get(), cx, cy + 0.15, cz, 10, 0.8, 0.25, 0.8, 0.008);
     }
 }

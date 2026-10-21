@@ -73,29 +73,29 @@ public final class LeadedGlassPlacement {
 
     /**
      * The state-dependent turn applied <em>outside</em> {@link #surface}: which way the design faces
-     * once the door/trapdoor is open, mirrored, or hung from the ceiling. Identity for anything else.
+     * once the door/trapdoor is placed, opened, or hung from the ceiling. Identity for anything else.
      */
     public static Matrix4f orientation(BlockState state, AABB box) {
         Vec3 c = box.getCenter();
         Matrix4f m = new Matrix4f().translate((float) c.x, (float) c.y, (float) c.z);
-        applyOrientation(m, state);
+        applyOrientation(m, state, box);
         return m.translate((float) -c.x, (float) -c.y, (float) -c.z);
     }
 
-    private static void applyOrientation(Matrix4f m, BlockState state) {
+    private static void applyOrientation(Matrix4f m, BlockState state, AABB box) {
         if (state.getBlock() instanceof DoorBlock) {
-            // Which of the four door models is showing decides whether the frame's design is
-            // mirror-authored, and the glass has to match it. Reading the big-face UVs of the four
-            // models, taking bottom_left as the reference:
-            //     left  closed [0,0,16,16] normal      right closed [16,0,0,16] MIRRORED
-            //     left  open   [16,0,0,16] MIRRORED    right open   [0,0,16,16] normal
-            // so the frame is mirrored when EXACTLY ONE of (right hinge, open) holds — an XOR, not
-            // an AND. The collision box cannot express this: it only says where the panel is, and
-            // surface() reaches it with proper rotations that never mirror, so the half-turn here is
-            // the only thing that can flip the sheet. A half-turn about the panel's vertical centre
-            // maps the box onto itself, so the glass cannot drift off the frame.
-            boolean rightHinge = state.getValue(DoorBlock.HINGE) == DoorHingeSide.RIGHT;
-            if (rightHinge != state.getValue(DoorBlock.OPEN)) {
+            // The pane models are physical glass: the design reads as authored from the front and
+            // mirrored from behind, so all that decides how a door's glass reads is which way its front
+            // faces. A closed door shows it to the side it was placed from, whatever its hinge; open, the
+            // sheet has swung with the panel about the hinge. Only the frame mirrors for a right hinge,
+            // as vanilla's door models do - mirroring the glass with it made a double door's two designs
+            // mirror images, and turned the glass round on opening. surface() points the front east or
+            // south by the box alone, so a half-turn about the panel's vertical middle, which maps the
+            // box onto itself, is all that is ever needed.
+            Direction placer = state.getValue(DoorBlock.FACING).getOpposite();
+            Direction front = !state.getValue(DoorBlock.OPEN) ? placer
+                    : state.getValue(DoorBlock.HINGE) == DoorHingeSide.LEFT ? placer.getCounterClockWise() : placer.getClockWise();
+            if (front != surfaceFront(box)) {
                 m.rotateY((float) Math.PI);
             }
             return;
@@ -146,6 +146,15 @@ public final class LeadedGlassPlacement {
             return -1;
         }
         return frame.regionAt(p.x, p.y);
+    }
+
+    /** Which way {@link #surface} turns the design's front for a box: east, south or up, by the axis it is thin on. */
+    private static Direction surfaceFront(AABB box) {
+        return switch (thinAxis(box)) {
+            case X -> Direction.EAST;
+            case Y -> Direction.UP;
+            case Z -> Direction.SOUTH;
+        };
     }
 
     /** The box's flattest axis — the one the glass sheet is thin on. */

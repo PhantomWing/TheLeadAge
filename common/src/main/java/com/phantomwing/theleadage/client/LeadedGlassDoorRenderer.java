@@ -38,8 +38,8 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
         }
         AABB box = shape.bounds();
         pose.pushPose();
-        // Which way the design faces (the mirrored right-hinge case) — shared with the dye/shear
-        // interaction, which inverts this same matrix. See LeadedGlassPlacement.
+        // Which way the design faces, closed or swung open — shared with the dye/shear interaction,
+        // which inverts this same matrix. See LeadedGlassPlacement.
         pose.mulPose(LeadedGlassPlacement.orientation(state, box));
         LeadedGlassSurface.render(pane, box, pose, buffers, light, overlay);
         pose.popPose();

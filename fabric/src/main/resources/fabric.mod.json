@@ -21,6 +21,9 @@
     ],
     "client": [
       "com.phantomwing.theleadage.fabric.client.TheLeadAgeFabricClient"
+    ],
+    "modmenu": [
+      "com.phantomwing.theleadage.fabric.config.TheLeadAgeModMenu"
     ]
   },
   "mixins": [
@@ -32,5 +35,10 @@
     "minecraft": ">=1.21.2 <1.21.4",
     "architectury": ">=14.0.4",
     "cloth-config": ">=16.0.143"
+  },
+  "custom": {
+    "lithium:options": {
+      "mixin.world.block_entity_ticking.sleeping.campfire": false
+    }
   }
 }

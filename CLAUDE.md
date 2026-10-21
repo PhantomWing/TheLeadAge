@@ -21,14 +21,20 @@ with registration, and `TestCompat` holds each call whose shape differs between 
 Porting a test is its body plus its `GameTests` entry, copied as-is; see `verification.md`.
 
 `scenarios/` holds the play scenarios the portal's Play scenarios check runs as a player. They are
-plain JSON and copy across lines unchanged.
+plain JSON and copy across lines unchanged. `scenarios/server` holds those its Play scenarios on a server check
+plays on the line's dedicated server, which `scenarios/server/<loader>/config` gives a `lead_water_range` of 2
+against the client's 6, so the tint shows whose setting the client draws by.
+
+The test bodies are 1.21.1's but for six calls the 1.2 port to this line moved into `TestCompat` (`trim`,
+`trimPalette`, `hasRecipe`, `recipesFor`, `use`, `nearestDirection`), which `version/1.21`'s bodies still make
+directly: its `TestCompat` wants the same six methods in their 1.21.1 forms before the bodies match again.
 
 ## This line
 
 - Java 21, Mojang mappings with Parchment. `org.gradle.java.home` is pinned in `gradle.properties` to a JDK on this machine; if the daemon fails to start, check that path first.
 - Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited.
-- Game tests in `neoforge/src/test`, run with `:neoforge:runGameTest`. Laid out with the test shim above.
-- 5 play scenarios in `scenarios/`.
+- Game tests in `common/src/gametest`, run on both loaders: `:neoforge:runGameTest` and `:fabric:runGameTest`. Laid out with the test shim above; each loader's `GameTestRegistration` and `TestLoader` are in its own `src/test` (`architectury.md`, "Game tests on Fabric too").
+- 13 play scenarios in `scenarios/`, and 1 in `scenarios/server`.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`, the NeoForge one from `neoforge_minecraft_versions` (1.21.3 alone: it needs NeoForge 21.3, which 1.21.2 doesn't have). `fabric.mod.json` asks for Fabric API from 0.106.1, 1.21.2's newest, not the 0.114.1 it builds against, so the jar loads on 1.21.2 too.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

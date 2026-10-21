@@ -9,7 +9,7 @@ import com.phantomwing.theleadage.component.ModDataComponents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -49,8 +49,9 @@ public class LeadedGlassTrapdoorItemRenderer extends BlockEntityWithoutLevelRend
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
 
-        // The trapdoor frame (the cut-window overlay texture, cutout).
-        VertexConsumer cutout = buffers.getBuffer(RenderType.cutout());
+        // The trapdoor frame (the cut-window overlay texture, cutout), shaded as a block item is: the chunk layer's
+        // cutout has no light direction, and drew it flat beside its shaded glass.
+        VertexConsumer cutout = buffers.getBuffer(Sheets.cutoutBlockSheet());
         RandomSource random = RandomSource.create(42L);
         emit(model, frame, null, cutout, pose, light, overlay, random);
         for (Direction dir : Direction.values()) {

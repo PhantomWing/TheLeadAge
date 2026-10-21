@@ -67,7 +67,8 @@ public class LeadedGlassPaneModel extends BakedModelWrapper<BakedModel> {
         List<BakedQuad> out = new ArrayList<>(quads.size());
         for (BakedQuad quad : quads) {
             int tint = quad.getTintIndex();
-            out.add(tint >= 0 && tint < clear.length && clear[tint]
+            // A region past the stored colours is clear, as everything else reads it: a pane set down without its design.
+            out.add(tint >= 0 && (tint >= clear.length || clear[tint])
                     ? LeadedGlassClearSprite.retexture(quad)
                     : quad);
         }

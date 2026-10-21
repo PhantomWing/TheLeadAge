@@ -84,6 +84,7 @@ public class ModItems {
                     Direction.DOWN, props), blockItem());
     public static final RegistrySupplier<Item> LEAD_LANTERN = registerBlock("lead_lantern", ModBlocks.LEAD_LANTERN);
     public static final RegistrySupplier<Item> LEAD_BULB = registerBlock("lead_bulb", ModBlocks.LEAD_BULB);
+    public static final RegistrySupplier<Item> LEAD_PRESSURE_PLATE = registerBlock("lead_pressure_plate", ModBlocks.LEAD_PRESSURE_PLATE);
 
     // Lead Weight — custom item: places normally (decorative / hangs), or air-drops as a falling
     // weapon when aimed at open space. Stackable; the three tiers (lead_weight / chipped / damaged)

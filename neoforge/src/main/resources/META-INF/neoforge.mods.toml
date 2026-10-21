@@ -17,11 +17,14 @@ description = '''
 A vanilla-friendly expansion that adds lead, a new metal resource. A sister mod to The Silver Age.
 '''
 
+# AFTER, so the Fishing Rod override outranks NeoForge's own copy of that recipe. Without an
+# ordering, FML orders mods' data by a hash of their ids, and NeoForge's won wherever too few
+# mods were installed.
 [[dependencies.theleadage]]
 modId = "neoforge"
 type = "required"
 versionRange = "[21.3,)"
-ordering = "NONE"
+ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.theleadage]]
@@ -40,3 +43,8 @@ side = "BOTH"
 
 # No optional integration dependencies on this line: Create, Farmer's Delight, JEI and EMI publish
 # no 1.21.2/1.21.3 build. They come back with their compat (see the port notes in gradle.properties).
+
+# A lit campfire over raw lead gives off lead fumes from its block entity's tick, which Lithium stops once nothing
+# cooks on it.
+["lithium:options"]
+"mixin.world.block_entity_ticking.sleeping.campfire" = false

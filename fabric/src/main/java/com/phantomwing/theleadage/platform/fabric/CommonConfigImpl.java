@@ -15,6 +15,11 @@ public final class CommonConfigImpl {
                 TheLeadAgeFabricConfig.GENERATE_LEAD_ORE_ID);
     }
 
+    public static boolean generateLeadVeins() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.GENERATE_LEAD_VEINS_ID);
+    }
+
     public static boolean leadOreSickness() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_LEAD_ORE_SICKNESS_ID);
@@ -33,6 +38,20 @@ public final class CommonConfigImpl {
     public static boolean campfireLeadFumes() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
                 TheLeadAgeFabricConfig.ENABLE_CAMPFIRE_LEAD_FUMES_ID);
+    }
+
+    public static boolean rawLeadContact() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.ENABLE_RAW_LEAD_CONTACT_ID);
+    }
+
+    public static int leadWaterRange() {
+        return TheLeadAgeFabricConfig.get().lead_water_range;
+    }
+
+    public static boolean mobsAvoidLeadWater() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
+                TheLeadAgeFabricConfig.MOBS_AVOID_LEAD_WATER_ID);
     }
 
     public static boolean enableStructureLoot() {

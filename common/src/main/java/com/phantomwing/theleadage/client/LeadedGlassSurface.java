@@ -7,6 +7,7 @@ import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -20,6 +21,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.AABB;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Draws a leaded glass pane's design onto a thin slab (the leaded glass door / trapdoor window).
  * Rather than re-deriving each came layout, it renders the matching pane block's <i>baked model</i>
@@ -28,13 +34,33 @@ import net.minecraft.world.phys.AABB;
  * (from the block's collision shape) decides which plane to rotate the pane sheet onto.
  */
 public final class LeadedGlassSurface {
+    /** How many designs' quads are kept: as many as a build shows at once, well past it. */
+    private static final int DRAWN_KEPT = 256;
+    /**
+     * Each design's quads, tinted and with its clear regions' sprites swapped, as the model they came from drew them:
+     * the design doesn't change from frame to frame, and working them out again each frame for each door made
+     * thousands of objects a frame. A model made anew by a resource reload has them worked out again.
+     */
+    private static final Map<LeadedGlassConfig, Drawn> DRAWN = new ConcurrentHashMap<>();
+
     private LeadedGlassSurface() {
+    }
+
+    private record Drawn(BakedModel model, List<BakedQuad> quads, int[] colors) {
     }
 
     public static void render(LeadedGlassConfig config, AABB slab, PoseStack pose,
                               MultiBufferSource buffers, int light, int overlay) {
         BlockState paneState = paneStateFor(config);
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(paneState);
+        Drawn drawn = DRAWN.get(config);
+        if (drawn == null || drawn.model() != model) {
+            if (DRAWN.size() >= DRAWN_KEPT) {
+                DRAWN.clear();
+            }
+            drawn = draw(model, paneState, config);
+            DRAWN.put(config, drawn);
+        }
 
         pose.pushPose();
         // Canonical pane space -> the slab. The maths lives in LeadedGlassPlacement so the dye/shear
@@ -42,28 +68,35 @@ public final class LeadedGlassSurface {
         pose.mulPose(LeadedGlassPlacement.surface(slab));
 
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentItemSheet());
-        RandomSource random = RandomSource.create(42L);
-        emit(model, paneState, config, null, buffer, pose, light, overlay, random);
-        for (Direction dir : Direction.values()) {
-            emit(model, paneState, config, dir, buffer, pose, light, overlay, random);
+        for (int i = 0; i < drawn.quads().size(); i++) {
+            int color = drawn.colors()[i];
+            float r = (color >> 16 & 0xFF) / 255.0f, g = (color >> 8 & 0xFF) / 255.0f, b = (color & 0xFF) / 255.0f;
+            buffer.putBulkData(pose.last(), drawn.quads().get(i), r, g, b, 1.0f, light, overlay);
         }
         pose.popPose();
     }
 
-    private static void emit(BakedModel model, BlockState state, LeadedGlassConfig config, Direction dir,
-                             VertexConsumer buffer, PoseStack pose, int light, int overlay, RandomSource random) {
+    private static Drawn draw(BakedModel model, BlockState state, LeadedGlassConfig config) {
+        RandomSource random = RandomSource.create(42L);
+        List<BakedQuad> quads = new ArrayList<>();
+        IntArrayList colors = new IntArrayList();
+        collect(model, state, config, null, random, quads, colors);
+        for (Direction dir : Direction.values()) {
+            collect(model, state, config, dir, random, quads, colors);
+        }
+        return new Drawn(model, List.copyOf(quads), colors.toIntArray());
+    }
+
+    private static void collect(BakedModel model, BlockState state, LeadedGlassConfig config, Direction dir,
+                                RandomSource random, List<BakedQuad> quads, IntArrayList colors) {
         for (BakedQuad quad : model.getQuads(state, dir, random)) {
             int tint = quad.getTintIndex();
             // Clear regions must be drawn with the clear sprite, not the tintable white one. For most
             // came types the block state already picked a clear-textured model and this is a no-op —
             // but grid and lattice carry no clear_N state, and their chunk-mesh wrapper can only do the
             // swap from a block entity, which a door has none of. Without this they render solid white.
-            BakedQuad out = tint >= 0 && config.colorAt(tint) == null
-                    ? LeadedGlassClearSprite.retexture(quad)
-                    : quad;
-            int color = colorFor(tint, config);
-            float r = (color >> 16 & 0xFF) / 255.0f, g = (color >> 8 & 0xFF) / 255.0f, b = (color & 0xFF) / 255.0f;
-            buffer.putBulkData(pose.last(), out, r, g, b, 1.0f, light, overlay);
+            quads.add(tint >= 0 && config.colorAt(tint) == null ? LeadedGlassClearSprite.retexture(quad) : quad);
+            colors.add(colorFor(tint, config));
         }
     }
 

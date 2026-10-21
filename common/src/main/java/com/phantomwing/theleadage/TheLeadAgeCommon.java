@@ -1,5 +1,7 @@
 package com.phantomwing.theleadage;
 
+import com.phantomwing.theleadage.effect.RecedingLeads;
+import com.phantomwing.theleadage.network.LeadSettingsSync;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.armor.MonsterArmorHandler;
 import com.phantomwing.theleadage.entity.LeadFumeRepellent;
@@ -13,6 +15,8 @@ import com.phantomwing.theleadage.dispenser.ModDispenserBehaviors;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.particle.ModParticles;
+import com.phantomwing.theleadage.sound.ModSounds;
+import com.phantomwing.theleadage.advancement.ModTriggers;
 import com.phantomwing.theleadage.recipe.ModRecipes;
 import com.phantomwing.theleadage.ui.ModCreativeModeTab;
 
@@ -42,6 +46,8 @@ public final class TheLeadAgeCommon {
         ModDataComponents.register();
         ModRecipes.register();
         ModParticles.register();
+        ModSounds.register();
+        ModTriggers.register();
         ModCreativeModeTab.register();
         LeadWeightTransforms.register(); // datapack loader for heavy-weight impact block transforms
         ModDispenserBehaviors.register(); // dispensers set a Lead Weight down instead of spitting it out
@@ -50,5 +56,7 @@ public final class TheLeadAgeCommon {
         MonsterArmorHandler.register();
         LeadFumeRepellent.register(); // lead torches repel creepers + pillagers (see the class doc)
         LeadArmorItem.register();     // ticks the Heaviness penalties so they clear when the armor comes off
+        LeadSettingsSync.register();  // the server's raw lead settings, which its players draw the water and smoke by
+        RecedingLeads.register();     // contamination receding where raw lead stopped leaking, which players see too
     }
 }
