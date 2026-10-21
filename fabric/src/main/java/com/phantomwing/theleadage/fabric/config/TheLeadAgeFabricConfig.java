@@ -17,51 +17,66 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 @Config(name = TheLeadAge.MOD_ID)
 public class TheLeadAgeFabricConfig implements ConfigData {
     public static final String GENERATE_LEAD_ORE_ID = "generate_lead_ore";
+    @ConfigEntry.Gui.Tooltip
     public boolean generate_lead_ore = true;
 
     public static final String GENERATE_LEAD_VEINS_ID = "generate_lead_veins";
+    @ConfigEntry.Gui.Tooltip
     public boolean generate_lead_veins = true;
 
     public static final String ENABLE_LEAD_ORE_SICKNESS_ID = "enable_lead_ore_sickness";
+    @ConfigEntry.Gui.Tooltip
     public boolean enable_lead_ore_sickness = true;
 
     public static final String CREEPERS_AVOID_LEAD_FUMES_ID = "creepers_avoid_lead_fumes";
+    @ConfigEntry.Gui.Tooltip
     public boolean creepers_avoid_lead_fumes = true;
 
     public static final String PILLAGERS_AVOID_LEAD_FUMES_ID = "pillagers_avoid_lead_fumes";
+    @ConfigEntry.Gui.Tooltip
     public boolean pillagers_avoid_lead_fumes = true;
 
     public static final String ENABLE_CAMPFIRE_LEAD_FUMES_ID = "enable_campfire_lead_fumes";
+    @ConfigEntry.Gui.Tooltip
     public boolean enable_campfire_lead_fumes = true;
 
     public static final String ENABLE_RAW_LEAD_CONTACT_ID = "enable_raw_lead_contact";
+    @ConfigEntry.Gui.Tooltip
     public boolean enable_raw_lead_contact = true;
 
     public static final String LEAD_WATER_RANGE_ID = "lead_water_range";
     /** How far raw lead contaminates the water around it, in blocks through the water; 0 turns it off. */
+    @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 8)
     public int lead_water_range = 6;
 
     public static final String MOBS_AVOID_LEAD_WATER_ID = "mobs_avoid_lead_water";
+    @ConfigEntry.Gui.Tooltip
     public boolean mobs_avoid_lead_water = true;
 
     public static final String ENABLE_RECIPE_OVERRIDES_ID = "enable_recipe_overrides";
+    @ConfigEntry.Gui.Tooltip
     public boolean enable_recipe_overrides = true;
 
     public static final String OVERRIDE_FISHING_ROD_RECIPE_ID = "override_fishing_rod_recipe";
+    @ConfigEntry.Gui.Tooltip
     public boolean override_fishing_rod_recipe = true;
 
     public static final String OVERRIDE_HEAVY_CORE_RECIPE_ID = "override_heavy_core_recipe";
     /** Off by default: crafting the Heavy Core makes a Trial-Chamber-exclusive item renewable, so it is opt-in. */
+    @ConfigEntry.Gui.Tooltip
     public boolean override_heavy_core_recipe = false;
 
     public static final String ENABLE_STRUCTURE_LOOT_ID = "enable_structure_loot";
+    @ConfigEntry.Gui.Tooltip
     public boolean enable_structure_loot = true;
 
     public static final String ENABLE_MOB_LEAD_EQUIPMENT_ID = "enable_mob_lead_equipment";
+    @ConfigEntry.Gui.Tooltip
     public boolean enable_mob_lead_equipment = true;
 
     public static final String ENABLE_VILLAGER_TRADES_ID = "enable_villager_trades";
+    @ConfigEntry.Gui.Tooltip
     public boolean enable_villager_trades = true;
 
     public static TheLeadAgeFabricConfig get() {
