@@ -11,7 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.BakedModel;
@@ -50,8 +50,9 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
 
-        // The trapdoor frame (the cut-window overlay texture, cutout).
-        VertexConsumer cutout = buffers.getBuffer(RenderType.cutout());
+        // The trapdoor frame (the cut-window overlay texture, cutout), shaded as a block item is: the chunk layer's
+        // cutout has no light direction, and drew it flat beside its shaded glass.
+        VertexConsumer cutout = buffers.getBuffer(Sheets.cutoutBlockSheet());
         RandomSource random = RandomSource.create(42L);
         emit(model, frame, null, cutout, pose, light, overlay, random);
         for (Direction dir : Direction.values()) {

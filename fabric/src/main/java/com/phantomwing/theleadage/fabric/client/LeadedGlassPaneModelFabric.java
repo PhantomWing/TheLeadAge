@@ -72,7 +72,8 @@ public class LeadedGlassPaneModelFabric extends DelegateBakedModel implements Fa
     /** Retexture a clear cell's quad to its clear sprite (drop the tint); pass everything else through. */
     private static void retextureClear(MutableQuadView quad, boolean @Nullable [] clear) {
         int tint = quad.tintIndex();
-        if (clear == null || tint < 0 || tint >= clear.length || !clear[tint]) {
+        // A region past the stored colours is clear, as everything else reads it: a pane set down without its design.
+        if (clear == null || tint < 0 || tint < clear.length && !clear[tint]) {
             return;
         }
         TextureAtlasSprite from = spriteFinder().find(quad);

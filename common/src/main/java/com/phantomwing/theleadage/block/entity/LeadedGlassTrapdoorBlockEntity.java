@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** Holds a leaded glass trapdoor's glass design (frame + colours); drawn by LeadedGlassTrapdoorRenderer. */
@@ -40,21 +39,14 @@ public class LeadedGlassTrapdoorBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         LeadedGlassFrame frame = LeadedGlassFrame.values()[Math.floorMod(tag.getInt("Frame"), LeadedGlassFrame.values().length)];
-        List<Integer> colors = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors")) {
-            colors.add(id);
-        }
-        if (colors.isEmpty()) {
-            colors = List.of(LeadedGlassConfig.CLEAR);
-        }
-        this.config = new LeadedGlassConfig(frame, colors);
+        this.config = new LeadedGlassConfig(frame, LeadedGlassConfig.getColors(tag));
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("Frame", config.frame().ordinal());
-        tag.putIntArray("Colors", config.colors().stream().mapToInt(Integer::intValue).toArray());
+        LeadedGlassConfig.putColors(tag, config.colors());
     }
 
     @Override

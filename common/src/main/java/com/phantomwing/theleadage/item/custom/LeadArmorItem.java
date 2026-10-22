@@ -34,8 +34,8 @@ public class LeadArmorItem extends Item {
     /** Heaviness granted by each lead armor piece (shown as "+N Heaviness"). */
     private static final double HEAVINESS_PER_PIECE = 1.0;
 
-    // Penalties per point of Heaviness worn. Player-only: the horse armor deliberately carries no
-    // Heaviness (it has no durability cost to offset it) — see LeadHorseArmorItem.
+    // Penalties per point of Heaviness worn, on players and mobs alike. The horse armor deliberately
+    // carries no Heaviness (it has no durability cost to offset it) — see LeadHorseArmorItem.
     private static final double SPEED_PENALTY_PER_HEAVINESS = -0.025;       // -2.5% base speed (-10% full set)
     private static final double GRAVITY_BONUS_PER_HEAVINESS = 0.05;         // +5% gravity (+20% full set)
     private static final double KNOCKBACK_RESISTANCE_PER_HEAVINESS = 0.025; // +2.5% knockback resistance (+10% full set)
@@ -99,32 +99,39 @@ public class LeadArmorItem extends Item {
         TickEvent.PLAYER_POST.register(player -> refreshHeaviness(player));
     }
 
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (!(entity instanceof LivingEntity living)) {
-            return;
-        }
-
-        // Mobs get their penalties here: the player tick above does not cover them, and a mob only
-        // ever loses its armour by dying, so there is no stale-modifier case to clean up.
-        boolean flying = living instanceof Player player && player.getAbilities().flying;
+    /**
+     * What a living entity wears changed, on the server - each loader's {@code LivingEntityMixin}, from vanilla's own
+     * equipment check, which also sees everything a mob wears on its first tick after loading. Players are left to their
+     * tick ({@link #register}), which also suspends the penalties while they fly. Every change to a mob's armour passes
+     * that check, so its penalties are right from its first tick to its last, and, transient, are never saved to go stale.
+     */
+    public static void equipmentChanged(LivingEntity living) {
         if (!(living instanceof Player)) {
             refreshHeaviness(living);
         }
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        // Only a player's inventory ticks its items, so this is a player's own: a mob in lead armour sinks faster by the
+        // extra gravity alone.
+        if (!(entity instanceof Player player)) {
+            return;
+        }
 
         // Faster sink while submerged — applied per worn piece. Skipped entirely
-        // while the wearer is actively swimming up (holding jump), so swimming is
-        // unaffected; they just sink fast the rest of the time. Applied on the side
-        // that owns the entity's movement (client for players, server for mobs) so
-        // the local player's swim input is read correctly and there's no desync.
-        if (!flying
-                && living.getItemBySlot(armorType.getSlot()) == stack
-                && living.isInWater()
-                && !living.jumping
-                && (living instanceof Player) == level.isClientSide()) {
-            Vec3 motion = living.getDeltaMovement();
-            living.setDeltaMovement(motion.x, motion.y - HEAVINESS_PER_PIECE * WATER_SINK_PER_HEAVINESS, motion.z);
+        // while the player is actively swimming up (holding jump), so swimming is
+        // unaffected; they just sink fast the rest of the time. Applied on the client,
+        // which owns a player's movement, so the swim input is read correctly and
+        // there's no desync.
+        if (!player.getAbilities().flying
+                && player.getItemBySlot(armorType.getSlot()) == stack
+                && player.isInWater()
+                && !player.jumping
+                && level.isClientSide()) {
+            Vec3 motion = player.getDeltaMovement();
+            player.setDeltaMovement(motion.x, motion.y - HEAVINESS_PER_PIECE * WATER_SINK_PER_HEAVINESS, motion.z);
         }
     }
 
@@ -145,9 +152,14 @@ public class LeadArmorItem extends Item {
         if (instance == null) {
             return;
         }
+        AttributeModifier current = instance.getModifier(id);
         if (amount == 0.0) {
-            instance.removeModifier(id);
-        } else {
+            if (current != null) {
+                instance.removeModifier(id);
+            }
+        } else if (current == null || current.amount() != amount || current.operation() != operation) {
+            // Set only when it changes: each set marks the attribute changed, and a player's is sent to everyone
+            // tracking them, every tick.
             instance.addOrUpdateTransientModifier(new AttributeModifier(id, amount, operation));
         }
     }

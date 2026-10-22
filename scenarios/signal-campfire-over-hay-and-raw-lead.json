@@ -1,0 +1,12 @@
+{
+  "name": "A campfire placed on a hay bale on raw lead is a signal fire and gives off lead fumes",
+  "steps": [
+    { "setblock": [0, 0, 0], "block": "theleadage:raw_lead_block" },
+    { "setblock": [0, 1, 0], "block": "minecraft:hay_block" },
+    { "hold": "minecraft:campfire" },
+    { "use": [0, 1, 0], "face": "up" },
+    { "expect": "block", "at": [0, 2, 0], "is": "minecraft:campfire", "with": { "lit": "true", "signal_fire": "true" } },
+    { "move": [0, 2, 0] },
+    { "expect": "effect", "has": "minecraft:hunger", "within": 200 }
+  ]
+}

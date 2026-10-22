@@ -7,14 +7,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,14 +53,28 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
         }
     }
 
+    /**
+     * Sets the colours with the block state whose clear regions go with them. The state picks each region's model and
+     * the colours tint it, and both reach a client at the end of the tick, the state first: a newly dyed region drew
+     * white for a frame before its colour arrived. So the colours are sent ahead of the state.
+     */
+    public void setColorsAndState(List<Integer> colors, BlockState state, int flags) {
+        setColors(colors);
+        if (level instanceof ServerLevel server && state != getBlockState()) {
+            Packet<ClientGamePacketListener> packet = getUpdatePacket();
+            for (ServerPlayer player : server.getChunkSource().chunkMap.getPlayers(new ChunkPos(worldPosition), false)) {
+                player.connection.send(packet);
+            }
+        }
+        if (level != null) {
+            level.setBlock(worldPosition, state, flags);
+        }
+    }
+
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        List<Integer> loaded = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors")) {
-            loaded.add(id);
-        }
-        this.colors = loaded.isEmpty() ? List.of(LeadedGlassConfig.CLEAR) : List.copyOf(loaded);
+        this.colors = LeadedGlassConfig.getColors(tag);
         // A live colour update (e.g. dyeing in place) arrives here on the client; the tints are baked
         // into the chunk mesh, so force a re-render. setBlocksDirty is gated by requiresRender(old,new),
         // which is false for the same state — so pass a sentinel old state to force the section re-mesh.
@@ -70,7 +86,7 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putIntArray("Colors", colors.stream().mapToInt(Integer::intValue).toArray());
+        LeadedGlassConfig.putColors(tag, colors);
     }
 
     // ---- Client sync (colours must reach the client for tinting) ----

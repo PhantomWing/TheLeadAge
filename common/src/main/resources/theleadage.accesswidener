@@ -30,3 +30,15 @@ accessible	method	net/minecraft/world/item/equipment/ArmorMaterial	createAttribu
 # 1.21.4 item-model system: the pane + trapdoor special renderers register into this private
 # late-bound mapper (LeadedGlassItemModels). Mirrored by a `public` field entry in the NeoForge AT.
 accessible	field	net/minecraft/client/renderer/special/SpecialModelRenderers	ID_MAPPER	Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+
+# SpriteSources.TYPES (private): Fabric has no API for a mod's own sprite source type, which MurkyWater makes
+# contaminated water's textures with; TheLeadAgeFabricClient puts it in the registry directly.
+accessible	field	net/minecraft/client/renderer/texture/atlas/SpriteSources	TYPES	Lcom/google/common/collect/BiMap;
+
+# TextureSheetParticle.setSprite (protected): LeadWaterParticles draws splashes and bubbles in contaminated water
+# with purple copies of their textures.
+accessible	method	net/minecraft/client/particle/TextureSheetParticle	setSprite	(Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V
+
+# Squid.movementVector (package-private): 1.21.2 dropped Squid#setMovementVector, and PoisonedWaterAvoidance turns a
+# squid in poisoned water for the way out.
+accessible	field	net/minecraft/world/entity/animal/Squid	movementVector	Lnet/minecraft/world/phys/Vec3;

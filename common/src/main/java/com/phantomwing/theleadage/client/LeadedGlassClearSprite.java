@@ -26,8 +26,11 @@ public final class LeadedGlassClearSprite {
     private static final int STRIDE = 8;
     private static final int UV0 = 4;
 
-    /** Cache: a tinted white sprite -> its clear counterpart (same name, "white_" prefix dropped). */
-    private static final Map<TextureAtlasSprite, TextureAtlasSprite> CLEAR_SPRITE = new ConcurrentHashMap<>();
+    /**
+     * A tinted white texture's name -> its clear counterpart's (same name, "white_" dropped), or itself where it has none.
+     * By name, not sprite: a resource reload makes every sprite anew, which a map of sprites would keep and miss.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> CLEAR_NAME = new ConcurrentHashMap<>();
 
     private LeadedGlassClearSprite() {
     }
@@ -62,14 +65,11 @@ public final class LeadedGlassClearSprite {
      */
     @Nullable
     public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
-        return CLEAR_SPRITE.computeIfAbsent(white, w -> {
-            ResourceLocation name = w.contents().name();
-            if (!name.getPath().contains("white_")) {
-                return null; // already the clear texture (or not one of ours)
-            }
-            ResourceLocation clearLoc = ResourceLocation.fromNamespaceAndPath(
-                    name.getNamespace(), name.getPath().replace("white_", ""));
-            return Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(clearLoc);
-        });
+        ResourceLocation name = white.contents().name();
+        ResourceLocation clear = CLEAR_NAME.computeIfAbsent(name, n -> n.getPath().contains("white_")
+                ? ResourceLocation.fromNamespaceAndPath(n.getNamespace(), n.getPath().replace("white_", ""))
+                : n); // already the clear texture (or not one of ours)
+        return clear.equals(name) ? null
+                : Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(clear);
     }
 }

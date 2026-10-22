@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "#": "#c:ingots/lead"
+    "#": "theleadage:cut_lead"
   },
   "pattern": [
     "##",
     "##"
   ],
   "result": {
-    "count": 1,
+    "count": 4,
     "id": "theleadage:lead_bricks"
   }
 }
