@@ -2,12 +2,18 @@ package com.phantomwing.theleadage.entity.ai;
 
 import com.phantomwing.theleadage.effect.CampfireFumes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +35,8 @@ import java.util.function.BooleanSupplier;
  * from the threat and returns null whenever the sample overshoots the radius or isn't pathable, so it
  * fails a good share of the time. Vanilla's {@code AvoidEntityGoal} hides that by retrying it on every
  * goal tick — and this goal does the same. Only the <em>block search</em> is throttled
- * ({@link #SCAN_INTERVAL}), because that is the part that actually costs anything. Throttling the flee
+ * ({@link #SCAN_INTERVAL}), because that is the part that actually costs anything, and it starts from the chunk
+ * sections' palettes, which say for most of the world that nothing in them can repel. Throttling the flee
  * attempt as well made creepers linger next to a torch for many seconds, occasionally getting a lucky
  * roll — which is precisely the bug this structure avoids.</p>
  *
@@ -112,9 +119,43 @@ public class AvoidRepellentBlockGoal extends Goal {
             return false;
         }
         scanCooldown = SCAN_INTERVAL;
-        repellent = BlockPos.findClosestMatch(mob.blockPosition(), SEARCH_HORIZONTAL, SEARCH_VERTICAL,
-                this::repels).orElse(null);
+        repellent = mayBeNearby() ? BlockPos.findClosestMatch(mob.blockPosition(), SEARCH_HORIZONTAL, SEARCH_VERTICAL,
+                this::repels).orElse(null) : null;
         return repellent != null;
+    }
+
+    /**
+     * Whether a chunk section the search reaches may hold a repellent or a campfire, by its palette: a few looks rather
+     * than the search's 2,601 blocks, for a mob nowhere near either.
+     */
+    private boolean mayBeNearby() {
+        BlockPos at = mob.blockPosition();
+        Level level = mob.level();
+        for (int x = SectionPos.blockToSectionCoord(at.getX() - SEARCH_HORIZONTAL); x <= SectionPos.blockToSectionCoord(at.getX() + SEARCH_HORIZONTAL); x++) {
+            for (int z = SectionPos.blockToSectionCoord(at.getZ() - SEARCH_HORIZONTAL); z <= SectionPos.blockToSectionCoord(at.getZ() + SEARCH_HORIZONTAL); z++) {
+                ChunkAccess chunk = level.getChunk(x, z, ChunkStatus.FULL, false);
+                if (chunk == null) {
+                    continue;
+                }
+                for (int y = SectionPos.blockToSectionCoord(at.getY() - SEARCH_VERTICAL); y <= SectionPos.blockToSectionCoord(at.getY() + SEARCH_VERTICAL); y++) {
+                    int index = chunk.getSectionIndexFromSectionY(y);
+                    if (index < 0 || index >= chunk.getSectionsCount()) {
+                        continue;
+                    }
+                    LevelChunkSection section = chunk.getSection(index);
+                    if (!section.hasOnlyAir() && section.maybeHas(state -> state.is(repellents) || state.is(BlockTags.CAMPFIRES))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /** The repellent this mob last found in range and is keeping away from, if any. */
+    @Nullable
+    public BlockPos repellent() {
+        return repellent;
     }
 
     /** Cheap: the cached block is still in range and still tagged (it may have been broken or replaced). */

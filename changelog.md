@@ -1,35 +1,89 @@
 # 1.2.0
 
 ### Additions
-- Added **Lead Spear** and **Lead Nautilus Armor**. The spear charges like a netherite one but swings slower and wears out fast, like the rest of the lead set. The nautilus armor sometimes replaces iron nautilus armor in shipwrecks, buried treasure and ocean ruins.
-- Leaded glass works with dye mods such as Dye Depot and Delicate Dyes: every colour they add gets its own dyed leaded glass, crafted like the vanilla colours, with its drops, tags and a name in every language.
-- Eight clear Leaded Glass Panes around a dye craft eight panes of its colour, as vanilla's glass panes do.
-- Every tag the mod adds has a name in recipe viewers like JEI and EMI, in every language.
-- Campfires and soul campfires lit on a Block of Lead or Raw Lead give off lead fumes, which give nearby players Lead Sickness and keep creepers and pillagers away.
-- Lead tools, spears, armor, horse armor and nautilus armor can be smelted or blasted down into a Lead Nugget, as iron gear can.
-- Dyed leaded glass panes tint a beacon's beam passing through them, as stained glass panes do. A pane of several colours mixes them.
-- Zombies, husks and zombie villagers sometimes spawn holding a Lead Sword, Lead Shovel or Lead Spear where they would have had an iron one, and vindicators a Lead Axe.
-- Lead tools and armor sometimes turn up in chests in place of iron ones: in villages, strongholds, end cities, mineshafts, buried treasure, ancient cities, bastions and trial chambers.
-- A config option to stop mobs spawning with lead armor and tools.
+- Added Lead Spear (charges like a netherite spear, but swings slower and wears out faster, like the rest of the lead set)
+- Added Lead Nautilus Armor (sometimes replaces iron nautilus armor in shipwrecks, buried treasure and ocean ruins)
+- Added Lead Pressure Plate (weighted, can only be pressed by mobs and players)
+- Added large lead ore veins (similar to copper and iron veins)
+- Block of Raw Lead is now toxic
+  - Standing on it gives Lead Sickness
+  - Mining it releases lead fumes (except with Silk Touch)
+  - Placing it in water contaminates the water around it, giving Lead Sickness to players and mobs swimming in it
+  - Contaminated water turns purple and murky, follows the current, fades away once the raw lead is removed and kills coral
+  - Mobs keep out of contaminated water when they can (except undead mobs)
+  - Placing a campfire on it releases lead fumes (put a hay bale in between for a signal fire)
+  - Lead fumes from a campfire make bees sick instead of calming them
+- Added recipes to smelt lead tools and armor into Lead Nuggets
+- Added recipe to dye 8 Leaded Glass Panes at once
+- Added support for dye mods like Dye Depot and Delicate Dyes (leaded glass in all their colors)
+- Dyed Leaded Glass Panes now tint beacon beams
+- Zombies, husks, zombie villagers and vindicators can now spawn with lead weapons and tools
+- Lead tools and armor can now be found in chests
+- Trial chamber vaults can now give Lead Ingots
+- Added an advancement for swimming in contaminated water
+- Added translations for all tags (shown in recipe viewers like JEI and EMI)
+- Added config options for the water contamination range, mobs avoiding contaminated water, lead ore veins and mobs spawning with lead gear
+- Added a config screen on Fabric (opened from Mod Menu)
+- Updated tags for better compatibility with vanilla and other mods
+  - Added husks to the `theleadage:can_wear_lead_armor` tag
+  - Added parched to the `theleadage:can_wear_lead_armor` tag
+  - Added Lead Ore to the `minecraft:snaps_goat_horn` tag
+  - Added Leaded Glass Door to the `minecraft:mob_interactable_doors` tag
+  - Added Lead Pickaxe to the `minecraft:cluster_max_harvestables` tag
+  - Added Lead Weight damage to the `minecraft:damages_helmet` and `minecraft:bypasses_shield` tags
+  - Added leaded glass to the `c:glass_blocks` and `c:dyed` tags
+  - Added Lead Chain to the `c:chains` tag
+  - Added Lead Chain, Lead Lantern and Lead Bars to the `minecraft:chains`, `minecraft:lanterns` and `minecraft:bars` tags
+  - Added Lead Horse Armor and Lead Nautilus Armor to the `c:armors/horse` and `c:armors/nautilus` tags
+  - Added lead ore to the `c:ores_in_ground` tags
+  - Added lead ore and Block of Raw Lead to the `minecraft:overworld_carver_replaceables` tag
 
 ### Changes
-- Dyed leaded glass is tinted by its dye, as the leaded glass panes are, so a pane cut from it matches its colour.
-- Recipes that use Lead Ingots or Lead Nuggets also accept lead from other mods, such as Mekanism's or Immersive Engineering's (the c:ingots/lead and c:nuggets/lead tags).
-- Husks and parched can spawn wearing lead armor, as zombies and skeletons do.
-- Goats ramming Lead Ore lose a horn, as on iron and copper ore.
-- Trial chamber vaults can give Lead Ingots in place of iron ones.
-- Leaded glass counts as glass for other mods, and dyed leaded glass by its colour. The Lead Chain counts as a chain, and lead ore as stone or deepslate ore (the c:glass_blocks, c:dyed, c:chains and c:ores_in_ground tags). The Lead Chain, Lead Lantern and Lead Bars also join vanilla's chains, lanterns and bars.
-- A falling Lead Weight strikes a helmet, which softens the blow, and goes through shields, as a falling anvil does.
-- Villagers open and close leaded glass doors, as they do wooden and copper ones.
+- Lead fumes are now purple and spread out wider
+- Lead Torch smoke is now the same color as a normal torch's
+- Lead Sickness now affects mobs too (except undead mobs)
+- Dyed Leaded Glass is now tinted by its dye
+- Recipes now use the `c:ingots/lead` and `c:nuggets/lead` tags, so lead from other mods can be used
+- The Fishing Rod recipe now uses the `c:strings` and `c:rods/wooden` tags
+- Lead Trapdoors are now crafted from 4 Lead Ingots, like iron trapdoors
+- Lead Bricks are now crafted from 4 Cut Lead
+- Improved performance of creepers and pillagers avoiding lead torches
+- Improved performance of lead armor on servers
+- The lead fumes sound now only plays when Lead Sickness gets worse
 
 ### Fixes
-- Fixed armor trims not showing on lead armor in the inventory.
-- Fixed lead axes, shovels and hoes doing nothing on right-click: axes strip logs and scrape oxidation and wax off copper again, shovels make paths and hoes till.
-- Lead Horse Armor is now in the c:armors/horse tag, so other mods recognize it as horse armor.
-- Fixed the names of dyed leaded glass panes and trapdoors in several languages, among them the missing の in Japanese.
-- Fixed a crash when breaking leaded glass in a colour a dye mod adds.
-- Fixed amethyst clusters giving fewer shards when mined with a Lead Pickaxe.
+- Fixed Lead Bars and Lead Trapdoor sharing a recipe
+- Fixed the Fishing Rod recipe with a Lead Nugget not replacing the vanilla one on NeoForge
+- Fixed armor trims not showing on lead armor in the inventory
+- Fixed lead axes, shovels and hoes doing nothing on right-click: axes strip logs and scrape oxidation and wax off copper again, shovels make paths and hoes till
+- Fixed dyed leaded glass names in several languages
+- Fixed a crash when breaking leaded glass in a color from a dye mod
+- Fixed the lead fumes subtitle saying "Fire extinguished"
+- Fixed leaded glass door designs being mirrored on one door of a double door, and when the door is opened or placed facing another way
+- Fixed a falling Lead Weight dealing the wrong damage after reloading the world
+- Fixed a falling Lead Weight not hurting small mobs it lands on
+- Fixed a dispenser facing down hanging Lead Weights instead of dropping them
+- Fixed Lead Weights being usable in adventure mode and inside spawn protection
+- Fixed projectiles snapping Lead Weight chains when mob griefing is off
+- Fixed Lead Weight death messages not naming who threw it
+- Fixed Lead Brick Stairs and Cut Lead Stairs being weaker against explosions than other lead blocks
+- Fixed creepers and pillagers not avoiding lead torches after reloading the world on Fabric
+- Fixed potions and other effects making Lead Sickness worse
+- Fixed mobs trying to walk through leaded glass panes
+- Fixed leaded glass panes not rotating with structures
+- Fixed explosions always dropping leaded glass panes
+- Fixed leaded glass designs being changeable in adventure mode
+- Fixed grid and lattice leaded glass panes showing white cells when placed with commands or structures
+- Fixed JEI not telling leaded glass panes of different colors and patterns apart
+- Fixed trims from other mods showing as lead on lead armor in the inventory
+- Fixed mobs losing their armor trims and names when their armor turns into lead armor
+- Fixed armorers not buying Lead Ingots with the Villager Trade Rebalance experiment
+- Fixed the Fabric config not reloading with /reload
+- Fixed the mod icon using the old Lead Ingot colors
+- Fixed leaded glass panes flashing white for a moment when dyed
+- Fixed leaded glass in a color from a removed dye mod turning white
 - Fixed the Fabric version accepting Fabric Loader versions older than 0.19.5, which Architectury API needs
+- Fixed Lead Weights dropped by a player not knocking back Sulfur Cubes that hold a block
 
 
 # 1.1.0

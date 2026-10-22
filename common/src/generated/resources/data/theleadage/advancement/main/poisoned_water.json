@@ -1,0 +1,25 @@
+{
+  "parent": "theleadage:main/root",
+  "criteria": {
+    "poisoned_water": {
+      "trigger": "theleadage:swam_in_poisoned_water"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "theleadage.advancement.poisoned_water.description"
+    },
+    "icon": {
+      "id": "theleadage:raw_lead_block"
+    },
+    "title": {
+      "translate": "theleadage.advancement.poisoned_water"
+    }
+  },
+  "requirements": [
+    [
+      "poisoned_water"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

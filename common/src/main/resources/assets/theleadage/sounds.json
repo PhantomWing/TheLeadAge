@@ -1,0 +1,8 @@
+{
+  "lead_fumes.hiss": {
+    "sounds": [
+      "minecraft:random/fizz"
+    ],
+    "subtitle": "subtitles.theleadage.lead_fumes.hiss"
+  }
+}

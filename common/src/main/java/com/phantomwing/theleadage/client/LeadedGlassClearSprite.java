@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.client;
 
+import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
@@ -27,20 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class LeadedGlassClearSprite {
     /**
-     * Cache: a tinted white sprite -> its clear counterpart (same name, "white_" prefix dropped).
-     * A sprite mapped to ITSELF means "no counterpart", so the negative answer is memoised too:
-     * without that, every non-{@code white_} quad re-runs the name check on every chunk rebuild,
-     * which is the common fully-clear pane path.
+     * A tinted white texture's name -> its clear counterpart's (same name, "white_" dropped), or itself where it has none.
+     * By name, not sprite: a resource reload makes every sprite anew, which a map of sprites would keep and miss. The
+     * atlas itself is the same object from one reload to the next, so it can't tell the cache when to empty.
      */
-    private static final Map<TextureAtlasSprite, TextureAtlasSprite> CLEAR_SPRITE = new ConcurrentHashMap<>();
-
-    /**
-     * The atlas {@link #CLEAR_SPRITE} was built against. A resource reload re-stitches the atlas and
-     * hands out fresh sprite instances, so every cached key belongs to a dead generation: nothing can
-     * ever hit again and the old sprites would be pinned forever. Volatile because chunk meshing
-     * reaches this from several threads.
-     */
-    private static volatile TextureAtlas cachedAtlas;
+    private static final Map<Identifier, Identifier> CLEAR_NAME = new ConcurrentHashMap<>();
 
     private LeadedGlassClearSprite() {
     }
@@ -96,7 +88,12 @@ public final class LeadedGlassClearSprite {
         if (!(level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane)) {
             return null;
         }
+        // A region past the stored colours is clear, as everything else reads it: a pane set down without its design.
+        // Sized by the block's regions too, so hasClear sees those.
         int regions = pane.getColors().size();
+        if (pane.getBlockState().getBlock() instanceof LeadedGlassPaneBlock block) {
+            regions = Math.max(regions, block.cameType().regions);
+        }
         boolean[] clear = new boolean[regions];
         for (int i = 0; i < regions; i++) {
             clear[i] = pane.colorAt(i) == null;
@@ -116,7 +113,7 @@ public final class LeadedGlassClearSprite {
 
     /** Whether a quad's tint index addresses a clear region. */
     public static boolean isClear(boolean @Nullable [] clear, int tintIndex) {
-        return clear != null && tintIndex >= 0 && tintIndex < clear.length && clear[tintIndex];
+        return clear != null && tintIndex >= 0 && (tintIndex >= clear.length || clear[tintIndex]);
     }
 
     /**
@@ -127,25 +124,19 @@ public final class LeadedGlassClearSprite {
      */
     @Nullable
     public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
-        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS);
-        if (atlas != cachedAtlas) {
-            CLEAR_SPRITE.clear();
-            cachedAtlas = atlas;
+        Identifier name = white.contents().name();
+        Identifier clearName = CLEAR_NAME.computeIfAbsent(name, n -> n.getPath().contains("white_")
+                ? Identifier.fromNamespaceAndPath(n.getNamespace(), n.getPath().replace("white_", ""))
+                : n); // already the clear texture (or not one of ours)
+        if (clearName.equals(name)) {
+            return null;
         }
-        TextureAtlasSprite found = CLEAR_SPRITE.computeIfAbsent(white, w -> {
-            Identifier name = w.contents().name();
-            if (!name.getPath().contains("white_")) {
-                return w; // already the clear texture (or not one of ours)
-            }
-            Identifier clearLoc = Identifier.fromNamespaceAndPath(
-                    name.getNamespace(), name.getPath().replace("white_", ""));
-            TextureAtlasSprite clear = atlas.getSprite(clearLoc);
-            // getSprite NEVER returns null: it is getOrDefault(id, missingSprite), so an id that was
-            // not stitched (a resource pack dropping one clear texture) comes back as the missing
-            // texture. Retexturing onto that would paint the clear cells magenta; treat it as "no
-            // counterpart" instead, which is what the javadoc promises.
-            return clear == atlas.missingSprite() ? w : clear;
-        });
-        return found == white ? null : found;
+        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS);
+        TextureAtlasSprite clear = atlas.getSprite(clearName);
+        // getSprite NEVER returns null: it is getOrDefault(id, missingSprite), so an id that was
+        // not stitched (a resource pack dropping one clear texture) comes back as the missing
+        // texture. Retexturing onto that would paint the clear cells magenta; treat it as "no
+        // counterpart" instead, which is what the javadoc promises.
+        return clear == atlas.missingSprite() ? null : clear;
     }
 }

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": "#c:ingots/lead"
+  },
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "id": "theleadage:lead_pressure_plate"
+  }
+}

@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.dispenser;
 
+import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.item.ModItems;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
@@ -11,7 +12,9 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
@@ -57,6 +60,13 @@ public final class ModDispenserBehaviors {
                 setSuccess(blockItem.place(
                                 new DirectionalPlaceContext(source.level(), target, facing, stack, placedAgainst))
                         .consumesAction());
+                // Facing down, the block over the weight is the dispenser, which it would hang from for good: a
+                // dispenser in a ceiling drops it, which is the trap it is built for.
+                BlockState placed = source.level().getBlockState(target);
+                if (isSuccess() && facing == Direction.DOWN && placed.getBlock() instanceof LeadWeightBlock
+                        && placed.getValue(LeadWeightBlock.HANGING)) {
+                    source.level().setBlock(target, placed.setValue(LeadWeightBlock.HANGING, false), Block.UPDATE_ALL);
+                }
             }
             return stack;
         }

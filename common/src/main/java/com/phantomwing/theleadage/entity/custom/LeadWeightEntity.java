@@ -10,6 +10,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -115,13 +116,18 @@ public class LeadWeightEntity extends FallingBlockEntity {
 
     @Override
     public void tick() {
-        // Damage entities the weight currently overlaps (before this tick's move/landing
-        // discards it). Successive ticks cover the whole fall path, including impact.
+        // Damage entities the weight currently overlaps, before this tick's move. Successive ticks
+        // cover the fall path; the landing, which moves and places it in one tick, is checked after.
         if (!level().isClientSide() && isAlive()) {
             crushEntitiesInPath();
             handleWater();
         }
         super.tick();
+        if (!level().isClientSide() && (isRemoved() || onGround())) {
+            // The landing moves the weight down onto whatever stands on the ground and places it in the same
+            // tick: the overlap is only here, after the move.
+            crushEntitiesInPath();
+        }
         // If that landing just placed the weight as a block on top of a hopper, hand it over as an item
         // the hopper collects — so only a *falling* weight is sucked in (manual placement is untouched).
         if (!level().isClientSide() && isRemoved()) {
@@ -203,8 +209,9 @@ public class LeadWeightEntity extends FallingBlockEntity {
             if (momentum < MIN_MOMENTUM) {
                 break; // spent: the weight has shed too much momentum to keep hurting things
             }
-            if (target.hurtOrSimulate(source, baseDamage * momentum)) {
-                applyKnockback(target, source);
+            float damage = baseDamage * momentum;
+            if (target.hurtOrSimulate(source, damage)) {
+                applyKnockback(target, source, damage);
                 // The crush bleeds the weight's momentum, so the next entity takes less — and it
                 // physically slows, lengthening the fall and easing off the fall-height bonus too.
                 momentum *= MOMENTUM_LOSS_PER_HIT;
@@ -218,22 +225,54 @@ public class LeadWeightEntity extends FallingBlockEntity {
         return BASE_DAMAGE + DAMAGE_PER_BLOCK * fall;
     }
 
-    private void applyKnockback(LivingEntity target, DamageSource source) {
-        // knockback(power, x, z, ...) pushes the target AWAY from (x, z) = the weight's column,
-        // and scatters in a random direction itself when the target stands in that column.
-        // 26.2 added the damage source (knockback-resistance attribution) and an extra-knockback
-        // amount on top of the power; the crush carries no enchantment bonus, hence 0.
-        target.knockback(KNOCKBACK_POWER, this.getX() - target.getX(), this.getZ() - target.getZ(),
-                source, 0.0f);
+    private void applyKnockback(LivingEntity target, DamageSource source, float damage) {
+        double dx = target.getX() - this.getX();
+        double dz = target.getZ() - this.getZ();
+        double dist = Math.sqrt(dx * dx + dz * dz);
+        if (dist < 1.0e-4) {
+            // Directly beneath the weight: scatter in a random horizontal direction.
+            double angle = this.random.nextDouble() * Math.PI * 2.0;
+            dx = Math.cos(angle);
+            dz = Math.sin(angle);
+        }
+        // knockback(power, x, z, ...) pushes the target AWAY from (x, z) = the weight's column. From 26.2 it
+        // takes the hit's source and the damage it dealt, as a hit's own knockback does: a Sulfur Cube holding
+        // a block scales its push by the damage when something is to blame for it.
+        target.knockback(KNOCKBACK_POWER, -dx, -dz, source, damage);
         target.setDeltaMovement(target.getDeltaMovement().add(0.0, -KNOCKBACK_DOWN, 0.0));
         target.hurtMarked = true;
     }
 
     private DamageSource orbDamageSource(@Nullable Player owner) {
-        Holder<DamageType> type = level().registryAccess()
+        return crushDamage(this, owner);
+    }
+
+    /** The damage {@code weight} crushes with, crediting {@code owner} where a player threw or dropped it. */
+    public static DamageSource crushDamage(Entity weight, @Nullable Player owner) {
+        Holder<DamageType> type = weight.level().registryAccess()
                 .lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(ModDamageTypes.LEAD_WEIGHT);
-        return owner != null ? new DamageSource(type, this, owner) : new DamageSource(type, this);
+        return new CrushDamage(type, weight, owner);
+    }
+
+    /**
+     * The weight's damage, named after who threw it. Vanilla's own message takes the base key wherever the source
+     * has an entity, as the weight always is, and the key ending in .item where the thrower holds a renamed item:
+     * the thrower is told only by the .player key, chosen here.
+     */
+    private static final class CrushDamage extends DamageSource {
+        private CrushDamage(Holder<DamageType> type, Entity weight, @Nullable Entity owner) {
+            super(type, weight, owner);
+        }
+
+        @Override
+        public Component getLocalizedDeathMessage(LivingEntity killed) {
+            String key = "death.attack." + type().msgId();
+            Entity owner = getEntity();
+            return owner != null
+                    ? Component.translatable(key + ".player", killed.getDisplayName(), owner.getDisplayName())
+                    : Component.translatable(key, killed.getDisplayName());
+        }
     }
 
     @Nullable
@@ -251,6 +290,8 @@ public class LeadWeightEntity extends FallingBlockEntity {
         // UUIDs round-trip through their codec (the direct UUID helpers went away in 1.21.5).
         output.storeNullable("Owner", UUIDUtil.CODEC, ownerUUID);
         output.putFloat("Momentum", momentum);
+        // Vanilla doesn't save where a falling block started, and the crush is measured from it.
+        output.putLong("StartPos", getStartPos().asLong());
     }
 
     @Override
@@ -258,5 +299,7 @@ public class LeadWeightEntity extends FallingBlockEntity {
         super.readAdditionalSaveData(input);
         ownerUUID = input.read("Owner", UUIDUtil.CODEC).orElse(null);
         momentum = input.getFloatOr("Momentum", 1.0f);
+        // Saved before it kept its start, it counts its fall from where it was saved, not from y = 0.
+        setStartPos(input.getLong("StartPos").map(BlockPos::of).orElseGet(this::blockPosition));
     }
 }
