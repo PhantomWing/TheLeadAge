@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:ore_vein",
+  "density": "theleadage:overworld/lead_vein/density",
+  "filler_block": "minecraft:tuff",
+  "filler_gap": "theleadage:overworld/lead_vein/gap",
+  "ore_block": "theleadage:lead_ore",
+  "raw_ore_block": "theleadage:raw_lead_block",
+  "raw_ore_chance": 0.02,
+  "richness": "theleadage:overworld/lead_vein/richness"
+}

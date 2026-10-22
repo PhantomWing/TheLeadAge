@@ -4,11 +4,27 @@
   "package": "com.phantomwing.theleadage.neoforge.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "BaseCoralPlantTypeBlockMixin",
     "CampfireBlockEntityMixin",
+    "CampfireSmokeMixin",
+    "ChunkMapMixin",
+    "CoralBlockMixin",
     "IronBarsBlockMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "MaterialSystemMixin",
+    "RandomPosMixin",
+    "RandomStateMixin",
+    "SquidRandomMovementGoalMixin",
+    "SwimNodeEvaluatorMixin",
+    "WalkNodeEvaluatorMixin"
   ],
   "client": [
+    "BiomeColorsMixin",
+    "CampfireBlockMixin",
+    "ClientLevelMixin",
+    "FluidRendererMixin",
+    "FogRendererMixin",
+    "ParticleEngineMixin",
     "StonecutterScreenMixin"
   ],
   "injectors": {

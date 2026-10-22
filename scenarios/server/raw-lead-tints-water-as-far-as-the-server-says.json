@@ -1,0 +1,16 @@
+{
+  "name": "Raw lead tints the water only as far as the server's range reaches, not the client's own",
+  "gamemode": "creative",
+  "steps": [
+    { "fill": [-1, 0, -1], "to": [7, 0, 1], "block": "minecraft:stone" },
+    { "fill": [1, 0, 0], "to": [6, 0, 0], "block": "minecraft:water" },
+    { "setblock": [0, 0, 0], "block": "theleadage:raw_lead_block" },
+    { "expect": "block", "at": [0, 0, 0], "is": "theleadage:raw_lead_block", "with": { "contamination": "10" }, "within": 1500 },
+    { "expect": "water", "at": [1, 0, 0], "tinted": true },
+    { "wait": 40 },
+    { "expect": "water", "at": [4, 0, 0], "tinted": false, "within": 1 },
+    { "move": [3, 0, -3] },
+    { "look": [3, 0, 0] },
+    { "screenshot": "tinted-two-blocks" }
+  ]
+}

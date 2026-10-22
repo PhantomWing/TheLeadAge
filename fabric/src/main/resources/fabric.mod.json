@@ -24,6 +24,9 @@
     ],
     "jei_mod_plugin": [
       "com.phantomwing.theleadage.compat.jei.TheLeadAgeJeiPlugin"
+    ],
+    "modmenu": [
+      "com.phantomwing.theleadage.fabric.config.TheLeadAgeModMenu"
     ]
   },
   "accessWidener": "theleadage.accesswidener",
@@ -40,5 +43,10 @@
   "suggests": {
     "farmersdelight": "*",
     "jei": "*"
+  },
+  "custom": {
+    "lithium:options": {
+      "mixin.world.block_entity_ticking.sleeping.campfire": false
+    }
   }
 }

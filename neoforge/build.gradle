@@ -48,6 +48,13 @@ loom {
             clientData()
             name = "Data Generation"
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
+            // The mod without the test source set, which carries the datagen output into dev runs: datagen would
+            // otherwise load the output of the run before as the mod's own while it writes the new one.
+            mods {
+                register('main') {
+                    sourceSet sourceSets.main
+                }
+            }
         }
 
         // Headless NeoForge game-test server: runs every registered test instance,
@@ -79,9 +86,18 @@ configurations {
 
 // Test-only source set for game tests. Kept out of `main` so neither the test
 // classes nor the empty.nbt structure ship in the production jar. It inherits
-// main's full compile/runtime classpath plus main's output.
+// main's full compile/runtime classpath plus main's output. The tests themselves
+// are common/src/gametest, which Fabric's game tests run too; only the registration
+// and TestLoader are NeoForge's own.
+//
+// The datagen output is in it too, for dev runs only. There common's transformed jar is a mod of its own
+// (generated_<hash>) that nothing orders, so NeoForge's own copies of vanilla recipes beat its data, and the Fishing
+// Rod override never showed. As part of this mod it loads after NeoForge, as the shipped jar's does.
 sourceSets {
     test {
+        java.srcDir project(':common').file('src/gametest/java')
+        resources.srcDir project(':common').file('src/gametest/resources')
+        resources.srcDir project(':common').file('src/generated/resources')
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
         runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
     }
@@ -91,6 +107,16 @@ sourceSets {
 // there, and Gradle 9 fails a build whose test task discovers nothing.
 tasks.named('test') {
     failOnNoDiscoveredTests = false
+}
+
+processTestResources {
+    exclude '.cache/**'
+}
+
+// Every run but datagen's loads the test source set as part of the mod, but only the game-test run builds it: the
+// client and server would load whatever the last game tests copied.
+tasks.withType(net.fabricmc.loom.task.AbstractRunTask).matching { it.name != 'runData' }.configureEach {
+    dependsOn tasks.named('processTestResources')
 }
 
 dependencies {

@@ -1,0 +1,63 @@
+{
+  "type": "minecraft:range_choice",
+  "input": "minecraft:y",
+  "max_exclusive": 58.0,
+  "min_inclusive": 8.0,
+  "when_in_range": {
+    "type": "minecraft:range_choice",
+    "input": "theleadage:overworld/lead_vein/mask",
+    "max_exclusive": 1000000.0,
+    "min_inclusive": 0.0,
+    "when_in_range": {
+      "type": "minecraft:range_choice",
+      "input": {
+        "type": "minecraft:add",
+        "left": {
+          "type": "minecraft:add",
+          "left": -0.6,
+          "right": {
+            "type": "minecraft:mul",
+            "left": -1.0,
+            "right": "theleadage:overworld/lead_vein/toggle"
+          }
+        },
+        "right": {
+          "type": "minecraft:add",
+          "left": {
+            "type": "minecraft:mul",
+            "left": {
+              "type": "minecraft:clamp",
+              "input": {
+                "type": "minecraft:min",
+                "left": {
+                  "type": "minecraft:add",
+                  "left": 58.0,
+                  "right": {
+                    "type": "minecraft:mul",
+                    "left": -1.0,
+                    "right": "minecraft:y"
+                  }
+                },
+                "right": {
+                  "type": "minecraft:add",
+                  "left": "minecraft:y",
+                  "right": -8.0
+                }
+              },
+              "max": 20.0,
+              "min": 0.0
+            },
+            "right": 0.01
+          },
+          "right": -0.2
+        }
+      },
+      "max_exclusive": 1000000.0,
+      "min_inclusive": 0.0,
+      "when_in_range": 0.7,
+      "when_out_of_range": -1.0
+    },
+    "when_out_of_range": -1.0
+  },
+  "when_out_of_range": -1.0
+}

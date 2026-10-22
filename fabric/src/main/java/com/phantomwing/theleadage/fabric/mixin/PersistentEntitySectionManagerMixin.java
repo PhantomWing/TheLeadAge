@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.fabric.mixin;
 
 import com.phantomwing.theleadage.armor.MonsterArmorHandler;
+import com.phantomwing.theleadage.entity.LeadFumeRepellent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
@@ -10,7 +11,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Fabric parity for the NeoForge monster-armor disk-load gating.
+ * Fabric parity for the NeoForge monster-armor disk-load gating, and for the fear of burning lead creepers and
+ * pillagers get ({@link LeadFumeRepellent}), which Architectury's {@code EntityEvent.ADD} gives only to mobs that
+ * didn't come from storage on Fabric.
  *
  * <p>NeoForge subscribes {@code EntityJoinLevelEvent} and forwards the real
  * {@code event.loadedFromDisk()} flag to
@@ -47,6 +50,10 @@ public abstract class PersistentEntitySectionManagerMixin {
         // implements EntityAccess, so this cast is always safe at runtime.
         if (entityAccess instanceof Entity entity) {
             MonsterArmorHandler.tryEquipLeadGear(entity, entity.level(), loadedFromStorage);
+            if (loadedFromStorage) {
+                // Architectury's EntityEvent.ADD, which gives the rest their fear of burning lead, misses these.
+                LeadFumeRepellent.addAvoidance(entity);
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ import com.phantomwing.theleadage.damage.ModDamageTypes;
 import com.phantomwing.theleadage.neoforge.world.ModBiomeModifiers;
 import com.phantomwing.theleadage.world.ModFeatures;
 import com.phantomwing.theleadage.world.ModPlacedFeatures;
+import com.phantomwing.theleadage.world.vein.LeadVeins;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -17,9 +18,11 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 public final class ModDatapackProvider {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap)
+            .add(Registries.DENSITY_FUNCTION, LeadVeins::bootstrapFunctions)
             .add(Registries.TRIM_MATERIAL, ModTrimMaterials::bootstrap)
             .add(Registries.FEATURE, ModFeatures::bootstrap)
             .add(Registries.PLACED_FEATURE, ModPlacedFeatures::bootstrap)
+            .add(Registries.MATERIAL_RULE, LeadVeins::bootstrapRules)
             .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModBiomeModifiers::bootstrap);
 
     private ModDatapackProvider() {

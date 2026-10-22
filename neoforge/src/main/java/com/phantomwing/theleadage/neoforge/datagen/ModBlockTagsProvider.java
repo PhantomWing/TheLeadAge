@@ -73,8 +73,16 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
 
         tag(BlockTags.BEACON_BASE_BLOCKS).add(ModBlocks.LEAD_BLOCK.get());
 
+        // A pressure plate, which also forces a wall's centre post under it. Like vanilla's weighted
+        // plates it takes any pickaxe, so it stays out of NEEDS_STONE_TOOL with the rest of the lead.
+        tag(BlockTags.PRESSURE_PLATES).add(ModBlocks.LEAD_PRESSURE_PLATE.get());
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEAD_PRESSURE_PLATE.get());
+
         // A goat ramming lead ore loses a horn, as on iron or copper ore (vanilla lists only the stone ores).
         tag(BlockTags.SNAPS_GOAT_HORN).add(ModBlocks.LEAD_ORE.get());
+        // The lead veins are laid down with the terrain, before caves are carved, and are carved through as vanilla's
+        // iron and copper veins are: from 26.3 carvers cut everything but #uncarvable, so they need no tag here, where
+        // the lines before add them to #overworld_carver_replaceables.
 
         // The families vanilla groups its iron and copper chains, lanterns and bars into.
         tag(BlockTags.CHAINS).add(ModBlocks.LEAD_CHAIN.get());
@@ -94,7 +102,7 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
         tag(ModTags.Blocks.CREEPER_REPELLENTS).add(burningLead);
         tag(ModTags.Blocks.PILLAGER_REPELLENTS).add(burningLead);
         // A campfire lit on one of these gives off lead fumes, as one on hay sends its smoke higher.
-        tag(ModTags.Blocks.CAMPFIRE_FUME_SOURCES).add(ModBlocks.LEAD_BLOCK.get(), ModBlocks.RAW_LEAD_BLOCK.get());
+        tag(ModTags.Blocks.CAMPFIRE_FUME_SOURCES).add(ModBlocks.RAW_LEAD_BLOCK.get());
 
         // The lead building set, grouped into sub-tags rolled up under #lead_blocks.
         tag(ModTags.Blocks.SOLID_LEAD_BLOCKS).add(

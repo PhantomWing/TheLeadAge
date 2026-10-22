@@ -28,6 +28,8 @@ import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,6 +41,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
@@ -203,7 +206,8 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!LeadedGlassRecolor.isTool(stack)) {
+        // Changing a design is building, which adventure mode leaves to the map, as it does a sign's dye.
+        if (!LeadedGlassRecolor.isTool(stack) || !player.mayBuild()) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
         int region = regionAt(state, pos, hit);
@@ -217,12 +221,10 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
             if (colors == null) {
                 return InteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
             }
-            pane.setColors(colors);
-            // Dynamic (cell-based) panes carry no clear_N state — the wrapper model reads the block
-            // entity, and setColors already triggered the client re-render; the others flip the state.
-            if (!type.isDynamic()) {
-                level.setBlock(pos, state.setValue(CLEAR[region], target == null), Block.UPDATE_CLIENTS);
-            }
+            // Dynamic (cell-based) panes carry no clear_N state - the wrapper model reads the block
+            // entity, which re-renders it as the colours arrive; the others flip the state too.
+            pane.setColorsAndState(colors, type.isDynamic() ? state : state.setValue(CLEAR[region], target == null),
+                    Block.UPDATE_CLIENTS);
             LeadedGlassRecolor.consume(stack, player, hand, level, pos);
         }
         return InteractionResult.SUCCESS;
@@ -286,7 +288,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         int[] rotation = type.colorRotation();
-        if ((type.orientation == null && rotation == null) || !player.isShiftKeyDown()) {
+        if ((type.orientation == null && rotation == null) || !player.isShiftKeyDown() || !player.mayBuild()) {
             return InteractionResult.PASS;
         }
         boolean reverse = isBackFace(state, hit);
@@ -307,12 +309,13 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                         colors.add(LeadedGlassConfig.CLEAR);
                     }
                     Collections.reverse(colors);
-                    pane.setColors(colors);
                     for (int i = 0; i < type.regions; i++) {
                         rotated = rotated.setValue(CLEAR[i], colors.get(i) == LeadedGlassConfig.CLEAR);
                     }
+                    pane.setColorsAndState(colors, rotated, Block.UPDATE_ALL);
+                } else {
+                    level.setBlock(pos, rotated, Block.UPDATE_ALL);
                 }
-                level.setBlock(pos, rotated, Block.UPDATE_ALL);
             } else if (level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
                 List<Integer> colors = new ArrayList<>(pane.getColors());
                 while (colors.size() < type.regions) {
@@ -326,16 +329,13 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                         rotated.set(i, colors.get(rotation[i]));
                     }
                 }
-                pane.setColors(rotated);
-                // Dynamic panes have no clear_N state to flip; setColors already synced to the client and
-                // re-rendered the wrapper model. The others flip the state so their block-state model updates.
-                if (!type.isDynamic()) {
-                    BlockState rotatedState = state;
-                    for (int i = 0; i < type.regions; i++) {
-                        rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
-                    }
-                    level.setBlock(pos, rotatedState, Block.UPDATE_ALL);
+                // Dynamic panes have no clear_N state to flip: the colours re-render the wrapper model. The others
+                // flip the state so their block-state model updates.
+                BlockState rotatedState = state;
+                for (int i = 0; !type.isDynamic() && i < type.regions; i++) {
+                    rotatedState = rotatedState.setValue(CLEAR[i], rotated.get(i) == LeadedGlassConfig.CLEAR);
                 }
+                pane.setColorsAndState(rotated, rotatedState, Block.UPDATE_ALL);
             }
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 0.7f, 1.1f);
         }
@@ -388,11 +388,37 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
 
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        ItemStack stack = new ItemStack(this);
+        // The loot table decides whether it drops - an explosion's chance, a datapack's own table - and the design
+        // goes onto what it drops, as a door's does.
+        List<ItemStack> drops = super.getDrops(state, params);
         if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof LeadedGlassPanelBlockEntity pane) {
-            stack.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame(state), pane.getColors()));
+            for (ItemStack drop : drops) {
+                if (drop.is(asItem())) {
+                    drop.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame(state), pane.getColors()));
+                }
+            }
         }
-        return List.of(stack);
+        return drops;
+    }
+
+    /** Turns with a structure or schematic it is placed with: on a wall to stay in it, on a floor with the floor. */
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    /**
+     * A pane in a wall stands in the way of a mob's path, as a glass pane does: vanilla takes any block that isn't a full
+     * cube for open. One on a floor or ceiling is walked over or under.
+     */
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType type) {
+        return state.getValue(FACE) != AttachFace.WALL && super.isPathfindable(state, type);
     }
 
     @Nullable

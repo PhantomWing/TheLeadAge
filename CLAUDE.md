@@ -21,14 +21,61 @@ with registration, and `TestCompat` holds each call whose shape differs between 
 Porting a test is its body plus its `GameTests` entry, copied as-is; see `verification.md`.
 
 `scenarios/` holds the play scenarios the portal's Play scenarios check runs as a player. They are
-plain JSON and copy across lines unchanged.
+plain JSON and copy across lines unchanged. `scenarios/server` holds those its Play scenarios on a server check
+plays on the line's dedicated server, which `scenarios/server/<loader>/config` gives a `lead_water_range` of 2
+against the client's 6, so the tint shows whose setting the client draws by.
+
+The test bodies are 1.21.1's but for seven calls the 1.2 port moved into `TestCompat`: six on 1.21.3 (`trim`,
+`trimPalette`, `hasRecipe`, `recipesFor`, `use`, `nearestDirection`), which `version/1.21`'s bodies still make
+directly, and `assertTrue` on 1.21.5, since `GameTestHelper.assertTrue` takes only a Component from 1.21.5 to
+1.21.10, which the bodies of `version/1.21`, `version/1.21.3` and `version/1.21.4` still call on the helper. Their
+`TestCompat`s want those methods in their own forms before the bodies match again. 1.21.11 has an eighth, `offer`
+(`ItemListing.getOffer` takes the trader's level first from 1.21.11), which 26.1 can't have: trades are data from 26.1
+and `ItemListing` is gone. So from 26.1 `armorers_buy_lead_in_rebalanced_worlds` asks
+`TestCompat.rebalancedApprenticeArmorerBuys` instead, which reads the armorer's level 2 trade set and the mod's tag it
+draws from, and `lead_gear_smelts_into_nuggets` cooks through `TestCompat.assemble`, which takes any recipe here
+(`Recipe#assemble` lost its registries on every recipe type in 26.1). The lines before want both in their own forms
+before those two bodies match again. `LeadedGlassPlacementGameTest.describe` reads a state through its properties, which
+every line has, since `BlockState#getValues` is a stream from 26.1. 26.2 moved `EntityType`'s constants to `EntityTypes`, so
+the ten entity types the bodies spawn (`ZOMBIE`, `VILLAGER`, `CHICKEN`, `COD`, `DROWNED`, `AXOLOTL`, `SQUID`, `CREEPER`,
+`BEE`, `PIG`) are `TestCompat` constants too, as `ITEM_ENTITY` and `NAUTILUS` were already; the lines before 26.2 want them
+as `EntityType`'s in their `TestCompat`s before those bodies match again.
+
+26.3 moved three more calls into `TestCompat`, which the lines before want in their own forms before those bodies match
+26.3's again: `IMMOVABLE` (`pistons_cant_push_solid_lead`), `PushReaction.BLOCK` until 26.3 renamed it `IMMOVEABLE`;
+`trades` (`smith_pools_include_lead_trade`), a trade set's `getTrades()` until 26.3 made it a record; and `carvedByCaves`
+(`lead_veins_carve_away`), membership of `#overworld_carver_replaceables` until 26.3, where carvers cut everything but
+`#uncarvable`. `trimPalette` reads the armour's equipment asset here, since 26.3 moved the darker palette for lead trim
+on lead armour into its `trim_overrides`. The two `LeadVeinGameTest` bodies are 26.3's own: vanilla's veins became
+material rules, so they read the veins through `TestCompat.leadVeins` (vanilla's ore vein rule over the mod's density
+functions, at single points) and ask the material system for the block at a vein (`TestCompat.topMaterial`), where the
+lines before read a `NoiseChunk`'s fillers. A mock player can be made at once on 26.3 (`entitiesLoadedAroundSpawn`
+returns true).
+
+Two tests are 1.21.11's and newer's own, since what they test is new in 1.21.11: `nautilus_armor_fits_the_nautilus` and
+`lead_spear_is_a_spear`, with `TestCompat.NAUTILUS` and `canBeEquippedBy`. The gear tests (`LeadGearGameTest.gear()`)
+take the spear and the nautilus armor from `TestCompat.newerGear()`, which the lines before 1.21.11 want as an empty list.
+One is 26.x's own: `smith_pools_include_lead_trade`, which checks that each smith's level 2 trade set draws the lead trade.
 
 ## This line
 
 - Java 25, no mappings and no Parchment (Mojang names are the runtime names). `org.gradle.java.home` is pinned in `gradle.properties` to a JDK on this machine; if the daemon fails to start, check that path first.
-- Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited.
-- Game tests in `neoforge/src/test`, run with `:neoforge:runGameTest`. Laid out with the test shim above.
-- 5 play scenarios in `scenarios/`.
+- NeoForge 26.3.0.76 with Architectury API 22.0.5, which move as a pair (`neo_version_range` from 26.3.0.48). The config registers as `ModConfig.Type.LOCAL` under its old name, `theleadage-common.toml`. The dev runs pass Mojang's 26.3 JVM arguments (`-XX:StackShadowPages=32`) from `build.gradle`.
+- Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited. Recipes, loot tables and advancements are reloadable registries from 26.3, written through `PackGenerator` with `minecraft` in the namespace set, so the vanilla overrides are written.
+- Game tests in `common/src/gametest`, run on both loaders: `:neoforge:runGameTest` and `:fabric:runGameTest`. Laid out with the test shim above; each loader's `GameTestRegistration` and `TestLoader` are in its own `src/test` (`architectury.md`, "Game tests on Fabric too"). Fabric's `GameTestRegistration` is the test mod's `main` entrypoint and registers into vanilla's test registries itself, the instances from Fabric's `DynamicRegistrySetupCallback`; its test environment is a `TestEnvironmentDefinition<?>` from 26.1. NeoForge's registers wherever `RegisterGameTestsEvent` comes, the dedicated server included. Fabric's game-test world runs with the Villager Trade Rebalance experiment on, NeoForge's without. NeoForge's test source set also has the dev-only `/leadvein` command.
+- 13 play scenarios in `scenarios/`, and 1 in `scenarios/server`.
+- Entities and block entities save through 1.21.6's `ValueOutput` and read through `ValueInput`. A leaded glass design's colours go through `LeadedGlassConfig.putColors` and `getColors`, a list of dye names that also reads 1.1's array of numbers; `TestCompat.reloaded` saves and loads an entity the same way.
+- Particles are 1.21.9's: the mod's own (`LeadSpeckParticle`) are `SingleQuadParticle`s given their sprite as they are made, and only a `SingleQuadParticle` takes a colour, so the purple smoke and fumes tint those. Fabric API registers their providers through `ParticleProviderRegistry` from 26.1.
+- Sprites the mod makes as an atlas loads (`MurkyWater`, `LeadWaterParticles`) are `SpriteSource.DiscardableLoader`s, and a made `SpriteContents` takes the source's texture section besides its animation. Contaminated water's textures are added to the blocks atlas (`atlases/blocks.json`).
+- Trims are 26.3's: the lead `TrimMaterial` is a palette id and a name, its palettes are under `textures/palettes/trim/`, the item icons' sprites come from the items atlas (`atlases/items.json`, keyed on `minecraft:trim_base`), and the darker palette for lead trim on lead armour is the equipment asset's `trim_overrides` (`equipment/lead.json`).
+- Large lead veins are data (`LeadVeins`): density functions under `theleadage:overworld/lead_vein/` and the material rule `theleadage:overworld/lead_ore_vein`, vanilla's `ore_vein` rule over them. From 26.3 vanilla's own veins are rules of the noise settings' material rule, so each loader's `MaterialSystemMixin` adds the lead veins right after vanilla's iron vein wherever a rule has it, when the material system builds a chunk's surface and a carver's top material, once `ChunkMapMixin` has bound the level's rule to its `RandomState`. Carvers cut them as anything but `#uncarvable`, so they need no carver tag.
+- 26.1 draws a fluid from a `FluidModel`, one for all the water, so contaminated water gets its murky textures from each loader's `FluidRendererMixin`, which swaps the model `FluidRenderer.tesselate` looks up for a copy with the murky sprites; NeoForge's `FluidModel` carries a tint source and a custom renderer of its own, so each loader makes the copy itself. Its tint still comes through `BiomeColors.getAverageWaterColor` (`BiomeColorsMixin`), and the murk under water through `FogRendererMixin`, which writes into the fog colour `computeFogColor` is handed from 26.1. Fabric registers no water render handler of its own, which up to 1.21.11 made Sodium blend the tint: 26.1's Fabric API takes a model with one. Sodium draws fluids itself, and this line has no Sodium in its run folders, so neither the murky textures nor the tint's blending has been seen under Sodium or Iris on 26.x.
+- Villager trades are data (`ModVillagerTradeProvider`): the lead trade per smith, gated by `enable_villager_trades`, in each smith's `minecraft:<smith>/level_2` tag. The Villager Trade Rebalance experiment's datapack replaces `minecraft:armorer/level_2` after every mod's data, so the armorer's level 2 trade set (`data/minecraft/trade_set/armorer/level_2.json`, vanilla's but for its tag) draws from `theleadage:armorer/level_2`, the vanilla tag and the lead trade.
+- 1.21.11 content of its own: the Lead Spear (dismount threshold 9.0, as 26.x's netherite spear) and the Lead Nautilus Armor (with their recipes, tags, loot and nugget smelting), spears in the mob gear and chest swaps, parched in `can_wear_lead_armor`, and the `c:armors/horse` and `c:armors/nautilus` tags. 26.3's own: lead in the abandoned camp's secret chest (ingots and gear).
+- 26.2 moved the entity type constants to `EntityTypes`, gathered the copper blocks into `WeatheringCopperCollection`s and the dyed variants into `ColorCollection`s (`Items.DYE.pick(DyeColor.RED)`), and dropped the `ItemTags` constants of the tags mirroring a block family; the tests reach those through `TestCompat`, and datagen's tag providers add values through `ValueAppender`, since a `TagAppender` takes a `ResourceKey` from 26.2. `LevelRenderer`'s dirty marking (`allChanged`, `setBlocksDirty`, `blockChanged`) is `LevelExtractor`'s (`Minecraft.levelExtractor`) from 26.2, and a block change reaches it without its states, so the water around raw lead is drawn again from each loader's `ClientLevelMixin`, at the head of `ClientLevel.sendBlockUpdated`.
+- 26.3 removed the block codecs, `AxeItem`, `ShovelItem` and `HoeItem` (the lead tools are `Item`s with `Item.Properties#axe` and friends), renamed the `PushReaction` constants, made `playerDestroy` server-only, and gave level event 2001 the name `PARTICLES_AND_SOUND_DESTROY_BLOCK`: `LeadedGlassShatter` sends it by that name, or broken leaded glass makes no sound.
+- JEI's plugin (`compat/jei`, JEI 31.10.0.63) shows the leaded glass recipes, info entries and, through `LeadedGlassSubtypes`, each design as its own stack; JEI runs in the dev client but not in the game tests or datagen. EMI has no build past 1.21.1.
+- Fabric's config screen opens from Mod Menu (`TheLeadAgeModMenu`, through Cloth Config's `AutoConfigClient` from 26.1), compiled against Mod Menu 21.0.0, its newest for 26.3. Farmer's Delight Refabricated isn't a dependency here: the Lead Knife compiles against a stub in `fabric/src/main/java/vectorwing`, kept out of every jar.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

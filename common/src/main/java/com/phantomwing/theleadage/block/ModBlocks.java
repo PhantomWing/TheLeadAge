@@ -1,7 +1,9 @@
 package com.phantomwing.theleadage.block;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.custom.LeadPressurePlateBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
+import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.block.custom.HorizontalFacingBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
@@ -76,7 +78,7 @@ public class ModBlocks {
     // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge. They copy
     // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
-            new Block(copyOf(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+            new RawLeadBlock(copyOf(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
                     .pushReaction(PushReaction.IMMOVEABLE).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
             new Block(copyOf(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
@@ -86,10 +88,10 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> CUT_LEAD = registerLeadBlock("cut_lead");
     public static final RegistrySupplier<Block> LEAD_BRICKS = registerLeadBlock("lead_bricks");
     public static final RegistrySupplier<SlabBlock> LEAD_BRICK_SLAB = registerLeadSlab("lead_brick_slab");
-    public static final RegistrySupplier<StairBlock> LEAD_BRICK_STAIRS = registerLeadStairs("lead_brick_stairs");
+    public static final RegistrySupplier<StairBlock> LEAD_BRICK_STAIRS = registerLeadStairs("lead_brick_stairs", LEAD_BRICKS);
     public static final RegistrySupplier<WallBlock> LEAD_BRICK_WALL = registerLeadWall("lead_brick_wall");
     public static final RegistrySupplier<SlabBlock> CUT_LEAD_SLAB = registerLeadSlab("cut_lead_slab");
-    public static final RegistrySupplier<StairBlock> CUT_LEAD_STAIRS = registerLeadStairs("cut_lead_stairs");
+    public static final RegistrySupplier<StairBlock> CUT_LEAD_STAIRS = registerLeadStairs("cut_lead_stairs", CUT_LEAD);
     public static final RegistrySupplier<HorizontalFacingBlock> CHISELED_LEAD = registerLeadChiseled("chiseled_lead");
     public static final RegistrySupplier<RotatedPillarBlock> LEAD_PILLAR = registerLeadPillar("lead_pillar");
     public static final RegistrySupplier<Block> LEAD_GRATE = registerLeadGrate("lead_grate");
@@ -102,8 +104,9 @@ public class ModBlocks {
     // beside it (LeadTorchBlockEntity). The lead lantern is the enclosed — and safe — version.
     public static final RegistrySupplier<Block> LEAD_TORCH = register("lead_torch", () ->
             new LeadTorchBlock(copyOf(Blocks.TORCH)));
+    // The standing torch's loot table, as vanilla's wall torch has (dropsLike before 1.21.2).
     public static final RegistrySupplier<Block> LEAD_WALL_TORCH = register("lead_wall_torch", () ->
-            new LeadWallTorchBlock(copyOf(Blocks.WALL_TORCH)));
+            new LeadWallTorchBlock(copyOf(Blocks.WALL_TORCH).overrideLootTable(LEAD_TORCH.get().getLootTable())));
     public static final RegistrySupplier<Block> LEAD_LANTERN = register("lead_lantern", () ->
             new LanternBlock(copyOf(Blocks.LANTERN)));
 
@@ -115,6 +118,13 @@ public class ModBlocks {
             new CopperBulbBlock(copyOf(Blocks.COPPER_BULB.weathering().unaffected())
                     .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
                     .strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+
+    // Lead Pressure Plate: the weighted plate pressed by mobs alone, one signal level each (see
+    // LeadPressurePlateBlock). A thin plate, so it keeps the heavy plate's strength rather than lead's;
+    // its sound comes from the LEAD block set.
+    public static final RegistrySupplier<Block> LEAD_PRESSURE_PLATE = register("lead_pressure_plate", () ->
+            new LeadPressurePlateBlock(copyOf(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE)
+                    .mapColor(MapColor.COLOR_GRAY)));
 
     // Leaded glass: renders/behaves like glass, but requires a pickaxe to drop itself
     // (requiresCorrectToolForDrops + the mineable/pickaxe tag). It's pried from its lead
@@ -242,8 +252,9 @@ public class ModBlocks {
         return register(name, () -> new SlabBlock(leadProps()));
     }
 
-    private static RegistrySupplier<StairBlock> registerLeadStairs(String name) {
-        return register(name, () -> new StairBlock(Blocks.IRON_BLOCK.defaultBlockState(), leadProps()));
+    /** Stairs take their blast resistance from the block they are made of, so it is lead, not iron. */
+    private static RegistrySupplier<StairBlock> registerLeadStairs(String name, RegistrySupplier<Block> base) {
+        return register(name, () -> new StairBlock(base.get().defaultBlockState(), leadProps()));
     }
 
     private static RegistrySupplier<WallBlock> registerLeadWall(String name) {

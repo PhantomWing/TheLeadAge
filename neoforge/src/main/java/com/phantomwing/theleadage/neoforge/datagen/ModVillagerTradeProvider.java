@@ -35,12 +35,19 @@ import java.util.concurrent.CompletableFuture;
  * this small provider encodes the trade through its own CODEC (schema-correct by construction) and
  * then injects the {@code neoforge:conditions} gate. {@link FabricConditionsProvider} mirrors that
  * to {@code fabric:load_conditions}, so one file gates identically on both loaders.</p>
+ *
+ * <p>The Villager Trade Rebalance experiment is a datapack the world loads after every mod's, and its
+ * {@code minecraft:armorer/level_2} tag replaces the pool, which drops an entry added there. So the armorer's level 2
+ * trade set draws from a tag of this mod's that holds the vanilla tag and the lead trade, which the experiment's
+ * replacement can't reach; in a world without it the trade is in both, which a tag counts once.</p>
  */
 public class ModVillagerTradeProvider implements DataProvider {
     /** Mirror vanilla: all three smiths buy lead ingots at apprentice, exactly like iron ingots. */
     private static final List<String> SMITHS = List.of("armorer", "toolsmith", "weaponsmith");
     private static final int LEVEL = 2;
     private static final String TRADE_NAME = "lead_ingot_emerald";
+    /** The smith whose level 2 pool the Villager Trade Rebalance experiment replaces. */
+    private static final String REBALANCED_SMITH = "armorer";
     /** Standard villager price multiplier (how much demand shifts the price). */
     private static final float PRICE_MULTIPLIER = 0.05f;
 
@@ -75,6 +82,10 @@ public class ModVillagerTradeProvider implements DataProvider {
                 futures.add(DataProvider.saveStable(cache, poolTag(smith),
                         data.resolve("minecraft/tags/villager_trade/" + smith + "/level_" + LEVEL + ".json")));
             }
+            futures.add(DataProvider.saveStable(cache, rebalancedPoolTag(REBALANCED_SMITH),
+                    data.resolve(TheLeadAge.MOD_ID + "/tags/villager_trade/" + REBALANCED_SMITH + "/level_" + LEVEL + ".json")));
+            futures.add(DataProvider.saveStable(cache, tradeSet(REBALANCED_SMITH),
+                    data.resolve("minecraft/trade_set/" + REBALANCED_SMITH + "/level_" + LEVEL + ".json")));
 
             return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         });
@@ -108,6 +119,33 @@ public class ModVillagerTradeProvider implements DataProvider {
         JsonObject tag = new JsonObject();
         tag.add("values", values);
         return tag;
+    }
+
+    /**
+     * {@code theleadage:<profession>/level_2}: the vanilla pool and the lead trade, which the experiment's replacement of
+     * the vanilla tag leaves alone.
+     */
+    private static JsonObject rebalancedPoolTag(String profession) {
+        // The vanilla pool first, so a world without the experiment draws from the pool in the order it always had.
+        JsonArray values = new JsonArray();
+        values.add("#minecraft:" + profession + "/level_" + LEVEL);
+        values.addAll(poolTag(profession).getAsJsonArray("values"));
+        JsonObject tag = new JsonObject();
+        tag.add("values", values);
+        return tag;
+    }
+
+    /**
+     * Vanilla's level 2 trade set of {@code profession}, drawing from {@link #rebalancedPoolTag} instead. Its amount and
+     * random sequence are vanilla's as 26.3 has them, written out: check them against vanilla's file on a port. 26.3's
+     * amount is a whole number, where 26.1.2's and 26.2's were 2.0.
+     */
+    private static JsonObject tradeSet(String profession) {
+        JsonObject set = new JsonObject();
+        set.addProperty("amount", 2);
+        set.addProperty("random_sequence", "minecraft:trade_set/" + profession + "/level_" + LEVEL);
+        set.addProperty("trades", "#" + TheLeadAge.MOD_ID + ":" + profession + "/level_" + LEVEL);
+        return set;
     }
 
     @Override

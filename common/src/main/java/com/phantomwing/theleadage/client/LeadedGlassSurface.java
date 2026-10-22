@@ -3,11 +3,11 @@ package com.phantomwing.theleadage.client;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -24,6 +24,8 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Draws a leaded glass pane's design onto a thin slab (the leaded glass door / trapdoor window).
@@ -33,10 +35,21 @@ import java.util.List;
  * (from the block's collision shape) decides which plane to rotate the pane sheet onto.
  */
 public final class LeadedGlassSurface {
-    /** Cached: {@code Direction.values()} clones its array per call, and this is a per-frame path. */
+    /** Cached: {@code Direction.values()} clones its array per call. */
     private static final Direction[] DIRECTIONS = Direction.values();
+    /** How many designs' quads are kept: as many as a build shows at once, well past it. */
+    private static final int DRAWN_KEPT = 256;
+    /**
+     * Each design's quads, tinted and with its clear regions' sprites swapped, as the model they came from drew them:
+     * the design doesn't change from frame to frame, and working them out again each frame for each door made
+     * thousands of objects a frame. A model made anew by a resource reload has them worked out again.
+     */
+    private static final Map<LeadedGlassConfig, Drawn> DRAWN = new ConcurrentHashMap<>();
 
     private LeadedGlassSurface() {
+    }
+
+    private record Drawn(BlockStateModel model, List<BakedQuad> quads, int[] colors) {
     }
 
     public static void render(LeadedGlassConfig config, AABB slab, PoseStack pose,
@@ -57,15 +70,19 @@ public final class LeadedGlassSurface {
     public static void renderUpright(LeadedGlassConfig config, PoseStack pose,
                                      SubmitNodeCollector collector, int light, int overlay) {
         BlockState paneState = paneStateFor(config);
-        // 1.21.5: block models are BlockStateModels, so quads come per-part via collectParts, which
-        // also replaces the old per-direction getQuads(state, dir, random) calls.
         // 26.1: the block renderer no longer hands out models (Minecraft#getBlockRenderer is gone),
-        // the model set on the model manager does, and collectParts fills a list instead of
-        // returning one.
+        // the model set on the model manager does.
         BlockStateModel model = Minecraft.getInstance().getModelManager()
                 .getBlockStateModelSet().get(paneState);
-        List<BlockStateModelPart> parts = new ArrayList<>();
-        model.collectParts(RandomSource.create(42L), parts);
+        Drawn drawn = DRAWN.get(config);
+        if (drawn == null || drawn.model() != model) {
+            if (DRAWN.size() >= DRAWN_KEPT) {
+                DRAWN.clear();
+            }
+            drawn = draw(model, config);
+            DRAWN.put(config, drawn);
+        }
+
         // 1.21.9: geometry is submitted rather than written to a buffer here, and the draw happens
         // later. The pose is snapshotted (PoseStack.Pose#copy) at submit time, so every transform
         // applied above is already baked into the Pose the callback receives.
@@ -73,34 +90,46 @@ public final class LeadedGlassSurface {
         // and carry absolute BLOCKS-atlas UVs. 1.21.11 repointed translucentItemSheet() at the new
         // ITEMS atlas (the block-atlas type it used to return is now translucentBlockItemSheet),
         // and the signature is identical, so the wrong one compiles and samples the wrong atlas.
+        Drawn quads = drawn;
         collector.submitCustomGeometry(pose, Sheets.translucentBlockItemSheet(), (snapshot, buffer) -> {
-            for (BlockStateModelPart part : parts) {
-                emit(part, config, null, buffer, snapshot, light, overlay);
-                for (Direction dir : DIRECTIONS) {
-                    emit(part, config, dir, buffer, snapshot, light, overlay);
-                }
+            // 26.1: the per-quad colour, light and overlay moved off putBulkData's argument list
+            // into a QuadInstance (it defaults to opaque white at full brightness).
+            QuadInstance instance = new QuadInstance();
+            instance.setLightCoords(light);
+            instance.setOverlayCoords(overlay);
+            for (int i = 0; i < quads.quads().size(); i++) {
+                instance.setColor(0xFF000000 | quads.colors()[i]);
+                buffer.putBakedQuad(snapshot, quads.quads().get(i), instance);
             }
         });
     }
 
-    private static void emit(BlockStateModelPart part, LeadedGlassConfig config, Direction dir,
-                             VertexConsumer buffer, PoseStack.Pose pose, int light, int overlay) {
+    // 1.21.5: block models are BlockStateModels, so quads come per part via collectParts, which also replaces the old
+    // per-direction getQuads(state, dir, random) calls. 26.1: collectParts fills a list instead of returning one.
+    private static Drawn draw(BlockStateModel model, LeadedGlassConfig config) {
+        List<BakedQuad> quads = new ArrayList<>();
+        IntArrayList colors = new IntArrayList();
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(RandomSource.create(42L), parts);
+        for (BlockStateModelPart part : parts) {
+            collect(part, config, null, quads, colors);
+            for (Direction dir : DIRECTIONS) {
+                collect(part, config, dir, quads, colors);
+            }
+        }
+        return new Drawn(model, List.copyOf(quads), colors.toIntArray());
+    }
+
+    private static void collect(BlockStateModelPart part, LeadedGlassConfig config, Direction dir,
+                                List<BakedQuad> quads, IntArrayList colors) {
         for (BakedQuad quad : part.getQuads(dir)) {
             int tint = quad.materialInfo().tintIndex();
             // Clear regions must be drawn with the clear sprite, not the tintable white one. For most
             // came types the block state already picked a clear-textured model and this is a no-op,
             // but grid and lattice carry no clear_N state, and their chunk-mesh wrapper can only do the
             // swap from a block entity, which a door has none of. Without this they render solid white.
-            BakedQuad out = tint >= 0 && config.colorAt(tint) == null
-                    ? LeadedGlassClearSprite.retexture(quad)
-                    : quad;
-            // 26.1: the per-quad colour, light and overlay moved off putBulkData's argument list
-            // into a QuadInstance (it defaults to opaque white at full brightness).
-            QuadInstance instance = new QuadInstance();
-            instance.setColor(0xFF000000 | colorFor(tint, config));
-            instance.setLightCoords(light);
-            instance.setOverlayCoords(overlay);
-            buffer.putBakedQuad(pose, out, instance);
+            quads.add(tint >= 0 && config.colorAt(tint) == null ? LeadedGlassClearSprite.retexture(quad) : quad);
+            colors.add(colorFor(tint, config));
         }
     }
 

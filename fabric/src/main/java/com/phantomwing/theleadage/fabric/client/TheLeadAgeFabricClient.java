@@ -2,6 +2,8 @@ package com.phantomwing.theleadage.fabric.client;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
+import com.phantomwing.theleadage.client.LeadFumesParticles;
+import com.phantomwing.theleadage.client.LeadSpeckParticle;
 import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassItemModels;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorRenderer;
@@ -32,9 +34,13 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LeadedGlassItemModels.registerTypes();
+        MurkyWaterFabric.register();
 
         // The lead torch flame: vanilla flame behaviour over the gray-white sprite.
         ParticleProviderRegistry.getInstance().register(ModParticles.LEAD_FLAME.get(), FlameParticle.Provider::new);
+        ParticleProviderRegistry.getInstance().register(ModParticles.LEAD_SPECK.get(), LeadSpeckParticle.Speck::new);
+        ParticleProviderRegistry.getInstance().register(ModParticles.LEAD_DUST.get(), LeadSpeckParticle.Dust::new);
+        ParticleProviderRegistry.getInstance().register(ModParticles.LEAD_FUMES.get(), LeadFumesParticles.Provider::new);
         EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
 
         // Pane tint sources (block side only - item tints are data-driven now). 26.1: one list of
