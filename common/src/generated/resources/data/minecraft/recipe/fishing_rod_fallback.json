@@ -38,8 +38,8 @@
     }
   ],
   "key": {
-    "#": "minecraft:stick",
-    "X": "minecraft:string"
+    "#": "#c:rods/wooden",
+    "X": "#c:strings"
   },
   "pattern": [
     "  #",

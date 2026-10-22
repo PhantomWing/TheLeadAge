@@ -1,0 +1,20 @@
+{
+  "name": "Mining a Block of Raw Lead with Silk Touch gives no Lead Sickness and drops the block",
+  "gamemode": "survival",
+  "steps": [
+    { "command": "item replace entity @p weapon.mainhand with minecraft:diamond_pickaxe[minecraft:enchantments={\"minecraft:silk_touch\":1}]" },
+    { "setblock": [0, 0, -4], "block": "theleadage:raw_lead_block" },
+    { "look": [0, 0, -4] },
+    { "break": [0, 0, -4], "face": "north" },
+    { "setblock": [0, 0, -4], "block": "theleadage:raw_lead_block" },
+    { "break": [0, 0, -4], "face": "north" },
+    { "setblock": [0, 0, -4], "block": "theleadage:raw_lead_block" },
+    { "break": [0, 0, -4], "face": "north" },
+    { "setblock": [0, 0, -4], "block": "theleadage:raw_lead_block" },
+    { "break": [0, 0, -4], "face": "north" },
+    { "wait": 20 },
+    { "expect": "effect", "lacks": "minecraft:hunger", "within": 1 },
+    { "move": [0, 0, -4] },
+    { "expect": "inventory", "has": "theleadage:raw_lead_block", "within": 60 }
+  ]
+}

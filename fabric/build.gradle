@@ -8,8 +8,48 @@ architectury {
     fabric()
 }
 
+// The dev niceties below can only get in the way of the headless game-test server, which tests this mod alone.
+def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
+
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
+
+    // The test source set is a mod of its own, theleadage_gametest, whose fabric.mod.json names the class that
+    // registers the tests: an entrypoint in the shipped manifest would name a class the jar doesn't have.
+    mods {
+        register('theleadage_gametest') {
+            sourceSet sourceSets.test
+        }
+    }
+
+    runs {
+        // Headless Fabric game-test server: runs the same tests as NeoForge's, prints PASS/FAIL, and exits.
+        //   ./gradlew :fabric:runGameTest
+        gameTest {
+            server()
+            name = "Game Test"
+            runDir "run/gametest"
+            source sourceSets.test
+            vmArg '-Dfabric-api.gametest'
+        }
+    }
+}
+
+// Test-only source set for game tests, kept out of `main` so nothing in it ships. The tests are
+// common/src/gametest, shared with NeoForge; only the registration and TestLoader are Fabric's own.
+sourceSets {
+    test {
+        java.srcDir project(':common').file('src/gametest/java')
+        resources.srcDir project(':common').file('src/gametest/resources')
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+// The test source set holds game tests, which runGameTest runs; the JUnit `test` task finds none
+// there, and Gradle 9 fails a build whose test task discovers nothing.
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
 }
 
 // 26.1: the recipe-viewer plugin is live on JEI. The Lead Knife still compiles against the local
@@ -41,6 +81,10 @@ dependencies {
     implementation("me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}") {
         exclude group: "net.fabricmc.fabric-api"
     }
+    // Mod Menu opens that screen from its mod list (TheLeadAgeModMenu); compiled against only.
+    compileOnly("com.terraformersmc:modmenu:${rootProject.modmenu_version}") {
+        exclude group: "net.fabricmc.fabric-api"
+    }
 
     // Farmer's Delight Refabricated is NOT a dependency on this line. LeadKnifeItem compiles
     // against the local stub in vectorwing/farmersdelight/, whose shape was verified with javap
@@ -48,7 +92,9 @@ dependencies {
     // binds to the real FDR jar when the player has it installed.
 
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
-    localRuntime "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
+    if (!runningGameTest) {
+        localRuntime "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
+    }
 
     // NOTE (26.1 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
     // was dropped back on the 1.21.4 line.

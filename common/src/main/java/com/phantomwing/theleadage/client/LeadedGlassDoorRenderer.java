@@ -69,8 +69,8 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
             return;
         }
         pose.pushPose();
-        // Which way the design faces (the mirrored right-hinge case) — shared with the dye/shear
-        // interaction, which inverts this same matrix. See LeadedGlassPlacement.
+        // Which way the design faces, closed or swung open — shared with the dye/shear interaction,
+        // which inverts this same matrix. See LeadedGlassPlacement.
         pose.mulPose(LeadedGlassPlacement.orientation(state.blockState, box));
         LeadedGlassSurface.render(config, box, pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY);
         pose.popPose();
