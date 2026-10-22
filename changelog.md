@@ -84,6 +84,7 @@
 - Fixed leaded glass in a color from a removed dye mod turning white
 - Fixed the Fabric version accepting Fabric Loader versions older than 0.19.5, which Architectury API needs
 - Fixed Lead Weights dropped by a player not knocking back Sulfur Cubes that hold a block
+- Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
 
 
 # 1.1.0
