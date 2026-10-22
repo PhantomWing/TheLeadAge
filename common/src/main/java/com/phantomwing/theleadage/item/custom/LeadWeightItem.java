@@ -80,6 +80,11 @@ public class LeadWeightItem extends BlockItem {
         if (cell == null) {
             return InteractionResult.PASS; // no free adjacent cell at eye level / one above
         }
+        // It places a block, or one that lands and cracks what it hits: only where the player may build, as a
+        // bucket asks - adventure mode, spawn protection, and claims that answer mayInteract.
+        if (!player.mayBuild() || !level.mayInteract(player, cell) || !player.mayUseItemAt(cell, Direction.UP, stack)) {
+            return InteractionResult.PASS;
+        }
 
         if (level instanceof ServerLevel serverLevel) {
             if (FallingBlock.isFree(level.getBlockState(cell.below()))) {

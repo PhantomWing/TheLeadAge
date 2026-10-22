@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.gametest.GameTests;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;

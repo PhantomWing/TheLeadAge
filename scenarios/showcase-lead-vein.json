@@ -1,0 +1,30 @@
+{
+  "name": "A lead vein copied up from underground, cut through in its stone and then on its own",
+  "steps": [
+    { "command": "leadvein 0 136 34 section" },
+    { "setblock": [0, -20, 4], "block": "minecraft:white_concrete" },
+    { "expect": "block", "at": [0, -20, 4], "is": "minecraft:white_concrete", "within": 1200 },
+    { "move": [0, -19, 4] },
+    { "look": [0, -19, 34] },
+    { "wait": 60 },
+    { "screenshot": "cut-through" },
+    { "setblock": [0, -21, 24], "block": "minecraft:white_concrete" },
+    { "move": [0, -20, 24] },
+    { "look": [0, -19, 34] },
+    { "wait": 20 },
+    { "screenshot": "close-up" },
+    { "setblock": [0, -20, -8], "block": "minecraft:white_concrete" },
+    { "move": [0, -19, -8] },
+    { "command": "leadvein 0 136 34 xray" },
+    { "setblock": [0, -20, -9], "block": "minecraft:white_concrete" },
+    { "expect": "block", "at": [0, -20, -9], "is": "minecraft:white_concrete", "within": 1200 },
+    { "look": [0, -19, 34] },
+    { "wait": 60 },
+    { "screenshot": "vein-alone" },
+    { "move": [0, 0, -4] },
+    { "setblock": [0, -20, 4], "block": "minecraft:air" },
+    { "setblock": [0, -20, -8], "block": "minecraft:air" },
+    { "setblock": [0, -20, -9], "block": "minecraft:air" },
+    { "command": "fill -16 136 18 15 167 49 minecraft:air" }
+  ]
+}

@@ -8,7 +8,9 @@ import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Single, loader-agnostic source of truth for the lead loot injections. Both the
@@ -44,6 +46,16 @@ public final class LeadLootSpec {
 
     private static Supplier<Item> vanilla(Item item) {
         return () -> item;
+    }
+
+    /** The entries for {@code table}, none for most: Fabric asks on every roll of every table, block drops included. */
+    public static List<Entry> entriesFor(Identifier table) {
+        return ByTable.ENTRIES.getOrDefault(table, List.of());
+    }
+
+    private static final class ByTable {
+        private static final Map<Identifier, List<Entry>> ENTRIES = entries().stream()
+                .collect(Collectors.groupingBy(Entry::targetLootTable, Collectors.toUnmodifiableList()));
     }
 
     public static List<Entry> entries() {

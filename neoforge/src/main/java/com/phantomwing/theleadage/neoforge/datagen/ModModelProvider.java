@@ -126,6 +126,11 @@ public class ModModelProvider extends ModelProvider {
         leadBulb(bmg);
         leadWeights(bmg);
 
+        // ---------- Lead Pressure Plate ----------
+        // Vanilla's weighted plate models, drawn with the block of lead as the heavy plate is drawn with the
+        // block of iron: up at power 0, pressed at any other.
+        bmg.createWeightedPressurePlate(ModBlocks.LEAD_PRESSURE_PLATE.get(), ModBlocks.LEAD_BLOCK.get());
+
         // ---------- Leaded glass panes ----------
         leadedGlassPanes(bmg);
 
@@ -158,6 +163,7 @@ public class ModModelProvider extends ModelProvider {
         bmg.registerSimpleItemModel(ModBlocks.CHISELED_LEAD.get().asItem(), modBlock("chiseled_lead"));
         bmg.registerSimpleItemModel(ModBlocks.LEAD_PILLAR.get().asItem(), modBlock("lead_pillar"));
         bmg.registerSimpleItemModel(ModBlocks.LEAD_BULB.get().asItem(), modBlock("lead_bulb"));
+        bmg.registerSimpleItemModel(ModBlocks.LEAD_PRESSURE_PLATE.get().asItem(), modBlock("lead_pressure_plate"));
         bmg.registerSimpleItemModel(ModBlocks.LEAD_WEIGHT.get().asItem(), modBlock("lead_weight"));
         bmg.registerSimpleItemModel(ModBlocks.CHIPPED_LEAD_WEIGHT.get().asItem(), modBlock("chipped_lead_weight"));
         bmg.registerSimpleItemModel(ModBlocks.DAMAGED_LEAD_WEIGHT.get().asItem(), modBlock("damaged_lead_weight"));

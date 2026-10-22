@@ -69,7 +69,8 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
         BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
 
-        // The trapdoor frame (the cut-window overlay texture, cutout). Untinted, so vanilla's own
+        // The trapdoor frame (the cut-window overlay texture, cutout), shaded as a block item is: the chunk layer's
+        // cutout has no light direction, and drew it flat beside its shaded glass. Untinted, so vanilla's own
         // whole-model emission does exactly what is needed here.
         collector.submitBlockModel(pose, Sheets.cutoutBlockSheet(), model, 1.0f, 1.0f, 1.0f,
                 light, overlay, outlineColor);

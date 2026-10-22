@@ -29,6 +29,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class MonsterArmorHandler {
     private static final float REPLACE_CHANCE = 0.10f; // 10% chance per piece / full set / tool
+    /**
+     * The tag a mob gets once its gear has had its chance, which it keeps through a portal: a mob crossing one joins the
+     * other level as a new entity. A map maker summoning a mob with it keeps its iron as given.
+     */
+    public static final String ROLLED_TAG = "theleadage.rolled_lead_gear";
 
     private MonsterArmorHandler() {
     }
@@ -53,10 +58,15 @@ public final class MonsterArmorHandler {
         if (level.isClientSide() || loadedFromDisk || !(entity instanceof Mob mob) || !CommonConfig.mobLeadEquipment()) {
             return;
         }
-        if (entity.getType().is(ModTags.EntityTypes.CAN_WEAR_LEAD_ARMOR)) {
+        boolean armor = entity.getType().is(ModTags.EntityTypes.CAN_WEAR_LEAD_ARMOR);
+        boolean tools = entity.getType().is(ModTags.EntityTypes.CAN_HOLD_LEAD_TOOLS);
+        if (!armor && !tools || !mob.addTag(ROLLED_TAG)) {
+            return; // not one that wears lead, or its gear had its chance before a portal took it to this level
+        }
+        if (armor) {
             replaceArmor(mob);
         }
-        if (entity.getType().is(ModTags.EntityTypes.CAN_HOLD_LEAD_TOOLS)) {
+        if (tools) {
             replaceTool(mob);
         }
     }
