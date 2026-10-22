@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
  *
  * <p>{@code require = 0}: purely cosmetic, so a target drift must never crash a client. That makes a
  * drift silent - the previews just stay clear, as they did while this wrapped 1.21.1's getResultItem -
- * so the stonecutter-shows-pane-colours scenario keeps a screenshot of the list to look at.
+ * so the stonecutter-shows-pane-colours scenario reads the list's tooltip and expects the input's colour.
  */
 @Mixin(StonecutterScreen.class)
 public abstract class StonecutterScreenMixin {

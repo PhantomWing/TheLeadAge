@@ -11,6 +11,8 @@
     { "click": 0 },
     { "expect": "slot", "slot": 0, "is": "theleadage:leaded_glass_pane" },
     { "hover": [185, 62] },
+    { "expect": "tooltip", "has": "Red" },
+    { "expect": "tooltip", "lacks": "Clear" },
     { "wait": 5 },
     { "screenshot": "list-hovered" },
     { "click": [185, 62] },
