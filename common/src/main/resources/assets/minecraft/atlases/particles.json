@@ -1,0 +1,34 @@
+{
+  "sources": [
+    {
+      "type": "theleadage:lead_purple",
+      "source": "minecraft:particle/splash_0",
+      "sprite": "theleadage:lead_splash_0",
+      "hue": 275
+    },
+    {
+      "type": "theleadage:lead_purple",
+      "source": "minecraft:particle/splash_1",
+      "sprite": "theleadage:lead_splash_1",
+      "hue": 275
+    },
+    {
+      "type": "theleadage:lead_purple",
+      "source": "minecraft:particle/splash_2",
+      "sprite": "theleadage:lead_splash_2",
+      "hue": 275
+    },
+    {
+      "type": "theleadage:lead_purple",
+      "source": "minecraft:particle/splash_3",
+      "sprite": "theleadage:lead_splash_3",
+      "hue": 275
+    },
+    {
+      "type": "theleadage:lead_purple",
+      "source": "minecraft:particle/bubble",
+      "sprite": "theleadage:lead_bubble",
+      "hue": 275
+    }
+  ]
+}

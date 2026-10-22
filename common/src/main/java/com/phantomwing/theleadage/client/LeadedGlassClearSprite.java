@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.client;
 
+import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -29,8 +30,11 @@ public final class LeadedGlassClearSprite {
     private static final int STRIDE = 8;
     private static final int UV0 = 4;
 
-    /** Cache: a tinted white sprite -> its clear counterpart (same name, "white_" prefix dropped). */
-    private static final Map<TextureAtlasSprite, TextureAtlasSprite> CLEAR_SPRITE = new ConcurrentHashMap<>();
+    /**
+     * A tinted white texture's name -> its clear counterpart's (same name, "white_" dropped), or itself where it has none.
+     * By name, not sprite: a resource reload makes every sprite anew, which a map of sprites would keep and miss.
+     */
+    private static final Map<ResourceLocation, ResourceLocation> CLEAR_NAME = new ConcurrentHashMap<>();
 
     private LeadedGlassClearSprite() {
     }
@@ -77,7 +81,12 @@ public final class LeadedGlassClearSprite {
         if (!(level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane)) {
             return null;
         }
+        // A region past the stored colours is clear, as everything else reads it: a pane set down without its design.
+        // Sized by the block's regions too, so hasClear sees those.
         int regions = pane.getColors().size();
+        if (pane.getBlockState().getBlock() instanceof LeadedGlassPaneBlock block) {
+            regions = Math.max(regions, block.cameType().regions);
+        }
         boolean[] clear = new boolean[regions];
         for (int i = 0; i < regions; i++) {
             clear[i] = pane.colorAt(i) == null;
@@ -97,7 +106,7 @@ public final class LeadedGlassClearSprite {
 
     /** Whether a quad's tint index addresses a clear region. */
     public static boolean isClear(boolean @Nullable [] clear, int tintIndex) {
-        return clear != null && tintIndex >= 0 && tintIndex < clear.length && clear[tintIndex];
+        return clear != null && tintIndex >= 0 && (tintIndex >= clear.length || clear[tintIndex]);
     }
 
     /**
@@ -108,14 +117,11 @@ public final class LeadedGlassClearSprite {
      */
     @Nullable
     public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
-        return CLEAR_SPRITE.computeIfAbsent(white, w -> {
-            ResourceLocation name = w.contents().name();
-            if (!name.getPath().contains("white_")) {
-                return null; // already the clear texture (or not one of ours)
-            }
-            ResourceLocation clearLoc = ResourceLocation.fromNamespaceAndPath(
-                    name.getNamespace(), name.getPath().replace("white_", ""));
-            return Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(clearLoc);
-        });
+        ResourceLocation name = white.contents().name();
+        ResourceLocation clear = CLEAR_NAME.computeIfAbsent(name, n -> n.getPath().contains("white_")
+                ? ResourceLocation.fromNamespaceAndPath(n.getNamespace(), n.getPath().replace("white_", ""))
+                : n); // already the clear texture (or not one of ours)
+        return clear.equals(name) ? null
+                : Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(clear);
     }
 }

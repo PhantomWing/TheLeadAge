@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.neoforge.gametest;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.gametest.GameTests;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
@@ -10,6 +11,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.gametest.GameTestHooks;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
@@ -34,9 +37,16 @@ public final class GameTestRegistration {
      * The instances, in code rather than as {@code test_instance} JSONs, so no test can be listed without
      * one and silently never run. Only the instances: {@code test_function} is a static registry and is
      * already frozen when this fires ("Registry is already frozen").
+     *
+     * <p>Not on a plain dedicated server: NeoForge 21.5 posts this event there a second time as the server starts, with
+     * the registries it froze after loading, and registering then crashed every {@code runServer} in a dev run. The
+     * game-test server registers the tests before freezing, and a client world each time it loads.</p>
      */
     @SubscribeEvent
     public static void registerTests(RegisterGameTestsEvent event) {
+        if (FMLEnvironment.dist.isDedicatedServer() && !GameTestHooks.isGametestServer()) {
+            return;
+        }
         Holder<TestEnvironmentDefinition> environment = event.registerEnvironment(id("default"));
         for (GameTests.Test test : GameTests.ALL) {
             event.registerTest(id(test.name()), new FunctionGameTestInstance(

@@ -25,6 +25,7 @@
     "theleadage:lead_weight",
     "theleadage:chipped_lead_weight",
     "theleadage:damaged_lead_weight",
+    "theleadage:lead_pressure_plate",
     "theleadage:leaded_glass",
     "theleadage:leaded_glass_pane",
     "theleadage:leaded_glass_pane_split",

@@ -1,0 +1,2 @@
+# The server the server scenarios play on reaches 2 blocks, where a client left to its own config would reach 6
+lead_water_range = 2
