@@ -1,0 +1,23 @@
+{
+  "name": "A red pane in the stonecutter lists its patterns in red, and cuts them red",
+  "gamemode": "creative",
+  "steps": [
+    { "setblock": [0, 0, 0], "block": "minecraft:stonecutter" },
+    { "command": "give @p theleadage:leaded_glass_pane[theleadage:leaded_glass_config={frame:\"plain\",colors:[\"red\"]}]" },
+    { "expect": "inventory", "has": "theleadage:leaded_glass_pane" },
+    { "use": [0, 0, 0], "face": "north" },
+    { "expect": "screen", "class": "StonecutterScreen" },
+    { "click": 29 },
+    { "click": 0 },
+    { "expect": "slot", "slot": 0, "is": "theleadage:leaded_glass_pane" },
+    { "hover": [185, 62] },
+    { "wait": 5 },
+    { "screenshot": "list-hovered" },
+    { "click": [185, 62] },
+    { "expect": "slot", "slot": 1, "is": "theleadage:leaded_glass_pane_bars" },
+    { "hover": 1 },
+    { "expect": "tooltip", "has": "Red" },
+    { "expect": "tooltip", "lacks": "Clear" },
+    { "screenshot": "cut-pane" }
+  ]
+}

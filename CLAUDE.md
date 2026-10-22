@@ -34,7 +34,7 @@ directly: its `TestCompat` wants the same six methods in their 1.21.1 forms befo
 - Java 21, Mojang mappings with Parchment. `org.gradle.java.home` is pinned in `gradle.properties` to a JDK on this machine; if the daemon fails to start, check that path first.
 - Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited.
 - Game tests in `common/src/gametest`, run on both loaders: `:neoforge:runGameTest` and `:fabric:runGameTest`. Laid out with the test shim above; each loader's `GameTestRegistration` and `TestLoader` are in its own `src/test` (`architectury.md`, "Game tests on Fabric too").
-- 13 play scenarios in `scenarios/`, and 1 in `scenarios/server`.
+- 14 play scenarios in `scenarios/`, and 1 in `scenarios/server`.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`, the NeoForge one from `neoforge_minecraft_versions` (1.21.3 alone: it needs NeoForge 21.3, which 1.21.2 doesn't have). `fabric.mod.json` asks for Fabric API from 0.106.1, 1.21.2's newest, not the 0.114.1 it builds against, so the jar loads on 1.21.2 too.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

@@ -25,10 +25,10 @@ import java.util.Collections;
  * so the menu lists it alongside the others; only the serializer is ours, so datapack loading
  * rebuilds this subclass instead of a vanilla stonecutter recipe.
  *
- * <p>The static {@code result} (an all-clear patterned pane) is still what the recipe-list buttons,
- * the recipe book and JEI show; {@link #assemble} recolours a copy of it from the live input for
- * the output slot. {@code StonecutterScreenMixin} redirects the button/tooltip preview through
- * {@code assemble} so the icons match the coloured output too.
+ * <p>The static {@code result} (an all-clear patterned pane) is still what the recipe book and JEI
+ * show; {@link #assemble} recolours a copy of it from the live input for the output slot, and
+ * {@code StonecutterScreenMixin} recolours the recipe-list buttons and their tooltips with the same
+ * rule, {@link #colorPreview}, so the icons match the coloured output too.
  */
 public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
     public ColoredPaneStonecutterRecipe(String group, Ingredient ingredient, ItemStack result) {
@@ -37,19 +37,31 @@ public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
 
     @Override
     public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
-        ItemStack output = super.assemble(input, registries); // the target frame's all-clear pane
-        LeadedGlassConfig target = output.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        return colorPreview(super.assemble(input, registries), input.getItem(0));
+    }
+
+    /**
+     * {@code preview}, a configured pane, with every region filled with the input pane's colour: what
+     * {@link #assemble} cuts, and what the screen mixin shows in the recipe list. From 1.21.2 the
+     * client has no recipes, only each entry's synced {@code SlotDisplay} of the all-clear result,
+     * which never sees the input; so the mixin recolours the resolved stack. Anything that isn't a
+     * configured pane, and a clear input, pass through.
+     */
+    public static ItemStack colorPreview(ItemStack preview, ItemStack input) {
+        LeadedGlassConfig target = preview.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
         if (target == null) {
-            return output; // not a configured pane (shouldn't happen for our recipes)
+            return preview;
         }
-        int color = primaryColor(input.getItem(0));
+        int color = primaryColor(input);
         if (color == LeadedGlassConfig.CLEAR) {
-            return output; // clear input → the static all-clear result is already correct
+            return preview;
         }
-        output.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
+        // The display's stack is the one the screen keeps for every frame, so recolour a copy.
+        ItemStack colored = preview.copy();
+        colored.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
                 new LeadedGlassConfig(target.frame(),
                         Collections.nCopies(target.frame().regions(), color)));
-        return output;
+        return colored;
     }
 
     /** The plain input pane's single region colour, or {@link LeadedGlassConfig#CLEAR} if unset. */

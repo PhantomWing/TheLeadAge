@@ -80,6 +80,8 @@
 - Fixed Lead Horse Armor wearing out
 - Fixed the mod not loading on Fabric for Minecraft 1.21.2
 - Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
+- Fixed the stonecutter showing the patterns of a dyed leaded glass pane as clear
+- Fixed lead torches on walls being named Torch
 
 
 # 1.1.2

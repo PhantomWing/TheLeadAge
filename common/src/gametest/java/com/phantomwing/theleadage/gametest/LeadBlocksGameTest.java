@@ -1,13 +1,16 @@
 package com.phantomwing.theleadage.gametest;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
@@ -22,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -120,6 +124,26 @@ public final class LeadBlocksGameTest {
             helper.succeed();
         } else {
             fail(helper, "A lead wall torch drops " + drops + ", not a lead torch");
+        }
+    }
+
+    /**
+     * Every block is named by its own key, the one its lang files name: from 1.21.2 the copy of vanilla's wall torch
+     * took the torch's name with its properties, and showed as "Torch".
+     */
+    public static void blocksAreNamedByTheirOwnKeys(GameTestHelper helper) {
+        List<String> misnamed = new ArrayList<>();
+        for (Block block : BuiltInRegistries.BLOCK) {
+            var id = BuiltInRegistries.BLOCK.getKey(block);
+            if (id.getNamespace().equals(TheLeadAge.MOD_ID)
+                    && !block.getDescriptionId().equals(Util.makeDescriptionId("block", id))) {
+                misnamed.add(id + " is named " + block.getDescriptionId());
+            }
+        }
+        if (misnamed.isEmpty()) {
+            helper.succeed();
+        } else {
+            fail(helper, String.join(", ", misnamed));
         }
     }
 
