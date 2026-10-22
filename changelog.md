@@ -82,6 +82,7 @@
 - Fixed Lead Weights dropped by a player not knocking back Sulfur Cubes that hold a block
 - Fixed the mod not loading on NeoForge 26.3.0.37 and newer (it now needs NeoForge 26.3.0.48 and Architectury API 22.0.4 or newer, and keeps your settings)
 - Fixed leaded glass making no sound when broken
+- Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
 
 
 # 1.1.0
