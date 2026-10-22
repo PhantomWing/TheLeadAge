@@ -7,7 +7,6 @@ import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.utils.ItemUtils;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -27,15 +26,13 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.armortrim.ArmorTrim;
-import net.minecraft.world.item.armortrim.TrimMaterial;
 import net.minecraft.world.item.armortrim.TrimMaterials;
 import net.minecraft.world.item.armortrim.TrimPatterns;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.trading.MerchantOffer;
@@ -58,6 +55,8 @@ import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenSpawnLoade
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
+import static com.phantomwing.theleadage.gametest.TestCompat.trim;
+import static com.phantomwing.theleadage.gametest.TestCompat.trimPalette;
 
 /**
  * Game tests for lead gear: smelting it back into nuggets, the fumes a piece gives off as it breaks, the weight of its
@@ -213,8 +212,7 @@ public final class LeadGearGameTest {
             return;
         }
         ServerLevel level = helper.getLevel();
-        ArmorTrim trim = new ArmorTrim(level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL).getHolderOrThrow(TrimMaterials.COPPER),
-                level.registryAccess().registryOrThrow(Registries.TRIM_PATTERN).getHolderOrThrow(TrimPatterns.FLOW));
+        ArmorTrim trim = trim(level, TrimMaterials.COPPER, TrimPatterns.FLOW);
         ItemStack helmet = new ItemStack(Items.IRON_HELMET);
         helmet.set(DataComponents.TRIM, trim);
         if (!trim.equals(ItemUtils.tryTransmuteStack(helmet, ModItems.LEAD_HELMET.get()).get(DataComponents.TRIM))) {
@@ -226,9 +224,7 @@ public final class LeadGearGameTest {
 
     /** The lead trim on worn lead armour takes its darker palette, which only the registry's holder of the material finds. */
     public static void leadTrimDarkensOnLeadArmor(GameTestHelper helper) {
-        Holder<TrimMaterial> lead = helper.getLevel().registryAccess().registryOrThrow(Registries.TRIM_MATERIAL)
-                .getHolderOrThrow(ModTrimMaterials.LEAD);
-        String palette = lead.value().overrideArmorMaterials().get(((ArmorItem) ModItems.LEAD_CHESTPLATE.get()).getMaterial());
+        String palette = trimPalette(helper.getLevel(), ModTrimMaterials.LEAD, ModItems.LEAD_CHESTPLATE.get());
         if ("lead_darker".equals(palette)) {
             helper.succeed();
         } else {

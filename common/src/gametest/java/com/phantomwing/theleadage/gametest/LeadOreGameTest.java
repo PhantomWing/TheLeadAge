@@ -87,8 +87,11 @@ import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.hasRecipe;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.gametest.TestCompat.recipesFor;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
+import static com.phantomwing.theleadage.gametest.TestCompat.use;
 
 /**
  * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy} and {@link LeadFumes}):
@@ -271,7 +274,7 @@ public class LeadOreGameTest {
         }
         ServerLevel level = helper.getLevel();
         RecipeManager recipes = level.getServer().getRecipeManager();
-        if (recipes.byKey(ResourceLocation.withDefaultNamespace("fishing_rod_fallback")).isPresent()) {
+        if (hasRecipe(recipes, ResourceLocation.withDefaultNamespace("fishing_rod_fallback"))) {
             helper.succeed();
             return;
         }
@@ -304,8 +307,8 @@ public class LeadOreGameTest {
                 new Grid("4 lead ingots in a square", CraftingInput.of(2, 2, Collections.nCopies(4, ingot)), ModItems.LEAD_TRAPDOOR.get(), 1),
                 new Grid("6 lead ingots in two rows", CraftingInput.of(3, 2, Collections.nCopies(6, ingot)), ModItems.LEAD_BARS.get(), 16),
                 new Grid("4 cut lead in a square", CraftingInput.of(2, 2, Collections.nCopies(4, cut)), ModItems.LEAD_BRICKS.get(), 4))) {
-            List<RecipeHolder<CraftingRecipe>> matches = level.getServer().getRecipeManager()
-                    .getRecipesFor(RecipeType.CRAFTING, grid.input(), level);
+            List<RecipeHolder<CraftingRecipe>> matches = recipesFor(level.getServer().getRecipeManager(),
+                    RecipeType.CRAFTING, grid.input(), level);
             if (matches.size() != 1) {
                 fail(helper, grid.name() + " match " + matches.size() + " recipes, not one");
                 return;
@@ -350,7 +353,7 @@ public class LeadOreGameTest {
         player.getAbilities().mayBuild = false;
         moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(1, 2, 1))));
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.LEAD_WEIGHT.get()));
-        InteractionResult result = ModItems.LEAD_WEIGHT.get().use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult();
+        InteractionResult result = use(ModItems.LEAD_WEIGHT.get(), helper.getLevel(), player, InteractionHand.MAIN_HAND);
         if (result == InteractionResult.PASS && player.getMainHandItem().getCount() == 1) {
             helper.succeed();
         } else {

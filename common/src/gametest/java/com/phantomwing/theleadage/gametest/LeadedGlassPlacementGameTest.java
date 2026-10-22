@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.nearestDirection;
 
 /**
  * Which way the glass in a leaded glass door or trapdoor faces, in every state ({@link LeadedGlassPlacement}): the pane
@@ -126,7 +127,7 @@ public final class LeadedGlassPlacementGameTest {
     }
 
     private static String name(Vector3f v) {
-        Direction nearest = Direction.getNearest(v.x, v.y, v.z);
+        Direction nearest = nearestDirection(v.x, v.y, v.z);
         return near(v, vector(nearest)) ? nearest.getSerializedName() : v.toString();
     }
 

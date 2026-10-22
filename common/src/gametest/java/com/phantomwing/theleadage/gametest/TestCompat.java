@@ -22,6 +22,16 @@ import net.minecraft.server.packs.PackResources;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -39,6 +49,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.armortrim.TrimPattern;
 
 /**
  * The calls a test makes whose shape differs between Minecraft versions, each behind a signature every
@@ -148,6 +162,42 @@ public final class TestCompat {
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("can't read a NoiseChunk's rules", e);
         }
+    }
+
+    /** The trim of that material and pattern. Registry lookups were renamed in 1.21.2, and trims moved package. */
+    public static ArmorTrim trim(ServerLevel level, ResourceKey<TrimMaterial> material, ResourceKey<TrimPattern> pattern) {
+        return new ArmorTrim(level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL).getHolderOrThrow(material),
+                level.registryAccess().registryOrThrow(Registries.TRIM_PATTERN).getHolderOrThrow(pattern));
+    }
+
+    /**
+     * The palette a trim of {@code material} draws with on worn {@code armor}. Before 1.21.2 a trim material named it by
+     * the armour's material, its registry holder; from 1.21.2 by the armour's equipment model.
+     */
+    public static String trimPalette(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
+        return level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL).getOrThrow(material)
+                .overrideArmorMaterials().get(((ArmorItem) armor).getMaterial());
+    }
+
+    /** Whether the recipe {@code id} is loaded. Recipes are found by a ResourceKey from 1.21.2. */
+    public static boolean hasRecipe(RecipeManager recipes, ResourceLocation id) {
+        return recipes.byKey(id).isPresent();
+    }
+
+    /** Every recipe of {@code type} that takes {@code input}. RecipeManager#getRecipesFor went in 1.21.2. */
+    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> recipesFor(RecipeManager recipes,
+            RecipeType<T> type, I input, Level level) {
+        return recipes.getRecipesFor(type, input, level);
+    }
+
+    /** What using {@code item} in the air does. Item#use returns the InteractionResult itself from 1.21.2. */
+    public static InteractionResult use(Item item, Level level, Player player, InteractionHand hand) {
+        return item.use(level, player, hand).getResult();
+    }
+
+    /** The direction nearest a vector. {@code Direction.getNearest} took floats until 1.21.2 renamed it. */
+    public static Direction nearestDirection(float x, float y, float z) {
+        return Direction.getNearest(x, y, z);
     }
 
     /** Whether {@code pack} has the file {@code id}. 26.3's Pack#open gives a stream of the pack's parts. */
