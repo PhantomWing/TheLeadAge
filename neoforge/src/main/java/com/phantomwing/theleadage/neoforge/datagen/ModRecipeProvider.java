@@ -45,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.AndCondition;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.NotCondition;
@@ -147,13 +148,9 @@ public class ModRecipeProvider extends RecipeProvider {
         twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, cut, block, 4);
         stoneCutting(output, cut, block, 4);
 
-        // Bricks are made from ingots, not from blocks, so 4 ingots -> 1 (the vanilla
-        // bricks / nether-bricks ratio) rather than the 4 -> 4 used for block-to-block cuts.
-        shaped(RecipeCategory.BUILDING_BLOCKS, bricks, 1)
-                .pattern("##").pattern("##")
-                .define('#', ingot)
-                .unlockedBy(getHasName(ingot), has(ingot))
-                .save(output, id(name(bricks) + "_from_" + name(ModItems.LEAD_INGOT.get())));
+        // Bricks from 4 cut lead -> 4, as stone bricks are made from stone: 4 ingots in a square
+        // is the trapdoor's, as it is the iron trapdoor's.
+        twoBytwo(output, RecipeCategory.BUILDING_BLOCKS, bricks, cut, 4);
         stoneCutting(output, bricks, block, 4);
 
         stairsWithCutting(output, ModItems.LEAD_BRICK_STAIRS.get(), bricks);
@@ -220,6 +217,13 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy(getHasName(ModItems.LEAD_BLOCK.get()), has(ModItems.LEAD_BLOCK.get()))
                 .save(output);
 
+        // Lead Pressure Plate: two ingots side by side, as the weighted plates are made.
+        shaped(RecipeCategory.REDSTONE, ModItems.LEAD_PRESSURE_PLATE.get())
+                .pattern("##")
+                .define('#', LEAD_INGOTS)
+                .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
+                .save(output);
+
         // Lead Weight: 8 lead ingots around a lead block.
         shaped(RecipeCategory.COMBAT, ModItems.LEAD_WEIGHT.get())
                 .pattern("III").pattern("ILI").pattern("III")
@@ -278,13 +282,14 @@ public class ModRecipeProvider extends RecipeProvider {
         RecipeOutput heavyCoreOutput = output.withConditions(heavyCoreOverride);
 
         // Fishing Rod: the bottom-right string becomes a lead nugget. Saved at
-        // minecraft:fishing_rod so it replaces the vanilla recipe when enabled.
+        // minecraft:fishing_rod so it replaces the vanilla recipe when enabled. Both take the c: rods
+        // and strings, as NeoForge's own copy of the recipe does, which this one hides.
         shaped(RecipeCategory.TOOLS, Items.FISHING_ROD)
                 .pattern("  #")
                 .pattern(" #X")
                 .pattern("# N")
-                .define('#', Items.STICK)
-                .define('X', Items.STRING)
+                .define('#', Tags.Items.RODS_WOODEN)
+                .define('X', Tags.Items.STRINGS)
                 .define('N', LEAD_NUGGETS)
                 .unlockedBy(getHasName(LEAD_NUGGETS), has(LEAD_NUGGETS))
                 .save(fishingRodOutput);
@@ -293,9 +298,9 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("  #")
                 .pattern(" #X")
                 .pattern("# X")
-                .define('#', Items.STICK)
-                .define('X', Items.STRING)
-                .unlockedBy(getHasName(Items.STRING), has(Items.STRING))
+                .define('#', Tags.Items.RODS_WOODEN)
+                .define('X', Tags.Items.STRINGS)
+                .unlockedBy(getHasName(Items.STRING), has(Tags.Items.STRINGS))
                 .save(fishingRodFallbackOutput, "minecraft:fishing_rod_fallback");
 
         // Heavy Core: uncraftable in vanilla, so this is an ADD (no fallback) — a
@@ -508,8 +513,11 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
+    /** 4 ingots in a square -> 1, as the iron trapdoor: the wooden trapdoor's 6 -> 2 is the bars' pattern. */
     private void trapdoor(RecipeOutput output, ItemLike result, TagKey<Item> material) {
-        trapdoorBuilder(result, tag(material))
+        shaped(RecipeCategory.REDSTONE, result)
+                .pattern("##").pattern("##")
+                .define('#', material)
                 .group(name(ModItems.LEAD_INGOT.get()))
                 .unlockedBy(getHasName(material), has(material))
                 .save(output);

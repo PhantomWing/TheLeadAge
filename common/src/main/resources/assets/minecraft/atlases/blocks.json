@@ -14,6 +14,48 @@
         "lead": "theleadage:trims/color_palettes/lead",
         "lead_darker": "theleadage:trims/color_palettes/lead_darker"
       }
+    },
+    {
+      "type": "theleadage:murky_water",
+      "source": "minecraft:block/water_still",
+      "sprite": "theleadage:block/murky_water_still_1",
+      "opacity": 0.38,
+      "shade": 0.9
+    },
+    {
+      "type": "theleadage:murky_water",
+      "source": "minecraft:block/water_still",
+      "sprite": "theleadage:block/murky_water_still_2",
+      "opacity": 0.62,
+      "shade": 0.76
+    },
+    {
+      "type": "theleadage:murky_water",
+      "source": "minecraft:block/water_still",
+      "sprite": "theleadage:block/murky_water_still_3",
+      "opacity": 0.8,
+      "shade": 0.65
+    },
+    {
+      "type": "theleadage:murky_water",
+      "source": "minecraft:block/water_flow",
+      "sprite": "theleadage:block/murky_water_flow_1",
+      "opacity": 0.38,
+      "shade": 0.9
+    },
+    {
+      "type": "theleadage:murky_water",
+      "source": "minecraft:block/water_flow",
+      "sprite": "theleadage:block/murky_water_flow_2",
+      "opacity": 0.62,
+      "shade": 0.76
+    },
+    {
+      "type": "theleadage:murky_water",
+      "source": "minecraft:block/water_flow",
+      "sprite": "theleadage:block/murky_water_flow_3",
+      "opacity": 0.8,
+      "shade": 0.65
     }
   ]
 }

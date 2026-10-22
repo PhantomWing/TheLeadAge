@@ -1,31 +1,31 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.advancement.ModTriggers;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.ModTags;
 import com.phantomwing.theleadage.utils.ItemUtils;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.critereon.DamageSourcePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.KilledTrigger;
+import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -50,26 +50,30 @@ public class ModAdvancementProvider implements AdvancementSubProvider {
 
         AdvancementHolder ingot = obtain(consumer, root, ModItems.LEAD_INGOT.get());
         crushEnemy(provider, consumer, ingot);
-        leadedLights(consumer, ingot);
+        leadedLights(provider, consumer, ingot);
+        poisonedWater(consumer, root);
     }
 
-    /** Obtain any full leaded glass block (clear or stained). Any one of them satisfies it (OR requirements). */
-    private static void leadedLights(Consumer<AdvancementHolder> consumer, AdvancementHolder parent) {
-        Advancement.Builder builder = Advancement.Builder.advancement().parent(parent)
+    /** Swim in water raw lead poisons, and breathe it. */
+    private static void poisonedWater(Consumer<AdvancementHolder> consumer, AdvancementHolder parent) {
+        Advancement.Builder.advancement().parent(parent)
+                .display(ModBlocks.RAW_LEAD_BLOCK.get(), title("poisoned_water"), description("poisoned_water"),
+                        null, AdvancementType.TASK, true, true, false)
+                .addCriterion("poisoned_water", ModTriggers.SWAM_IN_POISONED_WATER.get()
+                        .createCriterion(new PlayerTrigger.TriggerInstance(Optional.empty())))
+                .save(consumer, id("poisoned_water"));
+    }
+
+    /** Obtain any full leaded glass block, clear or stained in any colour, a dye mod's too: the tag holds them all. */
+    private static void leadedLights(HolderLookup.Provider provider, Consumer<AdvancementHolder> consumer,
+                                     AdvancementHolder parent) {
+        Advancement.Builder.advancement().parent(parent)
                 .display(ModBlocks.LEADED_GLASS.get(), title("leaded_lights"), description("leaded_lights"),
-                        null, AdvancementType.TASK, true, true, false);
-        List<ItemLike> glass = new ArrayList<>();
-        glass.add(ModBlocks.LEADED_GLASS.get());
-        for (DyeColor color : DyeColor.values()) {
-            glass.add(ModBlocks.STAINED_LEADED_GLASS.get(color).get());
-        }
-        List<String> criteria = new ArrayList<>();
-        for (ItemLike g : glass) {
-            String crit = ItemUtils.getName(g);
-            builder.addCriterion(crit, InventoryChangeTrigger.TriggerInstance.hasItems(g));
-            criteria.add(crit);
-        }
-        builder.requirements(AdvancementRequirements.anyOf(criteria)).save(consumer, id("leaded_lights"));
+                        null, AdvancementType.TASK, true, true, false)
+                .addCriterion("has_leaded_glass", InventoryChangeTrigger.TriggerInstance.hasItems(
+                        ItemPredicate.Builder.item().of(provider.lookupOrThrow(Registries.ITEM),
+                                ModTags.Items.LEADED_GLASS_BLOCKS)))
+                .save(consumer, id("leaded_lights"));
     }
 
     /** A challenge: kill an entity with a falling Lead Weight (its damage source's direct entity). */

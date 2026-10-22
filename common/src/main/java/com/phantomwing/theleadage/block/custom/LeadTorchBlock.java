@@ -30,12 +30,9 @@ public class LeadTorchBlock extends TorchBlock implements EntityBlock {
         emitFlame(level, pos.getX() + 0.5, pos.getY() + 0.7, pos.getZ() + 0.5);
     }
 
-    /**
-     * Vanilla torch ambience with the flame swapped for the gray-white lead flame, and the smoke for
-     * the pale WHITE_SMOKE — burning lead gives off light-gray oxide fumes, not sooty dark smoke.
-     */
+    /** Vanilla torch ambience with the flame swapped for the gray-white lead flame; its smoke is a torch's like any other. */
     static void emitFlame(Level level, double x, double y, double z) {
-        level.addParticle(ParticleTypes.WHITE_SMOKE, x, y, z, 0.0, 0.0, 0.0);
+        level.addParticle(ParticleTypes.SMOKE, x, y, z, 0.0, 0.0, 0.0);
         level.addParticle(ModParticles.LEAD_FLAME.get(), x, y, z, 0.0, 0.0, 0.0);
     }
 

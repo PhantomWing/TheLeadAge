@@ -1,0 +1,11 @@
+{
+  "name": "A player standing on the Lead Pressure Plate presses it with a signal of 1",
+  "steps": [
+    { "setblock": [0, 0, 0], "block": "theleadage:lead_pressure_plate" },
+    { "expect": "block", "at": [0, 0, 0], "is": "theleadage:lead_pressure_plate", "with": { "power": "0" } },
+    { "move": [0, 0, 0] },
+    { "expect": "block", "at": [0, 0, 0], "with": { "power": "1" } },
+    { "move": [0, 0, -4] },
+    { "expect": "block", "at": [0, 0, 0], "with": { "power": "0" }, "within": 60 }
+  ]
+}
