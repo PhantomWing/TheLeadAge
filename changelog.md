@@ -79,6 +79,7 @@
 - Fixed the mod icon using the old Lead Ingot colors
 - Fixed leaded glass panes flashing white for a moment when dyed
 - Fixed leaded glass in a color from a removed dye mod turning white
+- Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
 
 
 # 1.1.1
