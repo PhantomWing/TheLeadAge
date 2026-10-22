@@ -14,9 +14,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Holds a leaded glass door's design: a pane per half ({@link LeadedGlassDoorConfig#top()} in the
  * upper half, {@code bottom} in the lower). The whole design lives on the block entity (present on
@@ -59,20 +56,13 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
     private static LeadedGlassConfig loadPane(CompoundTag tag) {
         LeadedGlassFrame frame = LeadedGlassFrame.values()[
                 Math.floorMod(tag.getIntOr("Frame", 0), LeadedGlassFrame.values().length)];
-        List<Integer> colors = new ArrayList<>();
-        for (int id : tag.getIntArray("Colors").orElse(new int[0])) {
-            colors.add(id);
-        }
-        if (colors.isEmpty()) {
-            colors = List.of(LeadedGlassConfig.CLEAR);
-        }
-        return new LeadedGlassConfig(frame, colors);
+        return new LeadedGlassConfig(frame, LeadedGlassConfig.getColors(tag));
     }
 
     private static CompoundTag savePane(LeadedGlassConfig pane) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("Frame", pane.frame().ordinal());
-        tag.putIntArray("Colors", pane.colors().stream().mapToInt(Integer::intValue).toArray());
+        LeadedGlassConfig.putColors(tag, pane.colors());
         return tag;
     }
 

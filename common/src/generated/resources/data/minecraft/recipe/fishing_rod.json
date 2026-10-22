@@ -32,9 +32,9 @@
     }
   ],
   "key": {
-    "#": "minecraft:stick",
+    "#": "#c:rods/wooden",
     "N": "#c:nuggets/lead",
-    "X": "minecraft:string"
+    "X": "#c:strings"
   },
   "pattern": [
     "  #",

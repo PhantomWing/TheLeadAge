@@ -3,13 +3,19 @@ package com.phantomwing.theleadage.compat.jei;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.compat.LeadedGlassDisplayRecipe;
 import com.phantomwing.theleadage.compat.LeadedGlassInfo;
+import com.phantomwing.theleadage.compat.LeadedGlassSubtypes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * JEI integration. The mod's leaded-glass crafting recipes are code-matched (the grid arrangement
@@ -28,6 +34,20 @@ public class TheLeadAgeJeiPlugin implements IModPlugin {
     @Override
     public ResourceLocation getPluginUid() {
         return UID;
+    }
+
+    /**
+     * Each design its own stack in the ingredient list and when a recipe is filled in ({@link LeadedGlassSubtypes}).
+     * Looking up recipes stays by item: what the stonecutter and the info entries take is plain glass. JEI 21.4's
+     * interpreter has only getSubtypeData; its legacy string form is gone.
+     */
+    @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+        ISubtypeInterpreter<ItemStack> design = (stack, context) ->
+                context == UidContext.Ingredient ? LeadedGlassSubtypes.designOf(stack) : null;
+        for (Item item : LeadedGlassSubtypes.items()) {
+            registration.registerSubtypeInterpreter(item, design);
+        }
     }
 
     @Override

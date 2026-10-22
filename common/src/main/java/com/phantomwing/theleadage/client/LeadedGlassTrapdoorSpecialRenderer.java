@@ -10,7 +10,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -47,9 +47,10 @@ public class LeadedGlassTrapdoorSpecialRenderer implements SpecialModelRenderer<
         BlockState frame = ModBlocks.LEADED_GLASS_TRAPDOOR.get().defaultBlockState();
         BlockStateModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(frame);
 
-        // The trapdoor frame (the cut-window overlay texture, cutout). Untinted, so vanilla's own
+        // The trapdoor frame (the cut-window overlay texture, cutout), shaded as a block item is: the chunk layer's
+        // cutout has no light direction, and drew it flat beside its shaded glass. Untinted, so vanilla's own
         // whole-model emission does exactly what is needed here.
-        ModelBlockRenderer.renderModel(pose.last(), buffers.getBuffer(RenderType.cutout()), model,
+        ModelBlockRenderer.renderModel(pose.last(), buffers.getBuffer(Sheets.cutoutBlockSheet()), model,
                 1.0f, 1.0f, 1.0f, light, overlay);
 
         LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, buffers, light, overlay);

@@ -4,16 +4,33 @@
   "package": "com.phantomwing.theleadage.fabric.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BaseCoralPlantTypeBlockMixin",
     "BeaconBlockEntityMixin",
     "BuiltInPackSourceMixin",
     "CampfireBlockEntityMixin",
+    "CampfireSmokeMixin",
+    "ChunkMapMixin",
+    "CoralBlockMixin",
     "IronBarsBlockMixin",
     "LivingEntityMixin",
     "LootTableMixin",
-    "PersistentEntitySectionManagerMixin"
+    "NoiseChunkMixin",
+    "PersistentEntitySectionManagerMixin",
+    "RandomPosMixin",
+    "RandomStateMixin",
+    "SquidRandomMovementGoalMixin",
+    "SwimNodeEvaluatorMixin",
+    "WalkNodeEvaluatorMixin"
   ],
   "client": [
-    "StonecutterScreenMixin"
+    "BiomeColorsMixin",
+    "CampfireBlockMixin",
+    "ClientLevelMixin",
+    "FogRendererMixin",
+    "LevelRendererMixin",
+    "ParticleEngineMixin",
+    "StonecutterScreenMixin",
+    "WaterRenderHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

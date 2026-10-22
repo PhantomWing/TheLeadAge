@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,9 @@ import java.util.Map;
  * }</pre>
  *
  * {@code input} is a block id, or a block tag when prefixed with {@code #}; {@code output} is a
- * block id (its default state). Direct-block entries win over tag entries; among tags, the first
- * match (in load order) is used.
+ * block id (its default state). Direct-block entries win over tag entries. Files are read in the order of
+ * their ids, so packs that disagree resolve the same way every time: for one block the last file read wins,
+ * among tags the first match. An entry that names a block no mod adds is skipped, not the rest of its file.
  *
  * <p>1.21.2 made {@link SimpleJsonResourceReloadListener} generic over a {@link Codec} rather than
  * handing subclasses raw Gson, so parsing happens through {@link #FILE_CODEC} and {@code apply}
@@ -99,13 +101,16 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     protected void apply(Map<ResourceLocation, List<Transform>> files, ResourceManager manager, ProfilerFiller profiler) {
         Map<Block, BlockState> blocks = new HashMap<>();
         List<TagRule> tags = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, List<Transform>> file : files.entrySet()) {
-            try {
-                for (Transform entry : file.getValue()) {
+        // The reload hands the files over in a HashMap's order.
+        List<ResourceLocation> ids = new ArrayList<>(files.keySet());
+        ids.sort(Comparator.naturalOrder());
+        for (ResourceLocation id : ids) {
+            for (Transform entry : files.get(id)) {
+                try {
                     parse(entry, blocks, tags);
+                } catch (Exception e) {
+                    LOGGER.error("Skipping an invalid lead weight transform in {}: {}", id, e.getMessage());
                 }
-            } catch (Exception e) {
-                LOGGER.error("Skipping invalid lead weight transform file {}: {}", file.getKey(), e.getMessage());
             }
         }
         byBlock = Map.copyOf(blocks);
