@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "theleadage:lead_torch"
+          "name": "theleadage:lead_pressure_plate"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "theleadage:blocks/lead_wall_torch"
+  "random_sequence": "theleadage:blocks/lead_pressure_plate"
 }

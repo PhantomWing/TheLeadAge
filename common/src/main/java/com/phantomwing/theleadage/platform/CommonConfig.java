@@ -3,7 +3,7 @@ package com.phantomwing.theleadage.platform;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
 /**
- * {@code @ExpectPlatform} bridge exposing the config booleans the loader-agnostic
+ * {@code @ExpectPlatform} bridge exposing the config values the loader-agnostic
  * code needs. The config itself stays loader-specific: NeoForge {@code ModConfigSpec},
  * Fabric Cloth {@code AutoConfig}, with 1:1 option ids and {@code true} defaults.
  * Implemented per loader at
@@ -16,6 +16,12 @@ public final class CommonConfig {
     /** Gate for lead-ore world generation. */
     @ExpectPlatform
     public static boolean generateLeadOre() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Gate for large lead ore veins, read as a chunk's terrain is generated (see {@code LeadVeins}). */
+    @ExpectPlatform
+    public static boolean generateLeadVeins() {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
@@ -40,9 +46,27 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
-    /** Gate for a campfire lit over lead giving off lead fumes. Read live, every burst. */
+    /** Gate for a campfire lit over raw lead giving off lead fumes. Read live. */
     @ExpectPlatform
     public static boolean campfireLeadFumes() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Gate for mobs keeping out of the water raw lead poisons ({@code PoisonedWaterAvoidance}). Read live. */
+    @ExpectPlatform
+    public static boolean mobsAvoidLeadWater() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Gate for a block of raw lead poisoning the player standing on it. Read live. */
+    @ExpectPlatform
+    public static boolean rawLeadContact() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** How far raw lead contaminates the water around it, in blocks through the water; 0 turns it off. Read live. */
+    @ExpectPlatform
+    public static int leadWaterRange() {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 

@@ -5,6 +5,7 @@ import com.phantomwing.theleadage.attribute.ModAttributes;
 import dev.architectury.event.events.common.TickEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -15,11 +16,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +35,8 @@ public class LeadArmorItem extends Item {
     /** Heaviness granted by each lead armor piece (shown as "+N Heaviness"). */
     private static final double HEAVINESS_PER_PIECE = 1.0;
 
-    // Penalties per point of Heaviness worn. Player-only: the horse armor deliberately carries no
-    // Heaviness (it has no durability cost to offset it) — see LeadHorseArmorItem.
+    // Penalties per point of Heaviness worn, on players and mobs alike. The horse armor deliberately
+    // carries no Heaviness (it has no durability cost to offset it) — see LeadHorseArmorItem.
     private static final double SPEED_PENALTY_PER_HEAVINESS = -0.025;       // -2.5% base speed (-10% full set)
     private static final double GRAVITY_BONUS_PER_HEAVINESS = 0.05;         // +5% gravity (+20% full set)
     private static final double KNOCKBACK_RESISTANCE_PER_HEAVINESS = 0.025; // +2.5% knockback resistance (+10% full set)
@@ -76,11 +76,12 @@ public class LeadArmorItem extends Item {
     /**
      * Recompute the Heaviness penalties for a wearer, adding, updating or clearing them as needed.
      *
-     * <p>Driven from a <em>player tick</em> ({@link #register}) rather than only from
+     * <p>Driven from a <em>player tick</em> ({@link #register}) rather than from
      * {@link #inventoryTick}. That distinction is the whole point: {@code inventoryTick} runs per
      * lead stack in the inventory, so the moment the last lead piece leaves — taken off and dropped
      * into a chest — nothing is left to run the cleanup and the wearer keeps the slowness and extra
-     * gravity for the rest of the session. Ticking the player instead means the clear always happens.</p>
+     * gravity for the rest of the session. Ticking the player instead means the clear always happens.
+     * A mob's come from {@link #equipmentChanged}.</p>
      */
     public static double refreshHeaviness(LivingEntity living) {
         // Heaviness is suspended while the wearer is flying (creative / spectator) so the
@@ -112,17 +113,28 @@ public class LeadArmorItem extends Item {
         });
     }
 
+    /**
+     * What a living entity wears changed, on the server - each loader's {@code LivingEntityMixin}, from vanilla's own
+     * equipment check, which also sees everything a mob wears on its first tick after loading. Players are left to their
+     * tick ({@link #register}), which also suspends the penalties while they fly. Every change to a mob's armour passes
+     * that check, so its penalties are right from its first tick to its last, and, transient, are never saved to go stale.
+     */
+    public static void equipmentChanged(LivingEntity living) {
+        if (!(living instanceof Player)) {
+            refreshHeaviness(living);
+        }
+    }
+
+    /**
+     * A mob's worn piece sinks it faster in water, on the server, which owns its movement: from 1.21.5 every living
+     * entity's worn items tick, where before only a player's inventory did. Its penalties come from
+     * {@link #equipmentChanged}, a player's sink from its own tick ({@link #register}).
+     */
     @Override
     public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
         super.inventoryTick(stack, level, entity, slot);
-        if (!(entity instanceof LivingEntity living) || living instanceof Player) {
-            return; // players are handled by the (both-sides) player tick in register()
-        }
-        // Mobs get their penalties here: the player tick above does not cover them, and a mob only
-        // ever loses its armour by dying, so there is no stale-modifier case to clean up. The server
-        // owns mob movement, so their water-sink applies here too (per worn piece, as before).
-        refreshHeaviness(living);
-        if (living.getItemBySlot(armorType.getSlot()) == stack) {
+        if (entity instanceof LivingEntity living && !(living instanceof Player)
+                && living.getItemBySlot(armorType.getSlot()) == stack) {
             applyWaterSink(living, HEAVINESS_PER_PIECE);
         }
     }
@@ -158,9 +170,14 @@ public class LeadArmorItem extends Item {
         if (instance == null) {
             return;
         }
+        AttributeModifier current = instance.getModifier(id);
         if (amount == 0.0) {
-            instance.removeModifier(id);
-        } else {
+            if (current != null) {
+                instance.removeModifier(id);
+            }
+        } else if (current == null || current.amount() != amount || current.operation() != operation) {
+            // Set only when it changes: each set marks the attribute changed, and a player's is sent to everyone
+            // tracking them, every tick.
             instance.addOrUpdateTransientModifier(new AttributeModifier(id, amount, operation));
         }
     }

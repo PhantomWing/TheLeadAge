@@ -89,7 +89,8 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
             return null;
         }
         JsonObject pack = new JsonObject();
-        pack.addProperty("description", "Leaded glass in the colours of dye mods");
+        // Fabric lists the pack where NeoForge hides it, and can't turn it off: it says it is The Lead Age's own.
+        pack.addProperty("description", "Added by The Lead Age for your dye mods' colours");
         pack.addProperty("pack_format", SharedConstants.getCurrentVersion().packVersion(type));
         JsonObject meta = new JsonObject();
         meta.add("pack", pack);
@@ -147,10 +148,17 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
             String name = color + "_leaded_glass";
             files.put(id("loot_table/blocks/" + name + ".json"), lootTable(TheLeadAge.MOD_ID + ":" + name));
             ids.add(TheLeadAge.MOD_ID + ":" + name);
+            // Each in its colour's dyed tag, as datagen puts vanilla's sixteen.
+            JsonArray own = new JsonArray();
+            own.add(TheLeadAge.MOD_ID + ":" + name);
+            files.put(tagFile("block", common("dyed/" + color)), tag(own));
+            files.put(tagFile("item", common("dyed/" + color)), tag(own));
         }
         files.put(tagFile("block", ModTags.Blocks.LEADED_GLASS_BLOCKS.location()), tag(ids));
         files.put(tagFile("block", BlockTags.MINEABLE_WITH_PICKAXE.location()), tag(ids));
+        files.put(tagFile("block", common("dyed")), tag(ids));
         files.put(tagFile("item", ModTags.Items.LEADED_GLASS_BLOCKS.location()), tag(ids));
+        files.put(tagFile("item", common("dyed")), tag(ids));
         return files;
     }
 
@@ -206,6 +214,10 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
 
     private static ResourceLocation tagFile(String registry, ResourceLocation tag) {
         return ResourceLocation.fromNamespaceAndPath(tag.getNamespace(), "tags/" + registry + "/" + tag.getPath() + ".json");
+    }
+
+    private static ResourceLocation common(String path) {
+        return ResourceLocation.fromNamespaceAndPath("c", path);
     }
 
     private static ResourceLocation id(String path) {

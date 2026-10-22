@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_bricks_from_lead_ingot"
+        "recipe": "theleadage:lead_pressure_plate"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "theleadage:lead_bricks_from_lead_ingot"
+      "theleadage:lead_pressure_plate"
     ]
   }
 }
