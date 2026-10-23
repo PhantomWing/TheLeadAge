@@ -1,0 +1,30 @@
+{
+  "name": "Mod Menu opens the Fabric config screen with every option named, its tooltips, and no option ids as text boxes",
+  "loader": "fabric",
+  "steps": [
+    { "config": true },
+    { "expect": "screen", "title": "The Lead Age" },
+    { "expect": "widget", "label": "Generate Lead Ore" },
+    { "expect": "widget", "label": "text.autoconfig.", "exists": false },
+    { "hover": [213, 12] },
+    { "screenshot": "options" },
+    { "hover": "Generate Lead Ore" },
+    { "expect": "tooltip", "line": "Should lead ore generate in the world? (Applies to newly generated chunks.)" },
+    { "scroll": -5 },
+    { "expect": "widget", "label": "Lead-Contaminated Water Range" },
+    { "expect": "widget", "label": "text.autoconfig.", "exists": false },
+    { "scroll": -20 },
+    { "expect": "widget", "label": "Enable villager trades" },
+    { "expect": "widget", "label": "text.autoconfig.", "exists": false },
+    { "hover": "Heavy Core Recipe" },
+    { "expect": "tooltip", "has": "Off by default" },
+    { "expect": "widget", "label": "Save & Quit", "active": false },
+    { "click": "Heavy Core Recipe" },
+    { "expect": "widget", "label": "Save & Quit", "active": true },
+    { "click": "Heavy Core Recipe" },
+    { "expect": "widget", "label": "Save & Quit", "active": false },
+    { "screenshot": "last-options" },
+    { "close": true },
+    { "expect": "screen", "open": false }
+  ]
+}
