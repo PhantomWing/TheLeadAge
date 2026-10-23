@@ -86,6 +86,7 @@
 - Fixed creepers and pillagers only avoiding lead torches up close
 - Fixed hanging Lead Weight chains being shaded differently from vanilla chains
 - Fixed leaded glass breaking like plain glass when destroyed by commands or the Wither
+- Fixed lead torches on walls being named Torch
 
 
 # 1.1.0

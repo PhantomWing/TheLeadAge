@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.gametest;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassShatter;
@@ -9,6 +10,7 @@ import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -115,6 +118,30 @@ public final class LeadBlocksGameTest {
                     + ModBlocks.LEAD_BRICKS.get().getExplosionResistance());
         } else {
             helper.succeed();
+        }
+    }
+
+    /**
+     * Every block is named by its own key, the one its lang files name, or by its item's, as a wall torch is named after
+     * the torch on 1.21.1: from 1.21.2 the copy of vanilla's wall torch took the torch's name with its properties, and
+     * showed as "Torch".
+     */
+    public static void blocksAreNamedByTheirOwnKeys(GameTestHelper helper) {
+        List<String> misnamed = new ArrayList<>();
+        for (Block block : BuiltInRegistries.BLOCK) {
+            var id = BuiltInRegistries.BLOCK.getKey(block);
+            // Util.makeDescriptionId's key, written out: Util moved package in 1.21.11.
+            String own = "block." + id.getNamespace() + "." + id.getPath().replace('/', '.');
+            String name = block.getDescriptionId();
+            if (id.getNamespace().equals(TheLeadAge.MOD_ID) && !name.equals(own)
+                    && !name.equals(block.asItem().getDescriptionId())) {
+                misnamed.add(id + " is named " + name);
+            }
+        }
+        if (misnamed.isEmpty()) {
+            helper.succeed();
+        } else {
+            fail(helper, String.join(", ", misnamed));
         }
     }
 
