@@ -33,6 +33,7 @@ public final class GameTests {
             test("raw_lead_wakes_by_random_tick", RawLeadGameTest::rawLeadWakesByRandomTick),
             test("raw_lead_dries_out_without_an_update", RawLeadGameTest::rawLeadDriesOutWithoutAnUpdate),
             test("creepers_find_what_repels_them", RawLeadGameTest::creepersFindWhatRepelsThem),
+            test("creepers_search_their_whole_box", RawLeadGameTest::creepersSearchTheirWholeBox),
             test("creepers_loaded_from_disk_avoid_lead_torches", RawLeadGameTest::creepersLoadedFromDiskAvoidLeadTorches),
             test("unrelated_effects_dont_advance_lead_sickness", RawLeadGameTest::unrelatedEffectsDontAdvanceLeadSickness),
             test("campfire_relit_keeps_its_rising_fumes", RawLeadGameTest::campfireRelitKeepsItsRisingFumes).maxTicks(300),

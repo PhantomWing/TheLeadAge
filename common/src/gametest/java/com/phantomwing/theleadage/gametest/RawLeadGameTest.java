@@ -283,6 +283,31 @@ public final class RawLeadGameTest {
         }
     }
 
+    /**
+     * A creeper notices a lead torch anywhere in its search, 8 blocks along either way and 4 up or down as vanilla's
+     * piglins search for soul fire, not only within 8 steps of it: 7 along and 3 aside, then 5 along, 3 up and 5 aside.
+     * Far above the test, so no other test's torch or campfire is nearer.
+     */
+    public static void creepersSearchTheirWholeBox(GameTestHelper helper) {
+        BlockPos at = new BlockPos(0, 40, 0);
+        Creeper creeper = helper.spawnWithNoFreeWill(CREEPER, at);
+        for (BlockPos torch : List.of(at.offset(7, 0, 3), at.offset(5, 3, 5))) {
+            helper.setBlock(torch.below(), Blocks.STONE);
+            helper.setBlock(torch, ModBlocks.LEAD_TORCH.get());
+            BlockPos found = repellentFoundBy(creeper);
+            helper.setBlock(torch, Blocks.AIR);
+            helper.setBlock(torch.below(), Blocks.AIR);
+            if (!helper.absolutePos(torch).equals(found)) {
+                creeper.discard();
+                fail(helper, "A creeper missed a lead torch " + torch.subtract(at).toShortString() + " from it, finding "
+                        + found);
+                return;
+            }
+        }
+        creeper.discard();
+        helper.succeed();
+    }
+
     /** What a new creeper's goal finds to keep away from, given the goal ticks it takes to search. */
     private static BlockPos repellentFoundBy(Creeper creeper) {
         AvoidRepellentBlockGoal goal = new AvoidRepellentBlockGoal(creeper, ModTags.Blocks.CREEPER_REPELLENTS, () -> true, 1.0, 1.2);

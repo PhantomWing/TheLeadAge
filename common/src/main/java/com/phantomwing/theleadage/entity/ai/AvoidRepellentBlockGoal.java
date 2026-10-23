@@ -119,11 +119,10 @@ public class AvoidRepellentBlockGoal extends Goal {
             return false;
         }
         scanCooldown = SCAN_INTERVAL;
-        // 26.3 removed BlockPos.findClosestMatch. withinManhattan walks outwards from the centre,
-        // so the first hit is still the nearest one; the clipped form keeps the flatter y range.
-        repellent = null;
+        // 26.3 removed BlockPos.findClosestMatch. This walks the same box outwards from the centre, so the first hit is
+        // still the nearest; withinClippedManhattan would stop 8 steps out and miss the box's corners.
         if (mayBeNearby()) {
-            for (BlockPos pos : BlockPos.withinClippedManhattan(mob.blockPosition(),
+            for (BlockPos pos : BlockPos.withinBoxByManhattanDistance(mob.blockPosition(),
                     SEARCH_HORIZONTAL, SEARCH_VERTICAL, SEARCH_HORIZONTAL)) {
                 if (repels(pos)) {
                     repellent = pos.immutable();
