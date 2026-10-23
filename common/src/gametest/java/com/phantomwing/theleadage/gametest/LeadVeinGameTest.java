@@ -2,27 +2,28 @@ package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.world.vein.LeadVeins;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 
-import java.util.List;
-
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
-import static com.phantomwing.theleadage.gametest.TestCompat.materialRules;
-import static com.phantomwing.theleadage.gametest.TestCompat.noiseChunk;
+import static com.phantomwing.theleadage.gametest.TestCompat.leadVeins;
+import static com.phantomwing.theleadage.gametest.TestCompat.leadVeinsOutOfPlace;
 import static com.phantomwing.theleadage.gametest.TestCompat.noiseSettings;
 import static com.phantomwing.theleadage.gametest.TestCompat.randomState;
+import static com.phantomwing.theleadage.gametest.TestCompat.vanillaVeinToggle;
 
 /**
  * Large lead ore veins, sampled from the overworld's own noises for a fixed seed, so the run is the same every time:
  * the veins' data loads and binds, and what they place is ore and filler in their band, with raw lead now and then,
  * only ever on iron's side of vanilla's vein noise, so never where a copper vein can be.
+ *
+ * <p>Up to 26.2 the veins are a NoiseChunk filler of the mod's own; from 26.3 vanilla's veins are rules of the noise
+ * settings' material rule, and so are these. {@link TestCompat} reads them either way.</p>
  */
 public final class LeadVeinGameTest {
     private static final long SEED = 20261014L;
@@ -35,17 +36,39 @@ public final class LeadVeinGameTest {
 
     /**
      * A chunk's terrain is given the lead veins after vanilla's ore veins, which so come first where they meet. Game
-     * tests run in a flat world that never fills a chunk from noise, so this makes the filler for one.
+     * tests run in a flat world that never builds a chunk from noise, so this asks the overworld's own generation, at
+     * the first lead ore of a vein.
      */
     public static void chunksGetLeadVeinsAfterVanillas(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         NoiseGeneratorSettings settings = noiseSettings(level, NoiseGeneratorSettings.OVERWORLD);
         RandomState random = randomState(level, settings, SEED);
         LeadVeins.bind(random, level.registryAccess());
-        List<NoiseChunk.BlockStateFiller> rules = materialRules(noiseChunk(level, random, settings));
-        // The aquifer's rule, then vanilla's veins, then these.
-        if (rules.size() < 3 || !rules.get(rules.size() - 1).getClass().getSimpleName().equals("LeadVeinifier")) {
-            fail(helper, "expected the lead veins last of a chunk's rules, after vanilla's veins, found " + rules);
+        TestCompat.VeinSampler veins = leadVeins(level, random);
+        if (veins == null) {
+            fail(helper, "the overworld has no lead veins");
+            return;
+        }
+        BlockPos vein = null;
+        BlockState expected = null;
+        for (int x = 0; x < SIZE && vein == null; x += STEP) {
+            for (int z = 0; z < SIZE && vein == null; z += STEP) {
+                for (int y = LeadVeins.MIN_Y; y < LeadVeins.MAX_Y && vein == null; y += 2) {
+                    BlockState state = veins.at(x, y, z);
+                    if (state != null && !state.is(Blocks.TUFF)) {
+                        vein = new BlockPos(x, y, z);
+                        expected = state;
+                    }
+                }
+            }
+        }
+        if (vein == null) {
+            fail(helper, "no lead ore in a lead vein within " + SIZE + " blocks");
+            return;
+        }
+        String problem = leadVeinsOutOfPlace(level, random, settings, vein, expected);
+        if (problem != null) {
+            fail(helper, problem);
         } else {
             helper.succeed();
         }
@@ -55,11 +78,9 @@ public final class LeadVeinGameTest {
         ServerLevel level = helper.getLevel();
         NoiseGeneratorSettings settings = noiseSettings(level, NoiseGeneratorSettings.OVERWORLD);
         RandomState random = randomState(level, settings, SEED);
-        LeadVeins.bind(random, level.registryAccess());
-        // Outside a chunk there are no caches to fill, so the functions are read as they are.
-        NoiseChunk.BlockStateFiller veins = LeadVeins.filler(random, settings, function -> function);
+        TestCompat.VeinSampler veins = leadVeins(level, random);
         if (veins == null) {
-            fail(helper, "the lead veins weren't bound to the overworld");
+            fail(helper, "the overworld has no lead veins");
             return;
         }
 
@@ -68,16 +89,14 @@ public final class LeadVeinGameTest {
         int filler = 0;
         int outside = 0;
         int onCoppersSide = 0;
-        DensityFunction vanillaToggle = random.router().veinToggle();
         for (int x = 0; x < SIZE; x += STEP) {
             for (int z = 0; z < SIZE; z += STEP) {
                 for (int y = LeadVeins.MIN_Y - 6; y < LeadVeins.MAX_Y + 6; y += 2) {
-                    DensityFunction.SinglePointContext at = new DensityFunction.SinglePointContext(x, y, z);
-                    BlockState state = veins.calculate(at);
+                    BlockState state = veins.at(x, y, z);
                     if (state == null) {
                         continue;
                     }
-                    if (vanillaToggle.compute(at) > 0.0) {
+                    if (vanillaVeinToggle(level, random, x, y, z) > 0.0F) {
                         onCoppersSide++;
                     }
                     if (y < LeadVeins.MIN_Y || y >= LeadVeins.MAX_Y) {
