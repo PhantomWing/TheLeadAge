@@ -79,6 +79,7 @@
 - Fixed leaded glass in a color from a removed dye mod turning white
 - Fixed Lead Horse Armor wearing out
 - Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
+- Fixed lead torches on walls being named Torch
 
 
 # 1.1.1
