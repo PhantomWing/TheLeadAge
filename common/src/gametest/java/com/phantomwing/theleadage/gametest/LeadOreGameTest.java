@@ -9,6 +9,7 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
+import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.effect.CampfireFumes;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
@@ -16,6 +17,7 @@ import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
+import com.phantomwing.theleadage.tags.ModTags;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
@@ -27,24 +29,20 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -61,6 +59,7 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -70,6 +69,7 @@ import net.minecraft.world.level.block.state.properties.DoorHingeSide;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -80,18 +80,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.IntConsumer;
 
+import static com.phantomwing.theleadage.gametest.TestCompat.CHICKEN;
 import static com.phantomwing.theleadage.gametest.TestCompat.ITEM_ENTITY;
 import static com.phantomwing.theleadage.gametest.TestCompat.NAUSEA;
+import static com.phantomwing.theleadage.gametest.TestCompat.SPEARS;
+import static com.phantomwing.theleadage.gametest.TestCompat.VILLAGER;
+import static com.phantomwing.theleadage.gametest.TestCompat.ZOMBIE;
+import static com.phantomwing.theleadage.gametest.TestCompat.apprenticeSmithBuysLead;
 import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
+import static com.phantomwing.theleadage.gametest.TestCompat.assertTrue;
 import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
+import static com.phantomwing.theleadage.gametest.TestCompat.carvedByCaves;
+import static com.phantomwing.theleadage.gametest.TestCompat.chargesAsASpear;
+import static com.phantomwing.theleadage.gametest.TestCompat.copperBlock;
 import static com.phantomwing.theleadage.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.fitsTheNautilus;
 import static com.phantomwing.theleadage.gametest.TestCompat.hasRecipe;
+import static com.phantomwing.theleadage.gametest.TestCompat.itemDamagePerAttack;
+import static com.phantomwing.theleadage.gametest.TestCompat.leadNautilusArmor;
+import static com.phantomwing.theleadage.gametest.TestCompat.leadSpear;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 import static com.phantomwing.theleadage.gametest.TestCompat.recipesFor;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
 import static com.phantomwing.theleadage.gametest.TestCompat.use;
+import static com.phantomwing.theleadage.gametest.TestCompat.vanillaId;
 
 /**
  * Game tests for the "lead fumes" mechanic ({@code LeadOreBlock#playerDestroy} and {@link LeadFumes}):
@@ -274,7 +288,7 @@ public class LeadOreGameTest {
         }
         ServerLevel level = helper.getLevel();
         RecipeManager recipes = level.getServer().getRecipeManager();
-        if (hasRecipe(recipes, ResourceLocation.withDefaultNamespace("fishing_rod_fallback"))) {
+        if (hasRecipe(recipes, vanillaId("fishing_rod_fallback"))) {
             helper.succeed();
             return;
         }
@@ -325,7 +339,7 @@ public class LeadOreGameTest {
     /** Caves and canyons carve through the lead veins' ore and raw lead, as they do vanilla's iron and copper veins. */
     public static void leadVeinsCarveAway(GameTestHelper helper) {
         for (RegistrySupplier<Block> block : List.of(ModBlocks.LEAD_ORE, ModBlocks.DEEPSLATE_LEAD_ORE, ModBlocks.RAW_LEAD_BLOCK)) {
-            if (!block.get().defaultBlockState().is(BlockTags.OVERWORLD_CARVER_REPLACEABLES)) {
+            if (!carvedByCaves(block.get().defaultBlockState())) {
                 fail(helper, block.getId() + " isn't carved by caves, so a vein crossing one floats");
                 return;
             }
@@ -336,13 +350,13 @@ public class LeadOreGameTest {
     /** A weight dropped from high up crushes a mob shorter than a block standing where it lands, on its landing tick. */
     public static void leadWeightCrushesOnLanding(GameTestHelper helper) {
         helper.setBlock(new BlockPos(0, 1, 0), Blocks.STONE); // the ground the chicken stands on
-        Chicken chicken = helper.spawnWithNoFreeWill(EntityType.CHICKEN, new BlockPos(0, 2, 0));
+        var chicken = helper.spawnWithNoFreeWill(CHICKEN, new BlockPos(0, 2, 0));
         Vec3 high = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(0, 31, 0)));
         LeadWeightEntity weight = LeadWeightEntity.inAir(helper.getLevel(), high.x, high.y, high.z,
                 ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null);
         helper.succeedWhen(() -> {
-            helper.assertTrue(weight.isRemoved(), "the weight hasn't landed yet");
-            helper.assertTrue(chicken.isDeadOrDying() || chicken.getHealth() < chicken.getMaxHealth(),
+            assertTrue(helper, weight.isRemoved(), "the weight hasn't landed yet");
+            assertTrue(helper, chicken.isDeadOrDying() || chicken.getHealth() < chicken.getMaxHealth(),
                     "a weight dropped 29 blocks landed on a chicken without hurting it");
         });
     }
@@ -371,7 +385,7 @@ public class LeadOreGameTest {
         helper.setBlock(dispenser, Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, Direction.DOWN));
         blockEntity(helper, dispenser, DispenserBlockEntity.class).setItem(0, new ItemStack(ModItems.LEAD_WEIGHT.get()));
         helper.setBlock(new BlockPos(1, 5, 0), Blocks.REDSTONE_BLOCK);
-        helper.succeedWhen(() -> helper.assertTrue(helper.getBlockState(new BlockPos(0, 2, 0)).is(ModBlocks.LEAD_WEIGHT.get())
+        helper.succeedWhen(() -> assertTrue(helper, helper.getBlockState(new BlockPos(0, 2, 0)).is(ModBlocks.LEAD_WEIGHT.get())
                         && !helper.getBlockState(new BlockPos(0, 4, 0)).is(ModBlocks.LEAD_WEIGHT.get()),
                 "the dispensed weight isn't on the floor: " + helper.getBlockState(new BlockPos(0, 4, 0)) + " under the dispenser, "
                         + helper.getBlockState(new BlockPos(0, 3, 0)) + " below it, " + helper.getBlockState(new BlockPos(0, 2, 0))
@@ -380,7 +394,7 @@ public class LeadOreGameTest {
 
     /** A weight's death message names who threw it, whatever they hold, and only the weight when nobody did. */
     public static void leadWeightNamesItsThrower(GameTestHelper helper) {
-        Zombie victim = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
+        var victim = helper.spawnWithNoFreeWill(ZOMBIE, new BlockPos(0, 2, 0));
         LeadWeightEntity weight = new LeadWeightEntity(ModEntities.LEAD_WEIGHT.get(), helper.getLevel());
         Player thrower = helper.makeMockPlayer(GameType.SURVIVAL);
         ItemStack named = new ItemStack(Items.IRON_SWORD);
@@ -597,23 +611,28 @@ public class LeadOreGameTest {
         }
     }
 
-    /** An weight that falls onto a hopper is collected by it as an item, not left as a block on top. */
+    /**
+     * An weight that falls onto a hopper is collected by it as an item, not left as a block on top. It falls straight
+     * over the structure, whose chunk is the one sure to tick entities: a block aside, it lay now and then in the next
+     * chunk, which didn't, and never fell.
+     */
     public static void leadWeightDropsIntoHopper(GameTestHelper helper) {
-        helper.setBlock(new BlockPos(1, 0, 1), Blocks.HOPPER);  // hopper on the floor
-        helper.setBlock(new BlockPos(1, 1, 1), Blocks.AIR);     // carve the drop column out of the barrier
-        helper.setBlock(new BlockPos(1, 2, 1), Blocks.AIR);
-        BlockPos spawn = helper.absolutePos(new BlockPos(1, 2, 1));
+        BlockPos hopper = new BlockPos(0, 2, 0);
+        helper.setBlock(hopper, Blocks.HOPPER);
+        helper.setBlock(hopper.above(), Blocks.AIR);     // the drop column
+        helper.setBlock(hopper.above(2), Blocks.AIR);
+        BlockPos spawn = helper.absolutePos(hopper.above(2));
         LeadWeightEntity.inAir(helper.getLevel(), spawn.getX() + 0.5, spawn.getY(), spawn.getZ() + 0.5,
                 ModBlocks.LEAD_WEIGHT.get().defaultBlockState(), null);
         helper.startSequence()
                 // Poll until the hopper has it, rather than guessing how long the fall + collect takes.
                 .thenWaitUntil(() -> {
-                    if (!hopperHasOrb(helper)) {
+                    if (!hopperHasOrb(helper, hopper)) {
                         fail(helper, "hopper has not collected the weight yet");
                     }
                 })
                 .thenExecute(() -> {
-                    if (helper.getBlockState(new BlockPos(1, 1, 1)).is(ModBlocks.LEAD_WEIGHT.get())) {
+                    if (helper.getBlockState(hopper.above()).is(ModBlocks.LEAD_WEIGHT.get())) {
                         fail(helper, "weight placed itself as a block on the hopper instead of being collected");
                     }
                 })
@@ -665,8 +684,8 @@ public class LeadOreGameTest {
         helper.succeed();
     }
 
-    private static boolean hopperHasOrb(GameTestHelper helper) {
-        HopperBlockEntity hopper = blockEntity(helper, new BlockPos(1, 0, 1), HopperBlockEntity.class);
+    private static boolean hopperHasOrb(GameTestHelper helper, BlockPos pos) {
+        HopperBlockEntity hopper = blockEntity(helper, pos, HopperBlockEntity.class);
         for (int i = 0; i < hopper.getContainerSize(); i++) {
             if (hopper.getItem(i).is(ModItems.LEAD_WEIGHT.get())) {
                 return true;
@@ -772,6 +791,142 @@ public class LeadOreGameTest {
         ItemStack armor = new ItemStack(ModItems.LEAD_HORSE_ARMOR.get());
         if (armor.isDamageableItem()) {
             fail(helper, "lead horse armor wears out: it has a durability of " + armor.getMaxDamage());
+        }
+        helper.succeed();
+    }
+
+    /**
+     * A right-click with the lead axe, shovel or hoe does what vanilla's does: the axe scrapes oxidation
+     * and wax off copper and strips a log, the shovel makes a path, the hoe tills. The right-click lives in
+     * the tool's class, so a tool built as a plain Item with the Properties has the stats and none of it.
+     */
+    public static void leadToolsWorkBlocks(GameTestHelper helper) {
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Item axe = ModItems.LEAD_AXE.get();
+        useOn(helper, player, axe, new BlockPos(0, 1, 0),
+                copperBlock(WeatherState.OXIDIZED, false), copperBlock(WeatherState.WEATHERED, false));
+        useOn(helper, player, axe, new BlockPos(2, 1, 0),
+                copperBlock(WeatherState.UNAFFECTED, true), copperBlock(WeatherState.UNAFFECTED, false));
+        useOn(helper, player, axe, new BlockPos(4, 1, 0), Blocks.OAK_LOG, Blocks.STRIPPED_OAK_LOG);
+        useOn(helper, player, ModItems.LEAD_SHOVEL.get(), new BlockPos(0, 1, 2), Blocks.GRASS_BLOCK, Blocks.DIRT_PATH);
+        useOn(helper, player, ModItems.LEAD_HOE.get(), new BlockPos(2, 1, 2), Blocks.DIRT, Blocks.FARMLAND);
+        helper.succeed();
+    }
+
+    /** Places {@code before}, uses {@code tool} on its top face as {@code player}, and expects {@code after}. */
+    private static void useOn(GameTestHelper helper, Player player, Item tool, BlockPos pos, Block before, Block after) {
+        helper.setBlock(pos, before);
+        ItemStack stack = new ItemStack(tool);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        BlockPos at = helper.absolutePos(pos);
+        stack.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(at), Direction.UP, at, false)));
+        if (!helper.getBlockState(pos).is(after)) {
+            fail(helper, tool + " on " + before + " left " + helper.getBlockState(pos).getBlock() + ", expected " + after);
+        }
+    }
+
+    /**
+     * Nautilus armor goes on the nautilus, not the horse - the two properties differ only in which
+     * mob they fit - and on the horse armor's terms: never damaged, the material's armor plus the
+     * knockback resistance.
+     */
+    public static void nautilusArmorFitsTheNautilus(GameTestHelper helper) {
+        Optional<Item> nautilusArmor = leadNautilusArmor();
+        if (nautilusArmor.isEmpty()) {
+            // There is no nautilus to fit before 1.21.11.
+            helper.succeed();
+            return;
+        }
+        ItemStack armor = new ItemStack(nautilusArmor.get());
+        if (!fitsTheNautilus(armor)) {
+            fail(helper, "lead nautilus armor doesn't fit a nautilus's body slot");
+            return;
+        }
+        if (armor.isDamageableItem()) {
+            fail(helper, "lead nautilus armor wears out: it has a durability of " + armor.getMaxDamage());
+            return;
+        }
+        if (!hasModifier(defaultModifiers(nautilusArmor.get()), Attributes.KNOCKBACK_RESISTANCE.value())
+                || !hasModifier(defaultModifiers(nautilusArmor.get()), Attributes.ARMOR.value())) {
+            fail(helper, "lead nautilus armor lost its armor or knockback resistance modifier");
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * The spear charges, and counts as a spear: #minecraft:spears is what lets it take Lunge and the
+     * melee enchantments. Like the rest of the set it is lead equipment, which fumes when it breaks.
+     */
+    public static void leadSpearIsASpear(GameTestHelper helper) {
+        Optional<Item> leadSpear = leadSpear();
+        if (leadSpear.isEmpty()) {
+            // Spears are new in 1.21.11.
+            helper.succeed();
+            return;
+        }
+        ItemStack spear = new ItemStack(leadSpear.get());
+        if (!chargesAsASpear(spear)) {
+            fail(helper, "lead spear has no charge attack");
+            return;
+        }
+        if (!spear.is(SPEARS)) {
+            fail(helper, "lead spear isn't in #minecraft:spears");
+            return;
+        }
+        if (!spear.is(ModTags.Items.LEAD_EQUIPMENT)) {
+            fail(helper, "lead spear isn't lead equipment, so it won't fume when it breaks");
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Without Farmer's Delight the Lead Knife falls back to vanilla sword properties, and that is what
+     * ships on NeoForge (FD publishes no 1.21.5 build) and on Fabric without FDR. 1.21.5 moved these
+     * onto the Properties, so the fallback and the FD branch each apply their own set: this pins the
+     * fallback, and would fail if the FD-only knife properties ever leaked into the default path.
+     */
+    public static void leadKnifeFallbackKeepsSwordProperties(GameTestHelper helper) {
+        if (Platform.isModLoaded(ModIds.FARMERS_DELIGHT)) {
+            // The knife is Farmer's Delight's then, with that mod's properties.
+            helper.succeed();
+            return;
+        }
+        DataComponentMap components = ModItems.LEAD_KNIFE.get().components();
+        if (!hasModifier(components, Attributes.ATTACK_DAMAGE.value())
+                || !hasModifier(components, Attributes.ATTACK_SPEED.value())) {
+            fail(helper, "lead knife lost its attack attributes");
+            return;
+        }
+        int cost = itemDamagePerAttack(ModItems.LEAD_KNIFE.get());
+        if (cost != 1) {
+            fail(helper, "expected the vanilla sword weapon cost (1 durability per attack), got " + cost);
+            return;
+        }
+        if (components.get(DataComponents.TOOL) == null) {
+            fail(helper, "lead knife lost its tool component");
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Each smith buys lead ingots at level 2, as all three buy iron ingots there. Up to 1.21.11 the mod adds the trade to
+     * their trade lists in code. 26.1 moved villager trades into datapack registries: a profession's level 2 trades are
+     * a trade set, which draws them from a tag, so the smith trades are only live if each smith's level 2 trade set draws
+     * the lead trade. The armorer's draws it through a tag of the mod's own, since the Villager Trade Rebalance
+     * experiment replaces vanilla's minecraft:armorer/level_2 after every mod's data; Fabric's game tests run with the
+     * experiment on from 26.1.
+     */
+    public static void smithPoolsIncludeLeadTrade(GameTestHelper helper) {
+        var villager = helper.spawnWithNoFreeWill(VILLAGER, new BlockPos(0, 2, 0));
+        for (String smith : new String[]{"armorer", "toolsmith", "weaponsmith"}) {
+            if (!apprenticeSmithBuysLead(helper.getLevel(), villager, smith)) {
+                fail(helper, "the lead trade is missing from " + smith + " level 2");
+                return;
+            }
         }
         helper.succeed();
     }

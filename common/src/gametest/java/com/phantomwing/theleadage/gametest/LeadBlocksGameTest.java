@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.gametest;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassShatter;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
@@ -12,8 +13,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CopperBulbBlock;
@@ -23,13 +28,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.phantomwing.theleadage.gametest.TestCompat.IMMOVABLE;
 import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.shownAs;
 
 /**
  * Game tests for lead blocks: the Lead Bulb's redstone toggle, a dyed leaded glass pane tinting a beacon's beam, and
@@ -94,10 +102,10 @@ public final class LeadBlocksGameTest {
     /** Solid lead is too heavy for a piston to push. */
     public static void pistonsCantPushSolidLead(GameTestHelper helper) {
         PushReaction reaction = ModBlocks.LEAD_BLOCK.get().defaultBlockState().getPistonPushReaction();
-        if (reaction == PushReaction.BLOCK) {
+        if (reaction == IMMOVABLE) {
             helper.succeed();
         } else {
-            fail(helper, "A Block of Lead reacts to a piston with " + reaction + ", not BLOCK");
+            fail(helper, "A Block of Lead reacts to a piston with " + reaction + ", not " + IMMOVABLE);
         }
     }
 
@@ -168,6 +176,39 @@ public final class LeadBlocksGameTest {
             return;
         }
         helper.succeed();
+    }
+
+    /**
+     * Leaded glass shatters into plain glass's break only under a player without a pickaxe, or in creative. Destroyed
+     * with no one breaking it - /setblock or /fill with destroy, a Wither - it breaks as itself, as a pickaxe pries it.
+     */
+    public static void leadedGlassShattersOnlyUnderAPlayer(GameTestHelper helper) {
+        BlockState glass = ModBlocks.LEADED_GLASS.get().defaultBlockState();
+        if (shownAs(null, glass, LeadedGlassShatter.shatteredGlass(null)).isEmpty()) {
+            // Nothing to ask where only a player's break comes to the glass's destroy hook.
+            helper.succeed();
+            return;
+        }
+        Player bare = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player miner = helper.makeMockPlayer(GameType.SURVIVAL);
+        miner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
+        Player creative = helper.makeMockPlayer(GameType.CREATIVE);
+        creative.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
+        String problem = shatters(null) ? "destroyed with no one breaking it shatters"
+                : shatters(miner) ? "pried out with a pickaxe shatters"
+                : !shatters(bare) ? "knocked out by hand comes away whole"
+                : !shatters(creative) ? "broken in creative comes away whole"
+                : null;
+        if (problem == null) {
+            helper.succeed();
+        } else {
+            fail(helper, "Leaded glass " + problem);
+        }
+    }
+
+    private static boolean shatters(@Nullable Player breaker) {
+        BlockState glass = ModBlocks.LEADED_GLASS.get().defaultBlockState();
+        return shownAs(breaker, glass, LeadedGlassShatter.shatteredGlass(null)).orElse(glass) != glass;
     }
 
     /** A pane drops as its loot table says, with its design on it. */
