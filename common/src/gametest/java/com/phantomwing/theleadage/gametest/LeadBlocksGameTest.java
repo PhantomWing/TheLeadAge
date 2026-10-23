@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
+import com.phantomwing.theleadage.block.custom.LeadedGlassShatter;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
@@ -10,8 +11,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CopperBulbBlock;
@@ -21,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -142,6 +148,33 @@ public final class LeadBlocksGameTest {
             return;
         }
         helper.succeed();
+    }
+
+    /**
+     * Leaded glass shatters into plain glass's break only under a player without a pickaxe, or in creative. Destroyed
+     * with no one breaking it - /setblock or /fill with destroy, a Wither - it breaks as itself, as a pickaxe pries it.
+     */
+    public static void leadedGlassShattersOnlyUnderAPlayer(GameTestHelper helper) {
+        Player bare = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player miner = helper.makeMockPlayer(GameType.SURVIVAL);
+        miner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
+        Player creative = helper.makeMockPlayer(GameType.CREATIVE);
+        creative.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
+        String problem = shatters(null) ? "destroyed with no one breaking it shatters"
+                : shatters(miner) ? "pried out with a pickaxe shatters"
+                : !shatters(bare) ? "knocked out by hand comes away whole"
+                : !shatters(creative) ? "broken in creative comes away whole"
+                : null;
+        if (problem == null) {
+            helper.succeed();
+        } else {
+            fail(helper, "Leaded glass " + problem);
+        }
+    }
+
+    private static boolean shatters(@Nullable Player breaker) {
+        BlockState glass = ModBlocks.LEADED_GLASS.get().defaultBlockState();
+        return LeadedGlassShatter.shownAs(breaker, glass, LeadedGlassShatter.shatteredGlass(null)) != glass;
     }
 
     /** A pane drops as its loot table says, with its design on it. */

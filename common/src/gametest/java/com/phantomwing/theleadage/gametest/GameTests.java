@@ -70,6 +70,7 @@ public final class GameTests {
             test("lead_wall_torch_drops_a_lead_torch", LeadBlocksGameTest::leadWallTorchDropsALeadTorch),
             test("wall_panes_block_paths_and_turn_with_the_build", LeadBlocksGameTest::wallPanesBlockPathsAndTurnWithTheBuild),
             test("pane_drops_keep_their_design", LeadBlocksGameTest::paneDropsKeepTheirDesign),
+            test("leaded_glass_shatters_only_under_a_player", LeadBlocksGameTest::leadedGlassShattersOnlyUnderAPlayer),
             test("door_recipe_combines", LeadOreGameTest::doorRecipeCombines),
             test("lead_ingot_recipes_dont_clash", LeadOreGameTest::leadIngotRecipesDontClash),
             test("lead_veins_carve_away", LeadOreGameTest::leadVeinsCarveAway),

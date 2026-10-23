@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Leaded glass breaks two ways. Pried out with a pickaxe it comes away whole — the heavy lead
- * {@code break} sound. Knocked out with anything else it is simply destroyed, and glass that is not
- * recovered has shattered, so it gets the glass sound instead.
+ * {@code break} sound. Knocked out by a player with anything else it is simply destroyed, and glass that
+ * is not recovered has shattered, so it gets the glass sound instead.
  *
  * <p>Vanilla bundles the two: {@link LevelEvent#PARTICLES_AND_SOUND_DESTROY_BLOCK} carries a single
  * block-state id, and the client reads <em>both</em> the break sound and the destroy particles off it
@@ -23,9 +23,9 @@ import org.jetbrains.annotations.Nullable;
  * particles to plain glass shards. That reads correctly (it shattered into glass), and it is the only
  * way to split the sound without a client-side mixin.</p>
  *
- * <p>Called from {@code spawnDestroyParticles}, which runs on the server for onlookers and again on the
- * breaking player's own client for its prediction — both with that player, so both pick the same
- * sound.</p>
+ * <p>Called from {@code spawnDestroyByEntityParticles}, which {@code playerWillDestroy} runs on the server
+ * for onlookers and again on the breaking player's own client for its prediction — both with that player,
+ * so both pick the same sound. {@code Level#destroyBlock} runs it with no breaker.</p>
  */
 public final class LeadedGlassShatter {
     private LeadedGlassShatter() {
@@ -38,12 +38,19 @@ public final class LeadedGlassShatter {
      */
     public static void spawnDestroyEffect(Level level, @Nullable Entity breaker, BlockPos pos,
                                           BlockState state, BlockState shattered) {
-        // 26.3 hands the destroy hook an Entity rather than a Player; anything that is not a player
-        // (or a creative one, or one without the right tool) shatters the glass.
-        boolean recovered = breaker instanceof Player player
-                && !player.isCreative() && player.hasCorrectToolForDrops(state);
         level.levelEvent(breaker, LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK, pos,
-                Block.getId(recovered ? state : shattered));
+                Block.getId(shownAs(breaker, state, shattered)));
+    }
+
+    /**
+     * The block a break shows and sounds as: the leaded glass itself, or the glass it shattered into. Only a player
+     * shatters it: 26.3's {@code Level#destroyBlock} hands this hook no breaker (/setblock and /fill with destroy, a
+     * Wither), and before 26.3 that path never came here and showed the leaded glass.
+     */
+    public static BlockState shownAs(@Nullable Entity breaker, BlockState state, BlockState shattered) {
+        boolean shatters = breaker instanceof Player player
+                && (player.isCreative() || !player.hasCorrectToolForDrops(state));
+        return shatters ? shattered : state;
     }
 
     /**
