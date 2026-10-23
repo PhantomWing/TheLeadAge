@@ -132,8 +132,9 @@ public final class LeadedGlassPlacementGameTest {
     }
 
     private static String describe(BlockState state) {
-        return state.getValues().entrySet().stream()
-                .map(e -> e.getKey().getName() + "=" + e.getValue().toString().toLowerCase(java.util.Locale.ROOT))
+        // Through each property rather than BlockState#getValues, which is a map before 26.1 and a stream from it.
+        return state.getProperties().stream()
+                .map(property -> property.getName() + "=" + state.getValue(property).toString().toLowerCase(java.util.Locale.ROOT))
                 .reduce((a, b) -> a + "," + b).orElse("");
     }
 }
