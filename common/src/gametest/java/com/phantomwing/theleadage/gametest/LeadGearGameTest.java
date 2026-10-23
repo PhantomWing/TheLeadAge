@@ -13,29 +13,18 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.zombie.Zombie;
-import net.minecraft.world.entity.npc.villager.Villager;
-import net.minecraft.world.entity.npc.villager.VillagerProfession;
-import net.minecraft.world.entity.npc.villager.VillagerTrades;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.minecraft.world.item.equipment.trim.TrimMaterials;
-import net.minecraft.world.item.equipment.trim.TrimPatterns;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -53,13 +42,17 @@ import static com.phantomwing.theleadage.gametest.LeadOreGameTest.SPAWN_TICKS;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.clearSickness;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenFumesFind;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenSpawnLoaded;
+import static com.phantomwing.theleadage.gametest.TestCompat.VILLAGER;
+import static com.phantomwing.theleadage.gametest.TestCompat.ZOMBIE;
+import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 import static com.phantomwing.theleadage.gametest.TestCompat.newerGear;
-import static com.phantomwing.theleadage.gametest.TestCompat.offer;
+import static com.phantomwing.theleadage.gametest.TestCompat.rebalancedApprenticeArmorerBuys;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
 import static com.phantomwing.theleadage.gametest.TestCompat.trim;
 import static com.phantomwing.theleadage.gametest.TestCompat.trimPalette;
+import static com.phantomwing.theleadage.gametest.TestCompat.vanillaId;
 
 /**
  * Game tests for lead gear: smelting it back into nuggets, the fumes a piece gives off as it breaks, the weight of its
@@ -86,7 +79,7 @@ public final class LeadGearGameTest {
             for (Item item : gear()) {
                 SingleRecipeInput input = new SingleRecipeInput(new ItemStack(item));
                 ItemStack result = level.getServer().getRecipeManager().getRecipeFor(type, input, level)
-                        .map(recipe -> recipe.value().assemble(input, level.registryAccess()))
+                        .map(recipe -> assemble(recipe.value(), input, level))
                         .orElse(ItemStack.EMPTY);
                 if (!result.is(ModItems.LEAD_NUGGET.get())) {
                     fail(helper, BuiltInRegistries.ITEM.getKey(item) + " in " + type + " gives " + result + ", not a Lead Nugget");
@@ -129,11 +122,12 @@ public final class LeadGearGameTest {
      * slowness, never saved, comes back on its first tick. Taking it off takes the slowness away.
      */
     public static void leadArmorWeighsOnMobs(GameTestHelper helper) {
-        Identifier slowness = TheLeadAge.resourceLocation("lead_heaviness_slowness");
+        // var keeps the id's and the zombie's types out of the body: Identifier and a new package from 1.21.11.
+        var slowness = TheLeadAge.resourceLocation("lead_heaviness_slowness");
         ServerLevel level = helper.getLevel();
-        Zombie wearing = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
+        var wearing = helper.spawnWithNoFreeWill(ZOMBIE, new BlockPos(0, 2, 0));
         wearing.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.LEAD_CHESTPLATE.get()));
-        Zombie loaded = reloaded(wearing);
+        var loaded = reloaded(wearing);
         loaded.setUUID(UUID.randomUUID());
         level.addFreshEntity(loaded);
         helper.runAfterDelay(3, () -> {
@@ -180,7 +174,7 @@ public final class LeadGearGameTest {
     private static int rollFor(GameTestHelper helper, String table, List<Item> wanted) {
         ServerLevel level = helper.getLevel();
         LootTable loot = level.getServer().reloadableRegistries()
-                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.withDefaultNamespace(table)));
+                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, vanillaId(table)));
         LootParams params = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(helper.absolutePos(BlockPos.ZERO)))
                 .create(LootContextParamSets.CHEST);
@@ -215,7 +209,7 @@ public final class LeadGearGameTest {
             return;
         }
         ServerLevel level = helper.getLevel();
-        ArmorTrim trim = trim(level, TrimMaterials.COPPER, TrimPatterns.FLOW);
+        var trim = trim(level, "copper", "flow");
         ItemStack helmet = new ItemStack(Items.IRON_HELMET);
         helmet.set(DataComponents.TRIM, trim);
         if (!trim.equals(ItemUtils.tryTransmuteStack(helmet, ModItems.LEAD_HELMET.get()).get(DataComponents.TRIM))) {
@@ -237,9 +231,9 @@ public final class LeadGearGameTest {
 
     /** Lead armour sets its slowness once, not anew every tick: each set sends the wearer's speed to everyone near. */
     public static void leadArmorSetsItsSlownessOnce(GameTestHelper helper) {
-        Zombie zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(0, 2, 0));
+        var zombie = helper.spawnWithNoFreeWill(ZOMBIE, new BlockPos(0, 2, 0));
         zombie.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.LEAD_CHESTPLATE.get()));
-        Identifier slowness = TheLeadAge.resourceLocation("lead_heaviness_slowness");
+        var slowness = TheLeadAge.resourceLocation("lead_heaviness_slowness");
         LeadArmorItem.refreshHeaviness(zombie);
         AttributeModifier first = zombie.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(slowness);
         LeadArmorItem.refreshHeaviness(zombie);
@@ -252,16 +246,11 @@ public final class LeadGearGameTest {
 
     /** The armorer buys lead ingots in a world with the Villager Trade Rebalance experiment, as in any other. */
     public static void armorersBuyLeadInRebalancedWorlds(GameTestHelper helper) {
-        Villager villager = helper.spawnWithNoFreeWill(EntityType.VILLAGER, new BlockPos(0, 2, 0));
-        RandomSource random = RandomSource.create(1L);
-        VillagerTrades.ItemListing[] apprentice = VillagerTrades.EXPERIMENTAL_TRADES.get(VillagerProfession.ARMORER).get(2);
-        for (VillagerTrades.ItemListing listing : apprentice) {
-            MerchantOffer offer = offer(listing, helper.getLevel(), villager, random);
-            if (offer != null && offer.getCostA().is(ModItems.LEAD_INGOT.get())) {
-                helper.succeed();
-                return;
-            }
+        var villager = helper.spawnWithNoFreeWill(VILLAGER, new BlockPos(0, 2, 0));
+        if (rebalancedApprenticeArmorerBuys(helper.getLevel(), villager, ModItems.LEAD_INGOT.get())) {
+            helper.succeed();
+        } else {
+            fail(helper, "No apprentice armorer buys lead ingots with the trade rebalance on");
         }
-        fail(helper, "No apprentice armorer buys lead ingots with the trade rebalance on");
     }
 }

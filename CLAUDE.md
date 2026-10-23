@@ -25,17 +25,18 @@ plain JSON and copy across lines unchanged. `scenarios/server` holds those its P
 plays on the line's dedicated server, which `scenarios/server/<loader>/config` gives a `lead_water_range` of 2
 against the client's 6, so the tint shows whose setting the client draws by.
 
-The test bodies are 1.21.1's but for seven calls the 1.2 port moved into `TestCompat`: six on 1.21.3 (`trim`,
-`trimPalette`, `hasRecipe`, `recipesFor`, `use`, `nearestDirection`), which `version/1.21`'s bodies still make
-directly, and `assertTrue` on 1.21.5, since `GameTestHelper.assertTrue` takes only a Component from 1.21.5 to
-1.21.10, which the bodies of `version/1.21`, `version/1.21.3` and `version/1.21.4` still call on the helper. Their
-`TestCompat`s want those methods in their own forms before the bodies match again. On 1.21.11 an eighth, `offer`:
-`ItemListing.getOffer` takes the trader's level first from 1.21.11, and the bodies of the lines before still call it
-on the listing.
-
-Two tests are this line's own, since what they test is new in 1.21.11: `nautilus_armor_fits_the_nautilus` and
-`lead_spear_is_a_spear`, with `TestCompat.NAUTILUS` and `canBeEquippedBy`. The gear tests (`LeadGearGameTest.gear()`)
-take the spear and the nautilus armor from `TestCompat.newerGear()`, which the lines before 1.21.11 want as an empty list.
+The bodies are the same on every line, imports included: a mob a test spawns, an id and a trim are held in a `var`,
+since their classes moved package or were renamed (1.21.2's trims, 1.21.11's mobs and `Identifier`), and every call
+whose shape differs goes through `TestCompat`. A test of something a line doesn't have skips itself through
+`TestCompat`: `nautilus_armor_fits_the_nautilus` and `lead_spear_is_a_spear` where `leadNautilusArmor()` and
+`leadSpear()` are empty, before 1.21.11; `leaded_glass_shatters_only_under_a_player` where `shownAs` is, before 26.3,
+whose `Level#destroyBlock` first reaches the glass's destroy hook with no breaker; and
+`lead_knife_fallback_keeps_sword_properties` where Farmer's Delight is loaded. The gear tests take the spear and the
+nautilus armour from `newerGear()`, empty before 1.21.11. `smith_pools_include_lead_trade` and
+`armorers_buy_lead_in_rebalanced_worlds` ask `TestCompat` about the trades, listings in `VillagerTrades` up to 1.21.11
+and trade sets from 26.1; the vein tests read the veins through `leadVeins` and their place in a chunk's generation
+through `leadVeinsOutOfPlace`, a NoiseChunk's fillers up to 26.2 and the noise settings' material rule from 26.3. So
+the gametest folder, `TestCompat` aside, diffs clean against every other line's.
 
 ## This line
 
