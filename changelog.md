@@ -79,6 +79,7 @@
 - Fixed leaded glass panes flashing white for a moment when dyed
 - Fixed leaded glass in a color from a removed dye mod turning white
 - Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
+- Fixed lead torches on walls being named Torch
 
 
 # 1.1.1
