@@ -6,9 +6,11 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.resources.Identifier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerFactory;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
@@ -17,29 +19,24 @@ import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.material.MaterialRuleList;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.world.vein.LeadVeins;
+import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.server.packs.PackResources;
-import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.JsonOps;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.npc.villager.Villager;
-import net.minecraft.world.item.trading.TradeSets;
-import net.minecraft.world.item.trading.VillagerTrade;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Optional;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
@@ -49,30 +46,51 @@ import net.minecraft.world.level.Level;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.animal.bee.Bee;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.fish.Cod;
+import net.minecraft.world.entity.animal.nautilus.Nautilus;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.animal.squid.Squid;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.zombie.Drowned;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.entity.animal.nautilus.Nautilus;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.TradeSets;
+import net.minecraft.world.item.trading.VillagerTrade;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.packs.resources.Resource;
+import java.io.IOException;
+import java.io.Reader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
-import net.minecraft.world.item.equipment.trim.TrimPattern;
 
 /**
  * The calls a test makes whose shape differs between Minecraft versions, each behind a signature every
@@ -88,7 +106,28 @@ public final class TestCompat {
     public static final EntityType<ItemEntity> ITEM_ENTITY = EntityType.ITEM;
 
     /** {@code EntityType.NAUTILUS} until 26.2 moved it to {@code EntityTypes}. New in 1.21.11. */
-    public static final EntityType<Nautilus> NAUTILUS = EntityType.NAUTILUS;
+    private static final EntityType<Nautilus> NAUTILUS = EntityType.NAUTILUS;
+
+    /**
+     * Vanilla's entity types the bodies spawn, {@code EntityType}'s constants until 26.2 moved them to
+     * {@code EntityTypes}. Most of their classes moved package in 1.21.11, so a body holds what it spawns in a var.
+     */
+    public static final EntityType<Axolotl> AXOLOTL = EntityType.AXOLOTL;
+    public static final EntityType<Bee> BEE = EntityType.BEE;
+    public static final EntityType<Chicken> CHICKEN = EntityType.CHICKEN;
+    public static final EntityType<Cod> COD = EntityType.COD;
+    public static final EntityType<Creeper> CREEPER = EntityType.CREEPER;
+    public static final EntityType<Drowned> DROWNED = EntityType.DROWNED;
+    public static final EntityType<Pig> PIG = EntityType.PIG;
+    public static final EntityType<Squid> SQUID = EntityType.SQUID;
+    public static final EntityType<Villager> VILLAGER = EntityType.VILLAGER;
+    public static final EntityType<Zombie> ZOMBIE = EntityType.ZOMBIE;
+
+    /** {@code PushReaction.BLOCK} until 26.3 renamed it {@code IMMOVEABLE}: what a piston can't push or pull. */
+    public static final PushReaction IMMOVABLE = PushReaction.BLOCK;
+
+    /** {@code #minecraft:spears}, which lets a spear take Lunge. Vanilla has neither the tag nor spears before 1.21.11. */
+    public static final TagKey<Item> SPEARS = ItemTags.SPEARS;
 
     /** {@code Items.RED_DYE} until 26.2 gathered the dyes into a colour collection. */
     public static final Item RED_DYE = Items.RED_DYE;
@@ -97,6 +136,11 @@ public final class TestCompat {
     public static final Item RED_STAINED_GLASS = Items.RED_STAINED_GLASS;
 
     private TestCompat() {
+    }
+
+    /** The id {@code path} in the minecraft namespace. ResourceLocation was renamed Identifier in 1.21.11. */
+    public static Identifier vanillaId(String path) {
+        return Identifier.withDefaultNamespace(path);
     }
 
     /** Fails the test. {@code GameTestHelper.fail} takes only a Component from 1.21.5 to 1.21.8. */
@@ -142,11 +186,6 @@ public final class TestCompat {
         return recipe.assemble(input);
     }
 
-    /** Whether {@code equippable} fits a mob of {@code type}. It takes the type's holder from 26.1. */
-    public static boolean canBeEquippedBy(Equippable equippable, EntityType<?> type) {
-        return equippable.canBeEquippedBy(type.builtInRegistryHolder());
-    }
-
     /** The block of copper in {@code state}, waxed or not. 26.2 gathered them into a collection on Blocks. */
     public static Block copperBlock(WeatherState state, boolean isWaxed) {
         return switch (state) {
@@ -160,6 +199,15 @@ public final class TestCompat {
     /** An item's own attribute modifiers, baked into its components from 1.21.2; the item worked them out before. */
     public static ItemAttributeModifiers defaultModifiers(Item item) {
         return item.components().get(DataComponents.ATTRIBUTE_MODIFIERS);
+    }
+
+    /**
+     * How much of its durability an item loses for each mob it hits. From 1.21.5 that is its weapon component; before,
+     * its class: a sword loses 1 a hit, a digger 2, anything else nothing.
+     */
+    public static int itemDamagePerAttack(Item item) {
+        Weapon weapon = item.components().get(DataComponents.WEAPON);
+        return weapon == null ? 0 : weapon.itemDamagePerAttack();
     }
 
     /**
@@ -182,16 +230,60 @@ public final class TestCompat {
         return level.registryAccess().lookupOrThrow(Registries.NOISE_SETTINGS).getValueOrThrow(key);
     }
 
-    /** A level's noises seeded from {@code seed}, as the level makes its own. */
+    /** A level's noises seeded from {@code seed}, as the level makes its own. 26.3 takes the noises first. */
     public static RandomState randomState(ServerLevel level, NoiseGeneratorSettings settings, long seed) {
         return RandomState.create(settings, level.registryAccess().lookupOrThrow(Registries.NOISE), seed);
+    }
+
+    /** One ore vein's blocks read at single points, as its rule places them in a chunk; null where it places none. */
+    @FunctionalInterface
+    public interface VeinSampler {
+        @Nullable
+        BlockState at(int x, int y, int z);
+    }
+
+    /**
+     * The lead veins of the level {@code random} was made for, read at single points: the mod's NoiseChunk filler, bound
+     * to those noises, outside a chunk so with no caches to fill. Null where the veins aren't bound. From 26.3 they are
+     * vanilla's ore vein rule over the mod's density functions.
+     */
+    @Nullable
+    public static VeinSampler leadVeins(ServerLevel level, RandomState random) {
+        LeadVeins.bind(random, level.registryAccess());
+        NoiseChunk.BlockStateFiller veins = LeadVeins.filler(random, noiseSettings(level, NoiseGeneratorSettings.OVERWORLD),
+                function -> function);
+        return veins == null ? null : (x, y, z) -> veins.calculate(new DensityFunction.SinglePointContext(x, y, z));
+    }
+
+    /**
+     * Vanilla's vein noise at a block: copper's veins lie where it is over 0.4, iron's where it is under -0.4. The noise
+     * router's vein toggle before 26.3, the density function {@code minecraft:overworld/ore_vein/toggle} from 26.3.
+     */
+    public static float vanillaVeinToggle(ServerLevel level, RandomState random, int x, int y, int z) {
+        return (float) random.router().veinToggle().compute(new DensityFunction.SinglePointContext(x, y, z));
+    }
+
+    /**
+     * What is wrong with where a chunk's terrain is given the lead veins, or null where they come after vanilla's ore
+     * veins. Before 26.3 the veins are the last of a NoiseChunk's fillers, after the aquifer's and vanilla's veins, which
+     * only a chunk being filled can run, so their order alone is read here: the lead vein at {@code vein} is what 26.3
+     * asks its material system for.
+     */
+    @Nullable
+    public static String leadVeinsOutOfPlace(ServerLevel level, RandomState random, NoiseGeneratorSettings settings,
+            BlockPos vein, BlockState expected) {
+        List<NoiseChunk.BlockStateFiller> rules = materialRules(noiseChunk(level, random, settings));
+        if (rules.size() < 3 || !rules.get(rules.size() - 1).getClass().getSimpleName().equals("LeadVeinifier")) {
+            return "expected the lead veins last of a chunk's rules, after vanilla's veins, found " + rules;
+        }
+        return null;
     }
 
     /**
      * The terrain filler for the chunk at the origin, as the level's generator makes one for each chunk it fills. From
      * 1.21.9 a chunk makes its sections' palettes with a PalettedContainerFactory rather than from the biome registry.
      */
-    public static NoiseChunk noiseChunk(ServerLevel level, RandomState random, NoiseGeneratorSettings settings) {
+    private static NoiseChunk noiseChunk(ServerLevel level, RandomState random, NoiseGeneratorSettings settings) {
         ChunkPos pos = new ChunkPos(0, 0);
         ProtoChunk chunk = new ProtoChunk(pos, UpgradeData.EMPTY, level, PalettedContainerFactory.create(level.registryAccess()), null);
         return NoiseChunk.forChunk(chunk, random, Beardifier.forStructuresInChunk(level.structureManager(), pos), settings,
@@ -202,7 +294,7 @@ public final class TestCompat {
      * The rules a chunk's terrain filler tries in turn for each solid block, the first block one gives being placed.
      * They are a {@code MaterialRuleList} before 26.3, of an array from 1.21.2.
      */
-    public static List<NoiseChunk.BlockStateFiller> materialRules(NoiseChunk chunk) {
+    private static List<NoiseChunk.BlockStateFiller> materialRules(NoiseChunk chunk) {
         try {
             Field rule = NoiseChunk.class.getDeclaredField("blockStateRule");
             rule.setAccessible(true);
@@ -212,10 +304,15 @@ public final class TestCompat {
         }
     }
 
-    /** The trim of that material and pattern. Registry lookups were renamed in 1.21.2, and trims moved package. */
-    public static ArmorTrim trim(ServerLevel level, ResourceKey<TrimMaterial> material, ResourceKey<TrimPattern> pattern) {
-        return new ArmorTrim(level.registryAccess().lookupOrThrow(Registries.TRIM_MATERIAL).getOrThrow(material),
-                level.registryAccess().lookupOrThrow(Registries.TRIM_PATTERN).getOrThrow(pattern));
+    /**
+     * The trim of vanilla's material and pattern of those names. Registry lookups were renamed in 1.21.2, and trims
+     * moved package.
+     */
+    public static ArmorTrim trim(ServerLevel level, String material, String pattern) {
+        return new ArmorTrim(level.registryAccess().lookupOrThrow(Registries.TRIM_MATERIAL)
+                        .getOrThrow(ResourceKey.create(Registries.TRIM_MATERIAL, vanillaId(material))),
+                level.registryAccess().lookupOrThrow(Registries.TRIM_PATTERN)
+                        .getOrThrow(ResourceKey.create(Registries.TRIM_PATTERN, vanillaId(pattern))));
     }
 
     /**
@@ -258,6 +355,30 @@ public final class TestCompat {
         return List.of(ModItems.LEAD_SPEAR.get(), ModItems.LEAD_NAUTILUS_ARMOR.get());
     }
 
+    /** The Lead Spear, from 1.21.11, which brought spears. None before. */
+    public static Optional<Item> leadSpear() {
+        return Optional.of(ModItems.LEAD_SPEAR.get());
+    }
+
+    /** The Lead Nautilus Armor, from 1.21.11, which brought the nautilus. None before. */
+    public static Optional<Item> leadNautilusArmor() {
+        return Optional.of(ModItems.LEAD_NAUTILUS_ARMOR.get());
+    }
+
+    /** Whether {@code stack} charges as a spear does, with a kinetic weapon component from 1.21.11. Nothing does before. */
+    public static boolean chargesAsASpear(ItemStack stack) {
+        return stack.get(DataComponents.KINETIC_WEAPON) != null;
+    }
+
+    /**
+     * Whether {@code stack} goes on a nautilus's body. There is no nautilus before 1.21.11, and Equippable#canBeEquippedBy
+     * takes the type's holder from 26.1.
+     */
+    public static boolean fitsTheNautilus(ItemStack stack) {
+        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+        return equippable != null && equippable.slot() == EquipmentSlot.BODY && equippable.canBeEquippedBy(NAUTILUS.builtInRegistryHolder());
+    }
+
     /**
      * Whether an apprentice armorer buys {@code item} in a world with the Villager Trade Rebalance experiment on. Up to
      * 1.21.11 the experiment's trades are code, VillagerTrades.EXPERIMENTAL_TRADES, whose listings make the offers. From
@@ -294,6 +415,35 @@ public final class TestCompat {
             }
         }
         return false;
+    }
+
+    /**
+     * Whether the smith of that name - armorer, toolsmith or weaponsmith - buys lead ingots at level 2. Up to 1.21.11 its
+     * trades are listings in VillagerTrades.TRADES, which the mod adds to through its modloader; from 26.1 a trade set
+     * draws them from a tag.
+     */
+    public static boolean apprenticeSmithBuysLead(ServerLevel level, Villager villager, String smith) {
+        HolderSet<VillagerTrade> trades = level.registryAccess().lookupOrThrow(Registries.TRADE_SET)
+                .getValueOrThrow(ResourceKey.create(Registries.TRADE_SET, vanillaId(smith + "/level_2"))).getTrades();
+        Identifier lead = TheLeadAge.resourceLocation(smith + "/2/lead_ingot_emerald");
+        return trades.stream().anyMatch(trade -> trade.unwrapKey().map(key -> key.identifier().equals(lead)).orElse(false));
+    }
+
+    /**
+     * Whether the overworld's caves and canyons cut through {@code state}. Before 26.3 a carver replaced only the blocks
+     * in {@code #overworld_carver_replaceables}; from 26.3 it cuts everything but {@code #uncarvable}.
+     */
+    public static boolean carvedByCaves(BlockState state) {
+        return state.is(BlockTags.OVERWORLD_CARVER_REPLACEABLES);
+    }
+
+    /**
+     * What a break of leaded glass shows and sounds as under {@code breaker}: the glass itself, or the glass it shattered
+     * into. From 26.3, whose Level#destroyBlock first hands the glass's destroy hook no breaker. Empty before, where only
+     * a player's break comes there.
+     */
+    public static Optional<BlockState> shownAs(@Nullable Player breaker, BlockState state, BlockState shattered) {
+        return Optional.empty();
     }
 
     /** The direction nearest a vector. {@code Direction.getNearest} took floats until 1.21.2 renamed it. */

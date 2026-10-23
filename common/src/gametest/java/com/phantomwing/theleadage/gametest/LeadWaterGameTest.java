@@ -12,10 +12,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.fish.Cod;
-import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +22,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
+import static com.phantomwing.theleadage.gametest.TestCompat.COD;
+import static com.phantomwing.theleadage.gametest.TestCompat.DROWNED;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 
 /**
@@ -219,13 +218,13 @@ public final class LeadWaterGameTest {
         }
         helper.setBlock(lead.above(4), Blocks.STONE);
         helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState().setValue(RawLeadBlock.CONTAMINATION, LeadWater.MAX_STEP));
-        Cod cod = helper.spawn(EntityType.COD, lead.above());
-        Drowned drowned = helper.spawn(EntityType.DROWNED, lead.above());
+        LivingEntity cod = helper.spawn(COD, lead.above());
+        LivingEntity drowned = helper.spawn(DROWNED, lead.above());
         whenFound(helper, lead, List.of(cod, drowned), 40, () -> soak(helper, helper.absolutePos(lead), cod, drowned, 0));
     }
 
     /** The cod and the drowned stay in the fouled water, looked through as often as the game does, until it should dose them. */
-    private static void soak(GameTestHelper helper, BlockPos lead, Cod cod, Drowned drowned, int soaked) {
+    private static void soak(GameTestHelper helper, BlockPos lead, LivingEntity cod, LivingEntity drowned, int soaked) {
         LeadWater.contaminate(helper.getLevel(), lead, LeadWater.MAX_STEP);
         if (soaked < LeadFumes.FUMES_STAGE_TICKS) {
             if (cod.hasEffect(MobEffects.HUNGER)) {

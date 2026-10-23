@@ -14,9 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.bee.Bee;
-import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -34,6 +31,9 @@ import static com.phantomwing.theleadage.gametest.LeadOreGameTest.clearSickness;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.countDoses;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenFumesFind;
 import static com.phantomwing.theleadage.gametest.LeadOreGameTest.whenSpawnLoaded;
+import static com.phantomwing.theleadage.gametest.TestCompat.BEE;
+import static com.phantomwing.theleadage.gametest.TestCompat.CREEPER;
+import static com.phantomwing.theleadage.gametest.TestCompat.PIG;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
@@ -260,7 +260,7 @@ public final class RawLeadGameTest {
 
     /** A creeper finds a lead torch and a campfire fuming over raw lead to keep away from. */
     public static void creepersFindWhatRepelsThem(GameTestHelper helper) {
-        Creeper creeper = helper.spawnWithNoFreeWill(EntityType.CREEPER, new BlockPos(0, 2, 0));
+        Creeper creeper = helper.spawnWithNoFreeWill(CREEPER, new BlockPos(0, 2, 0));
         BlockPos torch = new BlockPos(2, 2, 1);
         helper.setBlock(torch.below(), Blocks.STONE);
         helper.setBlock(torch, ModBlocks.LEAD_TORCH.get());
@@ -279,6 +279,31 @@ public final class RawLeadGameTest {
         } else {
             fail(helper, "A creeper beside a campfire over raw lead found " + found + " to keep away from");
         }
+    }
+
+    /**
+     * A creeper notices a lead torch anywhere in its search, 8 blocks along either way and 4 up or down as vanilla's
+     * piglins search for soul fire, not only within 8 steps of it: 7 along and 3 aside, then 5 along, 3 up and 5 aside.
+     * Far above the test, so no other test's torch or campfire is nearer.
+     */
+    public static void creepersSearchTheirWholeBox(GameTestHelper helper) {
+        BlockPos at = new BlockPos(0, 40, 0);
+        Creeper creeper = helper.spawnWithNoFreeWill(CREEPER, at);
+        for (BlockPos torch : List.of(at.offset(7, 0, 3), at.offset(5, 3, 5))) {
+            helper.setBlock(torch.below(), Blocks.STONE);
+            helper.setBlock(torch, ModBlocks.LEAD_TORCH.get());
+            BlockPos found = repellentFoundBy(creeper);
+            helper.setBlock(torch, Blocks.AIR);
+            helper.setBlock(torch.below(), Blocks.AIR);
+            if (!helper.absolutePos(torch).equals(found)) {
+                creeper.discard();
+                fail(helper, "A creeper missed a lead torch " + torch.subtract(at).toShortString() + " from it, finding "
+                        + found);
+                return;
+            }
+        }
+        creeper.discard();
+        helper.succeed();
     }
 
     /** What a new creeper's goal finds to keep away from, given the goal ticks it takes to search. */
@@ -323,7 +348,8 @@ public final class RawLeadGameTest {
         helper.setBlock(fire.below(), ModBlocks.RAW_LEAD_BLOCK.get());
         helper.setBlock(fire, Blocks.CAMPFIRE);
         helper.setBlock(hive, Blocks.BEEHIVE);
-        Bee bee = helper.spawn(EntityType.BEE, hive.east());
+        // var keeps the bee's class out of the body: it moved package in 1.21.11.
+        var bee = helper.spawn(BEE, hive.east());
         bee.setNoAi(true);
         bee.setNoGravity(true);
         helper.runAfterDelay(30, () -> {
@@ -379,7 +405,7 @@ public final class RawLeadGameTest {
     /** A creeper loaded with its chunk keeps away from lead torches, as one that spawned does. */
     public static void creepersLoadedFromDiskAvoidLeadTorches(GameTestHelper helper) {
         // Not spawnWithNoFreeWill, which takes every goal away.
-        Creeper spawned = helper.spawn(EntityType.CREEPER, new BlockPos(0, 2, 0));
+        Creeper spawned = helper.spawn(CREEPER, new BlockPos(0, 2, 0));
         Creeper loaded = reloaded(spawned);
         loaded.setUUID(UUID.randomUUID());
         helper.getLevel().addLegacyChunkEntities(Stream.of(loaded));
@@ -393,7 +419,7 @@ public final class RawLeadGameTest {
 
     /** Weakness from a potion is no stage of Lead Sickness: the first dose of lead brings the first stage only. */
     public static void unrelatedEffectsDontAdvanceLeadSickness(GameTestHelper helper) {
-        Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, new BlockPos(0, 2, 0));
+        var pig = helper.spawnWithNoFreeWill(PIG, new BlockPos(0, 2, 0));
         pig.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 1200));
         LeadFumes.escalate(pig);
         if (!pig.hasEffect(MobEffects.HUNGER) || pig.hasEffect(MobEffects.POISON)) {
