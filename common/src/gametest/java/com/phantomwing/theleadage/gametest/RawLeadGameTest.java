@@ -14,8 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.animal.bee.Bee;
-import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -350,7 +348,8 @@ public final class RawLeadGameTest {
         helper.setBlock(fire.below(), ModBlocks.RAW_LEAD_BLOCK.get());
         helper.setBlock(fire, Blocks.CAMPFIRE);
         helper.setBlock(hive, Blocks.BEEHIVE);
-        Bee bee = helper.spawn(BEE, hive.east());
+        // var keeps the bee's class out of the body: it moved package in 1.21.11.
+        var bee = helper.spawn(BEE, hive.east());
         bee.setNoAi(true);
         bee.setNoGravity(true);
         helper.runAfterDelay(30, () -> {
@@ -420,7 +419,7 @@ public final class RawLeadGameTest {
 
     /** Weakness from a potion is no stage of Lead Sickness: the first dose of lead brings the first stage only. */
     public static void unrelatedEffectsDontAdvanceLeadSickness(GameTestHelper helper) {
-        Pig pig = helper.spawnWithNoFreeWill(PIG, new BlockPos(0, 2, 0));
+        var pig = helper.spawnWithNoFreeWill(PIG, new BlockPos(0, 2, 0));
         pig.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 1200));
         LeadFumes.escalate(pig);
         if (!pig.hasEffect(MobEffects.HUNGER) || pig.hasEffect(MobEffects.POISON)) {

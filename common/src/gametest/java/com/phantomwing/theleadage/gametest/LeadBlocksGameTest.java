@@ -37,6 +37,7 @@ import java.util.List;
 import static com.phantomwing.theleadage.gametest.TestCompat.IMMOVABLE;
 import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.shownAs;
 
 /**
  * Game tests for lead blocks: the Lead Bulb's redstone toggle, a dyed leaded glass pane tinting a beacon's beam, and
@@ -182,6 +183,12 @@ public final class LeadBlocksGameTest {
      * with no one breaking it - /setblock or /fill with destroy, a Wither - it breaks as itself, as a pickaxe pries it.
      */
     public static void leadedGlassShattersOnlyUnderAPlayer(GameTestHelper helper) {
+        BlockState glass = ModBlocks.LEADED_GLASS.get().defaultBlockState();
+        if (shownAs(null, glass, LeadedGlassShatter.shatteredGlass(null)).isEmpty()) {
+            // Nothing to ask where only a player's break comes to the glass's destroy hook.
+            helper.succeed();
+            return;
+        }
         Player bare = helper.makeMockPlayer(GameType.SURVIVAL);
         Player miner = helper.makeMockPlayer(GameType.SURVIVAL);
         miner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
@@ -201,7 +208,7 @@ public final class LeadBlocksGameTest {
 
     private static boolean shatters(@Nullable Player breaker) {
         BlockState glass = ModBlocks.LEADED_GLASS.get().defaultBlockState();
-        return LeadedGlassShatter.shownAs(breaker, glass, LeadedGlassShatter.shatteredGlass(null)) != glass;
+        return shownAs(breaker, glass, LeadedGlassShatter.shatteredGlass(null)).orElse(glass) != glass;
     }
 
     /** A pane drops as its loot table says, with its design on it. */

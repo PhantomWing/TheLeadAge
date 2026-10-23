@@ -9,10 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.animal.fish.Cod;
-import net.minecraft.world.entity.animal.squid.Squid;
 import net.minecraft.world.entity.ai.util.RandomPos;
-import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
@@ -48,8 +45,9 @@ public final class MobAvoidanceGameTest {
             fail(helper, setup);
             return;
         }
-        Cod cod = helper.spawn(COD, new BlockPos(1, 2, 1));
-        Drowned drowned = helper.spawn(DROWNED, new BlockPos(1, 4, 1));
+        // var keeps the mobs' classes out of the body: they moved package in 1.21.11.
+        var cod = helper.spawn(COD, new BlockPos(1, 2, 1));
+        var drowned = helper.spawn(DROWNED, new BlockPos(1, 4, 1));
         BlockPos[] places = {helper.absolutePos(poisoned), helper.absolutePos(clean)};
         int[] asked = {0};
         Vec3 picked = RandomPos.generateRandomPos(cod, () -> places[asked[0]++ % places.length]);
@@ -80,7 +78,7 @@ public final class MobAvoidanceGameTest {
         BlockPos poisoned = new BlockPos(4, 2, 1);
         tank(helper, row(1, 4, 1));
         helper.setBlock(poisoned.below(), ModBlocks.RAW_LEAD_BLOCK.get());
-        Squid squid = helper.spawn(SQUID, new BlockPos(1, 2, 1));
+        var squid = helper.spawn(SQUID, new BlockPos(1, 2, 1));
         Vec3 clean = PoisonedWaterAvoidance.steer(squid, 0.2F, 0.0F, 0.0F);
         String setup = poisonOnly(helper, poisoned);
         if (setup != null) {

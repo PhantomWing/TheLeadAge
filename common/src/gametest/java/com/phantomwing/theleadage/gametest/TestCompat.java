@@ -23,8 +23,11 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 import net.minecraft.world.level.levelgen.material.rule.OreVeinRule;
+import net.minecraft.world.level.levelgen.material.rule.SequenceRule;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.util.RandomSource;
+import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.custom.LeadedGlassShatter;
 import com.phantomwing.theleadage.world.vein.LeadVeins;
 import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
@@ -49,6 +52,7 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.trading.TradeSet;
 import net.minecraft.world.item.trading.TradeSets;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.trading.VillagerTrade;
 import java.io.IOException;
 import java.io.Reader;
@@ -71,6 +75,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.world.entity.animal.chicken.Chicken;
@@ -90,11 +95,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Weapon;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
-import net.minecraft.world.item.equipment.trim.TrimPattern;
 
 /**
  * The calls a test makes whose shape differs between Minecraft versions, each behind a signature every
@@ -110,7 +115,7 @@ public final class TestCompat {
     public static final EntityType<ItemEntity> ITEM_ENTITY = EntityTypes.ITEM;
 
     /** {@code EntityType.NAUTILUS} until 26.2 moved it to {@code EntityTypes}. New in 1.21.11. */
-    public static final EntityType<Nautilus> NAUTILUS = EntityTypes.NAUTILUS;
+    private static final EntityType<Nautilus> NAUTILUS = EntityTypes.NAUTILUS;
 
     /**
      * Vanilla's entity types the bodies spawn, {@code EntityType}'s constants until 26.2 moved them to
@@ -130,6 +135,9 @@ public final class TestCompat {
     /** {@code PushReaction.BLOCK} until 26.3 renamed it {@code IMMOVEABLE}: what a piston can't push or pull. */
     public static final PushReaction IMMOVABLE = PushReaction.IMMOVEABLE;
 
+    /** {@code #minecraft:spears}, which lets a spear take Lunge. Vanilla has neither the tag nor spears before 1.21.11. */
+    public static final TagKey<Item> SPEARS = ItemTags.SPEARS;
+
     /** {@code Items.RED_DYE} until 26.2 gathered the dyes into a colour collection. */
     public static final Item RED_DYE = Items.DYE.pick(DyeColor.RED);
 
@@ -137,6 +145,11 @@ public final class TestCompat {
     public static final Item RED_STAINED_GLASS = Items.STAINED_GLASS.pick(DyeColor.RED);
 
     private TestCompat() {
+    }
+
+    /** The id {@code path} in the minecraft namespace. ResourceLocation was renamed Identifier in 1.21.11. */
+    public static Identifier vanillaId(String path) {
+        return Identifier.withDefaultNamespace(path);
     }
 
     /** Fails the test. {@code GameTestHelper.fail} takes only a Component from 1.21.5 to 1.21.8. */
@@ -182,11 +195,6 @@ public final class TestCompat {
         return recipe.assemble(input);
     }
 
-    /** Whether {@code equippable} fits a mob of {@code type}. It takes the type's holder from 26.1. */
-    public static boolean canBeEquippedBy(Equippable equippable, EntityType<?> type) {
-        return equippable.canBeEquippedBy(type.builtInRegistryHolder());
-    }
-
     /** The block of copper in {@code state}, waxed or not. 26.2 gathered them into a collection on Blocks. */
     public static Block copperBlock(WeatherState state, boolean isWaxed) {
         return (isWaxed ? Blocks.COPPER_BLOCK.waxed() : Blocks.COPPER_BLOCK.weathering()).pick(state);
@@ -195,6 +203,15 @@ public final class TestCompat {
     /** An item's own attribute modifiers, baked into its components from 1.21.2; the item worked them out before. */
     public static ItemAttributeModifiers defaultModifiers(Item item) {
         return item.components().get(DataComponents.ATTRIBUTE_MODIFIERS);
+    }
+
+    /**
+     * How much of its durability an item loses for each mob it hits. From 1.21.5 that is its weapon component; before,
+     * its class: a sword loses 1 a hit, a digger 2, anything else nothing.
+     */
+    public static int itemDamagePerAttack(Item item) {
+        Weapon weapon = item.components().get(DataComponents.WEAPON);
+        return weapon == null ? 0 : weapon.itemDamagePerAttack();
     }
 
     /**
@@ -275,12 +292,39 @@ public final class TestCompat {
     }
 
     /**
-     * The block the material system builds {@code rule} into at {@code pos}, as a carver asks it for the top of what it
-     * carves; empty where no rule of it places one. From 26.3 a chunk's material rule is where its ore veins are, which
-     * the mod's {@code MaterialSystemMixin} adds the lead veins to. The chunk it reads the surface's slope from is an empty
-     * one being generated, as a carver's is: a loaded chunk has no worldgen heightmaps, which it logs as an error.
+     * What is wrong with where a chunk's terrain is given the lead veins, or null where they come after vanilla's ore
+     * veins. From 26.3 a chunk's material rule is where its ore veins are, which the mod's {@code MaterialSystemMixin}
+     * adds the lead veins to right after vanilla's iron vein: the overworld's rule, and a rule of that vein alone, place
+     * {@code expected} at the lead vein at {@code vein}. Before 26.3 the veins are a NoiseChunk's fillers, read in order.
      */
-    public static Optional<BlockState> topMaterial(ServerLevel level, RandomState random, MaterialRule rule, BlockPos pos) {
+    @Nullable
+    public static String leadVeinsOutOfPlace(ServerLevel level, RandomState random, NoiseGeneratorSettings settings,
+            BlockPos vein, BlockState expected) {
+        MaterialRule overworld = settings.materialRule().value();
+        MaterialRule iron = new MaterialRule.HolderHolder(level.registryAccess().lookupOrThrow(Registries.MATERIAL_RULE)
+                .getOrThrow(LeadVeins.IRON_ORE_VEIN));
+        Optional<BlockState> inOverworld = topMaterial(level, random, overworld, vein);
+        Optional<BlockState> afterIron = topMaterial(level, random, new SequenceRule(List.of(iron)), vein);
+        List<MaterialRule> rules = LeadVeins.withLeadVeins(overworld, random) instanceof SequenceRule(List<MaterialRule> sequence)
+                ? sequence : List.of();
+        int ironAt = rules.indexOf(iron);
+        if (!inOverworld.equals(Optional.of(expected))) {
+            return "the overworld's material rule placed " + inOverworld + " at the lead vein at " + vein + ", not " + expected;
+        } else if (!afterIron.equals(Optional.of(expected))) {
+            return "a rule of vanilla's iron vein alone placed " + afterIron + " at " + vein + ", not the lead vein's " + expected;
+        } else if (ironAt < 1 || ironAt + 1 >= rules.size()
+                || !(rules.get(ironAt + 1) instanceof MaterialRule.HolderHolder(var veinRule) && veinRule.is(LeadVeins.RULE))) {
+            return "expected the lead veins right after vanilla's iron vein in the overworld's rule, found " + rules;
+        }
+        return null;
+    }
+
+    /**
+     * The block the material system builds {@code rule} into at {@code pos}, as a carver asks it for the top of what it
+     * carves; empty where no rule of it places one. The chunk it reads the surface's slope from is an empty one being
+     * generated, as a carver's is: a loaded chunk has no worldgen heightmaps, which it logs as an error.
+     */
+    private static Optional<BlockState> topMaterial(ServerLevel level, RandomState random, MaterialRule rule, BlockPos pos) {
         Holder<Biome> plains = level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
         ProtoChunk chunk = new ProtoChunk(ChunkPos.containing(pos), UpgradeData.EMPTY, level,
                 PalettedContainerFactory.create(level.registryAccess()), null);
@@ -288,10 +332,15 @@ public final class TestCompat {
                 chunk, random.samplersWithContext(SamplerContext.EMPTY_UNCACHED), pos, false);
     }
 
-    /** The trim of that material and pattern. Registry lookups were renamed in 1.21.2, and trims moved package. */
-    public static ArmorTrim trim(ServerLevel level, ResourceKey<TrimMaterial> material, ResourceKey<TrimPattern> pattern) {
-        return new ArmorTrim(level.registryAccess().lookupOrThrow(Registries.TRIM_MATERIAL).getOrThrow(material),
-                level.registryAccess().lookupOrThrow(Registries.TRIM_PATTERN).getOrThrow(pattern));
+    /**
+     * The trim of vanilla's material and pattern of those names. Registry lookups were renamed in 1.21.2, and trims
+     * moved package.
+     */
+    public static ArmorTrim trim(ServerLevel level, String material, String pattern) {
+        return new ArmorTrim(level.registryAccess().lookupOrThrow(Registries.TRIM_MATERIAL)
+                        .getOrThrow(ResourceKey.create(Registries.TRIM_MATERIAL, vanillaId(material))),
+                level.registryAccess().lookupOrThrow(Registries.TRIM_PATTERN)
+                        .getOrThrow(ResourceKey.create(Registries.TRIM_PATTERN, vanillaId(pattern))));
     }
 
     /**
@@ -356,6 +405,31 @@ public final class TestCompat {
         return List.of(ModItems.LEAD_SPEAR.get(), ModItems.LEAD_NAUTILUS_ARMOR.get());
     }
 
+    /** The Lead Spear, from 1.21.11, which brought spears. None before. */
+    public static Optional<Item> leadSpear() {
+        return Optional.of(ModItems.LEAD_SPEAR.get());
+    }
+
+    /** The Lead Nautilus Armor, from 1.21.11, which brought the nautilus. None before. */
+    public static Optional<Item> leadNautilusArmor() {
+        return Optional.of(ModItems.LEAD_NAUTILUS_ARMOR.get());
+    }
+
+    /** Whether {@code stack} charges as a spear does, with a kinetic weapon component from 1.21.11. Nothing does before. */
+    public static boolean chargesAsASpear(ItemStack stack) {
+        return stack.get(DataComponents.KINETIC_WEAPON) != null;
+    }
+
+    /**
+     * Whether {@code stack} goes on a nautilus's body. There is no nautilus before 1.21.11, and Equippable#canBeEquippedBy
+     * takes the type's holder from 26.1.
+     */
+    public static boolean fitsTheNautilus(ItemStack stack) {
+        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+        return equippable != null && equippable.slot() == EquipmentSlot.BODY
+                && equippable.canBeEquippedBy(NAUTILUS.builtInRegistryHolder());
+    }
+
     /**
      * Whether an apprentice armorer buys {@code item} in a world with the Villager Trade Rebalance experiment on. Up to
      * 1.21.11 the experiment's trades are code, VillagerTrades.EXPERIMENTAL_TRADES, whose listings make the offers. From
@@ -394,8 +468,20 @@ public final class TestCompat {
         return false;
     }
 
+    /**
+     * Whether the smith of that name - armorer, toolsmith or weaponsmith - buys lead ingots at level 2. Up to 1.21.11 its
+     * trades are listings in VillagerTrades.TRADES, which the mod adds to through its modloader; from 26.1 a trade set
+     * draws them from a tag, and the lead trade is the mod's {@code <smith>/2/lead_ingot_emerald}.
+     */
+    public static boolean apprenticeSmithBuysLead(ServerLevel level, Villager villager, String smith) {
+        HolderSet<VillagerTrade> trades = trades(level.registryAccess().lookupOrThrow(Registries.TRADE_SET)
+                .getValueOrThrow(ResourceKey.create(Registries.TRADE_SET, vanillaId(smith + "/level_2"))));
+        Identifier lead = TheLeadAge.resourceLocation(smith + "/2/lead_ingot_emerald");
+        return trades.stream().anyMatch(trade -> trade.unwrapKey().map(key -> key.identifier().equals(lead)).orElse(false));
+    }
+
     /** The trades a trade set draws from. It was {@code getTrades} until 26.3 made the trade set a record. */
-    public static HolderSet<VillagerTrade> trades(TradeSet set) {
+    private static HolderSet<VillagerTrade> trades(TradeSet set) {
         return set.trades();
     }
 
@@ -405,6 +491,15 @@ public final class TestCompat {
      */
     public static boolean carvedByCaves(BlockState state) {
         return !state.is(BlockTags.UNCARVABLE);
+    }
+
+    /**
+     * What a break of leaded glass shows and sounds as under {@code breaker}: the glass itself, or the glass it shattered
+     * into. From 26.3, whose Level#destroyBlock first hands the glass's destroy hook no breaker. Empty before, where only
+     * a player's break comes there.
+     */
+    public static Optional<BlockState> shownAs(@Nullable Player breaker, BlockState state, BlockState shattered) {
+        return Optional.of(LeadedGlassShatter.shownAs(breaker, state, shattered));
     }
 
     /** The direction nearest a vector. {@code Direction.getNearest} took floats until 1.21.2 renamed it. */

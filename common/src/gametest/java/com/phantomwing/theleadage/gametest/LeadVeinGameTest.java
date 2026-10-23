@@ -3,24 +3,18 @@ package com.phantomwing.theleadage.gametest;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.world.vein.LeadVeins;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
-import net.minecraft.world.level.levelgen.material.rule.SequenceRule;
-
-import java.util.List;
-import java.util.Optional;
 
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.leadVeins;
+import static com.phantomwing.theleadage.gametest.TestCompat.leadVeinsOutOfPlace;
 import static com.phantomwing.theleadage.gametest.TestCompat.noiseSettings;
 import static com.phantomwing.theleadage.gametest.TestCompat.randomState;
-import static com.phantomwing.theleadage.gametest.TestCompat.topMaterial;
 import static com.phantomwing.theleadage.gametest.TestCompat.vanillaVeinToggle;
 
 /**
@@ -28,8 +22,8 @@ import static com.phantomwing.theleadage.gametest.TestCompat.vanillaVeinToggle;
  * the veins' data loads and binds, and what they place is ore and filler in their band, with raw lead now and then,
  * only ever on iron's side of vanilla's vein noise, so never where a copper vein can be.
  *
- * <p>From 26.3 vanilla's veins are rules of the noise settings' material rule, and so are these: the bodies here are
- * 26.3's own, where the lines before read a NoiseChunk's fillers.</p>
+ * <p>Up to 26.2 the veins are a NoiseChunk filler of the mod's own; from 26.3 vanilla's veins are rules of the noise
+ * settings' material rule, and so are these. {@link TestCompat} reads them either way.</p>
  */
 public final class LeadVeinGameTest {
     private static final long SEED = 20261014L;
@@ -41,9 +35,9 @@ public final class LeadVeinGameTest {
     }
 
     /**
-     * A chunk's terrain is given the lead veins right after vanilla's iron vein, which so comes first where they meet.
-     * Game tests run in a flat world that never builds a chunk from noise, so this asks the overworld's material system
-     * for the block at a lead vein, through the rule it is handed, which the mod adds the veins to.
+     * A chunk's terrain is given the lead veins after vanilla's ore veins, which so come first where they meet. Game
+     * tests run in a flat world that never builds a chunk from noise, so this asks the overworld's own generation, at
+     * the first lead ore of a vein.
      */
     public static void chunksGetLeadVeinsAfterVanillas(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
@@ -52,7 +46,7 @@ public final class LeadVeinGameTest {
         LeadVeins.bind(random, level.registryAccess());
         TestCompat.VeinSampler veins = leadVeins(level, random);
         if (veins == null) {
-            fail(helper, "the lead vein rule isn't in the overworld's registries");
+            fail(helper, "the overworld has no lead veins");
             return;
         }
         BlockPos vein = null;
@@ -72,22 +66,9 @@ public final class LeadVeinGameTest {
             fail(helper, "no lead ore in a lead vein within " + SIZE + " blocks");
             return;
         }
-
-        MaterialRule overworld = settings.materialRule().value();
-        MaterialRule iron = new MaterialRule.HolderHolder(level.registryAccess().lookupOrThrow(Registries.MATERIAL_RULE)
-                .getOrThrow(LeadVeins.IRON_ORE_VEIN));
-        Optional<BlockState> inOverworld = topMaterial(level, random, overworld, vein);
-        Optional<BlockState> afterIron = topMaterial(level, random, new SequenceRule(List.of(iron)), vein);
-        List<MaterialRule> rules = LeadVeins.withLeadVeins(overworld, random) instanceof SequenceRule(List<MaterialRule> sequence)
-                ? sequence : List.of();
-        int ironAt = rules.indexOf(iron);
-        if (!inOverworld.equals(Optional.of(expected))) {
-            fail(helper, "the overworld's material rule placed " + inOverworld + " at the lead vein at " + vein + ", not " + expected);
-        } else if (!afterIron.equals(Optional.of(expected))) {
-            fail(helper, "a rule of vanilla's iron vein alone placed " + afterIron + " at " + vein + ", not the lead vein's " + expected);
-        } else if (ironAt < 1 || ironAt + 1 >= rules.size()
-                || !(rules.get(ironAt + 1) instanceof MaterialRule.HolderHolder(var veinRule) && veinRule.is(LeadVeins.RULE))) {
-            fail(helper, "expected the lead veins right after vanilla's iron vein in the overworld's rule, found " + rules);
+        String problem = leadVeinsOutOfPlace(level, random, settings, vein, expected);
+        if (problem != null) {
+            fail(helper, problem);
         } else {
             helper.succeed();
         }
@@ -99,7 +80,7 @@ public final class LeadVeinGameTest {
         RandomState random = randomState(level, settings, SEED);
         TestCompat.VeinSampler veins = leadVeins(level, random);
         if (veins == null) {
-            fail(helper, "the lead vein rule isn't in the overworld's registries");
+            fail(helper, "the overworld has no lead veins");
             return;
         }
 
