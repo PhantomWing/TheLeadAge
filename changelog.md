@@ -84,6 +84,7 @@
 - Fixed leaded glass making no sound when broken
 - Fixed several Japanese names to match vanilla's, thanks to HayaKoh-WeldyAlin
 - Fixed creepers and pillagers only avoiding lead torches up close
+- Fixed hanging Lead Weight chains being shaded differently from vanilla chains
 
 
 # 1.1.0

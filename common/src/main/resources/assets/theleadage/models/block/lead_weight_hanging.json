@@ -150,7 +150,7 @@
         16,
         8
       ],
-      "shade": false,
+      "shade_direction_override": "up",
       "rotation": {
         "angle": 45,
         "axis": "y",
@@ -193,7 +193,7 @@
         16,
         9.5
       ],
-      "shade": false,
+      "shade_direction_override": "up",
       "rotation": {
         "angle": 45,
         "axis": "y",
