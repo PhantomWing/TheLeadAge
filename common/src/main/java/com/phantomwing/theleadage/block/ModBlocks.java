@@ -17,6 +17,7 @@ import com.phantomwing.theleadage.block.custom.LeadOreBlock;
 import com.phantomwing.theleadage.sound.ModSoundTypes;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
+import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
@@ -343,7 +344,10 @@ public class ModBlocks {
                 // another block's (the wall torch drops through minecraft:blocks/torch). Left alone,
                 // datagen writes our drops into that vanilla file. Name our own, as pre-1.21.2 did.
                 .overrideLootTable(Optional.of(ResourceKey.create(Registries.LOOT_TABLE,
-                        pendingKey.location().withPrefix("blocks/"))));
+                        pendingKey.location().withPrefix("blocks/"))))
+                // The same goes for its name: the wall torch is named block.minecraft.torch, and so
+                // would ours be, "Torch", where every lang file names block.theleadage.lead_wall_torch.
+                .overrideDescription(Util.makeDescriptionId("block", pendingKey.location()));
     }
 
     /** Empty properties carrying the block being registered right now. */
