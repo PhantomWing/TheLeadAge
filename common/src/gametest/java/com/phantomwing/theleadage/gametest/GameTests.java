@@ -67,6 +67,7 @@ public final class GameTests {
             test("pistons_cant_push_solid_lead", LeadBlocksGameTest::pistonsCantPushSolidLead),
             test("lead_stairs_resist_blasts_as_lead", LeadBlocksGameTest::leadStairsResistBlastsAsLead),
             test("lead_wall_torch_drops_a_lead_torch", LeadBlocksGameTest::leadWallTorchDropsALeadTorch),
+            test("blocks_are_named_by_their_own_keys", LeadBlocksGameTest::blocksAreNamedByTheirOwnKeys),
             test("wall_panes_block_paths_and_turn_with_the_build", LeadBlocksGameTest::wallPanesBlockPathsAndTurnWithTheBuild),
             test("pane_drops_keep_their_design", LeadBlocksGameTest::paneDropsKeepTheirDesign),
             test("door_recipe_combines", LeadOreGameTest::doorRecipeCombines),
