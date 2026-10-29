@@ -1,3 +1,9 @@
+# 1.2.1
+
+### Fixes
+- Fixed names in every language to match vanilla's
+
+
 # 1.2.0
 
 ### Additions
