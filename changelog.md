@@ -2,6 +2,7 @@
 
 ### Fixes
 - Fixed names in every language to match vanilla's
+- Fixed the config screen's tooltips not being translated
 
 
 # 1.2.0
