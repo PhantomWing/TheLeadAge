@@ -74,7 +74,8 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
   `c:ores/lead` and `c:raw_materials/lead`, so the mod adds no processing items. `resourcepacks/mekanism_lead` in the
   NeoForge resources is a built-in pack, off until turned on (`MekanismLeadPackHandler`), listed only with Mekanism:
   Mekanism's lead ingot, nugget, raw lead, blocks and ores as this mod's textures, and its dust, dirty dust, clump,
-  shard and crystal as Mekanism's gold ones on the Lead Ingot's ramp. Its slurries are tinted in Mekanism's code
+  shard and crystal as Mekanism's own lead ones on the Lead Ingot's ramp, blended (`recolor.js --blend`) since they
+  have 12 to 31 shades to its 8, the dirty dust's stone kept as it is. Its slurries are tinted in Mekanism's code
   (`PrimaryResource.LEAD`), which a pack can't change.
 - Three config options for modpacks: `enable_lead_gear` takes away the gear in `ModItems.isLeadGear` - recipes through
   their condition, loot (`LeadLootSpec.itemEnabled`), mobs wearing it (folded into `mobLeadEquipment()`), the creative
