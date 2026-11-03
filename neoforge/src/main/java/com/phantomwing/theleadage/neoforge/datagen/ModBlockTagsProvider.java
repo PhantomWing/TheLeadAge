@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
+import com.phantomwing.theleadage.tags.BackportTags;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.tags.ModTags;
@@ -166,6 +167,10 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
         tag(c("storage_blocks/raw_lead")).add(ModBlocks.RAW_LEAD_BLOCK.get());
 
         tag(c("chains")).add(ModBlocks.LEAD_CHAIN.get());
+        // The 1.21.9 tags Vanilla Backport and Copper Age Backport fill on this version, as copper's are.
+        tag(BackportTags.Blocks.BARS).add(ModBlocks.LEAD_BARS.get());
+        tag(BackportTags.Blocks.CHAINS).add(ModBlocks.LEAD_CHAIN.get());
+        tag(BackportTags.Blocks.LANTERNS).add(ModBlocks.LEAD_LANTERN.get());
 
         // Leaded glass is glass to other mods, the clear one colourless and each dyed one under its
         // colour, as vanilla's glass and stained glass are. Not c:glass_blocks/cheap: it costs lead.

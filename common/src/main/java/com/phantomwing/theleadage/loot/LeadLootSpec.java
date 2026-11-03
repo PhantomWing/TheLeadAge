@@ -1,6 +1,9 @@
 package com.phantomwing.theleadage.loot;
 
+import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.platform.CommonConfig;
+import dev.architectury.platform.Platform;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -29,10 +32,27 @@ public final class LeadLootSpec {
     /**
      * One injection: in {@code targetLootTable}, with probability {@code chance},
      * replace up to {@code [min, max]} matched stacks (0 max ⇒ all) of any
-     * {@code removedItems} with {@code item}.
+     * {@code removedItems} with {@code item}. One that names another mod's items applies only where one of
+     * {@code requiredMods} is loaded, none for most.
      */
     public record Entry(String id, ResourceLocation targetLootTable, float chance,
-                        Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems) {
+                        Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems,
+                        List<String> requiredMods) {
+        public Entry(String id, ResourceLocation targetLootTable, float chance,
+                     Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems) {
+            this(id, targetLootTable, chance, item, min, max, removedItems, List.of());
+        }
+
+        /** Whether its mods are loaded and {@code enable_lead_gear} lets its item be found. */
+        public boolean applies() {
+            return (requiredMods.isEmpty() || requiredMods.stream().anyMatch(Platform::isModLoaded))
+                    && itemEnabled(item.get());
+        }
+    }
+
+    /** Whether loot may give this item: lead gear only while {@code enable_lead_gear} is on. */
+    public static boolean itemEnabled(Item item) {
+        return !ModItems.isLeadGear(item) || CommonConfig.leadGear();
     }
 
     /** Low chance for a given iron-horse-armor or iron gear roll to become lead instead. */
@@ -46,6 +66,11 @@ public final class LeadLootSpec {
 
     private static Supplier<Item> vanilla(Item item) {
         return () -> item;
+    }
+
+    /** A vanilla item newer than 1.21.1, which Vanilla Backport adds here under vanilla's id. */
+    private static Supplier<Item> backported(String path) {
+        return () -> BuiltInRegistries.ITEM.get(mc(path));
     }
 
     /** The entries for {@code table}, none for most: Fabric asks on every roll of every table, block drops included. */
@@ -113,6 +138,20 @@ public final class LeadLootSpec {
         // reward_rare, nested in the vault's table like reward_common's iron ingots.
         replaceIronGear(entries, "trial_chambers_reward", "chests/trial_chambers/reward",
                 Items.IRON_AXE, Items.IRON_CHESTPLATE);
+
+        // 1.21.11's lead nautilus armor and spear, where Vanilla Backport puts its iron ones in the chests 1.21.11 does,
+        // swapped as the 1.21.11 line swaps them.
+        List<Supplier<Item>> ironNautilusArmor = List.of(backported("iron_nautilus_armor"));
+        for (String table : List.of("buried_treasure", "shipwreck_map", "shipwreck_supply", "shipwreck_treasure",
+                "underwater_ruin_big", "underwater_ruin_small")) {
+            entries.add(new Entry("lead_nautilus_armor_from_" + table, mc("chests/" + table), CHANCE,
+                    ModItems.LEAD_NAUTILUS_ARMOR::get, 1, 1, ironNautilusArmor, List.of(ModIds.VANILLA_BACKPORT)));
+        }
+        List<Supplier<Item>> ironSpear = List.of(backported("iron_spear"));
+        entries.add(new Entry("lead_spear_from_buried_treasure", mc("chests/buried_treasure"), CHANCE,
+                ModItems.LEAD_SPEAR::get, 1, 1, ironSpear, List.of(ModIds.VANILLA_BACKPORT)));
+        entries.add(new Entry("lead_spear_from_village_weaponsmith", mc("chests/village/village_weaponsmith"), CHANCE,
+                ModItems.LEAD_SPEAR::get, 1, 1, ironSpear, List.of(ModIds.VANILLA_BACKPORT)));
         return List.copyOf(entries);
     }
 

@@ -66,6 +66,29 @@ versionRange = "[0,)"
 ordering = "AFTER"
 side = "BOTH"
 
+# Optional: after the spear backports, so the Lead Spear goes in the Combat tab after their Golden Spear, which they
+# add in the same creative tab event (VanillaTabs).
+[[dependencies.theleadage]]
+modId = "spears"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.theleadage]]
+modId = "vanillabackport"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.theleadage]]
+modId = "mekanism"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
 [[dependencies.theleadage]]
 modId = "jei"
 type = "optional"

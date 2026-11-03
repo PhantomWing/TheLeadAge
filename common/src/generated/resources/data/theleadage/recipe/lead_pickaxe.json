@@ -1,6 +1,18 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
+  "fabric:load_conditions": [
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
   "key": {
     "M": {
       "tag": "c:ingots/lead"

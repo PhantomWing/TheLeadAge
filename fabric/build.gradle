@@ -53,6 +53,7 @@ if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
 }
 def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
 def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
+def loadVanillaBackport = (project.findProperty('enable_vanilla_backport') ?: rootProject.enable_vanilla_backport).toString().toBoolean()
 logger.lifecycle("[TheLeadAge] (fabric) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi})")
 
 configurations {
@@ -81,6 +82,17 @@ dependencies {
     // Mod Menu opens that screen from its mod list (TheLeadAgeModMenu); compiled against only.
     modCompileOnly("com.terraformersmc:modmenu:${rootProject.modmenu_version}") {
         exclude group: "net.fabricmc.fabric-api"
+    }
+
+    // Backported Spears and Vanilla Backport, which the Lead Spear and Lead Nautilus Armor are made with
+    // (BackportPlatformImpl). Backported Spears asks for Fabric Loader 0.18.1, past this line's, so only Vanilla
+    // Backport runs in dev here.
+    modCompileOnly("maven.modrinth:backported-spears:${rootProject.backported_spears_fabric_version}") { transitive = false }
+    modCompileOnly("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_fabric_version}") { transitive = false }
+    modCompileOnly("maven.modrinth:platform:${rootProject.platform_fabric_version}") { transitive = false }
+    if (loadVanillaBackport && !runningGameTest) {
+        modLocalRuntime("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_fabric_version}") { transitive = false }
+        modLocalRuntime("maven.modrinth:platform:${rootProject.platform_fabric_version}") { transitive = false }
     }
 
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,

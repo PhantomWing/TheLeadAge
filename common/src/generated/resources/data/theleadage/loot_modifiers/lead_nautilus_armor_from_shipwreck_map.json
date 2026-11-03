@@ -1,0 +1,33 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "vanillabackport"
+    }
+  ],
+  "type": "theleadage:replace_item",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/shipwreck_map"
+    },
+    {
+      "chance": 0.1,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "vanillabackport"
+      ]
+    }
+  ],
+  "in_stacks": 1,
+  "item": "theleadage:lead_nautilus_armor",
+  "max_stacks": 1,
+  "removed_item": [
+    "minecraft:iron_nautilus_armor"
+  ]
+}

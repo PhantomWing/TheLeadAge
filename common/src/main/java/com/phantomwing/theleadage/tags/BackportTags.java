@@ -1,0 +1,37 @@
+package com.phantomwing.theleadage.tags;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+
+/**
+ * Vanilla tags newer than 1.21.1, which Vanilla Backport and Copper Age Backport fill on this version under vanilla's
+ * own ids. Unused without them, as a tag nothing reads is.
+ */
+public class BackportTags {
+    public static class Blocks {
+        public static final TagKey<Block> BARS = tag("bars");
+        public static final TagKey<Block> CHAINS = tag("chains");
+        public static final TagKey<Block> LANTERNS = tag("lanterns");
+
+        private static TagKey<Block> tag(String path) {
+            return TagKey.create(Registries.BLOCK, ResourceLocation.withDefaultNamespace(path));
+        }
+    }
+
+    public static class Items {
+        public static final TagKey<Item> BARS = tag("bars");
+        public static final TagKey<Item> CHAINS = tag("chains");
+        public static final TagKey<Item> LANTERNS = tag("lanterns");
+        /** 1.21.11's spears, which take Lunge and the melee enchantments. */
+        public static final TagKey<Item> SPEARS = tag("spears");
+        /** 26.2's Sulfur Cube swallows these and turns heavy and slow, as it does with metal blocks. */
+        public static final TagKey<Item> SULFUR_CUBE_SLOW_FLAT = tag("sulfur_cube_archetype/slow_flat");
+
+        private static TagKey<Item> tag(String path) {
+            return TagKey.create(Registries.ITEM, ResourceLocation.withDefaultNamespace(path));
+        }
+    }
+}

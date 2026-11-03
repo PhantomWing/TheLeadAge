@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
+import net.minecraft.resources.ResourceLocation;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
@@ -26,7 +27,9 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
             .add(EntityType.HUSK)
             .add(EntityType.SKELETON)
             .add(EntityType.STRAY)
-            .add(EntityType.BOGGED);
+            .add(EntityType.BOGGED)
+            // 1.21.11's desert skeleton, as the 1.21.11 lines have it, where Vanilla Backport adds it under its id.
+            .addOptional(ResourceLocation.withDefaultNamespace("parched"));
         // Mobs that can naturally spawn holding an iron sword, axe or shovel.
         this.tag(ModTags.EntityTypes.CAN_HOLD_LEAD_TOOLS)
             .add(EntityType.ZOMBIE)

@@ -49,7 +49,15 @@
     "theleadage:lead_sword_from_bastion_other",
     "theleadage:lead_axe_from_trial_chambers_corridor",
     "theleadage:lead_axe_from_trial_chambers_reward",
-    "theleadage:lead_chestplate_from_trial_chambers_reward"
+    "theleadage:lead_chestplate_from_trial_chambers_reward",
+    "theleadage:lead_nautilus_armor_from_buried_treasure",
+    "theleadage:lead_nautilus_armor_from_shipwreck_map",
+    "theleadage:lead_nautilus_armor_from_shipwreck_supply",
+    "theleadage:lead_nautilus_armor_from_shipwreck_treasure",
+    "theleadage:lead_nautilus_armor_from_underwater_ruin_big",
+    "theleadage:lead_nautilus_armor_from_underwater_ruin_small",
+    "theleadage:lead_spear_from_buried_treasure",
+    "theleadage:lead_spear_from_village_weaponsmith"
   ],
   "replace": false
 }

@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.armor;
 
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.tags.CommonTags;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -8,7 +9,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -45,7 +45,7 @@ public class ModArmorMaterials {
         });
 
         ResourceLocation location = TheLeadAge.resourceLocation(name);
-        Holder<SoundEvent> equipSound = SoundEvents.ARMOR_EQUIP_IRON;
+        Holder<SoundEvent> equipSound = ModSounds.ARMOR_EQUIP_LEAD;
         List<ArmorMaterial.Layer> layers = List.of(new ArmorMaterial.Layer(location));
 
         // RegistrySupplier implements Holder<ArmorMaterial>; expose it as a Holder so

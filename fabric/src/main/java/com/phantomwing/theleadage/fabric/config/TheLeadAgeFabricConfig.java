@@ -79,6 +79,18 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean enable_villager_trades = true;
 
+    public static final String ENABLE_LEAD_GEAR_ID = "enable_lead_gear";
+    @ConfigEntry.Gui.Tooltip
+    public boolean enable_lead_gear = true;
+
+    public static final String ENABLE_CREATIVE_TAB_ID = "enable_creative_tab";
+    @ConfigEntry.Gui.Tooltip
+    public boolean enable_creative_tab = true;
+
+    public static final String ENABLE_VANILLA_CREATIVE_TABS_ID = "enable_vanilla_creative_tabs";
+    @ConfigEntry.Gui.Tooltip
+    public boolean enable_vanilla_creative_tabs = true;
+
     public static TheLeadAgeFabricConfig get() {
         return AutoConfig.getConfigHolder(TheLeadAgeFabricConfig.class).getConfig();
     }
@@ -111,6 +123,9 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case ENABLE_STRUCTURE_LOOT_ID -> config.enable_structure_loot;
             case ENABLE_MOB_LEAD_EQUIPMENT_ID -> config.enable_mob_lead_equipment;
             case ENABLE_VILLAGER_TRADES_ID -> config.enable_villager_trades;
+            case ENABLE_LEAD_GEAR_ID -> config.enable_lead_gear;
+            case ENABLE_CREATIVE_TAB_ID -> config.enable_creative_tab;
+            case ENABLE_VANILLA_CREATIVE_TABS_ID -> config.enable_vanilla_creative_tabs;
             default -> {
                 // A datapack's config_boolean condition can name anything: one that names no setting is false.
                 TheLeadAge.LOGGER.warn("theleadage:config_boolean names no setting: {}", id);

@@ -1,3 +1,29 @@
+# 1.3.0
+
+### Additions
+- Lead items now also show up in the vanilla creative tabs, beside their vanilla counterparts
+  - The Lead Knife shows up in Farmer's Delight's tab, and the Lead Sheet in Create's
+  - `enable_creative_tab` and `enable_vanilla_creative_tabs` choose which tabs lead items show up in
+- Added `enable_lead_gear`: turned off, lead tools, weapons and armor (horse and nautilus armor too) can't be crafted, found or worn by mobs, and are hidden from the creative tabs, for modpacks where another mod's lead gear takes their place
+- Added compatibility with Backported Spears: the Lead Spear, crafted like other spears
+- Added compatibility with Vanilla Backport
+  - The Lead Spear, crafted like other spears
+  - Lead Nautilus Armor, found in ocean chests in place of Iron Nautilus Armor
+  - Lead Spears can be found in buried treasure and weaponsmith chests, and zombies can spawn holding one
+  - Sulfur Cubes can swallow lead blocks, ores and bulbs, like copper's
+  - Parched can spawn with lead armor
+  - Lead Bars, Chains and Lanterns are in the tags it uses for copper's
+- Added compatibility with Copper Age Backport: Lead Bars, Chains and Lanterns are in the tags it uses for copper's
+- Added compatibility with Better Combat: the Lead Spear swings like a spear
+- Added compatibility with Yori3o's Grappling Hooks: the Lead Grappling Hook, with a range of 10 blocks
+- Added compatibility with Mekanism: a resource pack that shows Mekanism's lead in The Lead Age's colors
+- Added compatibility with JEI and EMI: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
+
+### Changes
+- Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
+- The Fabric version now also supports Minecraft 1.21
+
+
 # 1.2.2
 
 ### Fixes

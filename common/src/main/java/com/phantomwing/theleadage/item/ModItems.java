@@ -5,6 +5,7 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
+import com.phantomwing.theleadage.platform.BackportPlatform;
 import com.phantomwing.theleadage.platform.KnifePlatform;
 import dev.architectury.platform.Platform;
 import net.minecraft.world.item.DiggerItem;
@@ -39,8 +40,11 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.block.Block;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(TheLeadAge.MOD_ID, Registries.ITEM);
@@ -68,6 +72,9 @@ public class ModItems {
     // otherwise (so the mod loads standalone). Only appears in the creative tab when FD is loaded —
     // same pattern as the Create-gated sheet.
     public static final RegistrySupplier<Item> LEAD_KNIFE = registerKnife("lead_knife", ModTiers.LEAD, ModIds.FARMERS_DELIGHT);
+    // 1.21.11's Lead Spear, made as Backported Spears or Vanilla Backport makes a spear when one is installed.
+    public static final RegistrySupplier<Item> LEAD_SPEAR = registerWithModCompat("lead_spear",
+            () -> BackportPlatform.createLeadSpear(baseItem().stacksTo(1)), ModIds.BACKPORTED_SPEARS, ModIds.VANILLA_BACKPORT);
 
     // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
     // (durability = factor x slot base), and 6 sits between Leather 5 and Gold 7 — so a full set is
@@ -79,6 +86,9 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_HORSE_ARMOR = register("lead_horse_armor",
             (props) -> new LeadHorseArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, AnimalArmorItem.BodyType.EQUESTRIAN, false, props),
             baseItem().stacksTo(1));
+    // 1.21.11's Lead Nautilus Armor, Vanilla Backport's kind of nautilus armour when it is installed. Loot only.
+    public static final RegistrySupplier<Item> LEAD_NAUTILUS_ARMOR = registerWithModCompat("lead_nautilus_armor",
+            () -> BackportPlatform.createLeadNautilusArmor(baseItem().stacksTo(1)), ModIds.VANILLA_BACKPORT);
 
     // One item places the standing or wall torch depending on the clicked face (like vanilla).
     public static final RegistrySupplier<Item> LEAD_TORCH = register("lead_torch",
@@ -190,6 +200,13 @@ public class ModItems {
                 || stack.is(LEADED_GLASS_PANE_BARS.get()) || stack.is(LEADED_GLASS_PANE_DIAGONAL_BARS.get());
     }
 
+    /** The tools, weapons and armor {@code enable_lead_gear} takes away. */
+    public static boolean isLeadGear(Item item) {
+        return Stream.of(LEAD_SHOVEL, LEAD_PICKAXE, LEAD_AXE, LEAD_HOE, LEAD_SWORD, LEAD_KNIFE, LEAD_SPEAR,
+                        LEAD_HELMET, LEAD_CHESTPLATE, LEAD_LEGGINGS, LEAD_BOOTS, LEAD_HORSE_ARMOR, LEAD_NAUTILUS_ARMOR)
+                .anyMatch(gear -> gear.get() == item);
+    }
+
     public static Item.Properties baseItem() {
         return new Item.Properties();
     }
@@ -245,8 +262,13 @@ public class ModItems {
 
     /** Register an item that only appears in the creative tab when the given mod is loaded. */
     private static RegistrySupplier<Item> registerWithModCompat(String name, String modId) {
-        RegistrySupplier<Item> item = ITEMS.register(name, () -> new Item(baseItem()));
-        if (Platform.isModLoaded(modId)) {
+        return registerWithModCompat(name, () -> new Item(baseItem()), modId);
+    }
+
+    /** An item the creative tabs show only where one of {@code modIds} is loaded. */
+    private static RegistrySupplier<Item> registerWithModCompat(String name, Supplier<Item> factory, String... modIds) {
+        RegistrySupplier<Item> item = ITEMS.register(name, factory);
+        if (Arrays.stream(modIds).anyMatch(Platform::isModLoaded)) {
             CREATIVE_TAB_ITEMS.add(item);
         }
         return item;

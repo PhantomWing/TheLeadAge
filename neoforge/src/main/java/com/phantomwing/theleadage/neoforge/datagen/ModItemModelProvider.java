@@ -23,6 +23,23 @@ public class ModItemModelProvider extends ItemModelProvider {
         super(output, TheLeadAge.MOD_ID, existingFileHelper);
     }
 
+    /**
+     * A spear as Backported Spears draws one: flat in the inventory, and its {@code _in_hand} texture held, which it
+     * picks through its {@code spears:in_gui} predicate. The held model's parent is the mod's own spear_in_hand, 1.21.11's
+     * vanilla one; Vanilla Backport draws the held model through its own registration instead.
+     */
+    private void spearItem(Item item) {
+        String name = BuiltInRegistries.ITEM.getKey(item).getPath();
+        ModelFile inHand = withExistingParent(name + "_in_hand", modLoc("item/spear_in_hand"))
+                .texture("layer0", modLoc("item/" + name + "_in_hand"));
+        withExistingParent(name, ResourceLocation.withDefaultNamespace("item/generated"))
+                .texture("layer0", modLoc("item/" + name))
+                .override()
+                .predicate(ResourceLocation.fromNamespaceAndPath("spears", "in_gui"), 0)
+                .model(inHand)
+                .end();
+    }
+
     @Override
     protected void registerModels() {
         // Plain items use a generated (flat) model from their sprite.
@@ -45,6 +62,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         trimmableArmor(ModItems.LEAD_LEGGINGS.get(), "leggings");
         trimmableArmor(ModItems.LEAD_BOOTS.get(), "boots");
         basicItem(ModItems.LEAD_HORSE_ARMOR.get());
+        basicItem(ModItems.LEAD_NAUTILUS_ARMOR.get()); // Vanilla Backport compat
+        spearItem(ModItems.LEAD_SPEAR.get()); // Backported Spears and Vanilla Backport compat
 
         // Block items reuse the block's cube model (created by the BlockStateProvider).
         blockItem("lead_ore");

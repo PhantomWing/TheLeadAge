@@ -9,10 +9,13 @@ import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorItemRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorRenderer;
 import com.phantomwing.theleadage.client.ModColorHandlers;
+import com.phantomwing.theleadage.compat.ModIds;
+import com.phantomwing.theleadage.fabric.compat.vanillabackport.LeadSpear;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.entity.ModEntities;
 import com.phantomwing.theleadage.item.ModItems;
+import dev.architectury.platform.Platform;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -86,6 +89,12 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
                 ModItems.LEADED_GLASS_PANE_CROSS.get(), ModItems.LEADED_GLASS_PANE_DIAMOND.get(), ModItems.LEADED_GLASS_PANE_LATTICE.get(), ModItems.LEADED_GLASS_PANE_BARS.get(), ModItems.LEADED_GLASS_PANE_DIAGONAL_BARS.get(), ModItems.LEADED_GLASS_DOOR.get(),
                 ModItems.LEADED_GLASS_TRAPDOOR.get()}) {
             registerPredicates(item);
+        }
+
+        // The Lead Spear held as a spear where Vanilla Backport makes it one. Backported Spears picks the held
+        // model through the item model's own override.
+        if (Platform.isModLoaded(ModIds.VANILLA_BACKPORT) && !Platform.isModLoaded(ModIds.BACKPORTED_SPEARS)) {
+            LeadSpear.registerHeldModel();
         }
     }
 

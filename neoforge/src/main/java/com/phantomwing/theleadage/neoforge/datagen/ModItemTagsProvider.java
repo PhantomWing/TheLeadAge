@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.neoforge.datagen;
 
+import com.phantomwing.theleadage.tags.BackportTags;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
@@ -94,6 +95,19 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         copy(ModTags.Blocks.LEADED_GLASS_BLOCKS, ModTags.Items.LEADED_GLASS_BLOCKS);
 
         tag(c("chains")).add(ModItems.LEAD_CHAIN.get());
+        // The 1.21.9 tags Vanilla Backport and Copper Age Backport fill on this version, as copper's are.
+        tag(BackportTags.Items.BARS).add(ModItems.LEAD_BARS.get());
+        tag(BackportTags.Items.CHAINS).add(ModItems.LEAD_CHAIN.get());
+        tag(BackportTags.Items.LANTERNS).add(ModItems.LEAD_LANTERN.get());
+        // Both spear backports put minecraft:spears into the enchantable tags, so the Lead Spear takes Lunge and
+        // the melee enchantments through it.
+        tag(BackportTags.Items.SPEARS).add(ModItems.LEAD_SPEAR.get());
+        tag(c("armors/nautilus")).add(ModItems.LEAD_NAUTILUS_ARMOR.get());
+        // What a Sulfur Cube swallowing it turns into, as vanilla's metal blocks, ores and bulbs do (26.2, and Vanilla
+        // Backport here).
+        tag(BackportTags.Items.SULFUR_CUBE_SLOW_FLAT).add(ModItems.LEAD_ORE.get(), ModItems.DEEPSLATE_LEAD_ORE.get(),
+                ModItems.RAW_LEAD_BLOCK.get(), ModItems.LEAD_BLOCK.get(), ModItems.CUT_LEAD.get(),
+                ModItems.CHISELED_LEAD.get(), ModItems.LEAD_BULB.get());
         // Glass and dye colour, as on the blocks (see ModBlockTagsProvider).
         tag(c("glass_blocks")).addTag(ModTags.Items.LEADED_GLASS_BLOCKS);
         tag(c("glass_blocks/colorless")).add(ModItems.LEADED_GLASS.get());
@@ -115,7 +129,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ModTags.Items.LEAD_EQUIPMENT).add(
                 ModItems.LEAD_SWORD.get(), ModItems.LEAD_PICKAXE.get(), ModItems.LEAD_AXE.get(),
                 ModItems.LEAD_SHOVEL.get(), ModItems.LEAD_HOE.get(), ModItems.LEAD_KNIFE.get(),
-                ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
+                ModItems.LEAD_SPEAR.get(), ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
                 ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get());
     }
 

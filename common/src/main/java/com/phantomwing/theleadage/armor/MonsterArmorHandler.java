@@ -5,6 +5,8 @@ import com.phantomwing.theleadage.platform.CommonConfig;
 import com.phantomwing.theleadage.platform.MonsterArmorPlatform;
 import com.phantomwing.theleadage.tags.ModTags;
 import com.phantomwing.theleadage.utils.ItemUtils;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -113,7 +115,9 @@ public final class MonsterArmorHandler {
         }
     }
 
-    // A zombie's iron sword or shovel, a vindicator's iron axe. Enchantments, as a raid's axe has, carry over.
+    private static final ResourceLocation IRON_SPEAR = ResourceLocation.withDefaultNamespace("iron_spear");
+
+    // A zombie's iron sword, shovel or spear, a vindicator's iron axe. Enchantments, as a raid's axe has, carry over.
     private static void replaceTool(Mob mob) {
         ItemStack held = mob.getItemBySlot(EquipmentSlot.MAINHAND);
         Item lead = leadToolFor(held);
@@ -132,6 +136,10 @@ public final class MonsterArmorHandler {
         }
         if (held.is(Items.IRON_SHOVEL)) {
             return ModItems.LEAD_SHOVEL.get();
+        }
+        // Vanilla Backport's iron spear, which its mobs spawn holding as 1.21.11's do.
+        if (!held.isEmpty() && BuiltInRegistries.ITEM.getKey(held.getItem()).equals(IRON_SPEAR)) {
+            return ModItems.LEAD_SPEAR.get();
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.block.custom;
 
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
@@ -199,7 +200,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
             level.playSound(null, pos, surfaceSound.getPlaceSound(), SoundSource.BLOCKS,
                     surfaceSound.getVolume() * 1.2f * thud, surfaceSound.getPitch() * 0.75f);
         }
-        level.playSound(null, pos, SoundEvents.MACE_SMASH_GROUND_HEAVY, SoundSource.BLOCKS, thud, 0.9f);
+        level.playSound(null, pos, ModSounds.LEAD_WEIGHT_LAND.get(), SoundSource.BLOCKS, thud, 0.9f);
 
         if (level instanceof ServerLevel server && !surface.isAir()) {
             double cx = pos.getX() + 0.5, cy = pos.getY() + 0.05, cz = pos.getZ() + 0.5;
@@ -248,7 +249,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
      */
     @Override
     public void onBrokenAfterFall(Level level, BlockPos pos, FallingBlockEntity entity) {
-        level.playSound(null, pos, SoundEvents.MACE_SMASH_GROUND_HEAVY, SoundSource.BLOCKS, thudVolume(entity, pos), 0.9f);
+        level.playSound(null, pos, ModSounds.LEAD_WEIGHT_LAND.get(), SoundSource.BLOCKS, thudVolume(entity, pos), 0.9f);
         if (level instanceof ServerLevel server) {
             server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, defaultBlockState()),
                     pos.getX() + 0.5, pos.getY() + 0.25, pos.getZ() + 0.5, 20, 0.3, 0.1, 0.3, 0.1);
@@ -257,7 +258,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
 
     /** A short metallic crack + a puff of lead dust when the weight chips down a tier. */
     private void chipFx(Level level, BlockPos pos) {
-        level.playSound(null, pos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.5f, 1.5f);
+        level.playSound(null, pos, ModSounds.LEAD_WEIGHT_CHIP.get(), SoundSource.BLOCKS, 0.5f, 1.5f);
         if (level instanceof ServerLevel server) {
             server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, defaultBlockState()),
                     pos.getX() + 0.5, pos.getY() + 0.4, pos.getZ() + 0.5, 12, 0.25, 0.15, 0.25, 0.08);
@@ -266,7 +267,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
 
     /** Heavy "lead weight cracks apart" sound + a burst of its own dust, when the last tier shatters. */
     private void shatterFx(Level level, BlockPos pos) {
-        level.playSound(null, pos, SoundEvents.ANVIL_DESTROY, SoundSource.BLOCKS, 0.8f, 0.8f);
+        level.playSound(null, pos, ModSounds.LEAD_WEIGHT_BREAK.get(), SoundSource.BLOCKS, 0.8f, 0.8f);
         if (level instanceof ServerLevel server) {
             server.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, defaultBlockState()),
                     pos.getX() + 0.5, pos.getY() + 0.4, pos.getZ() + 0.5, 35, 0.3, 0.2, 0.3, 0.12);

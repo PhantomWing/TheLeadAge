@@ -7,9 +7,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+import net.neoforged.neoforge.common.conditions.OrCondition;
 import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
 import net.neoforged.neoforge.common.loot.LootTableIdCondition;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -29,9 +33,16 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                     new LootTableIdCondition.Builder(entry.targetLootTable()).build(),
                     LootItemRandomChanceCondition.randomChance(entry.chance()).build()
             };
-            add(entry.id(), new ReplaceItemModifier(conditions, entry.item().get(),
+            ReplaceItemModifier modifier = new ReplaceItemModifier(conditions, entry.item().get(),
                     entry.removedItems().stream().map(Supplier::get).toList(),
-                    entry.min(), entry.max()));
+                    entry.min(), entry.max());
+            List<ICondition> mods = entry.requiredMods().stream().<ICondition>map(ModLoadedCondition::new).toList();
+            if (mods.isEmpty()) {
+                add(entry.id(), modifier);
+            } else {
+                // Its JSON names another mod's items, so it loads only with that mod.
+                add(entry.id(), modifier, mods.size() == 1 ? mods.getFirst() : new OrCondition(mods));
+            }
         }
     }
 }

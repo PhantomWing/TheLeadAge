@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.compat.emi;
 
+import com.phantomwing.theleadage.compat.LeadInfo;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
@@ -79,6 +80,10 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
         addInfo(registry, "pane", LeadedGlassInfo.paneStacks());
         addInfo(registry, "door", List.of(LeadedGlassInfo.doorStack()));
         addInfo(registry, "trapdoor", List.of(LeadedGlassInfo.trapdoorStack()));
+        for (LeadInfo page : LeadInfo.all()) {
+            List<EmiIngredient> ingredients = page.stacks().stream().map(s -> (EmiIngredient) EmiStack.of(s)).toList();
+            addRecipe(registry, new EmiInfoRecipe(ingredients, List.of(page.text()), synthetic("info/" + page.name())));
+        }
     }
 
     /**

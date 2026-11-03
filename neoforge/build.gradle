@@ -30,6 +30,12 @@ def loadCreate = (project.findProperty('enable_create') ?: rootProject.enable_cr
 //   ./gradlew :neoforge:runClient -PloadFD=false
 def loadFD = (project.findProperty('loadFD') ?: rootProject.loadFD).toString().toBoolean()
 
+// The mods backporting newer vanilla content, Grappling Hooks and Mekanism, each with its switch in gradle.properties.
+def loadSpears = (project.findProperty('enable_backported_spears') ?: rootProject.enable_backported_spears).toString().toBoolean()
+def loadVanillaBackport = (project.findProperty('enable_vanilla_backport') ?: rootProject.enable_vanilla_backport).toString().toBoolean()
+def loadHooks = (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
+def loadMekanism = (project.findProperty('enable_mekanism') ?: rootProject.enable_mekanism).toString().toBoolean()
+
 // Which recipe viewer to load in the dev run. The mod ships plugins for BOTH JEI and EMI; running
 // them together is just noise, so pick one:
 //   ./gradlew :neoforge:runClient -Precipe_viewer=jei|emi|both|none
@@ -39,7 +45,7 @@ if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
 }
 def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
 def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
-logger.lifecycle("[TheLeadAge] (neoforge) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi}), Create: ${loadCreate}, FD: ${loadFD}")
+logger.lifecycle("[TheLeadAge] (neoforge) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi}), Create: ${loadCreate}, FD: ${loadFD}, Backported Spears: ${loadSpears}, Vanilla Backport (datagen): ${loadVanillaBackport}, Grappling Hooks: ${loadHooks}, Mekanism: ${loadMekanism}")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -160,6 +166,36 @@ dependencies {
         modLocalRuntime "maven.modrinth:farmers-delight:${rootProject.farmersdelight_neoforge_version}"
     }
 
+    // Mods backporting 1.21.9-1.21.11 content, which the Lead Spear and Lead Nautilus Armor are made with
+    // (BackportPlatformImpl). Modrinth version ids, since a version number names both loaders' files there.
+    modCompileOnly("maven.modrinth:backported-spears:${rootProject.backported_spears_neoforge_version}")
+    modCompileOnly("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_neoforge_version}")
+    modCompileOnly("maven.modrinth:platform:${rootProject.platform_neoforge_version}")
+    // Vanilla Backport and Backported Spears register the same spear components under vanilla's ids, and a held
+    // spear crashes the client with both installed, so the game runs Backported Spears and datagen Vanilla Backport,
+    // whose iron nautilus armour and spear the loot modifiers name. Fabric's runs play Vanilla Backport.
+    if (loadVanillaBackport && runningDataGen) {
+        modLocalRuntime("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_neoforge_version}")
+        modLocalRuntime("maven.modrinth:platform:${rootProject.platform_neoforge_version}")
+    }
+    if (loadSpears && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("maven.modrinth:backported-spears:${rootProject.backported_spears_neoforge_version}")
+    }
+    // Mekanism has lead of its own, whose processing takes the mod's ore through the c: tags; the dev runs carry it to
+    // check that, and the Mekanism Lead pack.
+    if (loadMekanism && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("maven.modrinth:mekanism:${rootProject.mekanism_version}")
+    }
+    // Yori3o's Grappling Hooks reads the Lead Grappling Hook from yo_hooks/hooks.json.
+    if (loadHooks && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("maven.modrinth:yori3os-grappling-hooks:${rootProject.grappling_hooks_neoforge_version}")
+        modLocalRuntime("maven.modrinth:yacl:${rootProject.yacl_neoforge_version}")
+        // The libraries YACL's jar bundles, which a dev run doesn't unpack.
+        forgeRuntimeLibrary("org.quiltmc.parsers:json:0.2.1")
+        forgeRuntimeLibrary("org.quiltmc.parsers:gson:0.2.1")
+        forgeRuntimeLibrary("com.twelvemonkeys.imageio:imageio-webp:3.12.0")
+    }
+
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
     //      never shipped, never a hard dependency). Skipped for the game-test run. ----
     if (!runningGameTest && !runningDataGen) {
@@ -237,7 +273,7 @@ publishMods {
         projectId = providers.gradleProperty("modrinth_project_id")
         accessToken = providers.environmentVariable("MODRINTH_TOKEN").orElse(providers.gradleProperty("modrinth_token"))
         // Tag every supported game version on the upload, not just the build target.
-        rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
+        rootProject.neoforge_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
         // NeoForge only needs Architectury — fabric-api / cloth-config are Fabric-only.
         requires("architectury-api")
         optional("create", "farmers-delight", "jei", "emi")
@@ -245,7 +281,7 @@ publishMods {
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse(providers.gradleProperty("curseforge_token"))
-        rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
+        rootProject.neoforge_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
         // CurseForge requires explicit side flags (Modrinth infers them from the jar).
         client = true
         server = true

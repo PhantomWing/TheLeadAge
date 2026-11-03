@@ -1,11 +1,11 @@
 package com.phantomwing.theleadage.block.custom;
 
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -333,7 +333,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                 }
                 pane.setColorsAndState(rotated, rotatedState, Block.UPDATE_ALL);
             }
-            level.playSound(null, pos, SoundEvents.ITEM_FRAME_ROTATE_ITEM, SoundSource.BLOCKS, 0.7f, 1.1f);
+            level.playSound(null, pos, ModSounds.LEADED_GLASS_PANE_ROTATE.get(), SoundSource.BLOCKS, 0.7f, 1.1f);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

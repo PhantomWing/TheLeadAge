@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.block;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.custom.LeadBulbBlock;
 import com.phantomwing.theleadage.block.custom.LeadPressurePlateBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChainBlock;
-import net.minecraft.world.level.block.CopperBulbBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.LanternBlock;
@@ -112,9 +112,10 @@ public class ModBlocks {
     // Lead Bulb: the copper bulb's redstone toggle — a pulse flips it on or off and it keeps that state,
     // readable by a comparator — but lead does not weather, so there is a single, non-oxidizing block.
     // Vanilla's CopperBulbBlock is itself the non-weathering class (WeatheringCopperBulbBlock adds the
-    // oxidation), so it drops straight in. Full lead cube, so it takes the solid lead strength.
+    // oxidation), so LeadBulbBlock only gives it toggle sounds of its own. Full lead cube, so it takes the
+    // solid lead strength.
     public static final RegistrySupplier<Block> LEAD_BULB = register("lead_bulb", () ->
-            new CopperBulbBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BULB)
+            new LeadBulbBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BULB)
                     .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
                     .strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
 

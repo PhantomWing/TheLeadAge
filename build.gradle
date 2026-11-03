@@ -114,6 +114,12 @@ allprojects {
         }
 
         // Create (+ Ponder, Flywheel) â€” optional NeoForge compat.
+        // Quilt's JSON parsers, which YACL bundles in its jar; dev runs don't unpack a jar's bundled libraries.
+        maven {
+            url = "https://maven.quiltmc.org/repository/release"
+            content { includeGroup "org.quiltmc.parsers" }
+        }
+
         maven { url = "https://maven.createmod.net" }
 
         // Registrate â€” a transitive dependency of Create.
