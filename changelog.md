@@ -3,9 +3,13 @@
 ### Fixes
 - Fixed names in every language to match vanilla's
 - Fixed the config screen's tooltips not being translated
+- Fixed a typo in a config tooltip
 
 ### Changes
 - Lead Ore is less common
+
+### Additions
+- Added Brazilian Portuguese translation
 
 
 # 1.2.0
