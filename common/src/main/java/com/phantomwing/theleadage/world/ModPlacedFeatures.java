@@ -30,7 +30,7 @@ public class ModPlacedFeatures {
         context.register(ORE_LEAD, new PlacedFeature(
                 configuredFeatures.getOrThrow(ModConfiguredFeatures.ORE_LEAD),
                 List.of(
-                        CountPlacement.of(10),
+                        CountPlacement.of(8),
                         InSquarePlacement.spread(),
                         HeightRangePlacement.triangle(VerticalAnchor.absolute(-24), VerticalAnchor.absolute(80)),
                         BiomeFilter.biome())));
@@ -41,7 +41,7 @@ public class ModPlacedFeatures {
         context.register(ORE_LEAD_EXTRA, new PlacedFeature(
                 configuredFeatures.getOrThrow(ModConfiguredFeatures.ORE_LEAD_SMALL),
                 List.of(
-                        CountPlacement.of(12),
+                        CountPlacement.of(10),
                         InSquarePlacement.spread(),
                         HeightRangePlacement.uniform(VerticalAnchor.absolute(-48), VerticalAnchor.absolute(16)),
                         BiomeFilter.biome())));
