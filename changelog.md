@@ -18,11 +18,15 @@
 - Added compatibility with Yori3o's Grappling Hooks: the Lead Grappling Hook, with a range of 10 blocks
 - Added compatibility with Mekanism: a resource pack that shows Mekanism's lead in The Lead Age's colors
 - Added compatibility with JEI and EMI: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
+- Added Brazilian Portuguese translation
 
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
 - The Fabric version now also supports Minecraft 1.21
 - Lead Ore is less common
+
+### Fixes
+- Fixed a typo in a config tooltip
 
 
 # 1.2.2
