@@ -22,6 +22,7 @@
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
 - The Fabric version now also supports Minecraft 1.21
+- Lead Ore is less common
 
 
 # 1.2.2
