@@ -7,6 +7,7 @@
 
 ### Changes
 - Lead Ore is less common
+- Lead blocks now play the bass drum on a note block
 
 ### Additions
 - Added Brazilian Portuguese translation
