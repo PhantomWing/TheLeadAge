@@ -77,10 +77,12 @@ public class ModBlocks {
     // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
             new RawLeadBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
-                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
             new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
-                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+                    .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)));
 
     // Decorative lead blocks (no oxidation). Order matches the creative tab.
     public static final RegistrySupplier<Block> CUT_LEAD = registerLeadBlock("cut_lead");
@@ -117,7 +119,7 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEAD_BULB = register("lead_bulb", () ->
             new LeadBulbBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BULB)
                     .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
-                    .strength(LEAD_HARDNESS, LEAD_RESISTANCE)));
+                    .strength(LEAD_HARDNESS, LEAD_RESISTANCE).instrument(NoteBlockInstrument.BASEDRUM)));
 
     // Lead Pressure Plate: the weighted plate pressed by mobs alone, one signal level each (see
     // LeadPressurePlateBlock). A thin plate, so it keeps the heavy plate's strength rather than lead's;
@@ -324,7 +326,7 @@ public class ModBlocks {
                 .requiresCorrectToolForDrops()
                 .sound(ModSoundTypes.LEAD)
                 .mapColor(MapColor.COLOR_GRAY)
-                .instrument(NoteBlockInstrument.BELL);
+                .instrument(NoteBlockInstrument.BASEDRUM);
     }
 
     private static <T extends Block> RegistrySupplier<T> register(String name, Supplier<T> block) {

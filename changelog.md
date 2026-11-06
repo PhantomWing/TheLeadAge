@@ -24,6 +24,7 @@
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
 - The Fabric version now also supports Minecraft 1.21
 - Lead Ore is less common
+- Lead blocks now play the bass drum on a note block
 
 ### Fixes
 - Fixed a typo in a config tooltip
