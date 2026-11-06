@@ -28,6 +28,7 @@
 
 ### Fixes
 - Fixed a typo in a config tooltip
+- Block of Lead now uses the same sounds as the other lead blocks
 
 
 # 1.2.2
