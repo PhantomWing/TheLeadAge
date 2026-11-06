@@ -85,7 +85,7 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
             new Block(copyOf(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
                     .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)
-                    .instrument(NoteBlockInstrument.BASEDRUM)));
+                    .instrument(NoteBlockInstrument.BASEDRUM).sound(ModSoundTypes.LEAD)));
 
     // Decorative lead blocks (no oxidation). Order matches the creative tab.
     public static final RegistrySupplier<Block> CUT_LEAD = registerLeadBlock("cut_lead");
