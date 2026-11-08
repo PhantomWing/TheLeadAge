@@ -2,9 +2,7 @@ package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.network.LeadSettingsPayload;
 import com.phantomwing.theleadage.platform.LeadSettings;
-import io.netty.buffer.Unpooled;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 
@@ -52,10 +50,10 @@ public final class LeadSettingsGameTest {
 
     /** The settings read back as they were written, every field in its place. */
     public static void leadSettingsSurviveTheWire(GameTestHelper helper) {
-        RegistryFriendlyByteBuf wire = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
+        var wire = TestCompat.wire(helper.getLevel());
         LeadSettingsPayload sent = new LeadSettingsPayload(7, false, true);
-        LeadSettingsPayload.CODEC.encode(wire, sent);
-        LeadSettingsPayload read = LeadSettingsPayload.CODEC.decode(wire);
+        TestCompat.writeSettings(wire, sent);
+        LeadSettingsPayload read = TestCompat.readSettings(wire);
         if (!read.equals(sent)) {
             fail(helper, "sent " + sent + ", read " + read);
         } else if (wire.isReadable()) {
