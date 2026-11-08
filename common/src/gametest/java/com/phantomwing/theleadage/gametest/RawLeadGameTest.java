@@ -96,7 +96,7 @@ public final class RawLeadGameTest {
         for (int y = 3; y <= 7; y++) {
             helper.setBlock(new BlockPos(1, y, 1), Blocks.AIR);
         }
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = TestLoader.mockServerPlayer(helper);
         player.setGameMode(GameType.SURVIVAL);
         moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(fire.above(3))));
         whenFumesFind(helper, player, fire, FIND_TICKS, () -> {
@@ -377,7 +377,7 @@ public final class RawLeadGameTest {
         for (int y = 3; y <= 9; y++) {
             helper.setBlock(new BlockPos(1, y, 1), Blocks.AIR);
         }
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = TestLoader.mockServerPlayer(helper);
         player.setGameMode(GameType.SURVIVAL);
         BlockPos aside = new BlockPos(3, 2, 1);
         moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(aside)));
