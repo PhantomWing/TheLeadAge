@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.gametest;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerPlayer;
 
 /**
  * The calls a test makes that each modloader answers its own way, each behind a signature both share. NeoForge's
@@ -15,5 +16,10 @@ public final class TestLoader {
     public static Integer beaconColor(GameTestHelper helper, BlockPos pane, BlockPos beacon) {
         return helper.getBlockState(pane).getBeaconColorMultiplier(helper.getLevel(), helper.absolutePos(pane),
                 helper.absolutePos(beacon));
+    }
+
+    /** A player in the test's level, who mines and is found by the fumes as a real one is: vanilla's, here. */
+    public static ServerPlayer mockServerPlayer(GameTestHelper helper) {
+        return helper.makeMockServerPlayerInLevel();
     }
 }

@@ -24,9 +24,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StainedGlassBlock;
@@ -40,7 +38,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
+import static com.phantomwing.theleadage.gametest.TestCompat.craftingInput;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.isSameItemSameComponents;
+import static com.phantomwing.theleadage.gametest.TestCompat.matches;
+import static com.phantomwing.theleadage.gametest.TestCompat.orThrow;
+import static com.phantomwing.theleadage.gametest.TestCompat.recipeFor;
 
 /**
  * Dyed leaded glass in any dye colour. A dye mod's colours can't be added in a test, so these hold the parts
@@ -100,8 +103,8 @@ public final class DyedLeadedGlassGameTest {
     public static void glassColoursReadAsNamesOrNumbers(GameTestHelper helper) {
         int red = DyeColor.RED.getId();
         List<Integer> redAndClear = List.of(red, LeadedGlassConfig.CLEAR);
-        JsonObject written = LeadedGlassConfig.CODEC
-                .encodeStart(JsonOps.INSTANCE, new LeadedGlassConfig(LeadedGlassFrame.SPLIT_V, redAndClear)).getOrThrow()
+        JsonObject written = orThrow(LeadedGlassConfig.CODEC
+                .encodeStart(JsonOps.INSTANCE, new LeadedGlassConfig(LeadedGlassFrame.SPLIT_V, redAndClear)))
                 .getAsJsonObject();
         if (!written.get("colors").toString().equals("[\"red\",\"clear\"]")) {
             fail(helper, "A design's colours are written as " + written.get("colors") + ", not by name");
@@ -111,7 +114,7 @@ public final class DyedLeadedGlassGameTest {
         for (String colors : List.of("[14,-1]", "[\"red\",-1]", "[\"red\",\"clear\"]", "[14,\"no_such_dye\"]", "[14,999]")) {
             JsonObject saved = written.deepCopy();
             saved.add("colors", JsonParser.parseString(colors));
-            List<Integer> read = LeadedGlassConfig.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow().colors();
+            List<Integer> read = orThrow(LeadedGlassConfig.CODEC.parse(JsonOps.INSTANCE, saved)).colors();
             if (!read.equals(redAndClear)) {
                 fail(helper, "A design saved with colours " + colors + " reads as " + read + ", not red and clear");
                 return;
@@ -167,13 +170,12 @@ public final class DyedLeadedGlassGameTest {
         StainedLeadedGlassRecipe special = TestCompat.stainedLeadedGlassRecipe();
         Block red = ModBlocks.STAINED_LEADED_GLASS.get(DyeColor.RED).get();
         for (List<ItemStack> grid : List.of(byDye, byLead)) {
-            CraftingInput input = CraftingInput.of(3, 3, grid);
-            if (special.matches(input, level)) {
+            var input = craftingInput(3, 3, grid);
+            if (matches(special, input, level)) {
                 fail(helper, "The dye mods' recipe takes " + grid.get(4) + ", whose colour has a recipe of its own");
                 return;
             }
-            Optional<RecipeHolder<CraftingRecipe>> match =
-                    level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
+            var match = recipeFor(level.getServer().getRecipeManager(), RecipeType.CRAFTING, input, level);
             ItemStack result = match.isEmpty() ? ItemStack.EMPTY : assemble(match.get().value(), input, level);
             if (!result.is(red.asItem()) || result.getCount() != 8) {
                 fail(helper, "Red leaded glass around " + grid.get(4) + " made " + result + ", not 8 red leaded glass");
@@ -188,12 +190,11 @@ public final class DyedLeadedGlassGameTest {
         ServerLevel level = helper.getLevel();
         List<ItemStack> grid = new ArrayList<>(Collections.nCopies(9, LeadedGlassDisplayRecipe.plainPane(LeadedGlassConfig.CLEAR)));
         grid.set(4, new ItemStack(TestCompat.RED_DYE));
-        CraftingInput input = CraftingInput.of(3, 3, grid);
-        Optional<RecipeHolder<CraftingRecipe>> match =
-                level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
+        var input = craftingInput(3, 3, grid);
+        var match = recipeFor(level.getServer().getRecipeManager(), RecipeType.CRAFTING, input, level);
         ItemStack result = match.isEmpty() ? ItemStack.EMPTY : assemble(match.get().value(), input, level);
         ItemStack red = LeadedGlassDisplayRecipe.plainPane(DyeColor.RED.getId());
-        if (result.getCount() != 8 || !ItemStack.isSameItemSameComponents(result, red)) {
+        if (result.getCount() != 8 || !isSameItemSameComponents(result, red)) {
             fail(helper, "Eight clear leaded glass panes around red dye made " + result + ", not 8 red panes");
             return;
         }
