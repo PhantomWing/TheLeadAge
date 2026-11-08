@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
  * Replaces naturally-spawned mobs' iron armor and iron tools with lead ones (low chance).
  *
  * <p>The transmute LOGIC is loader-agnostic and lives here. The actual event
- * subscription is loader-specific (NeoForge keeps its exact
+ * subscription is loader-specific (Forge keeps its exact
  * {@code EntityJoinLevelEvent} + {@code loadedFromDisk()} gating; Fabric uses a
  * {@code PersistentEntitySectionManager} mixin that carries the same
  * loaded-from-storage flag) and is bridged through {@link MonsterArmorPlatform}.</p>
@@ -47,12 +47,12 @@ public final class MonsterArmorHandler {
 
     /**
      * Loader-agnostic equip logic. The caller is responsible for the spawn gating
-     * (client-side / loaded-from-disk) so NeoForge can preserve its precise
+     * (client-side / loaded-from-disk) so Forge can preserve its precise
      * {@code EntityJoinLevelEvent.loadedFromDisk()} semantics.
      *
      * @param entity         the entity that just joined the level
      * @param level          the level it joined
-     * @param loadedFromDisk whether the entity was loaded from disk (NeoForge: from
+     * @param loadedFromDisk whether the entity was loaded from disk (Forge: from
      *                       the event; Fabric: from the section-manager mixin)
      */
     public static void tryEquipLeadGear(Entity entity, Level level, boolean loadedFromDisk) {
@@ -115,7 +115,7 @@ public final class MonsterArmorHandler {
         }
     }
 
-    private static final ResourceLocation IRON_SPEAR = ResourceLocation.withDefaultNamespace("iron_spear");
+    private static final ResourceLocation IRON_SPEAR = new ResourceLocation("iron_spear");
 
     // A zombie's iron sword, shovel or spear, a vindicator's iron axe. Enchantments, as a raid's axe has, carry over.
     private static void replaceTool(Mob mob) {

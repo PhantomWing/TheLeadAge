@@ -1,92 +1,120 @@
 package com.phantomwing.theleadage.gametest;
 
-import net.minecraft.world.item.Items;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+import com.mojang.serialization.DataResult;
+import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
+import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.network.LeadSettingsPayload;
+import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
+import com.phantomwing.theleadage.world.vein.LeadVeins;
+import io.netty.buffer.Unpooled;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ProtoChunk;
-import net.minecraft.world.level.chunk.UpgradeData;
-import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.Beardifier;
-import net.minecraft.world.level.levelgen.NoiseChunk;
-import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.material.MaterialRuleList;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import com.phantomwing.theleadage.item.ModItems;
-import com.phantomwing.theleadage.world.vein.LeadVeins;
-import org.jetbrains.annotations.Nullable;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Optional;
-import net.minecraft.server.packs.PackResources;
-import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeInput;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.core.Holder;
-import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WeatheringCopper.WeatherState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.Beardifier;
+import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.NoiseChunk;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.material.MaterialRuleList;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The calls a test makes whose shape differs between Minecraft versions, each behind a signature every
  * line shares. This is the one test file that differs from line to line, so the bodies don't have to:
  * when a port turns up another such call, it goes here rather than into a body. A call each modloader
  * answers its own way goes in {@link TestLoader} instead.
+ *
+ * <p>On 1.20.1 too the recipe inputs 1.20.5 and 1.21 brought ({@link CraftingInput}, {@link SingleRecipeInput},
+ * {@link RecipeInput}) and 1.20.2's {@link RecipeHolder}, which this line has as classes of the tests', and the calls
+ * 1.21's bodies make on data components, which 1.20.1 keeps in a stack's tag.</p>
  */
 public final class TestCompat {
-    /** {@code MobEffects.CONFUSION} before 1.21.5. */
-    public static final Holder<MobEffect> NAUSEA = MobEffects.CONFUSION;
+    /** {@code MobEffects.CONFUSION} before 1.21.5. A plain MobEffect before 1.20.5 made effects registry holders. */
+    public static final MobEffect NAUSEA = MobEffects.CONFUSION;
 
     /** {@code EntityType.ITEM} until 26.2 moved it to {@code EntityTypes}. */
     public static final EntityType<ItemEntity> ITEM_ENTITY = EntityType.ITEM;
@@ -110,7 +138,7 @@ public final class TestCompat {
     public static final PushReaction IMMOVABLE = PushReaction.BLOCK;
 
     /** {@code #minecraft:spears}, which lets a spear take Lunge. Vanilla has neither the tag nor spears before 1.21.11. */
-    public static final TagKey<Item> SPEARS = TagKey.create(Registries.ITEM, ResourceLocation.withDefaultNamespace("spears"));
+    public static final TagKey<Item> SPEARS = TagKey.create(Registries.ITEM, new ResourceLocation("spears"));
 
     /** {@code Items.RED_DYE} until 26.2 gathered the dyes into a colour collection. */
     public static final Item RED_DYE = Items.RED_DYE;
@@ -123,7 +151,7 @@ public final class TestCompat {
 
     /** The id {@code path} in the minecraft namespace. ResourceLocation was renamed Identifier in 1.21.11. */
     public static ResourceLocation vanillaId(String path) {
-        return ResourceLocation.withDefaultNamespace(path);
+        return new ResourceLocation(path);
     }
 
     /** Fails the test. {@code GameTestHelper.fail} takes only a Component from 1.21.5 to 1.21.8. */
@@ -146,6 +174,14 @@ public final class TestCompat {
     }
 
     /**
+     * A player not in the level, in {@code mode}. {@code GameTestHelper.makeMockPlayer} takes the game mode from 1.20.5;
+     * 1.20.1 has a creative one and a survival one, which stands in for adventure too.
+     */
+    public static Player mockPlayer(GameTestHelper helper, GameType mode) {
+        return mode == GameType.CREATIVE ? helper.makeMockPlayer() : helper.makeMockSurvivalPlayer();
+    }
+
+    /**
      * A copy of {@code entity} made from its save data, as loading the world makes it, not yet in the level. Entities save
      * through {@code ValueOutput} from 1.21.6, and {@code EntityType.create} takes a spawn reason from 1.21.3.
      */
@@ -162,9 +198,19 @@ public final class TestCompat {
         entity.moveTo(at.x, at.y, at.z, 0.0f, 0.0f);
     }
 
-    /** What {@code recipe} makes from {@code input}, crafted or cooked. It no longer takes the registries from 26.1. */
-    public static <I extends RecipeInput> ItemStack assemble(Recipe<I> recipe, I input, ServerLevel level) {
-        return recipe.assemble(input, level.registryAccess());
+    /**
+     * What {@code recipe} makes from {@code input}, crafted or cooked. It no longer takes the registries from 26.1. A
+     * 1.20.1 recipe takes a container rather than a recipe input.
+     */
+    @SuppressWarnings("unchecked")
+    public static <C extends Container> ItemStack assemble(Recipe<C> recipe, RecipeInput input, ServerLevel level) {
+        return recipe.assemble((C) input.container(), level.registryAccess());
+    }
+
+    /** Whether {@code recipe} takes {@code input}. A 1.20.1 recipe matches a container rather than a recipe input. */
+    @SuppressWarnings("unchecked")
+    public static <C extends Container> boolean matches(Recipe<C> recipe, RecipeInput input, Level level) {
+        return recipe.matches((C) input.container(), level);
     }
 
     /** The block of copper in {@code state}, waxed or not. 26.2 gathered them into a collection on Blocks. */
@@ -177,9 +223,58 @@ public final class TestCompat {
         };
     }
 
-    /** An item's own attribute modifiers. On 1.21.1 the item works them out; 1.21.2 bakes them into its components. */
-    public static ItemAttributeModifiers defaultModifiers(Item item) {
-        return item.getDefaultAttributeModifiers();
+    /**
+     * An item's own attribute modifiers. On 1.21.1 the item works them out; 1.21.2 bakes them into its components. On
+     * 1.20.1 they are given per slot: an armour piece's for the slot it is worn in, anything else's for the main hand.
+     */
+    public static Multimap<Attribute, AttributeModifier> defaultModifiers(Item item) {
+        EquipmentSlot slot = item instanceof ArmorItem armor ? armor.getEquipmentSlot() : EquipmentSlot.MAINHAND;
+        return item.getDefaultAttributeModifiers(slot);
+    }
+
+    /**
+     * The armour and knockback resistance modifiers a horse wearing {@code item} has. 1.20.1's horse armour carries no
+     * attribute modifiers (1.20.5's body slot does): the horse gives itself the armour's protection, and the mod gives
+     * a horse in lead armour its knockback resistance once vanilla's equipment check sees it put on, which a tick of the
+     * horse runs.
+     */
+    public static Multimap<Attribute, AttributeModifier> horseArmorModifiers(GameTestHelper helper, Item item) {
+        Horse horse = helper.spawnWithNoFreeWill(EntityType.HORSE, new BlockPos(0, 2, 0));
+        horse.equipArmor(mockPlayer(helper, GameType.CREATIVE), new ItemStack(item));
+        horse.tick();
+        ImmutableMultimap.Builder<Attribute, AttributeModifier> modifiers = ImmutableMultimap.builder();
+        for (Attribute attribute : List.of(Attributes.ARMOR, Attributes.KNOCKBACK_RESISTANCE)) {
+            AttributeInstance instance = horse.getAttribute(attribute);
+            if (instance != null) {
+                modifiers.putAll(attribute, instance.getModifiers());
+            }
+        }
+        horse.discard();
+        return modifiers.build();
+    }
+
+    /** Whether {@code modifiers} change {@code attribute}. They are a component of their own from 1.20.5. */
+    public static boolean hasModifier(Multimap<Attribute, AttributeModifier> modifiers, Attribute attribute) {
+        return modifiers != null && modifiers.containsKey(attribute);
+    }
+
+    /**
+     * Whether {@code instance} has the mod's modifier {@code id}. 1.20.1 knows a modifier by a UUID, which the mod makes
+     * from 1.21's id ({@code LeadArmorItem}).
+     */
+    public static boolean hasModifier(AttributeInstance instance, ResourceLocation id) {
+        return getModifier(instance, id) != null;
+    }
+
+    /** The mod's modifier {@code id} on {@code instance}, or null. 1.20.1 knows a modifier by a UUID made from 1.21's id. */
+    @Nullable
+    public static AttributeModifier getModifier(AttributeInstance instance, ResourceLocation id) {
+        return instance.getModifier(UUID.nameUUIDFromBytes(id.toString().getBytes(StandardCharsets.UTF_8)));
+    }
+
+    /** Whether {@code item} is a tool, which 1.20.5 gave a tool component of its own: a tiered item on 1.20.1. */
+    public static boolean isTool(Item item) {
+        return item instanceof TieredItem;
     }
 
     /**
@@ -188,6 +283,56 @@ public final class TestCompat {
      */
     public static int itemDamagePerAttack(Item item) {
         return item instanceof SwordItem ? 1 : item instanceof DiggerItem ? 2 : 0;
+    }
+
+    /**
+     * Wears {@code stack}, worn in {@code slot} by {@code wearer}, by {@code amount}, breaking it as wear does. Before
+     * 1.20.5 a break is told through the callback, which tells the wearer as vanilla's own wear does.
+     */
+    public static void hurtAndBreak(ItemStack stack, int amount, LivingEntity wearer, EquipmentSlot slot) {
+        stack.hurtAndBreak(amount, wearer, entity -> entity.broadcastBreakEvent(slot));
+    }
+
+    /** {@code stack} named {@code name}, as an anvil names it. A name is a component from 1.20.5, a tag before. */
+    public static void setCustomName(ItemStack stack, String name) {
+        stack.setHoverName(Component.literal(name));
+    }
+
+    /** Whether {@code stack} carries a name it was given. A name is a component from 1.20.5, a tag before. */
+    public static boolean hasCustomName(ItemStack stack) {
+        return stack.hasCustomHoverName();
+    }
+
+    /** {@code stack} given {@code trim}. A trim is a component from 1.20.5, a tag before. */
+    public static void setTrim(ServerLevel level, ItemStack stack, ArmorTrim trim) {
+        ArmorTrim.setTrim(level.registryAccess(), stack, trim);
+    }
+
+    /** The trim {@code stack} carries, or null. A trim is a component from 1.20.5, a tag before. */
+    @Nullable
+    public static ArmorTrim trimOf(ServerLevel level, ItemStack stack) {
+        return ArmorTrim.getTrim(level.registryAccess(), stack).orElse(null);
+    }
+
+    /** Whether two stacks are the same item with the same data. 1.20.5's components are a stack's tag before. */
+    public static boolean isSameItemSameComponents(ItemStack a, ItemStack b) {
+        return ItemStack.isSameItemSameTags(a, b);
+    }
+
+    /** A dye's colour as {@code 0xFFRRGGBB}. {@code DyeColor.getTextureDiffuseColor} gives three floats before 1.20.5. */
+    public static int textureDiffuseColor(DyeColor color) {
+        return LeadedGlassDyes.rgbOf(color);
+    }
+
+    /** Whether a mob plans a path through {@code state}. It takes the level and place before 1.20.5. */
+    public static boolean isPathfindable(BlockState state, PathComputationType type) {
+        return state.isPathfindable(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, type);
+    }
+
+    /** What a codec read or wrote, or an exception saying why it couldn't. DataResult's getOrThrow takes no arguments from DFU 7. */
+    public static <T> T orThrow(DataResult<T> result) {
+        return result.getOrThrow(false, error -> {
+        });
     }
 
     /**
@@ -200,9 +345,12 @@ public final class TestCompat {
                 .allMatch(chunk -> level.areEntitiesLoaded(chunk.toLong()));
     }
 
-    /** The recipe that crafts dyed leaded glass in a dye mod's colour. Its constructor lost the category in 26.1. */
+    /**
+     * The recipe that crafts dyed leaded glass in a dye mod's colour. Its constructor lost the category in 26.1, and takes
+     * its id before 1.20.2, whose RecipeHolder holds it.
+     */
     public static StainedLeadedGlassRecipe stainedLeadedGlassRecipe() {
-        return new StainedLeadedGlassRecipe(CraftingBookCategory.BUILDING);
+        return new StainedLeadedGlassRecipe(TheLeadAge.resourceLocation("stained_leaded_glass"), CraftingBookCategory.BUILDING);
     }
 
     /** The level's noise settings of that name. Registry lookups were renamed in 1.21.2. */
@@ -283,9 +431,12 @@ public final class TestCompat {
 
     /**
      * The trim of vanilla's material and pattern of those names. Registry lookups were renamed in 1.21.2, and trims
-     * moved package.
+     * moved package. A pattern newer than 1.20.1 (1.21's flow and bolt) is coast's here.
      */
     public static ArmorTrim trim(ServerLevel level, String material, String pattern) {
+        if (pattern.equals("flow") || pattern.equals("bolt")) {
+            pattern = "coast";
+        }
         return new ArmorTrim(level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL)
                         .getHolderOrThrow(ResourceKey.create(Registries.TRIM_MATERIAL, vanillaId(material))),
                 level.registryAccess().registryOrThrow(Registries.TRIM_PATTERN)
@@ -293,9 +444,11 @@ public final class TestCompat {
     }
 
     /**
-     * The palette a trim of {@code material} draws with on worn {@code armor}. Before 1.21.2 a trim material named it by
-     * the armour's material, its registry holder; from 1.21.2 by the armour's equipment model.
+     * The palette a trim of {@code material} draws with on worn {@code armor}, or null for its own. Before 1.21.2 a trim
+     * material named it by the armour's material; on 1.20.1 only by vanilla's armour materials, so a mod's armour always
+     * takes the trim's own palette ({@code lead_trim_darkens_on_lead_armor} isn't on this line).
      */
+    @Nullable
     public static String trimPalette(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
         return level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL).getOrThrow(material)
                 .overrideArmorMaterials().get(((ArmorItem) armor).getMaterial());
@@ -306,15 +459,57 @@ public final class TestCompat {
         return recipes.byKey(id).isPresent();
     }
 
+    /**
+     * The first recipe of {@code type} that takes {@code input}, with its id. A 1.20.1 recipe matches a container and
+     * carries its id itself.
+     */
+    @SuppressWarnings("unchecked")
+    public static <C extends Container, T extends Recipe<C>> Optional<RecipeHolder<T>> recipeFor(RecipeManager recipes,
+            RecipeType<T> type, RecipeInput input, Level level) {
+        return recipes.getRecipeFor(type, (C) input.container(), level).map(recipe -> new RecipeHolder<>(recipe.getId(), recipe));
+    }
+
     /** Every recipe of {@code type} that takes {@code input}. RecipeManager#getRecipesFor went in 1.21.2. */
-    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> recipesFor(RecipeManager recipes,
-            RecipeType<T> type, I input, Level level) {
-        return recipes.getRecipesFor(type, input, level);
+    @SuppressWarnings("unchecked")
+    public static <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> recipesFor(RecipeManager recipes,
+            RecipeType<T> type, RecipeInput input, Level level) {
+        return recipes.getRecipesFor(type, (C) input.container(), level).stream()
+                .map(recipe -> new RecipeHolder<>(recipe.getId(), recipe))
+                .toList();
     }
 
     /** What using {@code item} in the air does. Item#use returns the InteractionResult itself from 1.21.2. */
     public static InteractionResult use(Item item, Level level, Player player, InteractionHand hand) {
         return item.use(level, player, hand).getResult();
+    }
+
+    /** A vanilla loot table by its path, e.g. {@code chests/village/village_weaponsmith}. Loot tables are a registry from 1.20.5. */
+    public static LootTable lootTable(ServerLevel level, String path) {
+        return level.getServer().getLootData().getLootTable(vanillaId(path));
+    }
+
+    /** The advancement {@code id}, or null. 1.20.2 gave advancements a holder with their id. */
+    @Nullable
+    public static Advancement advancement(MinecraftServer server, ResourceLocation id) {
+        return server.getAdvancements().getAdvancement(id);
+    }
+
+    /**
+     * A buffer the raw lead settings can be written to and read back from, as they go to a client. 1.20.5's payloads
+     * write to a buffer that carries the registries; 1.20.1's to a plain one.
+     */
+    public static FriendlyByteBuf wire(ServerLevel level) {
+        return new FriendlyByteBuf(Unpooled.buffer());
+    }
+
+    /** Writes {@code settings} to {@code wire}. A payload has a stream codec from 1.20.5. */
+    public static void writeSettings(FriendlyByteBuf wire, LeadSettingsPayload settings) {
+        settings.write(wire);
+    }
+
+    /** Reads the raw lead settings from {@code wire}. A payload has a stream codec from 1.20.5. */
+    public static LeadSettingsPayload readSettings(FriendlyByteBuf wire) {
+        return LeadSettingsPayload.read(wire);
     }
 
     /**
@@ -348,10 +543,11 @@ public final class TestCompat {
     /**
      * Whether an apprentice armorer buys {@code item} in a world with the Villager Trade Rebalance experiment on. Up to
      * 1.21.11 the experiment's trades are code, VillagerTrades.EXPERIMENTAL_TRADES, whose listings make the offers. From
-     * 26.1 trades are data, and the experiment is a datapack the world loads after every mod's.
+     * 26.1 trades are data, and the experiment is a datapack the world loads after every mod's. 1.20.1 has no such
+     * experiment (1.20.2's), so {@code armorers_buy_lead_in_rebalanced_worlds} isn't on this line.
      */
     public static boolean rebalancedApprenticeArmorerBuys(ServerLevel level, Villager villager, Item item) {
-        return buys(VillagerTrades.EXPERIMENTAL_TRADES.get(VillagerProfession.ARMORER).get(2), villager, item);
+        return false;
     }
 
     /**

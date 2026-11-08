@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class LeadTorchBlock extends TorchBlock implements EntityBlock {
     public LeadTorchBlock(Properties properties) {
-        super(ParticleTypes.SMOKE, properties); // the ctor particle is unused — animateTick is overridden
+        super(properties, ParticleTypes.SMOKE); // the ctor particle is unused — animateTick is overridden
     }
 
     @Override

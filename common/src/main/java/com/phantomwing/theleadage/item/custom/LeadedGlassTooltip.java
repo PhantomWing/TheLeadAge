@@ -28,7 +28,7 @@ public final class LeadedGlassTooltip {
 
     /** Appends the frame line + the distinct colours applied. No-op for plain (see {@link #name}). */
     public static void append(ItemStack stack, List<Component> tooltip) {
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config == null || config.frame() == LeadedGlassFrame.PLAIN) {
             return;
         }
@@ -39,7 +39,7 @@ public final class LeadedGlassTooltip {
 
     /** A door lists both of its panes (top then bottom), each labelled with its half. */
     public static void appendDoor(ItemStack stack, List<Component> tooltip) {
-        LeadedGlassDoorConfig config = stack.get(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get());
+        LeadedGlassDoorConfig config = ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(stack);
         if (config == null) {
             return;
         }
@@ -82,7 +82,7 @@ public final class LeadedGlassTooltip {
      * {@code kind} is the item's, as {@link LeadedGlassDyes#name} takes it.
      */
     public static Component name(ItemStack stack, Component baseName, String kind) {
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config == null || config.frame() != LeadedGlassFrame.PLAIN) {
             return baseName;
         }

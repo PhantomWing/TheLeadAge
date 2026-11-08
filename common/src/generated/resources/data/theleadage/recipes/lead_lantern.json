@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": {
+      "tag": "forge:nuggets/lead"
+    },
+    "T": {
+      "item": "theleadage:lead_torch"
+    }
+  },
+  "pattern": [
+    "NNN",
+    "NTN",
+    "NNN"
+  ],
+  "result": {
+    "item": "theleadage:lead_lantern"
+  },
+  "show_notification": true
+}

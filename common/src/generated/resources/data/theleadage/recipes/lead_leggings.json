@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "conditions": [
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
+  "key": {
+    "M": {
+      "tag": "forge:ingots/lead"
+    }
+  },
+  "pattern": [
+    "MMM",
+    "M M",
+    "M M"
+  ],
+  "result": {
+    "item": "theleadage:lead_leggings"
+  },
+  "show_notification": true
+}

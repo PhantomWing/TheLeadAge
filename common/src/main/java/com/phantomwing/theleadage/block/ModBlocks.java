@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.block;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.custom.LeadBulbBlock;
+import com.phantomwing.theleadage.block.custom.LeadGrateBlock;
 import com.phantomwing.theleadage.block.custom.LeadPressurePlateBlock;
 import com.phantomwing.theleadage.block.custom.LeadWeightBlock;
 import com.phantomwing.theleadage.block.custom.RawLeadBlock;
@@ -32,7 +33,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.WallBlock;
-import net.minecraft.world.level.block.WaterloggedTransparentBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
@@ -50,9 +50,9 @@ public class ModBlocks {
     // Lead ore generates like iron, drops no experience, and emits a brief
     // Nausea ("lead fumes") effect when mined for its raw drops (see LeadOreBlock).
     public static final RegistrySupplier<Block> LEAD_ORE = register("lead_ore", () ->
-            new LeadOreBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_ORE)));
+            new LeadOreBlock(BlockBehaviour.Properties.copy(Blocks.IRON_ORE)));
     public static final RegistrySupplier<Block> DEEPSLATE_LEAD_ORE = register("deepslate_lead_ore", () ->
-            new LeadOreBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)));
+            new LeadOreBlock(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE_IRON_ORE)));
 
     /** Hardness shared by every lead block: lead is soft, so it mines faster than iron (5.0). */
     private static final float LEAD_HARDNESS = 3.0F;
@@ -76,11 +76,11 @@ public class ModBlocks {
     // Both are a full cube of lead (raw or refined) — far too heavy for a piston to budge. They copy
     // vanilla's iron props, so strength is overridden back down to lead's.
     public static final RegistrySupplier<Block> RAW_LEAD_BLOCK = register("raw_lead_block", () ->
-            new RawLeadBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+            new RawLeadBlock(BlockBehaviour.Properties.copy(Blocks.RAW_IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
                     .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)
                     .instrument(NoteBlockInstrument.BASEDRUM)));
     public static final RegistrySupplier<Block> LEAD_BLOCK = register("lead_block", () ->
-            new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
+            new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_GRAY)
                     .pushReaction(PushReaction.BLOCK).strength(LEAD_HARDNESS, LEAD_RESISTANCE)
                     .instrument(NoteBlockInstrument.BASEDRUM).sound(ModSoundTypes.LEAD)));
 
@@ -103,36 +103,36 @@ public class ModBlocks {
     // Lead torch: burns a grayish-white lead-salt flame and slowly sickens anyone lingering
     // beside it (LeadTorchBlockEntity). The lead lantern is the enclosed — and safe — version.
     public static final RegistrySupplier<Block> LEAD_TORCH = register("lead_torch", () ->
-            new LeadTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TORCH)));
+            new LeadTorchBlock(BlockBehaviour.Properties.copy(Blocks.TORCH)));
     // dropsLike, as vanilla's wall torch has: the copy would otherwise carry its loot table, a torch's, which
-    // Fabric keeps where NeoForge doesn't.
+    // Fabric keeps where Forge doesn't.
     public static final RegistrySupplier<Block> LEAD_WALL_TORCH = register("lead_wall_torch", () ->
-            new LeadWallTorchBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.WALL_TORCH).dropsLike(LEAD_TORCH.get())));
+            new LeadWallTorchBlock(BlockBehaviour.Properties.copy(Blocks.WALL_TORCH).dropsLike(LEAD_TORCH.get())));
     public static final RegistrySupplier<Block> LEAD_LANTERN = register("lead_lantern", () ->
-            new LanternBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.LANTERN)));
+            new LanternBlock(BlockBehaviour.Properties.copy(Blocks.LANTERN)));
 
     // Lead Bulb: the copper bulb's redstone toggle — a pulse flips it on or off and it keeps that state,
     // readable by a comparator — but lead does not weather, so there is a single, non-oxidizing block.
-    // Vanilla's CopperBulbBlock is itself the non-weathering class (WeatheringCopperBulbBlock adds the
-    // oxidation), so LeadBulbBlock only gives it toggle sounds of its own. Full lead cube, so it takes the
-    // solid lead strength.
+    // 1.20.1 has no copper bulb, so LeadBulbBlock is 1.21's own, and these are its properties: lit it gives 15,
+    // as the unweathered copper bulb does, and it conducts no redstone. Full lead cube, so it takes the solid lead
+    // strength.
     public static final RegistrySupplier<Block> LEAD_BULB = register("lead_bulb", () ->
-            new LeadBulbBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BULB)
-                    .mapColor(MapColor.COLOR_GRAY).sound(ModSoundTypes.LEAD_BULB)
-                    .strength(LEAD_HARDNESS, LEAD_RESISTANCE).instrument(NoteBlockInstrument.BASEDRUM)));
+            new LeadBulbBlock(leadProps().sound(ModSoundTypes.LEAD_BULB)
+                    .isRedstoneConductor((state, level, pos) -> false)
+                    .lightLevel(state -> state.getValue(LeadBulbBlock.LIT) ? 15 : 0)));
 
     // Lead Pressure Plate: the weighted plate pressed by mobs alone, one signal level each (see
     // LeadPressurePlateBlock). A thin plate, so it keeps the heavy plate's strength rather than lead's;
     // its sound comes from the LEAD block set.
     public static final RegistrySupplier<Block> LEAD_PRESSURE_PLATE = register("lead_pressure_plate", () ->
-            new LeadPressurePlateBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE)
+            new LeadPressurePlateBlock(BlockBehaviour.Properties.copy(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE)
                     .mapColor(MapColor.COLOR_GRAY)));
 
     // Leaded glass: renders/behaves like glass, but requires a pickaxe to drop itself
     // (requiresCorrectToolForDrops + the mineable/pickaxe tag). It's pried from its lead
     // came, not shattered, so it uses the heavy LEAD sound and a lead-gray map colour.
     public static final RegistrySupplier<Block> LEADED_GLASS = register("leaded_glass", () ->
-            new LeadedGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
+            new LeadedGlassBlock(glassProps(Blocks.GLASS).requiresCorrectToolForDrops()
                     .sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)
                     .explosionResistance(LEADED_GLASS_RESISTANCE)));
 
@@ -164,7 +164,7 @@ public class ModBlocks {
         // floor/ceiling-mounted pane would otherwise drop out of the MOTION_BLOCKING heightmap and let
         // rain render through it. Forcing solid keeps every orientation in the heightmap (vanilla panes
         // are wall-only, so they never hit this) without changing the actual (thin) collision shape.
-        return BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).requiresCorrectToolForDrops()
+        return glassProps(Blocks.GLASS).requiresCorrectToolForDrops()
                 .noOcclusion().forceSolidOn().sound(ModSoundTypes.LEAD).mapColor(MapColor.COLOR_GRAY)
                 .explosionResistance(LEADED_GLASS_RESISTANCE);
     }
@@ -190,13 +190,13 @@ public class ModBlocks {
     // up like a pane rather than shielding like the plain lead door.
     public static final RegistrySupplier<Block> LEADED_GLASS_DOOR = register("leaded_glass_door", () ->
             new LeadedGlassDoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR)).noOcclusion()
+                    leadProps(BlockBehaviour.Properties.copy(Blocks.IRON_DOOR)).noOcclusion()
                             .sound(SoundType.COPPER).strength(LEADED_GLASS_HARDNESS, LEADED_GLASS_RESISTANCE)));
 
     // A lead trapdoor whose flap is a configurable leaded glass pane. See LeadedGlassTrapdoorBlock.
     public static final RegistrySupplier<Block> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor", () ->
             new LeadedGlassTrapdoorBlock(ModBlockSetTypes.LEADED_GLASS,
-                    leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR)).noOcclusion()
+                    leadProps(trapdoorProps()).noOcclusion()
                             .sound(SoundType.COPPER).strength(LEADED_GLASS_HARDNESS, LEADED_GLASS_RESISTANCE)));
 
     // Lead Weight: an 8³ lead ball that falls like an anvil and crushes entities (combat logic in
@@ -241,12 +241,12 @@ public class ModBlocks {
     }
 
     private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
-        return register(name, () -> new ChainBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN))
+        return register(name, () -> new ChainBlock(leadProps(BlockBehaviour.Properties.copy(Blocks.CHAIN))
                 .sound(SoundType.CHAIN).explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<IronBarsBlock> registerLeadBars(String name) {
-        return register(name, () -> new IronBarsBlock(leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BARS))
+        return register(name, () -> new IronBarsBlock(leadProps(BlockBehaviour.Properties.copy(Blocks.IRON_BARS))
                 .explosionResistance(OPEN_LEAD_RESISTANCE)));
     }
 
@@ -264,24 +264,26 @@ public class ModBlocks {
     }
 
     private static RegistrySupplier<Block> registerLeadGrate(String name) {
-        return register(name, () -> new WaterloggedTransparentBlock(
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_GRATE))
-                        .sound(ModSoundTypes.LEAD_GRATE).explosionResistance(OPEN_LEAD_RESISTANCE)));
+        return register(name, () -> new LeadGrateBlock(
+                leadProps().sound(ModSoundTypes.LEAD_GRATE).explosionResistance(OPEN_LEAD_RESISTANCE).noOcclusion()
+                        .isSuffocating((state, level, pos) -> false)
+                        .isViewBlocking((state, level, pos) -> false)
+                        .isValidSpawn((state, level, pos, type) -> false)
+                        .isRedstoneConductor((state, level, pos) -> false)));
     }
 
     private static RegistrySupplier<TrapDoorBlock> registerLeadTrapdoor(String name) {
-        return register(name, () -> new TrapDoorBlock(ModBlockSetTypes.LEAD,
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_TRAPDOOR))));
+        return register(name, () -> new TrapDoorBlock(leadProps(trapdoorProps()), ModBlockSetTypes.LEAD));
     }
 
     private static RegistrySupplier<DoorBlock> registerLeadDoor(String name) {
-        return register(name, () -> new DoorBlock(ModBlockSetTypes.LEAD,
-                leadProps(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_DOOR))));
+        return register(name, () -> new DoorBlock(leadProps(BlockBehaviour.Properties.copy(Blocks.IRON_DOOR)),
+                ModBlockSetTypes.LEAD));
     }
 
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
         return register(color.getName() + "_leaded_glass", () ->
-                new StainedLeadedGlassBlock(color, BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS)
+                new StainedLeadedGlassBlock(color, glassProps(Blocks.WHITE_STAINED_GLASS)
                         .mapColor(color.getMapColor()).requiresCorrectToolForDrops().sound(ModSoundTypes.LEAD)
                         .explosionResistance(LEADED_GLASS_RESISTANCE)));
     }
@@ -302,6 +304,24 @@ public class ModBlocks {
             return DAMAGED_LEAD_WEIGHT.get();
         }
         return null;
+    }
+
+    /**
+     * A glass block's properties. 1.20.1's {@code Properties.copy} leaves out what keeps mobs from spawning on glass,
+     * redstone from passing through it and players from suffocating or seeing nothing in it, which 1.21's
+     * {@code ofFullCopy} keeps, so they are set again as vanilla's glass sets them.
+     */
+    private static BlockBehaviour.Properties glassProps(Block glass) {
+        return BlockBehaviour.Properties.copy(glass)
+                .isValidSpawn((state, level, pos, type) -> false)
+                .isRedstoneConductor((state, level, pos) -> false)
+                .isSuffocating((state, level, pos) -> false)
+                .isViewBlocking((state, level, pos) -> false);
+    }
+
+    /** The iron trapdoor's properties, with the rule {@code Properties.copy} leaves out on 1.20.1: no mob spawns on it. */
+    private static BlockBehaviour.Properties trapdoorProps() {
+        return BlockBehaviour.Properties.copy(Blocks.IRON_TRAPDOOR).isValidSpawn((state, level, pos, type) -> false);
     }
 
     private static BlockBehaviour.Properties leadProps() {

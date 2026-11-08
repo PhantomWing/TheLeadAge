@@ -4,10 +4,11 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -20,23 +21,25 @@ import org.jetbrains.annotations.Nullable;
  * door would have to hand back three items (lead door + both panes), more than crafting allows.
  */
 public class LeadedGlassDoorRecipe extends CustomRecipe {
-    public LeadedGlassDoorRecipe(CraftingBookCategory category) {
-        super(category);
+    public LeadedGlassDoorRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer container, Level level) {
+        CraftingInput input = CraftingInput.of(container);
         return doorConfig(input) != null;
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingContainer container, RegistryAccess registries) {
+        CraftingInput input = CraftingInput.of(container);
         LeadedGlassDoorConfig config = doorConfig(input);
         if (config == null) {
             return ItemStack.EMPTY;
         }
         ItemStack door = new ItemStack(ModItems.LEADED_GLASS_DOOR.get());
-        door.set(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(), config);
+        ModDataComponents.LEADED_GLASS_DOOR_CONFIG.set(door, config);
         return door;
     }
 
@@ -74,7 +77,7 @@ public class LeadedGlassDoorRecipe extends CustomRecipe {
 
     /** A pane's design, or a clear plain pane when the item carries no component. */
     private static LeadedGlassConfig paneConfig(ItemStack pane) {
-        LeadedGlassConfig config = pane.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(pane);
         return config != null ? config : LeadedGlassDoorConfig.DEFAULT.top();
     }
 

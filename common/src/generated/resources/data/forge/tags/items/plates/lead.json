@@ -1,0 +1,9 @@
+{
+  "values": [
+    "theleadage:lead_sheet",
+    {
+      "id": "#c:lead_plates",
+      "required": false
+    }
+  ]
+}

@@ -2,7 +2,6 @@ package com.phantomwing.theleadage.block.entity;
 
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -72,8 +71,8 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         this.colors = LeadedGlassConfig.getColors(tag);
         // A live colour update (e.g. dyeing in place) arrives here on the client; the tints are baked
         // into the chunk mesh, so force a re-render. setBlocksDirty is gated by requiresRender(old,new),
@@ -84,17 +83,17 @@ public class LeadedGlassPanelBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         LeadedGlassConfig.putColors(tag, colors);
     }
 
     // ---- Client sync (colours must reach the client for tinting) ----
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
+        saveAdditional(tag);
         return tag;
     }
 

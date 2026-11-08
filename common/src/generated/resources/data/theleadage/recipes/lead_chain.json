@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/lead"
+    },
+    "N": {
+      "tag": "forge:nuggets/lead"
+    }
+  },
+  "pattern": [
+    "N",
+    "I",
+    "N"
+  ],
+  "result": {
+    "item": "theleadage:lead_chain"
+  },
+  "show_notification": true
+}

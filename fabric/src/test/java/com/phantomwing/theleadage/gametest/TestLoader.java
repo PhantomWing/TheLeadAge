@@ -3,10 +3,11 @@ package com.phantomwing.theleadage.gametest;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * The calls a test makes that each modloader answers its own way, each behind a signature both share. NeoForge's
+ * The calls a test makes that each modloader answers its own way, each behind a signature both share. Forge's
  * and Fabric's test source sets each have this class, so a test body compiles on both unchanged.
  */
 public final class TestLoader {
@@ -21,5 +22,10 @@ public final class TestLoader {
         BlockState state = helper.getBlockState(pane);
         return state.getBlock() instanceof LeadedGlassPaneBlock block
                 ? block.beaconColor(state, helper.getLevel(), helper.absolutePos(pane)) : null;
+    }
+
+    /** A player in the test's level, who mines and is found by the fumes as a real one is. Vanilla's mock player, on Fabric. */
+    public static ServerPlayer mockServerPlayer(GameTestHelper helper) {
+        return helper.makeMockServerPlayerInLevel();
     }
 }

@@ -9,9 +9,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.AbstractPackResources;
-import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -26,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,10 +32,10 @@ import java.util.stream.Collectors;
  * client, loot tables and tag entries for the server. The jar has them for vanilla's sixteen only, from
  * datagen; for any other colour they are written here, as datagen writes vanilla's, and served from memory
  * as a pack that is always on. It is offered only while a dye mod adds a colour, so without one nothing
- * changes. Each loader adds it to its pack repositories: NeoForge through {@code AddPackFindersEvent}, Fabric
+ * changes. Each loader adds it to its pack repositories: Forge through {@code AddPackFindersEvent}, Fabric
  * through a mixin.
  *
- * <p>Written rather than copied from white glass's files: in a NeoForge dev run the generated resources are
+ * <p>Written rather than copied from white glass's files: in a Forge dev run the generated resources are
  * a mod of their own, so ours can't be found in the mod's files there.</p>
  */
 public final class DyedLeadedGlassPack extends AbstractPackResources {
@@ -48,8 +45,8 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
     private final PackType type;
     private final Map<ResourceLocation, byte[]> files;
 
-    private DyedLeadedGlassPack(PackLocationInfo location, PackType type, Map<ResourceLocation, byte[]> files) {
-        super(location);
+    private DyedLeadedGlassPack(String id, PackType type, Map<ResourceLocation, byte[]> files) {
+        super(id, true);
         this.type = type;
         this.files = files;
     }
@@ -66,19 +63,9 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
     public static Pack create(PackType type, List<String> colors) {
         Map<ResourceLocation, byte[]> made = new HashMap<>();
         files(type, colors).forEach((file, json) -> made.put(file, json.toString().getBytes(StandardCharsets.UTF_8)));
-        PackLocationInfo location = new PackLocationInfo(ID, Component.literal("The Lead Age: dyed leaded glass"),
-                PackSource.BUILT_IN, Optional.empty());
-        return Pack.readMetaAndCreate(location, new Pack.ResourcesSupplier() {
-            @Override
-            public PackResources openPrimary(PackLocationInfo info) {
-                return new DyedLeadedGlassPack(info, type, made);
-            }
-
-            @Override
-            public PackResources openFull(PackLocationInfo info, Pack.Metadata metadata) {
-                return new DyedLeadedGlassPack(info, type, made);
-            }
-        }, type, new PackSelectionConfig(true, Pack.Position.BOTTOM, false));
+        Pack.ResourcesSupplier resources = id -> new DyedLeadedGlassPack(id, type, made);
+        return Pack.readMetaAndCreate(ID, Component.literal("The Lead Age: dyed leaded glass"), true, resources, type,
+                Pack.Position.BOTTOM, PackSource.BUILT_IN);
     }
 
     @Nullable
@@ -88,7 +75,7 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
             return null;
         }
         JsonObject pack = new JsonObject();
-        // Fabric lists the pack where NeoForge hides it, and can't turn it off: it says it is The Lead Age's own.
+        // Fabric lists the pack where Forge hides it, and can't turn it off: it says it is The Lead Age's own.
         pack.addProperty("description", "Added by The Lead Age for your dye mods' colours");
         pack.addProperty("pack_format", SharedConstants.getCurrentVersion().getPackVersion(type));
         JsonObject meta = new JsonObject();
@@ -145,19 +132,19 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
         JsonArray ids = new JsonArray();
         for (String color : colors) {
             String name = color + "_leaded_glass";
-            files.put(id("loot_table/blocks/" + name + ".json"), lootTable(TheLeadAge.MOD_ID + ":" + name));
+            // 1.20.1's folder names: loot_tables, tags/blocks and tags/items (1.21 dropped the plurals). It has no
+            // c:dyed tags either (1.21's), so there is none to put the colour in.
+            files.put(id("loot_tables/blocks/" + name + ".json"), lootTable(TheLeadAge.MOD_ID + ":" + name));
             ids.add(TheLeadAge.MOD_ID + ":" + name);
-            // Each in its colour's dyed tag, as datagen puts vanilla's sixteen.
-            JsonArray own = new JsonArray();
-            own.add(TheLeadAge.MOD_ID + ":" + name);
-            files.put(tagFile("block", common("dyed/" + color)), tag(own));
-            files.put(tagFile("item", common("dyed/" + color)), tag(own));
         }
-        files.put(tagFile("block", ModTags.Blocks.LEADED_GLASS_BLOCKS.location()), tag(ids));
-        files.put(tagFile("block", BlockTags.MINEABLE_WITH_PICKAXE.location()), tag(ids));
-        files.put(tagFile("block", common("dyed")), tag(ids));
-        files.put(tagFile("item", ModTags.Items.LEADED_GLASS_BLOCKS.location()), tag(ids));
-        files.put(tagFile("item", common("dyed")), tag(ids));
+        files.put(tagFile("blocks", ModTags.Blocks.LEADED_GLASS_BLOCKS.location()), tag(ids));
+        files.put(tagFile("blocks", BlockTags.MINEABLE_WITH_PICKAXE.location()), tag(ids));
+        files.put(tagFile("items", ModTags.Items.LEADED_GLASS_BLOCKS.location()), tag(ids));
+        // Forge's stained glass, which 1.20.1's datagen puts vanilla's sixteen in as 1.21's puts them in c:dyed.
+        files.put(tagFile("blocks", new ResourceLocation("forge", "stained_glass")), tag(ids));
+        files.put(tagFile("items", new ResourceLocation("forge", "stained_glass")), tag(ids));
+        // Grappling Hooks' 1.20.1 build lists the glass its hooks break by id, where 1.21's takes the glass tags.
+        files.put(tagFile("blocks", new ResourceLocation("yo_hooks", "fragile")), tag(ids));
         return files;
     }
 
@@ -198,15 +185,11 @@ public final class DyedLeadedGlassPack extends AbstractPackResources {
     }
 
     private static ResourceLocation tagFile(String registry, ResourceLocation tag) {
-        return ResourceLocation.fromNamespaceAndPath(tag.getNamespace(), "tags/" + registry + "/" + tag.getPath() + ".json");
-    }
-
-    private static ResourceLocation common(String path) {
-        return ResourceLocation.fromNamespaceAndPath("c", path);
+        return new ResourceLocation(tag.getNamespace(), "tags/" + registry + "/" + tag.getPath() + ".json");
     }
 
     private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, path);
+        return new ResourceLocation(TheLeadAge.MOD_ID, path);
     }
 
     private static JsonObject object(String key, String value) {

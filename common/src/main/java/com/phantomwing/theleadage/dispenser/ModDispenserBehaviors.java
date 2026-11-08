@@ -5,7 +5,7 @@ import com.phantomwing.theleadage.item.ModItems;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.world.item.BlockItem;
@@ -33,7 +33,7 @@ public final class ModDispenserBehaviors {
     /**
      * Hooks each weight up as it is registered. Deliberately not a setup-phase callback:
      * {@link DispenserBlock}'s behaviour map is a plain static map, and registry callbacks run on the
-     * main thread, whereas NeoForge dispatches common setup in parallel.
+     * main thread, whereas Forge dispatches common setup in parallel.
      */
     public static void register() {
         List<RegistrySupplier<Item>> weights = List.of(
@@ -54,18 +54,18 @@ public final class ModDispenserBehaviors {
         protected ItemStack execute(BlockSource source, ItemStack stack) {
             setSuccess(false);
             if (stack.getItem() instanceof BlockItem blockItem) {
-                Direction facing = source.state().getValue(DispenserBlock.FACING);
-                BlockPos target = source.pos().relative(facing);
-                Direction placedAgainst = source.level().isEmptyBlock(target.below()) ? facing : Direction.UP;
+                Direction facing = source.getBlockState().getValue(DispenserBlock.FACING);
+                BlockPos target = source.getPos().relative(facing);
+                Direction placedAgainst = source.getLevel().isEmptyBlock(target.below()) ? facing : Direction.UP;
                 setSuccess(blockItem.place(
-                                new DirectionalPlaceContext(source.level(), target, facing, stack, placedAgainst))
+                                new DirectionalPlaceContext(source.getLevel(), target, facing, stack, placedAgainst))
                         .consumesAction());
                 // Facing down, the block over the weight is the dispenser, which it would hang from for good: a
                 // dispenser in a ceiling drops it, which is the trap it is built for.
-                BlockState placed = source.level().getBlockState(target);
+                BlockState placed = source.getLevel().getBlockState(target);
                 if (isSuccess() && facing == Direction.DOWN && placed.getBlock() instanceof LeadWeightBlock
                         && placed.getValue(LeadWeightBlock.HANGING)) {
-                    source.level().setBlock(target, placed.setValue(LeadWeightBlock.HANGING, false), Block.UPDATE_ALL);
+                    source.getLevel().setBlock(target, placed.setValue(LeadWeightBlock.HANGING, false), Block.UPDATE_ALL);
                 }
             }
             return stack;

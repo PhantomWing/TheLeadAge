@@ -6,23 +6,20 @@ import com.phantomwing.theleadage.armor.ModArmorMaterials;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.platform.BackportPlatform;
+import com.phantomwing.theleadage.platform.ItemPlatform;
 import com.phantomwing.theleadage.platform.KnifePlatform;
 import dev.architectury.platform.Platform;
-import net.minecraft.world.item.DiggerItem;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
 import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassDoorItem;
 import com.phantomwing.theleadage.item.custom.LeadedGlassPanelItem;
-import com.phantomwing.theleadage.item.custom.LeadedGlassTrapdoorItem;
 import com.phantomwing.theleadage.item.custom.LeadHorseArmorItem;
 import com.phantomwing.theleadage.item.custom.StainedLeadedGlassItem;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.tool.ModTiers;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.AnimalArmorItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -72,9 +69,9 @@ public class ModItems {
     // otherwise (so the mod loads standalone). Only appears in the creative tab when FD is loaded —
     // same pattern as the Create-gated sheet.
     public static final RegistrySupplier<Item> LEAD_KNIFE = registerKnife("lead_knife", ModTiers.LEAD, ModIds.FARMERS_DELIGHT);
-    // 1.21.11's Lead Spear, made as Backported Spears or Vanilla Backport makes a spear when one is installed.
+    // 1.21.11's Lead Spear, made as Vanilla Backport makes a spear where it is installed (Backported Spears has no 1.20.1 build).
     public static final RegistrySupplier<Item> LEAD_SPEAR = registerWithModCompat("lead_spear",
-            () -> BackportPlatform.createLeadSpear(baseItem().stacksTo(1)), ModIds.BACKPORTED_SPEARS, ModIds.VANILLA_BACKPORT);
+            () -> BackportPlatform.createLeadSpear(baseItem().stacksTo(1)), ModIds.VANILLA_BACKPORT);
 
     // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
     // (durability = factor x slot base), and 6 sits between Leather 5 and Gold 7 — so a full set is
@@ -84,7 +81,7 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_LEGGINGS = registerArmor("lead_leggings", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.LEGGINGS, 6);
     public static final RegistrySupplier<Item> LEAD_BOOTS = registerArmor("lead_boots", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorItem.Type.BOOTS, 6);
     public static final RegistrySupplier<Item> LEAD_HORSE_ARMOR = register("lead_horse_armor",
-            (props) -> new LeadHorseArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, AnimalArmorItem.BodyType.EQUESTRIAN, false, props),
+            (props) -> new LeadHorseArmorItem(ModArmorMaterials.HORSE_ARMOR_PROTECTION, props),
             baseItem().stacksTo(1));
     // 1.21.11's Lead Nautilus Armor, Vanilla Backport's kind of nautilus armour when it is installed. Loot only.
     public static final RegistrySupplier<Item> LEAD_NAUTILUS_ARMOR = registerWithModCompat("lead_nautilus_armor",
@@ -120,7 +117,7 @@ public class ModItems {
 
     // Leaded glass trapdoor — its flap shows the glass design carried in the component.
     public static final RegistrySupplier<Item> LEADED_GLASS_TRAPDOOR = register("leaded_glass_trapdoor",
-            (props) -> new LeadedGlassTrapdoorItem(ModBlocks.LEADED_GLASS_TRAPDOOR.get(), props), baseItem());
+            (props) -> ItemPlatform.createLeadedGlassTrapdoorItem(ModBlocks.LEADED_GLASS_TRAPDOOR.get(), props), baseItem());
 
     // Ores + raw storage block
     public static final RegistrySupplier<Item> LEAD_ORE = registerBlock("lead_ore", ModBlocks.LEAD_ORE);
@@ -217,27 +214,28 @@ public class ModItems {
     // below). Displayed speed = 4.0 + this modifier; damage matches netherite via the tier bonus (4.0).
 
     private static RegistrySupplier<Item> registerSword(String name, Tier tier) {
-        return register(name, (props) -> new SwordItem(tier, props), baseItem().attributes(SwordItem.createAttributes(tier, 3, -2.6f))); // 8 dmg, 1.4 speed
+        return register(name, (props) -> new SwordItem(tier, 3, -2.6f, props), baseItem()); // 8 dmg, 1.4 speed
     }
 
     private static RegistrySupplier<Item> registerPickaxe(String name, Tier tier) {
-        return register(name, (props) -> new PickaxeItem(tier, props), baseItem().attributes(PickaxeItem.createAttributes(tier, 1.0f, -3.0f))); // 6 dmg, 1.0 speed
+        return register(name, (props) -> new PickaxeItem(tier, 1, -3.0f, props), baseItem()); // 6 dmg, 1.0 speed
     }
 
     private static RegistrySupplier<Item> registerAxe(String name, Tier tier) {
-        return register(name, (props) -> new AxeItem(tier, props), baseItem().attributes(AxeItem.createAttributes(tier, 5.0f, -3.2f))); // 10 dmg, 0.8 speed
+        return register(name, (props) -> new AxeItem(tier, 5.0f, -3.2f, props), baseItem()); // 10 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerShovel(String name, Tier tier) {
-        return register(name, (props) -> new ShovelItem(tier, props), baseItem().attributes(ShovelItem.createAttributes(tier, 1.5f, -3.2f))); // 6.5 dmg, 0.8 speed
+        return register(name, (props) -> new ShovelItem(tier, 1.5f, -3.2f, props), baseItem()); // 6.5 dmg, 0.8 speed
     }
 
     private static RegistrySupplier<Item> registerHoe(String name, Tier tier) {
-        return register(name, (props) -> new HoeItem(tier, props), baseItem().attributes(HoeItem.createAttributes(tier, -4.0f, -0.2f))); // 1 dmg, 3.8 speed
+        return register(name, (props) -> new HoeItem(tier, -4, -0.2f, props), baseItem()); // 1 dmg, 3.8 speed
     }
 
-    private static RegistrySupplier<Item> registerArmor(String name, Holder<ArmorMaterial> material, ArmorItem.Type type, int durabilityFactor) {
-        return register(name, (props) -> new LeadArmorItem(material, type, props), baseItem().durability(type.getDurability(durabilityFactor)));
+    // 1.20.1's armour takes its durability from its material (ModArmorMaterials' factor, the same 6).
+    private static RegistrySupplier<Item> registerArmor(String name, ArmorMaterial material, ArmorItem.Type type, int durabilityFactor) {
+        return register(name, (props) -> new LeadArmorItem(material, type, props), baseItem());
     }
 
     private static RegistrySupplier<Item> register(String name) {
@@ -246,14 +244,12 @@ public class ModItems {
 
     /**
      * A knife: a real Farmer's Delight {@code KnifeItem} when FD is loaded, a plain sword otherwise
-     * (see {@link KnifePlatform}). Attributes are set here, in common, via the vanilla
-     * {@link DiggerItem#createAttributes}: FD's own knife damage (+0.5), but 0.2 slower to swing than a
-     * standard knife (1.8 vs 2.0) — the same 0.2 penalty the rest of the lead tools carry against
-     * netherite. Creative-tab-gated on FD.
+     * (see {@link KnifePlatform}): FD's own knife damage (+0.5), but 0.2 slower to swing than a standard knife
+     * (1.8 vs 2.0) — the same 0.2 penalty the rest of the lead tools carry against netherite, given by each loader's
+     * {@code KnifePlatformImpl}, since 1.20.1's tools take them in their constructor. Creative-tab-gated on FD.
      */
     private static RegistrySupplier<Item> registerKnife(String name, Tier tier, String modId) {
-        Item.Properties props = baseItem().attributes(DiggerItem.createAttributes(tier, 0.5f, -2.2f)); // 5.5 dmg, 1.8 speed
-        RegistrySupplier<Item> item = ITEMS.register(name, () -> KnifePlatform.createLeadKnife(props, tier));
+        RegistrySupplier<Item> item = ITEMS.register(name, () -> KnifePlatform.createLeadKnife(baseItem(), tier));
         if (Platform.isModLoaded(modId)) {
             CREATIVE_TAB_ITEMS.add(item);
         }

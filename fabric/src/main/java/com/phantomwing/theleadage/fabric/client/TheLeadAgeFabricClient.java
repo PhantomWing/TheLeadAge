@@ -10,7 +10,7 @@ import com.phantomwing.theleadage.client.LeadedGlassTrapdoorItemRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorRenderer;
 import com.phantomwing.theleadage.client.ModColorHandlers;
 import com.phantomwing.theleadage.compat.ModIds;
-import com.phantomwing.theleadage.fabric.compat.vanillabackport.LeadSpear;
+import com.phantomwing.theleadage.fabric.client.compat.LeadSpearModels;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.entity.ModEntities;
@@ -27,6 +27,7 @@ import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -47,7 +48,7 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(ModParticles.LEAD_FUMES.get(), LeadFumesParticles.Provider::new);
         EntityRendererRegistry.register(ModEntities.LEAD_WEIGHT.get(), FallingBlockRenderer::new);
 
-        // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersNeoForge.
+        // Pane tint providers (per came-type block / item). NeoForge twin: ModColorHandlersForge.
         ColorProviderRegistry.BLOCK.register(ModColorHandlers::blockTint, ModBlocks.LEADED_GLASS_PANEL.get(),
                 ModBlocks.LEADED_GLASS_PANE_SPLIT.get(), ModBlocks.LEADED_GLASS_PANE_PLUS.get(),
                 ModBlocks.LEADED_GLASS_PANE_GRID.get(), ModBlocks.LEADED_GLASS_PANE_DIAGONAL.get(),
@@ -65,9 +66,9 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         ResourceLocation gridId = BuiltInRegistries.BLOCK.getKey(ModBlocks.LEADED_GLASS_PANE_GRID.get());
         ResourceLocation latticeId = BuiltInRegistries.BLOCK.getKey(ModBlocks.LEADED_GLASS_PANE_LATTICE.get());
         ModelLoadingPlugin.register(ctx -> ctx.modifyModelAfterBake().register((model, context) -> {
-            var topId = context.topLevelId();
-            if (model != null && topId != null && !(model instanceof LeadedGlassPaneModelFabric)
-                    && (topId.id().equals(gridId) || topId.id().equals(latticeId))) {
+            // A block's models are baked under a ModelResourceLocation: the block's id and its variant.
+            if (model != null && context.id() instanceof ModelResourceLocation id && !(model instanceof LeadedGlassPaneModelFabric)
+                    && (isOf(id, gridId) || isOf(id, latticeId))) {
                 return new LeadedGlassPaneModelFabric(model);
             }
             return model;
@@ -91,19 +92,22 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
             registerPredicates(item);
         }
 
-        // The Lead Spear held as a spear where Vanilla Backport makes it one. Backported Spears picks the held
-        // model through the item model's own override.
-        if (Platform.isModLoaded(ModIds.VANILLA_BACKPORT) && !Platform.isModLoaded(ModIds.BACKPORTED_SPEARS)) {
-            LeadSpear.registerHeldModel();
+        // The Lead Spear held as a spear where Vanilla Backport makes it one.
+        if (Platform.isModLoaded(ModIds.VANILLA_BACKPORT)) {
+            LeadSpearModels.registerHeldModel();
         }
     }
 
     private static void registerPredicates(Item item) {
         for (LeadedGlassFrame frame : LeadedGlassFrame.values()) {
-            ItemProperties.register(item, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, frame.getSerializedName()),
+            ItemProperties.register(item, new ResourceLocation(TheLeadAge.MOD_ID, frame.getSerializedName()),
                     (stack, level, entity, seed) -> ModColorHandlers.framePredicate(stack, frame));
         }
-        ItemProperties.register(item, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "clear"),
+        ItemProperties.register(item, new ResourceLocation(TheLeadAge.MOD_ID, "clear"),
                 (stack, level, entity, seed) -> ModColorHandlers.clearProperty(stack));
+    }
+
+    private static boolean isOf(ModelResourceLocation model, ResourceLocation block) {
+        return model.getNamespace().equals(block.getNamespace()) && model.getPath().equals(block.getPath());
     }
 }

@@ -1,0 +1,10 @@
+{
+  "values": [
+    "theleadage:lead_ore",
+    "theleadage:deepslate_lead_ore",
+    {
+      "id": "#c:lead_ores",
+      "required": false
+    }
+  ]
+}

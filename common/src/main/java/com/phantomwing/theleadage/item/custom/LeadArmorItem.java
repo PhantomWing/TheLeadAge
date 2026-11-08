@@ -2,13 +2,13 @@ package com.phantomwing.theleadage.item.custom;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.attribute.ModAttributes;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+import com.phantomwing.theleadage.platform.GravityPlatform;
 import dev.architectury.event.events.common.TickEvent;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -18,10 +18,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * Lead armor: heavy plate. Keeps the material's (very high) protection and adds a
@@ -48,43 +49,35 @@ public class LeadArmorItem extends ArmorItem {
     private static final EquipmentSlot[] ARMOR_SLOTS =
             {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 
-    private ItemAttributeModifiers modifiers;
-    @Nullable
-    private Holder<ArmorMaterial> registered;
+    private Multimap<Attribute, AttributeModifier> modifiers;
 
-    public LeadArmorItem(Holder<ArmorMaterial> material, Type type, Properties properties) {
+    public LeadArmorItem(ArmorMaterial material, Type type, Properties properties) {
         super(material, type, properties);
     }
 
-    /**
-     * The registry's own holder of the material rather than Architectury's: a trim material's palette for an armour
-     * material - lead's darker one on lead armour - is found in a map keyed by the registry's holders, and on Fabric
-     * those don't count Architectury's as equal, so worn lead armour drew its lead trim in the palette that vanishes.
-     */
     @Override
-    public Holder<ArmorMaterial> getMaterial() {
-        if (registered != null) {
-            return registered;
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        if (slot != getEquipmentSlot()) {
+            return super.getDefaultAttributeModifiers(slot);
         }
-        Holder<ArmorMaterial> holder = BuiltInRegistries.ARMOR_MATERIAL.wrapAsHolder(super.getMaterial().value());
-        if (holder instanceof Holder.Reference<ArmorMaterial>) {
-            registered = holder; // kept once the material is registered, which it is before any trim is drawn
-        }
-        return holder;
-    }
-
-    @Override
-    public ItemAttributeModifiers getDefaultAttributeModifiers() {
         if (modifiers == null) {
-            EquipmentSlot equipmentSlot = getEquipmentSlot();
             // Material protection (armor/toughness) + a single visible Heaviness line.
-            modifiers = super.getDefaultAttributeModifiers().withModifierAdded(
-                    ModAttributes.HEAVINESS,
-                    new AttributeModifier(TheLeadAge.resourceLocation("lead_heaviness_" + equipmentSlot.getName()),
-                            HEAVINESS_PER_PIECE, AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.bySlot(equipmentSlot));
+            ResourceLocation id = TheLeadAge.resourceLocation("lead_heaviness_" + slot.getName());
+            modifiers = ImmutableMultimap.<Attribute, AttributeModifier>builder()
+                    .putAll(super.getDefaultAttributeModifiers(slot))
+                    .put(ModAttributes.HEAVINESS.get(), new AttributeModifier(uuidOf(id), id.toString(),
+                            HEAVINESS_PER_PIECE, AttributeModifier.Operation.ADDITION))
+                    .build();
         }
         return modifiers;
+    }
+
+    /**
+     * 1.20.1 knows a modifier by a UUID rather than 1.21's id; each is the same UUID every time, made from that id, so
+     * one put on before a reload is found again after it.
+     */
+    private static UUID uuidOf(ResourceLocation id) {
+        return UUID.nameUUIDFromBytes(id.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -102,11 +95,25 @@ public class LeadArmorItem extends ArmorItem {
         boolean flying = living instanceof Player player && player.getAbilities().flying;
         double heaviness = flying ? 0.0 : wornHeaviness(living);
         updateModifier(living, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_ID,
-                heaviness * SPEED_PENALTY_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
-        updateModifier(living, Attributes.GRAVITY, GRAVITY_MODIFIER_ID,
-                heaviness * GRAVITY_BONUS_PER_HEAVINESS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+                heaviness * SPEED_PENALTY_PER_HEAVINESS, AttributeModifier.Operation.MULTIPLY_BASE);
+        // 1.20.1 has no gravity attribute (1.20.5 added it): Forge has its own, and Fabric scales the fall in
+        // LivingEntity's travel by gravityScale instead.
+        Attribute gravity = GravityPlatform.gravityAttribute();
+        if (gravity != null) {
+            updateModifier(living, gravity, GRAVITY_MODIFIER_ID,
+                    heaviness * GRAVITY_BONUS_PER_HEAVINESS, AttributeModifier.Operation.MULTIPLY_BASE);
+        }
         updateModifier(living, Attributes.KNOCKBACK_RESISTANCE, KNOCKBACK_MODIFIER_ID,
-                heaviness * KNOCKBACK_RESISTANCE_PER_HEAVINESS, AttributeModifier.Operation.ADD_VALUE);
+                heaviness * KNOCKBACK_RESISTANCE_PER_HEAVINESS, AttributeModifier.Operation.ADDITION);
+    }
+
+    /**
+     * How many times vanilla's gravity pulls on {@code living}: more for each piece of lead armour worn, as 1.21's
+     * gravity modifier does, and none extra while a player flies. For a loader with no gravity attribute.
+     */
+    public static double gravityScale(LivingEntity living) {
+        boolean flying = living instanceof Player player && player.getAbilities().flying;
+        return flying ? 1.0 : 1.0 + wornHeaviness(living) * GRAVITY_BONUS_PER_HEAVINESS;
     }
 
     /** Drives {@link #refreshHeaviness} for players every tick, whether or not they still carry lead. */
@@ -161,21 +168,25 @@ public class LeadArmorItem extends ArmorItem {
         return heaviness;
     }
 
-    private static void updateModifier(LivingEntity living, Holder<Attribute> attribute, ResourceLocation id,
+    private static void updateModifier(LivingEntity living, Attribute attribute, ResourceLocation id,
                                        double amount, AttributeModifier.Operation operation) {
         AttributeInstance instance = living.getAttribute(attribute);
         if (instance == null) {
             return;
         }
-        AttributeModifier current = instance.getModifier(id);
+        UUID uuid = uuidOf(id);
+        AttributeModifier current = instance.getModifier(uuid);
         if (amount == 0.0) {
             if (current != null) {
-                instance.removeModifier(id);
+                instance.removeModifier(uuid);
             }
-        } else if (current == null || current.amount() != amount || current.operation() != operation) {
+        } else if (current == null || current.getAmount() != amount || current.getOperation() != operation) {
             // Set only when it changes: each set marks the attribute changed, and a player's is sent to everyone
             // tracking them, every tick.
-            instance.addOrUpdateTransientModifier(new AttributeModifier(id, amount, operation));
+            if (current != null) {
+                instance.removeModifier(uuid);
+            }
+            instance.addTransientModifier(new AttributeModifier(uuid, id.toString(), amount, operation));
         }
     }
 }

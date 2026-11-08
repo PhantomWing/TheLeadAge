@@ -20,7 +20,7 @@ public final class ModSounds {
     // A Lead Bulb toggled, "Lead Bulb turns on", where vanilla's would name copper.
     public static final RegistrySupplier<SoundEvent> LEAD_BULB_TURN_ON = register("block.lead_bulb.turn_on");
     public static final RegistrySupplier<SoundEvent> LEAD_BULB_TURN_OFF = register("block.lead_bulb.turn_off");
-    // Lead armor put on, "Lead armor clanks" for iron's. A holder, which the armor material takes.
+    // Lead armor put on, "Lead armor clanks" for iron's.
     public static final RegistrySupplier<SoundEvent> ARMOR_EQUIP_LEAD = register("item.armor.equip_lead");
     // A Lead Weight chipping down a tier, shattering and landing, which vanilla's sounds name the anvil and the mace.
     public static final RegistrySupplier<SoundEvent> LEAD_WEIGHT_CHIP = register("block.lead_weight.chip");

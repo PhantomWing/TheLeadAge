@@ -11,6 +11,7 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -101,7 +102,7 @@ public class LeadedGlassPanelItem extends BlockItem {
     /** Consumes one held pane and hands the swapped-out design back to the player as its pane item. */
     private static void handOver(Player player, ItemStack held, LeadedGlassConfig old, Level level, BlockPos pos) {
         ItemStack oldPane = new ItemStack(ModItems.paneItemFor(old.frame()));
-        oldPane.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), old);
+        ModDataComponents.LEADED_GLASS_CONFIG.set(oldPane, old);
         if (!player.getAbilities().instabuild) {
             held.shrink(1);
         }
@@ -113,7 +114,7 @@ public class LeadedGlassPanelItem extends BlockItem {
 
     /** The held pane's design, or a clear pane of this item's frame when it carries no component. */
     private LeadedGlassConfig heldPaneConfig(ItemStack stack) {
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config != null) {
             return config;
         }
@@ -128,7 +129,7 @@ public class LeadedGlassPanelItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {
         LeadedGlassTooltip.append(stack, tooltip);
     }
 }

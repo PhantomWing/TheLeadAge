@@ -56,7 +56,7 @@ public final class ModTags {
         public static final TagKey<Block> CAMPFIRE_FUME_SOURCES = tag("campfire_fume_sources");
 
         private static TagKey<Block> tag(String name) {
-            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.BLOCK, new ResourceLocation(TheLeadAge.MOD_ID, name));
         }
 
         private Blocks() {
@@ -89,7 +89,7 @@ public final class ModTags {
         public static final TagKey<Item> LEAD_EQUIPMENT = tag("lead_equipment");
 
         private static TagKey<Item> tag(String name) {
-            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.ITEM, new ResourceLocation(TheLeadAge.MOD_ID, name));
         }
 
         private Items() {
@@ -103,7 +103,7 @@ public final class ModTags {
         public static final TagKey<EntityType<?>> CAN_HOLD_LEAD_TOOLS = tag("can_hold_lead_tools");
 
         private static TagKey<EntityType<?>> tag(String name) {
-            return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation(TheLeadAge.MOD_ID, name));
         }
 
         private EntityTypes() {
@@ -117,7 +117,7 @@ public final class ModTags {
         public static final TagKey<Biome> HAS_EXTRA_LEAD_ORE = tag("has_extra_lead_ore");
 
         private static TagKey<Biome> tag(String name) {
-            return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+            return TagKey.create(Registries.BIOME, new ResourceLocation(TheLeadAge.MOD_ID, name));
         }
 
         private Biomes() {

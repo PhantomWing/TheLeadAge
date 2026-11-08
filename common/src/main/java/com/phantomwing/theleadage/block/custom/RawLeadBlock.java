@@ -1,6 +1,5 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.effect.PoisonedWater;
@@ -39,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
  * a block entity, so the blocks in a storage room cost next to nothing.
  */
 public class RawLeadBlock extends Block {
-    public static final MapCodec<RawLeadBlock> CODEC = simpleCodec(RawLeadBlock::new);
     /** How far it has leaked into the water it touches: 0 out of water, else the steps its spreading has taken. */
     public static final IntegerProperty CONTAMINATION = IntegerProperty.create("contamination", 0, LeadWater.MAX_STEP);
     /** A step of the spreading is the client's to redraw and nothing else's: no shape updates, no observer pulses. */
@@ -48,11 +46,6 @@ public class RawLeadBlock extends Block {
     public RawLeadBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState().setValue(CONTAMINATION, 0));
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 
     @Override
@@ -68,7 +61,7 @@ public class RawLeadBlock extends Block {
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
                                      BlockPos pos, BlockPos neighborPos) {
         if (LeadWater.range(level.isClientSide()) == 0 || !LeadWater.touchesWater(level, pos)) {
             return state.setValue(CONTAMINATION, 0);
@@ -82,7 +75,7 @@ public class RawLeadBlock extends Block {
     }
 
     @Override
-    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!level.isClientSide()) {
             PoisonedWater.leadChanged();
         }
@@ -102,7 +95,7 @@ public class RawLeadBlock extends Block {
      * recedes rather than clearing at once ({@link RecedingLeads}). A step further into its spreading is no stop.
      */
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         PoisonedWater.leadChanged();
         int step = state.getValue(CONTAMINATION);
         boolean stillLeaking = newState.is(this) && newState.getValue(CONTAMINATION) > 0;
@@ -118,12 +111,12 @@ public class RawLeadBlock extends Block {
      * waiting when the range was switched back on. A few lookups a minute a block, so a storage room costs next to nothing.
      */
     @Override
-    protected boolean isRandomlyTicking(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return true;
     }
 
     @Override
-    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         boolean wet = LeadWater.range(false) > 0 && LeadWater.touchesWater(level, pos);
         int step = state.getValue(CONTAMINATION);
         if (wet && step == 0) {
@@ -137,7 +130,7 @@ public class RawLeadBlock extends Block {
     }
 
     @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         int step = state.getValue(CONTAMINATION);
         if (step == 0) {
             return;
@@ -168,8 +161,7 @@ public class RawLeadBlock extends Block {
         if (!(level instanceof ServerLevel serverLevel) || !CommonConfig.leadOreSickness()) {
             return;
         }
-        Holder<Enchantment> silkTouch = serverLevel.registryAccess()
-                .lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH);
+        Enchantment silkTouch = Enchantments.SILK_TOUCH;
         if (EnchantmentHelper.getItemEnchantmentLevel(silkTouch, tool) == 0) {
             LeadFumes.mined(serverLevel, pos);
         }

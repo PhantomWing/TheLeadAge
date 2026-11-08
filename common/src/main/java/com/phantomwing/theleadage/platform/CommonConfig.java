@@ -4,7 +4,7 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 
 /**
  * {@code @ExpectPlatform} bridge exposing the config values the loader-agnostic
- * code needs. The config itself stays loader-specific: NeoForge {@code ModConfigSpec},
+ * code needs. The config itself stays loader-specific: Forge {@code ForgeConfigSpec},
  * Fabric Cloth {@code AutoConfig}, with 1:1 option ids and {@code true} defaults.
  * Implemented per loader at
  * {@code com.phantomwing.theleadage.platform.<loader>.CommonConfigImpl}.
@@ -72,7 +72,7 @@ public final class CommonConfig {
 
     /**
      * Gate for structure/chest loot injection (lead horse armor replacing iron
-     * horse armor). Read at loot-roll time by the NeoForge Global Loot Modifiers
+     * horse armor). Read at loot-roll time by the Forge Global Loot Modifiers
      * and the Fabric loot mixin.
      */
     @ExpectPlatform
@@ -107,6 +107,6 @@ public final class CommonConfig {
     }
 
     // Recipe-override toggles are read at datapack-load time directly by the
-    // conditional recipes (NeoForge ConfigBooleanCondition / Fabric config_boolean
+    // conditional recipes (Forge ConfigBooleanCondition / Fabric config_boolean
     // resource condition), so they don't need a CommonConfig bridge here.
 }

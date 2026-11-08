@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Loader-agnostic lead loot operations — the single source of truth shared by the
- * NeoForge Global Loot Modifier ({@code ReplaceItemModifier}) and the Fabric loot
+ * Forge Global Loot Modifier ({@code ReplaceItemModifier}) and the Fabric loot
  * mixin, so both loaders behave identically. The caller is responsible for the
  * config gate and the loot-table-id / random-chance checks; this only performs the
  * post-roll mutation. (Mirrors The Silver Age's loot algorithms, REPLACE only.)

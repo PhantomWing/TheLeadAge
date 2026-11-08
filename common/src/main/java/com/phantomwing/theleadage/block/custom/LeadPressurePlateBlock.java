@@ -1,6 +1,5 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.block.ModBlockSetTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,18 +12,11 @@ import net.minecraft.world.level.block.WeightedPressurePlateBlock;
  * weighted plate's scale, so it counts mobs where gold counts everything.
  */
 public class LeadPressurePlateBlock extends WeightedPressurePlateBlock {
-    /** Typed as the parent's codec type: {@code WeightedPressurePlateBlock#codec} is declared concretely, so an override must match. */
-    public static final MapCodec<WeightedPressurePlateBlock> CODEC = simpleCodec(LeadPressurePlateBlock::new);
 
     private static final int MAX_MOBS = 15;
 
     public LeadPressurePlateBlock(Properties properties) {
-        super(MAX_MOBS, ModBlockSetTypes.LEAD, properties);
-    }
-
-    @Override
-    public MapCodec<WeightedPressurePlateBlock> codec() {
-        return CODEC;
+        super(MAX_MOBS, properties, ModBlockSetTypes.LEAD);
     }
 
     @Override

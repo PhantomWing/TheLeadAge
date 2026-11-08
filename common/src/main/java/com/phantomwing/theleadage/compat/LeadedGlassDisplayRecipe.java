@@ -12,18 +12,17 @@ import com.phantomwing.theleadage.recipe.LeadedGlassColors;
 import com.phantomwing.theleadage.recipe.ModRecipes;
 import com.phantomwing.theleadage.tags.CommonTags;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,7 +38,7 @@ import java.util.List;
  * grid arrangement decides the came pattern, and colours ride on data components — which no viewer
  * can introspect, so each arrangement is described here once and handed to the viewers.
  *
- * <p>It extends {@link CustomRecipe} only so JEI can take it as a {@code RecipeHolder<CraftingRecipe>};
+ * <p>It extends {@link CustomRecipe} only so JEI can take it as a {@code CraftingRecipe};
  * it is never added to the {@code RecipeManager} and {@link #matches never matches}. Each instance
  * carries a small grid of {@link Cell cells} plus what it produces, in each of its colours (clear and
  * every dye for the panes, every dye for the panes dyed in the grid, a dye mod's colours for the blocks only it has
@@ -82,7 +81,7 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
 
     private LeadedGlassDisplayRecipe(String name, int width, int height, List<Cell> cells, ResultKind resultKind,
                                      @Nullable LeadedGlassFrame frame, int resultCount, List<Integer> colors) {
-        super(CraftingBookCategory.MISC);
+        super(id(name), CraftingBookCategory.MISC);
         this.name = name;
         this.width = width;
         this.height = height;
@@ -168,23 +167,21 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
     /** A pane of {@code frame} with every region set to {@code color} ({@link LeadedGlassConfig#CLEAR} = clear). */
     public static ItemStack pane(LeadedGlassFrame frame, int color, int count) {
         ItemStack pane = new ItemStack(ModItems.paneItemFor(frame), count);
-        pane.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
-                new LeadedGlassConfig(frame, Collections.nCopies(frame.regions(), color)));
+        ModDataComponents.LEADED_GLASS_CONFIG.set(pane, new LeadedGlassConfig(frame, Collections.nCopies(frame.regions(), color)));
         return pane;
     }
 
     /** A leaded glass trapdoor whose flap is glazed in {@code color}. */
     public static ItemStack trapdoor(int color) {
         ItemStack trapdoor = new ItemStack(ModItems.LEADED_GLASS_TRAPDOOR.get());
-        trapdoor.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), plainConfig(color));
+        ModDataComponents.LEADED_GLASS_CONFIG.set(trapdoor, plainConfig(color));
         return trapdoor;
     }
 
     /** A leaded glass door, each half glazed in its own colour. */
     public static ItemStack door(int topColor, int bottomColor) {
         ItemStack door = new ItemStack(ModItems.LEADED_GLASS_DOOR.get());
-        door.set(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(),
-                new LeadedGlassDoorConfig(plainConfig(topColor), plainConfig(bottomColor)));
+        ModDataComponents.LEADED_GLASS_DOOR_CONFIG.set(door, new LeadedGlassDoorConfig(plainConfig(topColor), plainConfig(bottomColor)));
         return door;
     }
 
@@ -242,18 +239,14 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
         return recipes;
     }
 
-    /** The same arrangements wrapped as recipe holders (what JEI's crafting category takes). */
-    public static List<RecipeHolder<CraftingRecipe>> displayRecipes() {
-        List<RecipeHolder<CraftingRecipe>> holders = new ArrayList<>();
-        for (LeadedGlassDisplayRecipe recipe : all()) {
-            holders.add(new RecipeHolder<>(id(recipe.name), recipe));
-        }
-        return holders;
+    /** The same arrangements as crafting recipes (what JEI's crafting category takes). */
+    public static List<CraftingRecipe> displayRecipes() {
+        return new ArrayList<>(all());
     }
 
     /** A synthetic id for one arrangement — these are display entries, never real recipes. */
     public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "leaded_glass/" + path);
+        return new ResourceLocation(TheLeadAge.MOD_ID, "leaded_glass/" + path);
     }
 
     /** A pane arrangement from a mini pattern ('P' = plain pane, '.' = empty), row per string. */
@@ -320,12 +313,12 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
     // ---- Never a real recipe: display only ----
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer container, Level level) {
         return false;
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingContainer container, RegistryAccess registries) {
         return ItemStack.EMPTY;
     }
 

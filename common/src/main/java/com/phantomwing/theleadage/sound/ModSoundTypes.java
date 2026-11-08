@@ -11,14 +11,13 @@ import net.minecraft.world.level.block.SoundType;
  */
 public class ModSoundTypes {
     public static final SoundType LEAD = ofCopy(SoundType.METAL, 1.1f, 0.3f);
-    // No iron grate exists, so the grate keeps the copper-grate sound but pitched
-    // extra low (half-pitch) for a notably deeper, heavier grate than silver's.
-    public static final SoundType LEAD_GRATE = ofCopy(SoundType.COPPER_GRATE, 1.1f, 0.5f);
+    // 1.20.1 has no copper grate or bulb sounds (1.21's), so the grate and the bulb copy metal's, as The Silver Age's
+    // do on this version, pitched half as high as metal.
+    public static final SoundType LEAD_GRATE = ofCopy(SoundType.METAL, 1.1f, 0.5f);
     // Lead Weight: dense netherite-block sounds pitched down so placing/breaking it reads
     // as a weighty hunk of lead. (The falling/landing sounds are played in code.)
     public static final SoundType LEAD_WEIGHT = ofCopy(SoundType.NETHERITE_BLOCK, 1.0f, 0.5f);
-    // Lead Bulb: the copper bulb's click, pitched down to sit with the rest of the lead set.
-    public static final SoundType LEAD_BULB = ofCopy(SoundType.COPPER_BULB, 1.1f, 0.5f);
+    public static final SoundType LEAD_BULB = ofCopy(SoundType.METAL, 1.1f, 0.5f);
 
     private static SoundType ofCopy(SoundType soundType, float volume, float pitch) {
         return new SoundType(

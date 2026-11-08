@@ -6,16 +6,16 @@ import vectorwing.farmersdelight.common.item.KnifeItem;
 
 /**
  * Lead Knife when Farmer's Delight Refabricated is present: a real FD {@link KnifeItem}. FDR keeps the
- * {@code vectorwing.farmersdelight.common} package and the same {@code (Tier, Item.Properties)}
- * constructor as the NeoForge build, so this is the same shape as its NeoForge counterpart.
+ * {@code vectorwing.farmersdelight.common} package and the same {@code (Tier, float, float, Item.Properties)}
+ * constructor as the Forge build, so this is the same shape as its NeoForge counterpart.
  *
  * <p>Only classloaded when FDR is installed — {@code KnifePlatformImpl} guards construction behind
  * {@code isModLoaded("farmersdelight")}. At compile time {@code KnifeItem} resolves to the local stub
  * (which is stripped from the shipped jar); at runtime it binds to the real FDR class.</p>
  */
 public class LeadKnifeItem extends KnifeItem {
-    public LeadKnifeItem(Tier tier, Item.Properties properties) {
-        super(tier, properties);
+    public LeadKnifeItem(Tier tier, float attackDamage, float attackSpeed, Item.Properties properties) {
+        super(tier, attackDamage, attackSpeed, properties);
     }
 
     /**
@@ -26,7 +26,7 @@ public class LeadKnifeItem extends KnifeItem {
      * when FDR is absent (the compile-time stub is stripped from the jar). Reached via
      * {@code invokestatic}, this only loads when the call actually executes.
      */
-    public static Item create(Tier tier, Item.Properties properties) {
-        return new LeadKnifeItem(tier, properties);
+    public static Item create(Tier tier, float attackDamage, float attackSpeed, Item.Properties properties) {
+        return new LeadKnifeItem(tier, attackDamage, attackSpeed, properties);
     }
 }

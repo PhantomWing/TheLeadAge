@@ -93,7 +93,7 @@ public final class LeadedGlassColors {
         if (!stack.is(ModItems.LEADED_GLASS_PANEL.get())) {
             return null;
         }
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config == null) {
             return LeadedGlassConfig.CLEAR; // a default (unconfigured) pane = clear
         }

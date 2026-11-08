@@ -5,7 +5,6 @@
   - The Lead Knife shows up in Farmer's Delight's tab, and the Lead Sheet in Create's
   - `enable_creative_tab` and `enable_vanilla_creative_tabs` choose which tabs lead items show up in
 - Added `enable_lead_gear`: turned off, lead tools, weapons and armor (horse and nautilus armor too) can't be crafted, found or worn by mobs, and are hidden from the creative tabs, for modpacks where another mod's lead gear takes their place
-- Added compatibility with Backported Spears: the Lead Spear, crafted like other spears
 - Added compatibility with Vanilla Backport
   - The Lead Spear, crafted like other spears
   - Lead Nautilus Armor, found in ocean chests in place of Iron Nautilus Armor
@@ -19,10 +18,10 @@
 - Added compatibility with Mekanism: a resource pack that shows Mekanism's lead in The Lead Age's colors
 - Added compatibility with JEI and EMI: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
 - Added Brazilian Portuguese translation
+- Ported to Minecraft 1.20.1
 
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
-- The Fabric version now also supports Minecraft 1.21
 - Lead Ore is less common
 - Lead blocks now play the bass drum on a note block
 

@@ -40,6 +40,20 @@ public final class LeadedGlassDyes {
     }
 
     /** Whether this is one of vanilla's sixteen colours, which the jar has files and translations for. */
+    /**
+     * A dye's colour as {@code 0xFFRRGGBB}, as 1.21's {@code getTextureDiffuseColor} gives it: 1.20.1 keeps it only as
+     * the three floats it was made from, each a whole number of 255ths, so it comes back exactly.
+     */
+    public static int rgbOf(DyeColor color) {
+        float[] rgb = color.getTextureDiffuseColors();
+        return 0xFF000000 | Math.round(rgb[0] * 255.0F) << 16 | Math.round(rgb[1] * 255.0F) << 8 | Math.round(rgb[2] * 255.0F);
+    }
+
+    /** A colour as 1.20.1's dyes and beacons take one: red, green and blue, each from 0 to 1. */
+    public static float[] floatsOf(int rgb) {
+        return new float[]{(rgb >> 16 & 0xFF) / 255.0F, (rgb >> 8 & 0xFF) / 255.0F, (rgb & 0xFF) / 255.0F};
+    }
+
     public static boolean isVanilla(DyeColor color) {
         return VANILLA.contains(color.getName());
     }

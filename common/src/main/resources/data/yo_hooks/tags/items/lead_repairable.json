@@ -1,0 +1,9 @@
+{
+  "values": [
+    "#forge:ingots/lead",
+    {
+      "id": "#c:lead_ingots",
+      "required": false
+    }
+  ]
+}

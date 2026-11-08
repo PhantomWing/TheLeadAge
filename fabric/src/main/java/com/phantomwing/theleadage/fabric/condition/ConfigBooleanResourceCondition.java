@@ -1,44 +1,35 @@
 package com.phantomwing.theleadage.fabric.condition;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonObject;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.fabric.config.TheLeadAgeFabricConfig;
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
-import net.minecraft.core.HolderLookup;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.GsonHelper;
 
 /**
- * Fabric parity twin of the NeoForge
- * {@link com.phantomwing.theleadage.neoforge.condition.ConfigBooleanCondition}.
- * The shared generated recipe JSON carries BOTH dialects (NeoForge
- * {@code neoforge:conditions} + Fabric {@code fabric:load_conditions}, the latter
- * emitted by the NeoForge {@code FabricConditionsProvider}); this is the runtime
- * handler Fabric uses. Id + field are byte-identical to the NeoForge side.
+ * Fabric parity twin of the Forge
+ * {@link com.phantomwing.theleadage.forge.condition.ConfigBooleanCondition}.
+ * The shared generated recipe JSON carries BOTH dialects (Forge's top-level
+ * {@code conditions} + Fabric {@code fabric:load_conditions}, the latter
+ * emitted by the Forge {@code FabricConditionsProvider}); this is the runtime
+ * handler Fabric uses. Id + field are byte-identical to the Forge side.
  */
-public record ConfigBooleanResourceCondition(String settingId) implements ResourceCondition {
+public final class ConfigBooleanResourceCondition {
     public static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "config_boolean");
+            new ResourceLocation(TheLeadAge.MOD_ID, "config_boolean");
 
-    public static final MapCodec<ConfigBooleanResourceCondition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            Codec.STRING.fieldOf("settingId").forGetter(ConfigBooleanResourceCondition::settingId)
-    ).apply(inst, ConfigBooleanResourceCondition::new));
-
-    public static final ResourceConditionType<ConfigBooleanResourceCondition> TYPE =
-            ResourceConditionType.create(ID, CODEC);
-
-    @Override
-    public ResourceConditionType<?> getType() {
-        return TYPE;
+    private ConfigBooleanResourceCondition() {
     }
 
-    @Override
-    public boolean test(@Nullable HolderLookup.Provider registryLookup) {
+    /** Registers the condition with Fabric API's 1.20.1 resource conditions, which read the condition's JSON as it is. */
+    public static void register() {
+        ResourceConditions.register(ID, ConfigBooleanResourceCondition::test);
+    }
+
+    private static boolean test(JsonObject json) {
         // Resolve straight off the Fabric config; setting ids are kept 1:1 with the
-        // NeoForge side and only generated (known) ids ever reach here.
-        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(settingId);
+        // Forge side and only generated (known) ids ever reach here.
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(GsonHelper.getAsString(json, "settingId"));
     }
 }

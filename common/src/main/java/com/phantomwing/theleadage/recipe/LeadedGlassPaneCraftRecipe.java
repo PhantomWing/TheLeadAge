@@ -5,10 +5,11 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.tags.CommonTags;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -27,21 +28,22 @@ public class LeadedGlassPaneCraftRecipe extends CustomRecipe {
     private static final int CENTRE = 4;
     private static final int OUTPUT_COUNT = 8;
 
-    public LeadedGlassPaneCraftRecipe(CraftingBookCategory category) {
-        super(category);
+    public LeadedGlassPaneCraftRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer container, Level level) {
+        CraftingInput input = CraftingInput.of(container);
         return colorOf(input).isPresent();
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingContainer container, RegistryAccess registries) {
+        CraftingInput input = CraftingInput.of(container);
         return colorOf(input).map(color -> {
             ItemStack pane = new ItemStack(ModItems.LEADED_GLASS_PANEL.get(), OUTPUT_COUNT);
-            pane.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
-                    new LeadedGlassConfig(LeadedGlassFrame.PLAIN, List.of(color)));
+            ModDataComponents.LEADED_GLASS_CONFIG.set(pane, new LeadedGlassConfig(LeadedGlassFrame.PLAIN, List.of(color)));
             return pane;
         }).orElse(ItemStack.EMPTY);
     }

@@ -3,7 +3,7 @@ package com.phantomwing.theleadage.world;
 import com.phantomwing.theleadage.TheLeadAge;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
@@ -20,7 +20,7 @@ public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> ORE_LEAD = registerKey("ore_lead");
     public static final ResourceKey<PlacedFeature> ORE_LEAD_EXTRA = registerKey("ore_lead_extra");
 
-    public static void bootstrap(BootstrapContext<PlacedFeature> context) {
+    public static void bootstrap(BootstapContext<PlacedFeature> context) {
         HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures = context.lookup(Registries.CONFIGURED_FEATURE);
 
         // Iron-style: one smooth triangle, but pulled up into the mid/upper stone (peak ~y28, reaching
@@ -48,6 +48,6 @@ public class ModPlacedFeatures {
     }
 
     private static ResourceKey<PlacedFeature> registerKey(String name) {
-        return ResourceKey.create(Registries.PLACED_FEATURE, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+        return ResourceKey.create(Registries.PLACED_FEATURE, new ResourceLocation(TheLeadAge.MOD_ID, name));
     }
 }

@@ -9,7 +9,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @JeiPlugin
 public class TheLeadAgeJeiPlugin implements IModPlugin {
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "jei_plugin");
+    private static final ResourceLocation UID = new ResourceLocation(TheLeadAge.MOD_ID, "jei_plugin");
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -44,18 +44,9 @@ public class TheLeadAgeJeiPlugin implements IModPlugin {
      */
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
-        ISubtypeInterpreter<ItemStack> design = new ISubtypeInterpreter<>() {
-            @Override
-            @Nullable
-            public Object getSubtypeData(ItemStack stack, UidContext context) {
-                return context == UidContext.Ingredient ? LeadedGlassSubtypes.designOf(stack) : null;
-            }
-
-            @Override
-            public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
-                Object data = getSubtypeData(stack, context);
-                return data == null ? "" : data.toString();
-            }
+        IIngredientSubtypeInterpreter<ItemStack> design = (stack, context) -> {
+            Object data = context == UidContext.Ingredient ? LeadedGlassSubtypes.designOf(stack) : null;
+            return data == null ? IIngredientSubtypeInterpreter.NONE : data.toString();
         };
         for (Item item : LeadedGlassSubtypes.items()) {
             registration.registerSubtypeInterpreter(item, design);
@@ -64,7 +55,7 @@ public class TheLeadAgeJeiPlugin implements IModPlugin {
 
     @Override
     public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
-        registration.getCraftingCategory().addExtension(LeadedGlassDisplayRecipe.class, new JeiLeadedGlassExtension());
+        registration.getCraftingCategory().addCategoryExtension(LeadedGlassDisplayRecipe.class, JeiLeadedGlassExtension::new);
     }
 
     @Override

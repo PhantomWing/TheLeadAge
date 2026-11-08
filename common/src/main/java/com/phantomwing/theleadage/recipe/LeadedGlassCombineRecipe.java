@@ -4,10 +4,11 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -28,21 +29,22 @@ import java.util.Optional;
  * </ul>
  */
 public class LeadedGlassCombineRecipe extends CustomRecipe {
-    public LeadedGlassCombineRecipe(CraftingBookCategory category) {
-        super(category);
+    public LeadedGlassCombineRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer container, Level level) {
+        CraftingInput input = CraftingInput.of(container);
         return parse(input).isPresent();
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingContainer container, RegistryAccess registries) {
+        CraftingInput input = CraftingInput.of(container);
         return parse(input).map(result -> {
             ItemStack pane = new ItemStack(ModItems.paneItemFor(result.frame()), result.count());
-            pane.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
-                    new LeadedGlassConfig(result.frame(), result.colors()));
+            ModDataComponents.LEADED_GLASS_CONFIG.set(pane, new LeadedGlassConfig(result.frame(), result.colors()));
             return pane;
         }).orElse(ItemStack.EMPTY);
     }

@@ -1,0 +1,43 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "vanillabackport"
+    },
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "vanillabackport"
+      ]
+    },
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
+  "key": {
+    "M": {
+      "tag": "forge:ingots/lead"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "  M",
+    " S ",
+    "S  "
+  ],
+  "result": {
+    "item": "theleadage:lead_spear"
+  },
+  "show_notification": true
+}

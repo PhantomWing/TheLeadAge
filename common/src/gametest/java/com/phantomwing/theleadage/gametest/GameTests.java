@@ -10,6 +10,11 @@ import java.util.function.Consumer;
  * read the same on every line: how the list is registered changed at 1.21.5 and differs between the
  * modloaders, which belongs to each loader's {@code GameTestRegistration} alone, so porting a test never
  * touches a registration class or a JSON.
+ *
+ * <p>Three of 1.21.1's tests aren't listed on 1.20.1, which hasn't their feature, though their bodies stay as every
+ * line has them: {@code lead_trim_darkens_on_lead_armor} (a trim material's darker palettes are keyed by vanilla's
+ * armour materials alone), {@code armorers_buy_lead_in_rebalanced_worlds} (no Villager Trade Rebalance before 1.20.2)
+ * and {@code trial_vaults_give_lead_ingots} (no trial chambers before 1.21).</p>
  */
 public final class GameTests {
     public static final List<Test> ALL = List.of(
@@ -58,11 +63,8 @@ public final class GameTests {
             test("broken_lead_armor_releases_fumes", LeadGearGameTest::brokenLeadArmorReleasesFumes).maxTicks(150),
             test("lead_armor_weighs_on_mobs", LeadGearGameTest::leadArmorWeighsOnMobs),
             test("swapped_gear_keeps_its_wear", LeadGearGameTest::swappedGearKeepsItsWear),
-            test("lead_trim_darkens_on_lead_armor", LeadGearGameTest::leadTrimDarkensOnLeadArmor),
             test("lead_armor_sets_its_slowness_once", LeadGearGameTest::leadArmorSetsItsSlownessOnce),
-            test("armorers_buy_lead_in_rebalanced_worlds", LeadGearGameTest::armorersBuyLeadInRebalancedWorlds),
             test("lead_gear_turns_up_in_chests", LeadGearGameTest::leadGearTurnsUpInChests),
-            test("trial_vaults_give_lead_ingots", LeadGearGameTest::trialVaultsGiveLeadIngots),
             test("lead_bulb_toggles_on_each_pulse", LeadBlocksGameTest::leadBulbTogglesOnEachPulse),
             test("beacon_beam_takes_the_pane_color", LeadBlocksGameTest::beaconBeamTakesThePaneColor),
             test("pistons_cant_push_solid_lead", LeadBlocksGameTest::pistonsCantPushSolidLead),

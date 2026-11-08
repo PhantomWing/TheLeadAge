@@ -12,6 +12,10 @@ import net.minecraft.world.item.Tier;
  * (resolved by Architectury's {@code @ExpectPlatform} transformer).
  */
 public final class KnifePlatformImpl {
+    /** FD's own knife damage (+0.5), and 0.2 slower to swing than its knives: 5.5 damage, 1.8 speed. */
+    private static final float KNIFE_DAMAGE = 0.5f;
+    private static final float KNIFE_SPEED = -2.2f;
+
     private KnifePlatformImpl() {
     }
 
@@ -21,8 +25,9 @@ public final class KnifePlatformImpl {
         // than `new LeadKnifeItem` here: an inline `new` makes the verifier load LeadKnifeItem's
         // FDR-only superclass while verifying THIS method, crashing without FDR.
         if (Platform.isModLoaded(ModIds.FARMERS_DELIGHT)) {
-            return LeadKnifeItem.create(tier, properties);
+            return LeadKnifeItem.create(tier, KNIFE_DAMAGE, KNIFE_SPEED, properties);
         }
-        return new SwordItem(tier, properties);
+        // SwordItem takes a whole number, so the fallback rounds the knife's 0.5 to 0, as The Silver Age's does.
+        return new SwordItem(tier, 0, KNIFE_SPEED, properties);
     }
 }

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(WalkNodeEvaluator.class)
 public abstract class WalkNodeEvaluatorMixin extends NodeEvaluator {
-    @ModifyReturnValue(method = "findAcceptedNode(IIIIDLnet/minecraft/core/Direction;Lnet/minecraft/world/level/pathfinder/PathType;)Lnet/minecraft/world/level/pathfinder/Node;",
+    @ModifyReturnValue(method = "findAcceptedNode(IIIIDLnet/minecraft/core/Direction;Lnet/minecraft/world/level/pathfinder/BlockPathTypes;)Lnet/minecraft/world/level/pathfinder/Node;",
             at = @At("RETURN"), require = 0)
     private Node theleadage$poisonedWaterCostsMore(Node node) {
         return PoisonedWaterAvoidance.costed(node, this.mob);

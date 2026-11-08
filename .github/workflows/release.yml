@@ -1,7 +1,7 @@
 name: Release (Modrinth + CurseForge)
 
-# Publishes the Fabric + NeoForge jars as two separate versions per platform, each tagged with only
-# its own loader (metadata comes from gradle.properties + fabric.mod.json / neoforge.mods.toml).
+# Publishes the Fabric + Forge jars as two separate versions per platform, each tagged with only
+# its own loader (metadata comes from gradle.properties + fabric.mod.json / mods.toml).
 #
 # How to use:
 #   • Manual  — Actions tab → "Release (Modrinth + CurseForge)" → Run workflow.
@@ -55,10 +55,10 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
-      # Gate the release on the automated GameTests — a headless NeoForge gametest server that
+      # Gate the release on the automated GameTests — a headless Forge gametest server that
       # exits non-zero on any failure, so a broken build is never published.
-      - name: Run GameTests (NeoForge)
-        run: ./gradlew :neoforge:runGameTest --stacktrace
+      - name: Run GameTests (Forge)
+        run: ./gradlew :forge:runGameTest --stacktrace
 
       # If the gate fails, capture the server logs so a blocked release is easy to diagnose.
       - name: Upload GameTest logs on failure
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gametest-logs
-          path: neoforge/run/gametest/logs/
+          path: forge/run/gametest/logs/
           if-no-files-found: warn
           retention-days: 14
 
@@ -77,4 +77,4 @@ jobs:
           # Dry-run only for a manually-dispatched run with the box left checked;
           # tag pushes always publish for real.
           DRY: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '-PpublishDryRun' || '' }}
-        run: ./gradlew :fabric:publishMods :neoforge:publishMods $DRY --stacktrace
+        run: ./gradlew :fabric:publishMods :forge:publishMods $DRY --stacktrace

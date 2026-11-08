@@ -1,0 +1,9 @@
+{
+  "values": [
+    "theleadage:raw_lead",
+    {
+      "id": "#c:raw_lead_ores",
+      "required": false
+    }
+  ]
+}

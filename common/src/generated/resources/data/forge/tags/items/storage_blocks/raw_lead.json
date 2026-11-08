@@ -1,0 +1,9 @@
+{
+  "values": [
+    "theleadage:raw_lead_block",
+    {
+      "id": "#c:raw_lead_blocks",
+      "required": false
+    }
+  ]
+}

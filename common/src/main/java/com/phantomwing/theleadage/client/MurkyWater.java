@@ -35,20 +35,20 @@ import java.util.Optional;
  * <p>The textures are made when the block atlas loads, from whichever water texture is in use - vanilla's or a resource
  * pack's - by the {@link Source} the atlas file {@code assets/minecraft/atlases/blocks.json} lists, so no copy of
  * Mojang's art ships in the jar. Each loader registers the source's type and hands this class the water sprites it is
- * about to draw: NeoForge's {@code FluidSpriteCacheMixin}, which Sodium goes through too, and Fabric's water
+ * about to draw: Forge's {@code ForgeHooksClientMixin}, and Fabric's water
  * {@code FluidRenderHandler}.</p>
  */
 public final class MurkyWater {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final ResourceLocation TYPE_ID = ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "murky_water");
+    public static final ResourceLocation TYPE_ID = new ResourceLocation(TheLeadAge.MOD_ID, "murky_water");
     private static final int STEPS = 3;
     private static final ResourceLocation[] STILL = new ResourceLocation[STEPS];
     private static final ResourceLocation[] FLOWING = new ResourceLocation[STEPS];
 
     static {
         for (int i = 0; i < STEPS; i++) {
-            STILL[i] = ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "block/murky_water_still_" + (i + 1));
-            FLOWING[i] = ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "block/murky_water_flow_" + (i + 1));
+            STILL[i] = new ResourceLocation(TheLeadAge.MOD_ID, "block/murky_water_still_" + (i + 1));
+            FLOWING[i] = new ResourceLocation(TheLeadAge.MOD_ID, "block/murky_water_flow_" + (i + 1));
         }
     }
 

@@ -1,7 +1,5 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -17,20 +15,9 @@ import net.minecraft.world.level.block.state.BlockState;
  * adds looks right with no texture of its own.
  */
 public class StainedLeadedGlassBlock extends StainedGlassBlock {
-    /** Typed as the parent's codec type: {@code StainedGlassBlock#codec} is declared concretely, so an override must match. */
-    public static final MapCodec<StainedGlassBlock> CODEC = RecordCodecBuilder.mapCodec(
-            instance -> instance.group(
-                    DyeColor.CODEC.fieldOf("color").forGetter(StainedGlassBlock::getColor),
-                    propertiesCodec()
-            ).apply(instance, StainedLeadedGlassBlock::new));
 
     public StainedLeadedGlassBlock(DyeColor color, Properties properties) {
         super(color, properties);
-    }
-
-    @Override
-    public MapCodec<StainedGlassBlock> codec() {
-        return CODEC;
     }
 
     /** Vanilla's sixteen have their own translations; a dye mod's colour is named by pattern. */

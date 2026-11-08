@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.effect;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.tags.ModTags;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -77,7 +78,7 @@ public final class LeadFumes {
      */
     public static boolean canSicken(LivingEntity entity) {
         return entity.isAlive() && !entity.isSpectator() && entity.isAffectedByPotions()
-                && !entity.getType().is(EntityTypeTags.UNDEAD);
+                && entity.getMobType() != MobType.UNDEAD;
     }
 
     /** Immediately expose nearby players and mobs to fumes released by a block (distance-based chance for each). */

@@ -1,0 +1,36 @@
+{
+  "parent": "theleadage:main/obtain_lead_ingot",
+  "criteria": {
+    "has_leaded_glass": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "theleadage:leaded_glass_blocks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "theleadage.advancement.leaded_lights.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "theleadage:leaded_glass"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "theleadage.advancement.leaded_lights"
+    }
+  },
+  "requirements": [
+    [
+      "has_leaded_glass"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -73,8 +73,7 @@ public final class LeadedGlassRecolor {
     public static void consume(ItemStack stack, Player player, InteractionHand hand, Level level, BlockPos pos) {
         if (isShears(stack)) {
             level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0f, 1.0f);
-            stack.hurtAndBreak(1, player,
-                    hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            stack.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
         } else {
             level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
             if (!player.getAbilities().instabuild) {

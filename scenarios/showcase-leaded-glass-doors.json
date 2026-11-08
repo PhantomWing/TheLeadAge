@@ -3,10 +3,10 @@
   "gamemode": "creative",
   "steps": [
     { "move": [0, 0, -2] },
-    { "hold": "theleadage:leaded_glass_door[theleadage:leaded_glass_door_config={top:{frame:\"diagonal_a\",colors:[14,-1]},bottom:{frame:\"diagonal_a\",colors:[14,-1]}}]" },
+    { "hold": "theleadage:leaded_glass_door{\"theleadage:leaded_glass_door_config\":{top:{frame:\"diagonal_a\",colors:[14,-1]},bottom:{frame:\"diagonal_a\",colors:[14,-1]}}}" },
     { "use": [0, -1, 0], "face": "up" },
     { "use": [-1, -1, 0], "face": "up" },
-    { "hold": "theleadage:leaded_glass_trapdoor[theleadage:leaded_glass_config={frame:\"diagonal_a\",colors:[14,-1]}]" },
+    { "hold": "theleadage:leaded_glass_trapdoor{\"theleadage:leaded_glass_config\":{frame:\"diagonal_a\",colors:[14,-1]}}" },
     { "use": [3, -1, 0], "face": "up" },
     { "expect": "block", "at": [0, 1, 0], "is": "theleadage:leaded_glass_door", "with": { "facing": "south", "hinge": "left" } },
     { "expect": "block", "at": [-1, 1, 0], "is": "theleadage:leaded_glass_door", "with": { "facing": "south", "hinge": "right" } },

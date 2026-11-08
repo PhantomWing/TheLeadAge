@@ -22,10 +22,6 @@ import dev.architectury.platform.Platform;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -35,20 +31,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.GameType;
@@ -97,13 +88,19 @@ import static com.phantomwing.theleadage.gametest.TestCompat.defaultModifiers;
 import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.fitsTheNautilus;
+import static com.phantomwing.theleadage.gametest.TestCompat.hasModifier;
 import static com.phantomwing.theleadage.gametest.TestCompat.hasRecipe;
+import static com.phantomwing.theleadage.gametest.TestCompat.horseArmorModifiers;
+import static com.phantomwing.theleadage.gametest.TestCompat.isTool;
 import static com.phantomwing.theleadage.gametest.TestCompat.itemDamagePerAttack;
 import static com.phantomwing.theleadage.gametest.TestCompat.leadNautilusArmor;
 import static com.phantomwing.theleadage.gametest.TestCompat.leadSpear;
+import static com.phantomwing.theleadage.gametest.TestCompat.mockPlayer;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
+import static com.phantomwing.theleadage.gametest.TestCompat.recipeFor;
 import static com.phantomwing.theleadage.gametest.TestCompat.recipesFor;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
+import static com.phantomwing.theleadage.gametest.TestCompat.setCustomName;
 import static com.phantomwing.theleadage.gametest.TestCompat.use;
 import static com.phantomwing.theleadage.gametest.TestCompat.vanillaId;
 
@@ -132,7 +129,7 @@ public class LeadOreGameTest {
     static final int SPAWN_TICKS = 40;
 
     /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
-    private static final List<Holder<MobEffect>> SICKNESS_EFFECTS =
+    private static final List<MobEffect> SICKNESS_EFFECTS =
             List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, NAUSEA);
 
     /** Lead ore doses the player sometimes (but not on every break). */
@@ -189,7 +186,7 @@ public class LeadOreGameTest {
     }
 
     private static void leadSicknessLadderEscalatesNow(GameTestHelper helper) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = TestLoader.mockServerPlayer(helper);
         clearSickness(player);
 
         LeadFumes.escalate(player);
@@ -234,7 +231,7 @@ public class LeadOreGameTest {
      */
     public static void leadSicknessHissesOnlyAsItWorsens(GameTestHelper helper) {
         whenSpawnLoaded(helper, SPAWN_TICKS, () -> {
-            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            ServerPlayer player = TestLoader.mockServerPlayer(helper);
             clearSickness(player);
             List<Boolean> worse = new ArrayList<>();
             for (int dose = 0; dose < 5; dose++) {
@@ -260,7 +257,7 @@ public class LeadOreGameTest {
                 new ItemStack(ModItems.LEAD_DOOR.get()),
                 new ItemStack(ModItems.LEADED_GLASS_PANEL.get()),
                 new ItemStack(ModItems.LEADED_GLASS_PANEL.get())));
-        Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, level);
+        Optional<RecipeHolder<CraftingRecipe>> match = recipeFor(recipes, RecipeType.CRAFTING, input, level);
         if (match.isEmpty()) {
             fail(helper, "No crafting recipe matched lead_door + two leaded glass panes");
             return;
@@ -297,7 +294,7 @@ public class LeadOreGameTest {
                 ItemStack.EMPTY, ItemStack.EMPTY, stick,
                 ItemStack.EMPTY, stick, new ItemStack(Items.STRING),
                 stick, ItemStack.EMPTY, new ItemStack(ModItems.LEAD_NUGGET.get())));
-        Optional<RecipeHolder<CraftingRecipe>> match = recipes.getRecipeFor(RecipeType.CRAFTING, input, level);
+        Optional<RecipeHolder<CraftingRecipe>> match = recipeFor(recipes, RecipeType.CRAFTING, input, level);
         if (match.isEmpty() || !assemble(match.get().value(), input, level).is(Items.FISHING_ROD)) {
             fail(helper, "Sticks, a string and a lead nugget don't craft a Fishing Rod: another minecraft:fishing_rod "
                     + "outranks the override");
@@ -363,7 +360,7 @@ public class LeadOreGameTest {
 
     /** A weight thrown from the hand places or drops a block, so it is held back where the player may not build. */
     public static void leadWeightNeedsBuildPermission(GameTestHelper helper) {
-        Player player = helper.makeMockPlayer(GameType.ADVENTURE);
+        Player player = mockPlayer(helper, GameType.ADVENTURE);
         player.getAbilities().mayBuild = false;
         moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(1, 2, 1))));
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.LEAD_WEIGHT.get()));
@@ -396,9 +393,9 @@ public class LeadOreGameTest {
     public static void leadWeightNamesItsThrower(GameTestHelper helper) {
         var victim = helper.spawnWithNoFreeWill(ZOMBIE, new BlockPos(0, 2, 0));
         LeadWeightEntity weight = new LeadWeightEntity(ModEntities.LEAD_WEIGHT.get(), helper.getLevel());
-        Player thrower = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player thrower = mockPlayer(helper, GameType.SURVIVAL);
         ItemStack named = new ItemStack(Items.IRON_SWORD);
-        named.set(DataComponents.CUSTOM_NAME, Component.literal("Squasher"));
+        setCustomName(named, "Squasher");
         thrower.setItemInHand(InteractionHand.MAIN_HAND, named);
         String thrown = keyOf(LeadWeightEntity.crushDamage(weight, thrower).getLocalizedDeathMessage(victim));
         String dropped = keyOf(LeadWeightEntity.crushDamage(weight, null).getLocalizedDeathMessage(victim));
@@ -771,13 +768,13 @@ public class LeadOreGameTest {
         if (!hasModifier(defaultModifiers(ModItems.LEAD_HELMET.get()), ModAttributes.HEAVINESS.get())) {
             fail(helper, "lead helmet lost its Heaviness modifier");
         }
-        if (!hasModifier(defaultModifiers(ModItems.LEAD_HELMET.get()), Attributes.ARMOR.value())) {
+        if (!hasModifier(defaultModifiers(ModItems.LEAD_HELMET.get()), Attributes.ARMOR)) {
             fail(helper, "lead helmet lost the material's armor modifier");
         }
-        if (!hasModifier(defaultModifiers(ModItems.LEAD_HORSE_ARMOR.get()), Attributes.KNOCKBACK_RESISTANCE.value())) {
+        if (!hasModifier(horseArmorModifiers(helper, ModItems.LEAD_HORSE_ARMOR.get()), Attributes.KNOCKBACK_RESISTANCE)) {
             fail(helper, "lead horse armor lost its knockback resistance modifier");
         }
-        if (!hasModifier(defaultModifiers(ModItems.LEAD_HORSE_ARMOR.get()), Attributes.ARMOR.value())) {
+        if (!hasModifier(horseArmorModifiers(helper, ModItems.LEAD_HORSE_ARMOR.get()), Attributes.ARMOR)) {
             fail(helper, "lead horse armor lost the material's armor modifier");
         }
         helper.succeed();
@@ -801,7 +798,7 @@ public class LeadOreGameTest {
      * the tool's class, so a tool built as a plain Item with the Properties has the stats and none of it.
      */
     public static void leadToolsWorkBlocks(GameTestHelper helper) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = mockPlayer(helper, GameType.SURVIVAL);
         Item axe = ModItems.LEAD_AXE.get();
         useOn(helper, player, axe, new BlockPos(0, 1, 0),
                 copperBlock(WeatherState.OXIDIZED, false), copperBlock(WeatherState.WEATHERED, false));
@@ -847,8 +844,8 @@ public class LeadOreGameTest {
             fail(helper, "lead nautilus armor wears out: it has a durability of " + armor.getMaxDamage());
             return;
         }
-        if (!hasModifier(defaultModifiers(nautilusArmor.get()), Attributes.KNOCKBACK_RESISTANCE.value())
-                || !hasModifier(defaultModifiers(nautilusArmor.get()), Attributes.ARMOR.value())) {
+        if (!hasModifier(defaultModifiers(nautilusArmor.get()), Attributes.KNOCKBACK_RESISTANCE)
+                || !hasModifier(defaultModifiers(nautilusArmor.get()), Attributes.ARMOR)) {
             fail(helper, "lead nautilus armor lost its armor or knockback resistance modifier");
             return;
         }
@@ -894,9 +891,9 @@ public class LeadOreGameTest {
             helper.succeed();
             return;
         }
-        DataComponentMap components = ModItems.LEAD_KNIFE.get().components();
-        if (!hasModifier(components, Attributes.ATTACK_DAMAGE.value())
-                || !hasModifier(components, Attributes.ATTACK_SPEED.value())) {
+        var components = defaultModifiers(ModItems.LEAD_KNIFE.get());
+        if (!hasModifier(components, Attributes.ATTACK_DAMAGE)
+                || !hasModifier(components, Attributes.ATTACK_SPEED)) {
             fail(helper, "lead knife lost its attack attributes");
             return;
         }
@@ -905,7 +902,7 @@ public class LeadOreGameTest {
             fail(helper, "expected the vanilla sword weapon cost (1 durability per attack), got " + cost);
             return;
         }
-        if (components.get(DataComponents.TOOL) == null) {
+        if (!isTool(ModItems.LEAD_KNIFE.get())) {
             fail(helper, "lead knife lost its tool component");
             return;
         }
@@ -975,7 +972,7 @@ public class LeadOreGameTest {
     }
 
     private static void campfireStreamDosesWhoTouchesItNow(GameTestHelper helper) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = TestLoader.mockServerPlayer(helper);
         player.setGameMode(GameType.SURVIVAL);
         BlockPos fire = new BlockPos(1, 2, 1);
         clearAround(helper);
@@ -1027,7 +1024,7 @@ public class LeadOreGameTest {
     /** Standing on raw lead a while gives a player Lead Sickness, and not at once. */
     public static void rawLeadDosesWhoStandsOnIt(GameTestHelper helper) {
         whenSpawnLoaded(helper, SPAWN_TICKS, () -> {
-            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            ServerPlayer player = TestLoader.mockServerPlayer(helper);
             player.setGameMode(GameType.SURVIVAL);
             clearSickness(player);
             helper.setBlock(new BlockPos(1, 1, 1), ModBlocks.RAW_LEAD_BLOCK.get());
@@ -1058,7 +1055,7 @@ public class LeadOreGameTest {
     }
 
     private static void contaminatedWaterDosesSwimmerNow(GameTestHelper helper) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = TestLoader.mockServerPlayer(helper);
         player.setGameMode(GameType.SURVIVAL);
         BlockPos lead = new BlockPos(1, 1, 1);
         clearAround(helper);
@@ -1128,7 +1125,7 @@ public class LeadOreGameTest {
     }
 
     private static void countDosesNow(GameTestHelper helper, Block ore, boolean silkTouch, IntConsumer verdict) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = TestLoader.mockServerPlayer(helper);
         player.setGameMode(GameType.SURVIVAL);
         BlockPos pos = new BlockPos(1, 2, 1);
 
@@ -1194,7 +1191,7 @@ public class LeadOreGameTest {
 
     /** Wipe every Lead Sickness effect, so the next dose starts the ladder from stage 0. */
     static void clearSickness(ServerPlayer player) {
-        for (Holder<MobEffect> effect : SICKNESS_EFFECTS) {
+        for (MobEffect effect : SICKNESS_EFFECTS) {
             player.removeEffect(effect);
         }
     }
@@ -1202,18 +1199,8 @@ public class LeadOreGameTest {
     private static ItemStack pickaxe(GameTestHelper helper, boolean silkTouch) {
         ItemStack pick = new ItemStack(Items.IRON_PICKAXE);
         if (silkTouch) {
-            Holder<Enchantment> silk = helper.getLevel().registryAccess()
-                    .lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH);
-            pick.enchant(silk, 1);
+            pick.enchant(Enchantments.SILK_TOUCH, 1);
         }
         return pick;
-    }
-
-    private static boolean hasModifier(DataComponentMap components, Attribute attribute) {
-        return hasModifier(components.get(DataComponents.ATTRIBUTE_MODIFIERS), attribute);
-    }
-
-    private static boolean hasModifier(ItemAttributeModifiers modifiers, Attribute attribute) {
-        return modifiers != null && modifiers.modifiers().stream().anyMatch(e -> e.attribute().value() == attribute);
     }
 }

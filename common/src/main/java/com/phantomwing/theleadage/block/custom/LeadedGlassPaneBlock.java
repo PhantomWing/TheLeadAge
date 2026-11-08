@@ -9,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -148,7 +147,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACE)) {
             case FLOOR -> SHAPE_FLOOR;
             case CEILING -> SHAPE_CEILING;
@@ -162,12 +161,12 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     }
 
     @Override
-    protected FluidState getFluidState(BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
                                      LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -177,7 +176,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        LeadedGlassConfig config = context.getItemInHand().get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(context.getItemInHand());
         Direction look = context.getNearestLookingDirection();
         AttachFace face = switch (look) {
             case UP -> AttachFace.CEILING;
@@ -200,22 +199,34 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
 
     /** Right-clicking a region with a dye recolours just that region; with shears, clears it (front/back faces only). */
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+                                 BlockHitResult hit) {
+        // 1.21's two steps: the held item's use, and else the main hand's use of the block itself.
+        InteractionResult withItem = useItemOn(player.getItemInHand(hand), state, level, pos, player, hand, hit);
+        if (withItem != null) {
+            return withItem;
+        }
+        return hand == InteractionHand.MAIN_HAND ? useWithoutItem(state, level, pos, player, hit) : InteractionResult.PASS;
+    }
+
+    /** What the held item does to the pane, or {@code null} where it leaves the click to the pane itself. */
+    @Nullable
+    private InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                        Player player, InteractionHand hand, BlockHitResult hit) {
         // Changing a design is building, which adventure mode leaves to the map, as it does a sign's dye.
         if (!LeadedGlassRecolor.isTool(stack) || !player.mayBuild()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return null;
         }
         int region = regionAt(state, pos, hit);
         if (region < 0) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // a thin edge, not the glass face
+            return null; // a thin edge, not the glass face
         }
         // The colour we want this region to become: a dye's colour, or null to clear it (shears).
         DyeColor target = LeadedGlassRecolor.target(stack);
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
             List<Integer> colors = LeadedGlassRecolor.apply(pane.getColors(), type.regions, region, target);
             if (colors == null) {
-                return ItemInteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
+                return InteractionResult.SUCCESS; // already this colour / already clear — consume the click, spend nothing
             }
             // Dynamic (cell-based) panes carry no clear_N state - the wrapper model reads the block
             // entity, which re-renders it as the colours arrive; the others flip the state too.
@@ -223,7 +234,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
                     Block.UPDATE_CLIENTS);
             LeadedGlassRecolor.consume(stack, player, hand, level, pos);
         }
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     /** Which colourable region a click landed on, or {@code -1} if it wasn't on a front/back glass face. */
@@ -281,8 +292,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
      * mirror images, so clicking the back face turns the design the opposite way round the array —
      * to the player it always reads as turning clockwise, from whichever side they clicked.
      */
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    private InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         int[] rotation = type.colorRotation();
         if ((type.orientation == null && rotation == null) || !player.isShiftKeyDown() || !player.mayBuild()) {
             return InteractionResult.PASS;
@@ -367,30 +377,30 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config != null && level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
             pane.setColors(config.colors());
         }
     }
 
     @Override
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
         ItemStack stack = super.getCloneItemStack(level, pos, state);
         if (level.getBlockEntity(pos) instanceof LeadedGlassPanelBlockEntity pane) {
-            stack.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame(state), pane.getColors()));
+            ModDataComponents.LEADED_GLASS_CONFIG.set(stack, new LeadedGlassConfig(frame(state), pane.getColors()));
         }
         return stack;
     }
 
     @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         // The loot table decides whether it drops - an explosion's chance, a datapack's own table - and the design
         // goes onto what it drops, as a door's does.
         List<ItemStack> drops = super.getDrops(state, params);
         if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof LeadedGlassPanelBlockEntity pane) {
             for (ItemStack drop : drops) {
                 if (drop.is(asItem())) {
-                    drop.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame(state), pane.getColors()));
+                    ModDataComponents.LEADED_GLASS_CONFIG.set(drop, new LeadedGlassConfig(frame(state), pane.getColors()));
                 }
             }
         }
@@ -399,12 +409,12 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
 
     /** Turns with a structure or schematic it is placed with: on a wall to stay in it, on a floor with the floor. */
     @Override
-    protected BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
+    public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -413,8 +423,8 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
      * cube for open. One on a floor or ceiling is walked over or under.
      */
     @Override
-    protected boolean isPathfindable(BlockState state, PathComputationType type) {
-        return state.getValue(FACE) != AttachFace.WALL && super.isPathfindable(state, type);
+    public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
+        return state.getValue(FACE) != AttachFace.WALL && super.isPathfindable(state, level, pos, type);
     }
 
     @Nullable
@@ -436,7 +446,7 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
         for (int region = 0; region < frame(state).regions(); region++) {
             DyeColor color = pane.colorAt(region);
             if (color != null) {
-                int rgb = color.getTextureDiffuseColor();
+                int rgb = LeadedGlassDyes.rgbOf(color);
                 red += (rgb >> 16) & 0xFF;
                 green += (rgb >> 8) & 0xFF;
                 blue += rgb & 0xFF;
@@ -446,10 +456,14 @@ public class LeadedGlassPaneBlock extends Block implements EntityBlock, SimpleWa
         return dyed == 0 ? null : 0xFF000000 | red / dyed << 16 | green / dyed << 8 | blue / dyed;
     }
 
-    /** NeoForge's {@code IBlockExtension#getBeaconColorMultiplier}, overridden by name: common can't see it. */
+    /**
+     * Forge's {@code IForgeBlock#getBeaconColorMultiplier}, overridden by name: common can't see it. Forge 47 takes the
+     * colour as three floats, as 1.20.1's dyes give theirs.
+     */
     @Nullable
-    public Integer getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
-        return beaconColor(state, level, pos);
+    public float[] getBeaconColorMultiplier(BlockState state, LevelReader level, BlockPos pos, BlockPos beaconPos) {
+        Integer color = beaconColor(state, level, pos);
+        return color == null ? null : LeadedGlassDyes.floatsOf(color);
     }
 
     /** Fabric's beacon casts to this before it asks the colour, which its mixin then takes from {@link #beaconColor}. */

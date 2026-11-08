@@ -52,7 +52,7 @@ public class LeadedGlassTrapdoorRenderer implements BlockEntityRenderer<LeadedGl
         pose.pushPose();
         // Which way the design faces (closed yaw / lifted-from-floor / swung-from-ceiling) — shared
         // with the dye/shear interaction, which inverts this same matrix. See LeadedGlassPlacement.
-        pose.mulPose(LeadedGlassPlacement.orientation(state, box));
+        pose.mulPoseMatrix(LeadedGlassPlacement.orientation(state, box));
         LeadedGlassSurface.render(be.getConfig(), box, pose, buffers, light, overlay);
         pose.popPose();
     }

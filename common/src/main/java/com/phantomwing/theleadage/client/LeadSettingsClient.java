@@ -15,8 +15,10 @@ public final class LeadSettingsClient {
     }
 
     public static void register() {
-        NetworkManager.registerReceiver(NetworkManager.Side.S2C, LeadSettingsPayload.TYPE, LeadSettingsPayload.CODEC,
-                (payload, context) -> context.queue(() -> received(payload)));
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, LeadSettingsPayload.ID, (buf, context) -> {
+            LeadSettingsPayload payload = LeadSettingsPayload.read(buf);
+            context.queue(() -> received(payload));
+        });
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> LeadSettings.forget());
     }
 

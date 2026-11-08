@@ -4,7 +4,7 @@ import com.phantomwing.theleadage.client.RecedingLeadsClient;
 import com.phantomwing.theleadage.network.RecedingLeadPayload;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.TickEvent;
-import dev.architectury.networking.NetworkManager;
+import com.phantomwing.theleadage.network.Packets;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
@@ -61,8 +61,6 @@ public final class RecedingLeads {
     public static void register() {
         if (Platform.getEnvironment() == Env.CLIENT) {
             RecedingLeadsClient.register();
-        } else {
-            NetworkManager.registerS2CPayloadType(RecedingLeadPayload.TYPE, RecedingLeadPayload.CODEC);
         }
         TickEvent.SERVER_LEVEL_POST.register(RecedingLeads::tick);
         LifecycleEvent.SERVER_STOPPED.register(server -> SERVER.clear());
@@ -124,8 +122,8 @@ public final class RecedingLeads {
         RecedingLeadPayload payload = new RecedingLeadPayload(pos, state == null ? 0 : state.step(), state == null ? 0 : state.cut());
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) <= SEND_DISTANCE * SEND_DISTANCE
-                    && NetworkManager.canPlayerReceive(player, RecedingLeadPayload.TYPE)) {
-                NetworkManager.sendToPlayer(player, payload);
+                    && Packets.canReceive(player, RecedingLeadPayload.ID)) {
+                Packets.send(player, RecedingLeadPayload.ID, payload::write);
             }
         }
     }

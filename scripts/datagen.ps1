@@ -1,6 +1,6 @@
-# Run NeoForge data generation and auto-terminate.
+# Run Forge data generation and auto-terminate.
 #
-# Why: NeoForge's dev `runData` generates everything in well under a second, but its
+# Why: Forge's dev `runData` generates everything in well under a second, but its
 # JVM never exits — Minecraft's bootstrap/IO executor pools (`pool-1-*`, `pool-2-*`)
 # are non-daemon threads that the dev datagen path never shuts down, so the process
 # lingers forever. This wrapper runs the task, waits for the "All providers took"
@@ -13,17 +13,17 @@ $ErrorActionPreference = "Stop"
 $repo = Split-Path $PSScriptRoot -Parent
 Set-Location $repo
 
-$runLog = Join-Path $repo "neoforge\run\logs\latest.log"
+$runLog = Join-Path $repo "forge\run\logs\latest.log"
 $gradleLog = Join-Path $env:TEMP "theleadage-datagen.log"
 Remove-Item $runLog -ErrorAction SilentlyContinue
 
 $startTime = Get-Date
 $gradle = Start-Process -FilePath (Join-Path $repo "gradlew.bat") `
-    -ArgumentList ":neoforge:runData", "--console=plain" `
+    -ArgumentList ":forge:runData", "--console=plain" `
     -RedirectStandardOutput $gradleLog -RedirectStandardError "$gradleLog.err" `
     -PassThru -WindowStyle Hidden
 
-Write-Host "Running :neoforge:runData (auto-exits when generation finishes)..."
+Write-Host "Running :forge:runData (auto-exits when generation finishes)..."
 
 $ok = $null
 while ($null -eq $ok) {

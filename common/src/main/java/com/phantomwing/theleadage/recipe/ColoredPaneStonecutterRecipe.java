@@ -1,13 +1,20 @@
 package com.phantomwing.theleadage.recipe;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SingleItemRecipe;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 
 import java.util.Collections;
@@ -31,14 +38,14 @@ import java.util.Collections;
  * {@code assemble} so the icons match the coloured output too.
  */
 public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
-    public ColoredPaneStonecutterRecipe(String group, Ingredient ingredient, ItemStack result) {
-        super(group, ingredient, result);
+    public ColoredPaneStonecutterRecipe(ResourceLocation id, String group, Ingredient ingredient, ItemStack result) {
+        super(id, group, ingredient, result);
     }
 
     @Override
-    public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(Container input, RegistryAccess registries) {
         ItemStack output = super.assemble(input, registries); // the target frame's all-clear pane
-        LeadedGlassConfig target = output.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig target = ModDataComponents.LEADED_GLASS_CONFIG.get(output);
         if (target == null) {
             return output; // not a configured pane (shouldn't happen for our recipes)
         }
@@ -46,15 +53,14 @@ public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
         if (color == LeadedGlassConfig.CLEAR) {
             return output; // clear input → the static all-clear result is already correct
         }
-        output.set(ModDataComponents.LEADED_GLASS_CONFIG.get(),
-                new LeadedGlassConfig(target.frame(),
+        ModDataComponents.LEADED_GLASS_CONFIG.set(output, new LeadedGlassConfig(target.frame(),
                         Collections.nCopies(target.frame().regions(), color)));
         return output;
     }
 
     /** The plain input pane's single region colour, or {@link LeadedGlassConfig#CLEAR} if unset. */
     private static int primaryColor(ItemStack input) {
-        LeadedGlassConfig config = input.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(input);
         if (config == null || config.colors().isEmpty()) {
             return LeadedGlassConfig.CLEAR;
         }
@@ -66,10 +72,44 @@ public class ColoredPaneStonecutterRecipe extends StonecutterRecipe {
         return ModRecipes.COLORED_PANE_STONECUTTING.get();
     }
 
-    /** Reuses the vanilla single-item codec (group + ingredient + result); only the class differs. */
-    public static class Serializer extends SingleItemRecipe.Serializer<ColoredPaneStonecutterRecipe> {
-        public Serializer() {
-            super(ColoredPaneStonecutterRecipe::new);
+    /**
+     * Vanilla's stonecutting JSON (group + ingredient + result), but a result that carries the pane's design in its tag,
+     * where vanilla's is an item id and a count: {@code {"item": ..., "count": 1, "nbt": "{...}"}}, as Forge writes a
+     * crafting result's. 1.20.1's own single-item serializer can't be reused from here, its factory being package-private.
+     */
+    public static class Serializer implements RecipeSerializer<ColoredPaneStonecutterRecipe> {
+        @Override
+        public ColoredPaneStonecutterRecipe fromJson(ResourceLocation id, JsonObject json) {
+            String group = GsonHelper.getAsString(json, "group", "");
+            Ingredient ingredient = GsonHelper.isArrayNode(json, "ingredient")
+                    ? Ingredient.fromJson(GsonHelper.getAsJsonArray(json, "ingredient"), false)
+                    : Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "ingredient"), false);
+            JsonObject result = GsonHelper.getAsJsonObject(json, "result");
+            ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(GsonHelper.getAsString(result, "item"))),
+                    GsonHelper.getAsInt(result, "count", 1));
+            if (result.has("nbt")) {
+                try {
+                    stack.setTag(TagParser.parseTag(GsonHelper.getAsString(result, "nbt")));
+                } catch (CommandSyntaxException e) {
+                    throw new JsonSyntaxException("Invalid nbt in " + id + ": " + e.getMessage());
+                }
+            }
+            return new ColoredPaneStonecutterRecipe(id, group, ingredient, stack);
+        }
+
+        @Override
+        public ColoredPaneStonecutterRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+            String group = buffer.readUtf();
+            Ingredient ingredient = Ingredient.fromNetwork(buffer);
+            ItemStack result = buffer.readItem();
+            return new ColoredPaneStonecutterRecipe(id, group, ingredient, result);
+        }
+
+        @Override
+        public void toNetwork(FriendlyByteBuf buffer, ColoredPaneStonecutterRecipe recipe) {
+            buffer.writeUtf(recipe.getGroup());
+            recipe.getIngredients().get(0).toNetwork(buffer);
+            buffer.writeItem(recipe.result);
         }
     }
 }

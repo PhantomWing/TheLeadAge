@@ -4,7 +4,6 @@ import com.phantomwing.theleadage.client.LeadSettingsClient;
 import com.phantomwing.theleadage.platform.LeadSettings;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.event.events.common.TickEvent;
-import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import net.minecraft.server.MinecraftServer;
@@ -24,16 +23,14 @@ public final class LeadSettingsSync {
     public static void register() {
         if (Platform.getEnvironment() == Env.CLIENT) {
             LeadSettingsClient.register();
-        } else {
-            NetworkManager.registerS2CPayloadType(LeadSettingsPayload.TYPE, LeadSettingsPayload.CODEC);
         }
         PlayerEvent.PLAYER_JOIN.register(LeadSettingsSync::send);
         TickEvent.SERVER_POST.register(LeadSettingsSync::tick);
     }
 
     private static void send(ServerPlayer player) {
-        if (NetworkManager.canPlayerReceive(player, LeadSettingsPayload.TYPE)) {
-            NetworkManager.sendToPlayer(player, LeadSettings.ofConfig());
+        if (Packets.canReceive(player, LeadSettingsPayload.ID)) {
+            Packets.send(player, LeadSettingsPayload.ID, LeadSettings.ofConfig()::write);
         }
     }
 

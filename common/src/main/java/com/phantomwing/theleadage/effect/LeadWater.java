@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
@@ -202,7 +202,7 @@ public final class LeadWater {
                     || leak.poisons(step, cut, BlockPos.containing(swimmer.getEyePosition()))) {
                 LeadFumes.soak(swimmer, LeadFumes.FUMES_STAGE_TICKS);
                 if (swimmer instanceof ServerPlayer player) {
-                    ModTriggers.SWAM_IN_POISONED_WATER.get().trigger(player);
+                    ModTriggers.SWAM_IN_POISONED_WATER.trigger(player);
                 }
             }
         }

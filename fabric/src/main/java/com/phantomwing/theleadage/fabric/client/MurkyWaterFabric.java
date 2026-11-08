@@ -4,6 +4,7 @@ import com.phantomwing.theleadage.client.LeadWaterParticles;
 import com.phantomwing.theleadage.client.MurkyWater;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderHandlerRegistryImpl;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.atlas.SpriteSourceType;
@@ -17,21 +18,23 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Fabric's side of the murkier textures contaminated water is drawn with ({@link MurkyWater}): their sprite source,
  * and that of the splashes' and bubbles' ({@link LeadWaterParticles}), registered before the atlases load. The sprites
- * reach the water through {@code WaterRenderHandlerMixin}. The NeoForge twin is {@code MurkyWaterNeoForge}.
+ * reach the water through {@code WaterRenderHandlerMixin}. The Forge twin is {@code MurkyWaterForge}.
  */
 public final class MurkyWaterFabric {
     private MurkyWaterFabric() {
     }
 
     public static void register() {
-        MurkyWater.type = new SpriteSourceType(MurkyWater.CODEC);
+        MurkyWater.type = new SpriteSourceType(MurkyWater.CODEC.codec());
         SpriteSources.TYPES.put(MurkyWater.TYPE_ID, MurkyWater.type);
-        LeadWaterParticles.type = new SpriteSourceType(LeadWaterParticles.CODEC);
+        LeadWaterParticles.type = new SpriteSourceType(LeadWaterParticles.CODEC.codec());
         SpriteSources.TYPES.put(LeadWaterParticles.TYPE_ID, LeadWaterParticles.type);
         // Sodium on Fabric blends water's colour from corner to corner only where a mod registered a render handler for
         // it; without one it paints each block one colour, and the purple tint stepped at every block. A mod that
         // registered one already has it blended, and keeps its own.
-        if (FluidRenderHandlerRegistry.INSTANCE.getOverride(Fluids.WATER) == null) {
+        // Fabric API 0.92 says whether a mod registered one only on its implementation.
+        if (!(FluidRenderHandlerRegistry.INSTANCE instanceof FluidRenderHandlerRegistryImpl registry)
+                || registry.getOverride(Fluids.WATER) == null) {
             FluidRenderHandler water = FluidRenderHandlerRegistry.INSTANCE.get(Fluids.WATER);
             FluidRenderHandlerRegistry.INSTANCE.register(Fluids.WATER, Fluids.FLOWING_WATER, new SameWater(water));
         }

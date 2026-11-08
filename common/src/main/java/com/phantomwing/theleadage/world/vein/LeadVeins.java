@@ -6,7 +6,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -60,7 +60,7 @@ public final class LeadVeins {
 
     /** Vanilla's {@code minecraft:y}, the block's height. */
     private static final ResourceKey<DensityFunction> Y = ResourceKey.create(Registries.DENSITY_FUNCTION,
-            ResourceLocation.withDefaultNamespace("y"));
+            new ResourceLocation("y"));
 
     /** How far past the veins' band their noises reach, as vanilla's do past its veins', so the band's edges aren't cut off. */
     private static final int BELOW_BAND = 4;
@@ -78,7 +78,7 @@ public final class LeadVeins {
      * The density functions, each as vanilla 26.3's of the same name under {@code overworld/ore_vein/}, over vanilla's
      * noises: iron's density, moved up to lead's band and needing the noise under -{@value #THRESHOLD}.
      */
-    public static void bootstrapFunctions(BootstrapContext<DensityFunction> context) {
+    public static void bootstrapFunctions(BootstapContext<DensityFunction> context) {
         HolderGetter<NormalNoise.NoiseParameters> noises = context.lookup(Registries.NOISE);
         HolderGetter<DensityFunction> functions = context.lookup(Registries.DENSITY_FUNCTION);
         DensityFunction y = new DensityFunctions.HolderHolder(functions.getOrThrow(Y));

@@ -106,7 +106,7 @@ public class ModCreativeModeTab {
 
     private static ItemStack pane(RegistrySupplier<net.minecraft.world.item.Item> item, LeadedGlassFrame frame, List<Integer> colors) {
         ItemStack stack = new ItemStack(item.get());
-        stack.set(ModDataComponents.LEADED_GLASS_CONFIG.get(), new LeadedGlassConfig(frame, colors));
+        ModDataComponents.LEADED_GLASS_CONFIG.set(stack, new LeadedGlassConfig(frame, colors));
         return stack;
     }
 

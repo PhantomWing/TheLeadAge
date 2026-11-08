@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "G": {
+      "item": "minecraft:brown_stained_glass"
+    },
+    "I": {
+      "tag": "forge:ingots/lead"
+    }
+  },
+  "pattern": [
+    "GGG",
+    "GIG",
+    "GGG"
+  ],
+  "result": {
+    "count": 8,
+    "item": "theleadage:brown_leaded_glass"
+  },
+  "show_notification": true
+}

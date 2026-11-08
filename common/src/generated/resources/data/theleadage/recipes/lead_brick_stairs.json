@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "lead_bricks",
+  "key": {
+    "#": {
+      "item": "theleadage:lead_bricks"
+    }
+  },
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "result": {
+    "count": 4,
+    "item": "theleadage:lead_brick_stairs"
+  },
+  "show_notification": true
+}

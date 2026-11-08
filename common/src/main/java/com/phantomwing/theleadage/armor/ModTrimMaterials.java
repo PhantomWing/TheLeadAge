@@ -4,13 +4,11 @@ import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.armortrim.TrimMaterial;
 
@@ -37,30 +35,22 @@ public class ModTrimMaterials {
     public static final float LEAD_INDEX = 0.0019604F;
     public static final ResourceKey<TrimMaterial> LEAD = trimMaterialKey("lead");
 
-    public static void bootstrap(BootstrapContext<TrimMaterial> context) {
-        // Resolve the lead armor material through the bootstrap lookup (a proper
-        // reference holder) rather than the Architectury RegistrySupplier — the
-        // latter isn't a serialization-safe Holder during datapack-registry gen.
-        Holder<ArmorMaterial> leadArmor = context.lookup(Registries.ARMOR_MATERIAL)
-                .getOrThrow(ResourceKey.create(Registries.ARMOR_MATERIAL, TheLeadAge.resourceLocation("lead")));
-
+    // On 1.20.1 a trim material's darker palettes are keyed by vanilla's armour materials alone, so lead armour can't
+    // take lead_darker as it does from 1.21: a lead trim on it draws in the plain lead palette.
+    public static void bootstrap(BootstapContext<TrimMaterial> context) {
         registerMaterial(context, LEAD,
                 ModItems.LEAD_INGOT.get(),
-                Style.EMPTY.withColor(TextColor.parseColor("#6E737D").getOrThrow()),
-                LEAD_INDEX,
-                // Use the darker palette when lead trim is applied to lead armor, else
-                // it nearly disappears against the same colour (vanilla does the same,
-                // e.g. iron trim → iron_darker on iron armor).
-                Map.of(leadArmor, "lead_darker"));
+                Style.EMPTY.withColor(TextColor.parseColor("#6E737D")),
+                LEAD_INDEX);
     }
 
     private static ResourceKey<TrimMaterial> trimMaterialKey(String name) {
         return ResourceKey.create(Registries.TRIM_MATERIAL, TheLeadAge.resourceLocation(name));
     }
 
-    private static void registerMaterial(BootstrapContext<TrimMaterial> context, ResourceKey<TrimMaterial> trimKey, Item item, Style style, float itemModelIndex, Map<Holder<ArmorMaterial>, String> overrideArmorMaterials) {
+    private static void registerMaterial(BootstapContext<TrimMaterial> context, ResourceKey<TrimMaterial> trimKey, Item item, Style style, float itemModelIndex) {
         TrimMaterial trimMaterial = TrimMaterial.create(trimKey.location().getPath(), item, itemModelIndex,
-                Component.translatable(Util.makeDescriptionId("trim_material", trimKey.location())).withStyle(style), overrideArmorMaterials);
+                Component.translatable(Util.makeDescriptionId("trim_material", trimKey.location())).withStyle(style), Map.of());
         context.register(trimKey, trimMaterial);
     }
 }

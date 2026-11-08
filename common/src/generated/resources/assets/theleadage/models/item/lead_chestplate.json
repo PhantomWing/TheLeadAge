@@ -2,7 +2,7 @@
   "parent": "minecraft:item/generated",
   "overrides": [
     {
-      "model": "theleadage:item/lead_chestplate_lead_darker_trim",
+      "model": "theleadage:item/lead_chestplate_lead_trim",
       "predicate": {
         "minecraft:trim_type": 0.0019604
       }

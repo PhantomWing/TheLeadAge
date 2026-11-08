@@ -62,11 +62,6 @@ public class TheLeadAgeFabricConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean override_fishing_rod_recipe = true;
 
-    public static final String OVERRIDE_HEAVY_CORE_RECIPE_ID = "override_heavy_core_recipe";
-    /** Off by default: crafting the Heavy Core makes a Trial-Chamber-exclusive item renewable, so it is opt-in. */
-    @ConfigEntry.Gui.Tooltip
-    public boolean override_heavy_core_recipe = false;
-
     public static final String ENABLE_STRUCTURE_LOOT_ID = "enable_structure_loot";
     @ConfigEntry.Gui.Tooltip
     public boolean enable_structure_loot = true;
@@ -119,7 +114,6 @@ public class TheLeadAgeFabricConfig implements ConfigData {
             case MOBS_AVOID_LEAD_WATER_ID -> config.mobs_avoid_lead_water;
             case ENABLE_RECIPE_OVERRIDES_ID -> config.enable_recipe_overrides;
             case OVERRIDE_FISHING_ROD_RECIPE_ID -> config.override_fishing_rod_recipe;
-            case OVERRIDE_HEAVY_CORE_RECIPE_ID -> config.override_heavy_core_recipe;
             case ENABLE_STRUCTURE_LOOT_ID -> config.enable_structure_loot;
             case ENABLE_MOB_LEAD_EQUIPMENT_ID -> config.enable_mob_lead_equipment;
             case ENABLE_VILLAGER_TRADES_ID -> config.enable_villager_trades;

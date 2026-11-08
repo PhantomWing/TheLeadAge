@@ -14,9 +14,10 @@ import org.spongepowered.asm.mixin.injection.At;
  * which vanilla's fluid renderer and Sodium's both ask for a block's sprites, also through the mod's own pass-through
  * handler ({@code MurkyWaterFabric}). Here rather than in a handler of the mod's, which would wrap a handler another mod
  * registers for water and lose its own rendering. Fabric's handler is internal, so this is allowed not to apply: the
- * water then draws with vanilla's textures, tinted.
+ * water then draws with vanilla's textures, tinted. In Fabric API 0.92 it is the registry's first anonymous class, the
+ * water handler its constructor makes (a named {@code WaterRenderHandler} from 0.100).
  */
-@Mixin(targets = "net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderHandlerRegistryImpl$WaterRenderHandler")
+@Mixin(targets = "net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderHandlerRegistryImpl$1")
 public abstract class WaterRenderHandlerMixin {
     @ModifyReturnValue(method = "getFluidSprites", at = @At("RETURN"), require = 0)
     private TextureAtlasSprite[] theleadage$murkyWater(TextureAtlasSprite[] sprites, @Local(argsOnly = true) BlockPos pos,

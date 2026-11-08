@@ -59,7 +59,7 @@ public class TheLeadAgeEmiPlugin implements EmiPlugin {
      * the recipe manager (see {@code EmiRecipes.Manager}).
      */
     private static ResourceLocation synthetic(String path) {
-        return ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, "/leaded_glass/" + path);
+        return new ResourceLocation(TheLeadAge.MOD_ID, "/leaded_glass/" + path);
     }
 
     @Override

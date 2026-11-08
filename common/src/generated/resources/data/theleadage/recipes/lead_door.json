@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "group": "lead_ingot",
+  "key": {
+    "#": {
+      "tag": "forge:ingots/lead"
+    }
+  },
+  "pattern": [
+    "##",
+    "##",
+    "##"
+  ],
+  "result": {
+    "count": 3,
+    "item": "theleadage:lead_door"
+  },
+  "show_notification": true
+}

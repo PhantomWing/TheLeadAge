@@ -9,15 +9,15 @@ import java.util.function.Consumer;
 
 /**
  * {@code @ExpectPlatform} bridge that adds to an existing creative tab. Architectury's
- * {@code CreativeTabRegistry.modify} listens on Architectury's own mod bus on NeoForge, so it runs before the mods
+ * {@code CreativeTabRegistry.modify} listens on Architectury's own mod bus on Forge, so it runs before the mods
  * whose items {@code VanillaTabs} inserts after (Backported Spears, Mekanism) have filled the tab, whatever
- * {@code neoforge.mods.toml} orders. NeoForge's implementation listens on this mod's bus instead.
+ * {@code mods.toml} orders. Forge's implementation listens on this mod's bus instead.
  */
 public final class CreativeTabPlatform {
     private CreativeTabPlatform() {
     }
 
-    /** Puts one stack after another in a tab; throws {@link IllegalArgumentException} where NeoForge's tab doesn't list the anchor. */
+    /** Puts one stack after another in a tab; throws {@link IllegalArgumentException} where Forge's tab doesn't list the anchor. */
     public interface Inserter {
         void insertAfter(ItemStack anchor, ItemStack stack);
     }

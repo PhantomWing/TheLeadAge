@@ -59,14 +59,14 @@ public class LeadedGlassTrapdoorItemRenderer extends BlockEntityWithoutLevelRend
         }
 
         // The configured glass on the flap (falls back to plain-clear for an unconfigured stack).
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         LeadedGlassSurface.render(config != null ? config : DEFAULT, FLAP, pose, buffers, light, overlay);
     }
 
     private static void emit(BakedModel model, BlockState state, Direction dir, VertexConsumer buffer,
                              PoseStack pose, int light, int overlay, RandomSource random) {
         for (BakedQuad quad : model.getQuads(state, dir, random)) {
-            buffer.putBulkData(pose.last(), quad, 1.0f, 1.0f, 1.0f, 1.0f, light, overlay);
+            buffer.putBulkData(pose.last(), quad, 1.0f, 1.0f, 1.0f, light, overlay);
         }
     }
 }

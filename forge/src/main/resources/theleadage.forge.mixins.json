@@ -1,0 +1,35 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.phantomwing.theleadage.forge.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "theleadage.forge.refmap.json",
+  "mixins": [
+    "BaseCoralPlantTypeBlockMixin",
+    "CampfireBlockEntityMixin",
+    "CampfireSmokeMixin",
+    "ChunkMapMixin",
+    "CoralBlockMixin",
+    "IronBarsBlockMixin",
+    "LivingEntityMixin",
+    "NoiseChunkMixin",
+    "RandomPosMixin",
+    "RandomStateMixin",
+    "SquidRandomMovementGoalMixin",
+    "SwimNodeEvaluatorMixin",
+    "WalkNodeEvaluatorMixin"
+  ],
+  "client": [
+    "BiomeColorsMixin",
+    "CampfireBlockMixin",
+    "ClientLevelMixin",
+    "ForgeHooksClientMixin",
+    "FogRendererMixin",
+    "LevelRendererMixin",
+    "ParticleEngineMixin",
+    "StonecutterScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

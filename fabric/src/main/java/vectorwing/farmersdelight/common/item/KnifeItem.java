@@ -18,14 +18,14 @@ import net.minecraft.world.item.Tier;
  * mappings, so the subclass compiles.</p>
  *
  * <p><b>Why it's safe.</b> The signature mirrors the real FDR class exactly ({@code extends DiggerItem},
- * constructor {@code (Tier, Item.Properties)}). It is stripped from the published jar, so in a real
+ * constructor {@code (Tier, float, float, Item.Properties)} on 1.20.1). It is stripped from the published jar, so in a real
  * instance {@code LeadKnifeItem} binds to the genuine
  * {@code vectorwing.farmersdelight.common.item.KnifeItem}. In this mod's own dev runtime the stub is
  * present but never touched — FDR is absent there, so the {@code isModLoaded("farmersdelight")} guard
  * means {@code LeadKnifeItem} is never instantiated. The constructor body below never runs.</p>
  */
 public class KnifeItem extends DiggerItem {
-    public KnifeItem(Tier tier, Item.Properties properties) {
-        super(tier, BlockTags.MINEABLE_WITH_AXE, properties);
+    public KnifeItem(Tier tier, float attackDamage, float attackSpeed, Item.Properties properties) {
+        super(attackDamage, attackSpeed, tier, BlockTags.MINEABLE_WITH_AXE, properties);
     }
 }

@@ -65,7 +65,9 @@ allprojects {
     repositories {
         mavenLocal()
 
-        maven { url = 'https://maven.neoforged.net/releases' }
+        // MinecraftForge (the loader module builds against Forge on 1.20.1).
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.architectury.dev/' }
         maven { url = 'https://maven.parchmentmc.org' }
 
         // AppleSkin (dev-runtime only)
@@ -123,14 +125,16 @@ allprojects {
         maven { url = "https://maven.createmod.net" }
 
         // Registrate â€” a transitive dependency of Create.
-        maven { url = "https://maven.ithundxr.dev/snapshots" }
+        maven { url = "https://maven.tterrag.com/" }
     }
 
+    // Compiled on JDK 21 (Architectury Loom's daemon) for Minecraft 1.20.1's Java 17.
     java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
-        options.release = 21
+        options.release = 17
+        options.compilerArgs << '-Xmaxerrs' << '2000'
     }
 
     java {

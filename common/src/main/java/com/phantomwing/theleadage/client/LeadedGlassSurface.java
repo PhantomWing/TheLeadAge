@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.client;
 
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPlacement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -64,13 +65,13 @@ public final class LeadedGlassSurface {
         pose.pushPose();
         // Canonical pane space -> the slab. The maths lives in LeadedGlassPlacement so the dye/shear
         // interaction can invert this exact matrix to turn a click back into a region — see its docs.
-        pose.mulPose(LeadedGlassPlacement.surface(slab));
+        pose.mulPoseMatrix(LeadedGlassPlacement.surface(slab));
 
         VertexConsumer buffer = buffers.getBuffer(Sheets.translucentCullBlockSheet());
         for (int i = 0; i < drawn.quads().size(); i++) {
             int color = drawn.colors()[i];
             float r = (color >> 16 & 0xFF) / 255.0f, g = (color >> 8 & 0xFF) / 255.0f, b = (color & 0xFF) / 255.0f;
-            buffer.putBulkData(pose.last(), drawn.quads().get(i), r, g, b, 1.0f, light, overlay);
+            buffer.putBulkData(pose.last(), drawn.quads().get(i), r, g, b, light, overlay);
         }
         pose.popPose();
     }
@@ -105,7 +106,7 @@ public final class LeadedGlassSurface {
             return 0xFFFFFF;
         }
         DyeColor dye = config.colorAt(tintIndex);
-        return dye == null ? 0xFFFFFF : dye.getTextureDiffuseColor();
+        return dye == null ? 0xFFFFFF : LeadedGlassDyes.rgbOf(dye);
     }
 
     /** The pane block state matching this design: came type → block + orientation, colours → clear bits. */

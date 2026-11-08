@@ -4,7 +4,6 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.LeadedGlassDoorConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -40,15 +39,15 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         this.config = new LeadedGlassDoorConfig(
                 loadPane(tag.getCompound("Top")), loadPane(tag.getCompound("Bottom")));
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.put("Top", savePane(config.top()));
         tag.put("Bottom", savePane(config.bottom()));
     }
@@ -69,9 +68,9 @@ public class LeadedGlassDoorBlockEntity extends BlockEntity {
     // ---- Client sync (the design must reach the client for the renderer) ----
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
+        saveAdditional(tag);
         return tag;
     }
 

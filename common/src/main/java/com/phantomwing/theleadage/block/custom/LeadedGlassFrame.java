@@ -1,9 +1,6 @@
 package com.phantomwing.theleadage.block.custom;
 
 import com.mojang.serialization.Codec;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 
 /**
@@ -46,8 +43,6 @@ public enum LeadedGlassFrame implements StringRepresentable {
     DIAGONAL_BARS_B("diagonal_bars_b", 4);
 
     public static final Codec<LeadedGlassFrame> CODEC = StringRepresentable.fromEnum(LeadedGlassFrame::values);
-    public static final StreamCodec<ByteBuf, LeadedGlassFrame> STREAM_CODEC =
-            ByteBufCodecs.idMapper(id -> values()[id], LeadedGlassFrame::ordinal);
 
     private final String name;
     private final int regions;

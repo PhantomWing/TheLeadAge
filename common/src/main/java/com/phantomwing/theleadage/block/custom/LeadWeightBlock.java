@@ -1,7 +1,6 @@
 package com.phantomwing.theleadage.block.custom;
 
 import com.phantomwing.theleadage.sound.ModSounds;
-import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.entity.custom.LeadWeightEntity;
 import net.minecraft.core.BlockPos;
@@ -13,6 +12,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
@@ -51,7 +51,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * intact). Stackable items, so no per-item durability and no block entity.</p>
  */
 public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<LeadWeightBlock> CODEC = simpleCodec(LeadWeightBlock::new);
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -75,17 +74,12 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     }
 
     @Override
-    protected MapCodec<? extends FallingBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HANGING, WATERLOGGED);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
@@ -98,12 +92,12 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     }
 
     @Override
-    protected FluidState getFluidState(BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
                                      LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -127,7 +121,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
     }
 
     @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (state.getValue(HANGING)) {
             // Hangs until the block it is attached to is gone, then the chain snaps.
             if (!canHang(level, pos) && pos.getY() >= level.getMinBuildHeight()) {
@@ -140,8 +134,9 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
 
     /** Right-clicking a hanging weight snaps its chain (then it falls, or sits if a floor holds it up). */
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!state.getValue(HANGING)) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+                                 BlockHitResult hit) {
+        if (hand != InteractionHand.MAIN_HAND || !state.getValue(HANGING)) {
             return InteractionResult.PASS;
         }
         // Only snap the chain when empty-handed — any held item passes through, so you can place a weight
@@ -157,7 +152,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
 
     /** A projectile (e.g. an arrow) hitting a hanging weight snaps its chain too, crediting the shooter. */
     @Override
-    protected void onProjectileHit(Level level, BlockState state, BlockHitResult hit, Projectile projectile) {
+    public void onProjectileHit(Level level, BlockState state, BlockHitResult hit, Projectile projectile) {
         super.onProjectileHit(level, state, hit, projectile);
         // Only what the shooter may interact with, as TNT asks: no mob griefing, no spawn protection broken.
         if (!level.isClientSide && state.getValue(HANGING) && projectile.mayInteract(level, hit.getBlockPos())) {
@@ -223,7 +218,7 @@ public class LeadWeightBlock extends FallingBlock implements SimpleWaterloggedBl
         // The landing can chip the weight down a tier (the last tier shatters). A weight a hopper is about
         // to swallow is exempt — it's collected intact (see LeadWeightEntity#convertHopperLanding).
         boolean ontoHopper = surface.getBlock() instanceof HopperBlock;
-        if (!ontoHopper && entity.getRandom().nextDouble() < breakChance(fall)) {
+        if (!ontoHopper && entity.level().getRandom().nextDouble() < breakChance(fall)) {
             degradeLanded(level, pos);
         }
     }

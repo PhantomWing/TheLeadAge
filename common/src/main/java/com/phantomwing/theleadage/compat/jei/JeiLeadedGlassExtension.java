@@ -8,7 +8,7 @@ import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,21 +19,31 @@ import java.util.List;
  * lockstep — a red input visibly produces the red result. Constant slots (the lead ingot / door /
  * trapdoor) show a single stack and stay outside the link.
  */
-public class JeiLeadedGlassExtension implements ICraftingCategoryExtension<LeadedGlassDisplayRecipe> {
-    @Override
-    public int getWidth(RecipeHolder<LeadedGlassDisplayRecipe> recipeHolder) {
-        return recipeHolder.value().gridWidth();
+public class JeiLeadedGlassExtension implements ICraftingCategoryExtension {
+    private final LeadedGlassDisplayRecipe recipe;
+
+    /** JEI 15 makes an extension per recipe. */
+    public JeiLeadedGlassExtension(LeadedGlassDisplayRecipe recipe) {
+        this.recipe = recipe;
     }
 
     @Override
-    public int getHeight(RecipeHolder<LeadedGlassDisplayRecipe> recipeHolder) {
-        return recipeHolder.value().gridHeight();
+    public ResourceLocation getRegistryName() {
+        return recipe.getId();
     }
 
     @Override
-    public void setRecipe(RecipeHolder<LeadedGlassDisplayRecipe> recipeHolder, IRecipeLayoutBuilder builder,
-                          ICraftingGridHelper craftingGridHelper, IFocusGroup focuses) {
-        LeadedGlassDisplayRecipe recipe = recipeHolder.value();
+    public int getWidth() {
+        return recipe.gridWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return recipe.gridHeight();
+    }
+
+    @Override
+    public void setRecipe(IRecipeLayoutBuilder builder, ICraftingGridHelper craftingGridHelper, IFocusGroup focuses) {
         int width = recipe.gridWidth();
         int height = recipe.gridHeight();
         List<List<ItemStack>> inputs = recipe.inputVariants();

@@ -39,12 +39,12 @@ public final class LeadedGlassSubtypes {
     /** The stack's design, or null for an all-clear one in the frame it would place without one. */
     @Nullable
     public static Object designOf(ItemStack stack) {
-        LeadedGlassDoorConfig door = stack.get(ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get());
+        LeadedGlassDoorConfig door = ModDataComponents.LEADED_GLASS_DOOR_CONFIG.get(stack);
         if (door != null) {
             return isPlainClear(door.top(), LeadedGlassFrame.PLAIN) && isPlainClear(door.bottom(), LeadedGlassFrame.PLAIN)
                     ? null : door;
         }
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config == null) {
             return null;
         }

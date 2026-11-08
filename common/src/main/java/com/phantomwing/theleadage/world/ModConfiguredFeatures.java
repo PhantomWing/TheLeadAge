@@ -3,7 +3,7 @@ package com.phantomwing.theleadage.world;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -19,7 +19,7 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_LEAD = registerKey("ore_lead");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_LEAD_SMALL = registerKey("ore_lead_small");
 
-    public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
+    public static void bootstrap(BootstapContext<ConfiguredFeature<?, ?>> context) {
         RuleTest stone = new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES);
         RuleTest deepslate = new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES);
 
@@ -34,6 +34,6 @@ public class ModConfiguredFeatures {
     }
 
     private static ResourceKey<ConfiguredFeature<?, ?>> registerKey(String name) {
-        return ResourceKey.create(Registries.CONFIGURED_FEATURE, ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, name));
+        return ResourceKey.create(Registries.CONFIGURED_FEATURE, new ResourceLocation(TheLeadAge.MOD_ID, name));
     }
 }

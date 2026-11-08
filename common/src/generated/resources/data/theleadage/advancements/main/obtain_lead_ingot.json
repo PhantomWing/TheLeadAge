@@ -1,0 +1,38 @@
+{
+  "parent": "theleadage:main/root",
+  "criteria": {
+    "lead_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "theleadage:lead_ingot"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "theleadage.advancement.obtain_lead_ingot.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "theleadage:lead_ingot"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "theleadage.advancement.obtain_lead_ingot"
+    }
+  },
+  "requirements": [
+    [
+      "lead_ingot"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

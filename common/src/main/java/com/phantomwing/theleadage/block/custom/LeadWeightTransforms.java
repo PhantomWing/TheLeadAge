@@ -64,7 +64,7 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     /** Wire the datapack loader on both loaders. Call once from common init. */
     public static void register() {
         ReloadListenerRegistry.register(PackType.SERVER_DATA, new LeadWeightTransforms(),
-                ResourceLocation.fromNamespaceAndPath(TheLeadAge.MOD_ID, DIRECTORY));
+                new ResourceLocation(TheLeadAge.MOD_ID, DIRECTORY));
     }
 
     /** The state {@code state} becomes on a hard impact, or {@code null} if it doesn't transform. */
@@ -114,7 +114,7 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
         String input = GsonHelper.getAsString(obj, "input");
         BlockState output = blockOrThrow(GsonHelper.getAsString(obj, "output")).defaultBlockState();
         if (input.startsWith("#")) {
-            TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.parse(input.substring(1)));
+            TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation(input.substring(1)));
             tags.add(new TagRule(tag, output));
         } else {
             blocks.put(blockOrThrow(input), output);
@@ -122,7 +122,7 @@ public final class LeadWeightTransforms extends SimpleJsonResourceReloadListener
     }
 
     private static Block blockOrThrow(String id) {
-        ResourceLocation key = ResourceLocation.parse(id);
+        ResourceLocation key = new ResourceLocation(id);
         if (!BuiltInRegistries.BLOCK.containsKey(key)) {
             throw new JsonSyntaxException("Unknown block '" + id + "'");
         }

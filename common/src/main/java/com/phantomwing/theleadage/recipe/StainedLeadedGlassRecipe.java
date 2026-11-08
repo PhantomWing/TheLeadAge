@@ -6,12 +6,13 @@ import com.phantomwing.theleadage.block.custom.LeadedGlassRecolor;
 import com.phantomwing.theleadage.block.custom.StainedLeadedGlassBlock;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.tags.CommonTags;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -29,17 +30,19 @@ public class StainedLeadedGlassRecipe extends CustomRecipe {
     private static final int CENTRE = 4;
     private static final int OUTPUT_COUNT = 8;
 
-    public StainedLeadedGlassRecipe(CraftingBookCategory category) {
-        super(category);
+    public StainedLeadedGlassRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer container, Level level) {
+        CraftingInput input = CraftingInput.of(container);
         return resultOf(input) != null;
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingContainer container, RegistryAccess registries) {
+        CraftingInput input = CraftingInput.of(container);
         Block result = resultOf(input);
         return result == null ? ItemStack.EMPTY : new ItemStack(result, OUTPUT_COUNT);
     }

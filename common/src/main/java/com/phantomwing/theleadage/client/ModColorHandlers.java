@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.client;
 
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * Shared tint logic for the leaded glass panel and the dyed leaded glass blocks — this is what
  * turns one white-glass texture into any colour. Each glass region carries a {@code tintindex}; these methods return the
  * region's dye colour from the block entity (in-world) or the item's component (inventory),
- * or white for a clear region. Registration is per loader (NeoForge
+ * or white for a clear region. Registration is per loader (Forge
  * {@code RegisterColorHandlersEvent}, Fabric {@code ColorProviderRegistry}) at the proper
  * client hook — Architectury's wrapper registers too eagerly (it needs a live Minecraft).
  */
@@ -36,7 +37,7 @@ public final class ModColorHandlers {
     }
 
     public static int itemTint(ItemStack stack, int tintIndex) {
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config == null) {
             return NO_TINT; // a default (unconfigured) pane = clear glass
         }
@@ -59,7 +60,7 @@ public final class ModColorHandlers {
     }
 
     private static int tintOf(@Nullable DyeColor dye) {
-        return dye == null ? NO_TINT : 0xFF000000 | dye.getTextureDiffuseColor();
+        return dye == null ? NO_TINT : 0xFF000000 | LeadedGlassDyes.rgbOf(dye);
     }
 
     /**
@@ -68,7 +69,7 @@ public final class ModColorHandlers {
      * ordinal) because {@code ItemProperties.register} clamps the value to [0, 1].
      */
     public static float framePredicate(ItemStack stack, LeadedGlassFrame frame) {
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         return config != null && config.frame() == frame ? 1.0F : 0.0F;
     }
 
@@ -78,7 +79,7 @@ public final class ModColorHandlers {
      * colour entries count as clear; any dyed region keeps the tinted white-glass icon.
      */
     public static float clearProperty(ItemStack stack) {
-        LeadedGlassConfig config = stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+        LeadedGlassConfig config = ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
         if (config == null) {
             return 1.0F; // a default (unconfigured) pane = clear glass
         }

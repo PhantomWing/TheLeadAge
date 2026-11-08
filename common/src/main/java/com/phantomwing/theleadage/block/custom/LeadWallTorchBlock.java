@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 /** Wall-mounted twin of {@link LeadTorchBlock} — same gray-white flame and lingering toxicity. */
 public class LeadWallTorchBlock extends WallTorchBlock implements EntityBlock {
     public LeadWallTorchBlock(Properties properties) {
-        super(ParticleTypes.SMOKE, properties); // the ctor particle is unused — animateTick is overridden
+        super(properties, ParticleTypes.SMOKE); // the ctor particle is unused — animateTick is overridden
     }
 
     @Override

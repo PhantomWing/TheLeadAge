@@ -4,14 +4,10 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The design of a configured leaded glass panel, carried on the item as a data component
+ * The design of a configured leaded glass panel, carried on the item in its tag
  * and copied onto its block entity when placed: the {@link LeadedGlassFrame frame} plus a
  * per-region colour (a dye id, or {@code -1} for clear/uncoloured glass). The ids are this game's own: what is saved
  * or sent is each dye's name, as vanilla saves its dyes, since a dye mod's colours are numbered by which dye mods are
@@ -33,18 +29,11 @@ public record LeadedGlassConfig(LeadedGlassFrame frame, List<Integer> colors) {
     public static final Codec<Integer> COLOR_CODEC = Codec.either(Codec.STRING, Codec.INT).xmap(
             saved -> saved.map(LeadedGlassConfig::idOf, LeadedGlassConfig::known),
             id -> Either.left(nameOf(id)));
-    private static final StreamCodec<ByteBuf, Integer> COLOR_STREAM_CODEC =
-            ByteBufCodecs.STRING_UTF8.map(LeadedGlassConfig::idOf, LeadedGlassConfig::nameOf);
 
     public static final Codec<LeadedGlassConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             LeadedGlassFrame.CODEC.fieldOf("frame").forGetter(LeadedGlassConfig::frame),
             COLOR_CODEC.listOf().fieldOf("colors").forGetter(LeadedGlassConfig::colors)
     ).apply(instance, LeadedGlassConfig::new));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, LeadedGlassConfig> STREAM_CODEC = StreamCodec.composite(
-            LeadedGlassFrame.STREAM_CODEC, LeadedGlassConfig::frame,
-            COLOR_STREAM_CODEC.apply(ByteBufCodecs.list()), LeadedGlassConfig::colors,
-            LeadedGlassConfig::new);
 
     /** The name a colour is saved by. */
     public static String nameOf(int id) {

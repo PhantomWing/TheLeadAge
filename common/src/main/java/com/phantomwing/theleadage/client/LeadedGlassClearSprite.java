@@ -67,7 +67,7 @@ public final class LeadedGlassClearSprite {
     public static TextureAtlasSprite clearSprite(TextureAtlasSprite white) {
         ResourceLocation name = white.contents().name();
         ResourceLocation clear = CLEAR_NAME.computeIfAbsent(name, n -> n.getPath().contains("white_")
-                ? ResourceLocation.fromNamespaceAndPath(n.getNamespace(), n.getPath().replace("white_", ""))
+                ? new ResourceLocation(n.getNamespace(), n.getPath().replace("white_", ""))
                 : n); // already the clear texture (or not one of ours)
         return clear.equals(name) ? null
                 : Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(clear);

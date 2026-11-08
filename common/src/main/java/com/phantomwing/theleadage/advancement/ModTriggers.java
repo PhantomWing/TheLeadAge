@@ -1,24 +1,23 @@
 package com.phantomwing.theleadage.advancement;
 
 import com.phantomwing.theleadage.TheLeadAge;
-import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.PlayerTrigger;
-import net.minecraft.core.registries.Registries;
 
-/** The advancement triggers for what no vanilla trigger sees. */
+/**
+ * The advancement triggers for what no vanilla trigger sees. 1.20.1 has no trigger registry (1.20.2's): a trigger is
+ * named by its own id and put in {@link CriteriaTriggers}' plain map, from {@code TheLeadAgeCommon.setup()}, which each
+ * loader calls on the main thread.
+ */
 public final class ModTriggers {
-    public static final DeferredRegister<CriterionTrigger<?>> TRIGGERS = DeferredRegister.create(TheLeadAge.MOD_ID, Registries.TRIGGER_TYPE);
-
     /** A player swam in water raw lead poisons, and breathed it ({@code LeadWater#contaminate}). */
-    public static final RegistrySupplier<PlayerTrigger> SWAM_IN_POISONED_WATER =
-            TRIGGERS.register("swam_in_poisoned_water", PlayerTrigger::new);
+    public static final PlayerTrigger SWAM_IN_POISONED_WATER =
+            new PlayerTrigger(TheLeadAge.resourceLocation("swam_in_poisoned_water"));
 
     private ModTriggers() {
     }
 
     public static void register() {
-        TRIGGERS.register();
+        CriteriaTriggers.register(SWAM_IN_POISONED_WATER);
     }
 }

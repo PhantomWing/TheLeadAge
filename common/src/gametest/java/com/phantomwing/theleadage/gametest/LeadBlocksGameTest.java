@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
+import com.phantomwing.theleadage.block.custom.LeadBulbBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassShatter;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
@@ -21,7 +22,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CopperBulbBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,7 +37,10 @@ import java.util.List;
 import static com.phantomwing.theleadage.gametest.TestCompat.IMMOVABLE;
 import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.isPathfindable;
+import static com.phantomwing.theleadage.gametest.TestCompat.mockPlayer;
 import static com.phantomwing.theleadage.gametest.TestCompat.shownAs;
+import static com.phantomwing.theleadage.gametest.TestCompat.textureDiffuseColor;
 
 /**
  * Game tests for lead blocks: the Lead Bulb's redstone toggle, a dyed leaded glass pane tinting a beacon's beam, and
@@ -54,19 +57,19 @@ public final class LeadBlocksGameTest {
         helper.setBlock(bulb, ModBlocks.LEAD_BULB.get());
         helper.setBlock(power, Blocks.REDSTONE_BLOCK);
         helper.runAfterDelay(2, () -> {
-            if (!helper.getBlockState(bulb).getValue(CopperBulbBlock.LIT)) {
+            if (!helper.getBlockState(bulb).getValue(LeadBulbBlock.LIT)) {
                 fail(helper, "A redstone pulse didn't turn the Lead Bulb on");
                 return;
             }
             helper.setBlock(power, Blocks.AIR);
             helper.runAfterDelay(2, () -> {
-                if (!helper.getBlockState(bulb).getValue(CopperBulbBlock.LIT)) {
+                if (!helper.getBlockState(bulb).getValue(LeadBulbBlock.LIT)) {
                     fail(helper, "The Lead Bulb turned off when its power went");
                     return;
                 }
                 helper.setBlock(power, Blocks.REDSTONE_BLOCK);
                 helper.runAfterDelay(2, () -> {
-                    if (helper.getBlockState(bulb).getValue(CopperBulbBlock.LIT)) {
+                    if (helper.getBlockState(bulb).getValue(LeadBulbBlock.LIT)) {
                         fail(helper, "A second redstone pulse didn't turn the Lead Bulb off");
                     } else {
                         helper.succeed();
@@ -88,7 +91,7 @@ public final class LeadBlocksGameTest {
         blockEntity(helper, pane, LeadedGlassPanelBlockEntity.class)
                 .setColors(Collections.nCopies(64, DyeColor.RED.getId()));
         Integer color = TestLoader.beaconColor(helper, pane, beacon);
-        int red = 0xFF000000 | DyeColor.RED.getTextureDiffuseColor();
+        int red = 0xFF000000 | textureDiffuseColor(DyeColor.RED);
         if (clear != null) {
             fail(helper, "A clear leaded glass pane tints the beam #" + Integer.toHexString(clear));
         } else if (color == null || color != red) {
@@ -161,11 +164,11 @@ public final class LeadBlocksGameTest {
     /** A pane in a wall is in a mob's way, as a glass pane is, and turns with a build; one on the floor is walked over. */
     public static void wallPanesBlockPathsAndTurnWithTheBuild(GameTestHelper helper) {
         BlockState wall = ModBlocks.LEADED_GLASS_PANEL.get().defaultBlockState().setValue(LeadedGlassPaneBlock.FACING, Direction.NORTH);
-        if (wall.isPathfindable(PathComputationType.LAND)) {
+        if (isPathfindable(wall, PathComputationType.LAND)) {
             fail(helper, "Mobs plan paths through a leaded glass pane in a wall");
             return;
         }
-        if (!wall.setValue(LeadedGlassPaneBlock.FACE, AttachFace.FLOOR).isPathfindable(PathComputationType.LAND)) {
+        if (!isPathfindable(wall.setValue(LeadedGlassPaneBlock.FACE, AttachFace.FLOOR), PathComputationType.LAND)) {
             fail(helper, "Mobs won't walk over a leaded glass pane on the floor");
             return;
         }
@@ -189,10 +192,10 @@ public final class LeadBlocksGameTest {
             helper.succeed();
             return;
         }
-        Player bare = helper.makeMockPlayer(GameType.SURVIVAL);
-        Player miner = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player bare = mockPlayer(helper, GameType.SURVIVAL);
+        Player miner = mockPlayer(helper, GameType.SURVIVAL);
         miner.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
-        Player creative = helper.makeMockPlayer(GameType.CREATIVE);
+        Player creative = mockPlayer(helper, GameType.CREATIVE);
         creative.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
         String problem = shatters(null) ? "destroyed with no one breaking it shatters"
                 : shatters(miner) ? "pried out with a pickaxe shatters"
@@ -219,7 +222,7 @@ public final class LeadBlocksGameTest {
         List<Integer> red = List.of(DyeColor.RED.getId());
         pane.setColors(red);
         List<ItemStack> drops = Block.getDrops(helper.getBlockState(pos), helper.getLevel(), helper.absolutePos(pos), pane);
-        LeadedGlassConfig config = drops.size() == 1 ? drops.get(0).get(ModDataComponents.LEADED_GLASS_CONFIG.get()) : null;
+        LeadedGlassConfig config = drops.size() == 1 ? ModDataComponents.LEADED_GLASS_CONFIG.get(drops.get(0)) : null;
         if (config != null && config.colors().equals(red)) {
             helper.succeed();
         } else {

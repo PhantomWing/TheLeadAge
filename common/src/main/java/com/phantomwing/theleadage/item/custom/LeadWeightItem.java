@@ -54,7 +54,7 @@ public class LeadWeightItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {
         // Combat-style tooltip: a guaranteed base hit, then a flat amount per block fallen (the smash
         // damage from LeadWeightEntity). Same on all three tiers — wear doesn't change the hit.
         tooltip.add(CommonComponents.EMPTY); // blank line before the section, like vanilla weapon tooltips

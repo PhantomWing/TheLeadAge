@@ -6,8 +6,8 @@ loom {
     accessWidenerPath = file('src/main/resources/theleadage.accesswidener')
 }
 
-// Datagen output is committed and shared across loaders. The NeoForge data
-// generator (see :neoforge) writes to src/generated/resources; wire that as an
+// Datagen output is committed and shared across loaders. The Forge data
+// generator (see :forge) writes to src/generated/resources; wire that as an
 // additional resource source directory so the generated assets/data ship in the
 // common jar (and therefore in every loader's mod jar).
 sourceSets {
@@ -31,7 +31,7 @@ dependencies {
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
     // JEI plugin API — compile-time only. JEI stays an optional runtime mod: the @JeiPlugin class
     // is only ever classloaded by JEI itself, so nothing breaks when JEI isn't installed.
-    modCompileOnly "mezz.jei:jei-1.21.1-common-api:${rootProject.jei_version}"
+    modCompileOnly "mezz.jei:jei-1.20.1-common-api:${rootProject.jei_version}"
     // EMI — the xplat artifact is what lets the plugin live here in common (one class, both
     // loaders), the same way the JEI plugin does. compileOnly: EMI is never shipped or required,
     // and the plugin class is only ever loaded by EMI's own @EmiEntrypoint classpath scan.

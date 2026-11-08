@@ -44,7 +44,8 @@ public final class VanillaTabs {
     }
 
     public static void register() {
-        add(CreativeModeTabs.BUILDING_BLOCKS, Items.WAXED_OXIDIZED_COPPER_BULB, BUILDING);
+        // 1.20.1 has no copper grates, doors or bulbs, so lead follows its last copper building block.
+        add(CreativeModeTabs.BUILDING_BLOCKS, Items.WAXED_OXIDIZED_CUT_COPPER_SLAB, BUILDING);
 
         List<String> glass = new ArrayList<>(List.of("leaded_glass"));
         for (DyeColor color : LeadedGlassDyes.colors()) {
@@ -59,11 +60,12 @@ public final class VanillaTabs {
         add(CreativeModeTabs.FUNCTIONAL_BLOCKS, Items.SOUL_TORCH, List.of("lead_torch"));
         add(CreativeModeTabs.FUNCTIONAL_BLOCKS, Items.SOUL_LANTERN, List.of("lead_lantern"));
         add(CreativeModeTabs.FUNCTIONAL_BLOCKS, Items.CHAIN, List.of("lead_chain"));
-        add(CreativeModeTabs.FUNCTIONAL_BLOCKS, Items.WAXED_OXIDIZED_COPPER_BULB, List.of("lead_bulb"));
+        // After the lamp, 1.20.1 having no copper bulb.
+        add(CreativeModeTabs.FUNCTIONAL_BLOCKS, Items.REDSTONE_LAMP, List.of("lead_bulb"));
         add(CreativeModeTabs.FUNCTIONAL_BLOCKS, Items.DAMAGED_ANVIL,
                 List.of("lead_weight", "chipped_lead_weight", "damaged_lead_weight"));
 
-        add(CreativeModeTabs.REDSTONE_BLOCKS, Items.WAXED_OXIDIZED_COPPER_BULB, List.of("lead_bulb"));
+        add(CreativeModeTabs.REDSTONE_BLOCKS, Items.REDSTONE_LAMP, List.of("lead_bulb"));
         add(CreativeModeTabs.REDSTONE_BLOCKS, Items.HEAVY_WEIGHTED_PRESSURE_PLATE, List.of("lead_pressure_plate"));
         add(CreativeModeTabs.REDSTONE_BLOCKS, Items.IRON_DOOR, List.of("lead_door"));
         add(CreativeModeTabs.REDSTONE_BLOCKS, Items.IRON_TRAPDOOR, List.of("lead_trapdoor"));
@@ -75,7 +77,7 @@ public final class VanillaTabs {
 
         add(CreativeModeTabs.COMBAT, Items.IRON_SWORD, List.of("lead_sword"));
         // 1.21.11's spear after the Iron Spear and nautilus armour after the Iron Nautilus Armor, where a mod
-        // backporting them lists them, which neoforge.mods.toml orders before this; else beside the sword and horse
+        // backporting them lists them, which mods.toml orders before this; else beside the sword and horse
         // armour.
         add(CreativeModeTabs.COMBAT, List.of(vanilla("iron_spear"), lead("lead_sword")), List.of("lead_spear"));
         add(CreativeModeTabs.COMBAT, Items.IRON_AXE, List.of("lead_axe"));
@@ -129,7 +131,7 @@ public final class VanillaTabs {
     }
 
     private static ItemLike vanilla(String path) {
-        return () -> BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(path));
+        return () -> BuiltInRegistries.ITEM.get(new ResourceLocation(path));
     }
 
     private static ItemLike lead(String path) {
@@ -145,11 +147,11 @@ public final class VanillaTabs {
     }
 
     private static ItemLike modItem(String namespace, String path) {
-        return () -> BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(namespace, path));
+        return () -> BuiltInRegistries.ITEM.get(new ResourceLocation(namespace, path));
     }
 
     private static ResourceKey<CreativeModeTab> modTab(String namespace, String path) {
-        return ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(namespace, path));
+        return ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(namespace, path));
     }
 
     // Each after the one before: inserted after the same anchor, they would come out in reverse.

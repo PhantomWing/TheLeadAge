@@ -40,7 +40,7 @@ public class LeadedGlassDoorRenderer implements BlockEntityRenderer<LeadedGlassD
         pose.pushPose();
         // Which way the design faces, closed or swung open — shared with the dye/shear interaction,
         // which inverts this same matrix. See LeadedGlassPlacement.
-        pose.mulPose(LeadedGlassPlacement.orientation(state, box));
+        pose.mulPoseMatrix(LeadedGlassPlacement.orientation(state, box));
         LeadedGlassSurface.render(pane, box, pose, buffers, light, overlay);
         pose.popPose();
     }

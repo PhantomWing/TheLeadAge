@@ -4,7 +4,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.WhiteSmokeParticle;
+import net.minecraft.client.particle.SmokeParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 
 /**
@@ -17,10 +17,10 @@ public final class LeadFumesParticles {
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {
-        private final WhiteSmokeParticle.Provider smoke;
+        private final SmokeParticle.Provider smoke;
 
         public Provider(SpriteSet sprites) {
-            this.smoke = new WhiteSmokeParticle.Provider(sprites);
+            this.smoke = new SmokeParticle.Provider(sprites);
         }
 
         @Override

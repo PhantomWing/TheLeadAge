@@ -1,6 +1,5 @@
 package com.phantomwing.theleadage.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.BlockPos;
@@ -30,15 +29,9 @@ import org.jetbrains.annotations.Nullable;
  * check needed is Silk Touch, which yields the ore block itself and so never produces fumes.</p>
  */
 public class LeadOreBlock extends Block {
-    public static final MapCodec<LeadOreBlock> CODEC = simpleCodec(LeadOreBlock::new);
 
     public LeadOreBlock(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 
     @Override
@@ -54,8 +47,7 @@ public class LeadOreBlock extends Block {
             return;
         }
         // Silk Touch yields the ore block (no raw ore) -> never fumes.
-        Holder<Enchantment> silkTouch = serverLevel.registryAccess()
-                .lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH);
+        Enchantment silkTouch = Enchantments.SILK_TOUCH;
         if (EnchantmentHelper.getItemEnchantmentLevel(silkTouch, tool) > 0) {
             return;
         }

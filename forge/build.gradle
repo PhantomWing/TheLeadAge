@@ -1,0 +1,321 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+// Resolved outside the loom { runs { } } closures: inside the RunConfigSettings
+// delegate, `data()` shadows other resolutions, so these are hoisted here.
+def datagenModId = rootProject.property('mod_id').toString()
+def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
+def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
+
+// Optional mods are useless, and can crash, in the headless game-test and data-generation runs.
+def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
+def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
+
+// Create is a real (optional) integration, not a dev nicety: the compat recipe gens extend Create's
+// own providers, so it must be on the DATAGEN runtime classpath too.
+//   ./gradlew :forge:runClient -Penable_create=false
+def loadCreate = (project.findProperty('enable_create') ?: rootProject.enable_create).toString().toBoolean()
+
+// Farmer's Delight (the Lead Knife). Like Create, it must be on the DATAGEN classpath too, so
+// `--existing-mod farmersdelight` below can resolve FD's resources.
+//   ./gradlew :forge:runClient -PloadFD=false
+def loadFD = (project.findProperty('loadFD') ?: rootProject.loadFD).toString().toBoolean()
+
+// Vanilla Backport, Grappling Hooks and Mekanism, each with its switch in gradle.properties.
+def loadVanillaBackport = (project.findProperty('enable_vanilla_backport') ?: rootProject.enable_vanilla_backport).toString().toBoolean()
+def loadHooks = (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
+def loadMekanism = (project.findProperty('enable_mekanism') ?: rootProject.enable_mekanism).toString().toBoolean()
+
+// Which recipe viewer to load in the dev run. The mod ships plugins for BOTH JEI and EMI:
+//   ./gradlew :forge:runClient -Precipe_viewer=jei|emi|both|none
+def selectedRecipeViewer = (project.findProperty('recipe_viewer') ?: rootProject.recipe_viewer).toString()
+if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
+    throw new GradleException("Invalid recipe_viewer='${selectedRecipeViewer}'. Valid values: jei, emi, both, none")
+}
+def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
+def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
+logger.lifecycle("[TheLeadAge] (forge) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi}), Create: ${loadCreate}, FD: ${loadFD}, Vanilla Backport (datagen only): ${loadVanillaBackport}, Grappling Hooks: ${loadHooks}, Mekanism: ${loadMekanism}")
+
+loom {
+    accessWidenerPath = project(':common').loom.accessWidenerPath
+
+    forge {
+        // Forge reads its mixin configs from the jar's manifest, which Loom writes from this.
+        mixinConfig 'theleadage.forge.mixins.json'
+        // Forge has access transformers, not wideners: the common widener is converted into the jar's
+        // access transformer, in Forge's names, as the jar is remapped.
+        convertAccessWideners = true
+        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+    }
+
+    mixin {
+        defaultRefmapName = 'theleadage.forge.refmap.json'
+    }
+
+    // Include the test-only source set in the dev mod so the game tests and their data load.
+    // Dev-runtime only: the production jar is still built from `main`, so test classes never ship.
+    // Added to Loom's own `main` group rather than a second group: two groups carrying the same
+    // mod make the loader keep one, and some FML releases keep the one without the tests (none run).
+    mods {
+        named('main') {
+            sourceSet sourceSets.test
+        }
+    }
+
+    runs {
+        // Forge data generation. Output + existing-resource paths point at the common source set
+        // (datagen output is shared across loaders).
+        //   ./gradlew :forge:runData
+        data {
+            data()
+            name = "Data Generation"
+            programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
+            // FD's existing resources only exist when FD is on the run classpath; asking for them
+            // otherwise fails datagen outright.
+            if (loadFD) programArgs('--existing-mod', 'farmersdelight')
+            // The mod without the test source set, which carries the datagen output into dev runs: datagen would
+            // otherwise load the output of the run before as the mod's own while it writes the new one.
+            mods {
+                register('main') {
+                    sourceSet sourceSets.main
+                }
+            }
+        }
+
+        // Headless Forge game-test server: runs every test in GameTests, prints PASS/FAIL, and exits.
+        // Loom launches a server() run with the ordinary server's arguments whatever its template, so the
+        // game-test server is asked for through forge.gameTestServer, which Forge's patched Main reads: without it
+        // the run is a plain server waiting on its EULA.
+        //   ./gradlew :forge:runGameTest
+        gameTest {
+            server()
+            forgeTemplate 'gameTestServer'
+            name = "Game Test"
+            runDir "run/gametest"
+            source sourceSets.test
+            property 'forge.enableGameTest', 'true'
+            property 'forge.gameTestServer', 'true'
+            property 'forge.enabledGameTestNamespaces', 'theleadage'
+        }
+    }
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+}
+
+// Test-only source set for game tests. Kept out of `main` so neither the test
+// classes nor the empty.nbt structure ship in the production jar. It inherits
+// main's full compile/runtime classpath plus main's output. The tests themselves
+// are common/src/gametest, which Fabric's game tests run too; only the registration
+// and TestLoader are Forge's own.
+//
+// The datagen output is in it too, for dev runs only. There common's transformed jar is a mod of its own
+// that nothing orders, so Forge's own data beat its data; as part of this mod it loads after Forge, as the
+// shipped jar's does.
+sourceSets {
+    test {
+        java.srcDir project(':common').file('src/gametest/java')
+        resources.srcDir project(':common').file('src/gametest/resources')
+        resources.srcDir project(':common').file('src/generated/resources')
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+// Each game-test run in a world of its own, and a flat one. Forge 47's game-test server keeps its world
+// (run/gametest/world) from one run to the next, so a run's tests stood among what the last run's left - raw lead, its
+// water - and the mob avoidance tests found lead where they set none. And it makes that world from server.properties
+// rather than vanilla's flat test world, so with level-type normal a Lead Weight dropped 29 blocks above its test
+// started inside the tuff.
+// Vanilla's flat test world's layers: an empty generator-settings logs an ERROR before falling back to them.
+def FLAT_TEST_WORLD = 'generator-settings={"biome":"minecraft:plains","layers":[{"block":"minecraft:bedrock","height":1},' +
+        '{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}]}'
+tasks.matching { it.name == 'runGameTest' }.configureEach {
+    doFirst {
+        delete file('run/gametest/world')
+        File properties = file('run/gametest/server.properties')
+        properties.parentFile.mkdirs()
+        List<String> lines = properties.exists()
+                ? properties.readLines().findAll { !it.startsWith('level-type=') && !it.startsWith('generator-settings=') }
+                : []
+        properties.text = (lines + ['level-type=minecraft\\:flat', FLAT_TEST_WORLD]).join('\n') + '\n'
+    }
+}
+
+processTestResources {
+    exclude '.cache/**'
+}
+
+// Every run but datagen's loads the test source set as part of the mod, but only the game-test run builds it: the
+// client and server would load whatever the last game tests copied.
+tasks.withType(net.fabricmc.loom.task.AbstractRunTask).matching { it.name != 'runData' }.configureEach {
+    dependsOn tasks.named('processTestResources')
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
+    // Architectury API (Forge).
+    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+
+    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    shadowCommon(project(path: ':common', configuration: 'transformProductionForge')) { transitive false }
+
+    // MixinExtras, which the mixins use (@WrapOperation, @ModifyExpressionValue) and Forge 47 doesn't carry, as
+    // Fabric Loader does: bundled in the jar, which starts it.
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation(include("io.github.llamalad7:mixinextras-forge:0.4.1"))
+
+    // ---- Create (optional compat) ----
+    // compileOnly ALWAYS so the compat datagen classes still compile with Create toggled off.
+    // Never shipped, never a hard dependency — every generated Create recipe is mod_loaded-gated.
+    modCompileOnly("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
+    modCompileOnly("net.createmod.ponder:Ponder-Forge-${rootProject.minecraft_version}:${rootProject.ponder_version}")
+    modCompileOnly("dev.engine-room.flywheel:flywheel-forge-api-${rootProject.minecraft_version}:${rootProject.flywheel_version}")
+    modCompileOnly("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
+    // Not on the game-test classpath: the tests cover this mod's own mechanics. Datagen does need it.
+    if (loadCreate && !runningGameTest) {
+        modLocalRuntime("com.simibubi.create:create-${rootProject.minecraft_version}:${rootProject.create_version}:slim") { transitive = false }
+        modLocalRuntime("net.createmod.ponder:Ponder-Forge-${rootProject.minecraft_version}:${rootProject.ponder_version}")
+        modLocalRuntime("dev.engine-room.flywheel:flywheel-forge-${rootProject.minecraft_version}:${rootProject.flywheel_version}")
+        modLocalRuntime("com.tterrag.registrate:Registrate:${rootProject.registrate_version}")
+    }
+
+    // ---- Farmer's Delight (optional compat) ----
+    // compileOnly ALWAYS so LeadKnifeItem (which extends FD's KnifeItem) compiles with FD toggled off.
+    // Never shipped, never a hard dependency — the item falls back to a plain SwordItem without FD.
+    modCompileOnly "maven.modrinth:farmers-delight:${rootProject.farmersdelight_forge_version}"
+    if (loadFD && !runningGameTest) {
+        modLocalRuntime "maven.modrinth:farmers-delight:${rootProject.farmersdelight_forge_version}"
+    }
+
+    // Vanilla Backport, whose 1.21.11 content the Lead Spear and Lead Nautilus Armor are made with
+    // (BackportPlatformImpl). Modrinth version ids, since a version number names both loaders' files there.
+    // Backported Spears has no 1.20.1 build, so the spear is a spear only with Vanilla Backport here.
+    modCompileOnly("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_forge_version}")
+    modCompileOnly("maven.modrinth:platform:${rootProject.platform_forge_version}")
+    // Vanilla Backport in datagen, whose iron nautilus armour and spear the loot modifiers name. Not in the game
+    // runs: its sulfur caves mixin names an SRG field (f_189553_) that a Loom dev run's Mojang names don't have, so
+    // every world it generates crashes with NoSuchFieldError. A real install is unaffected.
+    if (loadVanillaBackport && runningDataGen) {
+        modLocalRuntime("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_forge_version}")
+        modLocalRuntime("maven.modrinth:platform:${rootProject.platform_forge_version}")
+    }
+    // Mekanism has lead of its own, whose processing takes the mod's ore through the forge: tags; the dev runs carry
+    // it to check that, and the Mekanism Lead pack.
+    if (loadMekanism && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("maven.modrinth:mekanism:${rootProject.mekanism_version}")
+    }
+    // Yori3o's Grappling Hooks reads the Lead Grappling Hook from yo_hooks/hooks.json.
+    if (loadHooks && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("maven.modrinth:yori3os-grappling-hooks:${rootProject.grappling_hooks_forge_version}")
+        modLocalRuntime("maven.modrinth:yacl:${rootProject.yacl_forge_version}")
+        // The libraries YACL's jar bundles, which a dev run doesn't unpack.
+        forgeRuntimeLibrary("org.quiltmc.parsers:json:0.2.1")
+        forgeRuntimeLibrary("org.quiltmc.parsers:gson:0.2.1")
+        forgeRuntimeLibrary("com.twelvemonkeys.imageio:imageio-webp:3.12.0")
+    }
+
+    // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
+    //      never shipped, never a hard dependency). Skipped for the game-test run. ----
+    if (!runningGameTest && !runningDataGen) {
+        if (loadJei) {
+            modLocalRuntime("mezz.jei:jei-1.20.1-forge:${rootProject.jei_version}")
+        }
+        if (loadEmi) {
+            modLocalRuntime("dev.emi:emi-forge:${rootProject.emi_version}")
+        }
+        modLocalRuntime("squeek.appleskin:appleskin-forge:${rootProject.appleskin_forge_version}")
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'minecraft_version_range', rootProject.minecraft_version_range
+
+    filesMatching('META-INF/mods.toml') {
+        expand 'version': project.version, 'minecraft_version_range': rootProject.minecraft_version_range
+    }
+}
+
+shadowJar {
+    exclude 'fabric.mod.json'
+    exclude 'architectury.common.json'
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = 'dev-shadow'
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+}
+
+// Publishing (Forge jar). ./gradlew :forge:publishMods (tokens via MODRINTH_TOKEN / CURSEFORGE_TOKEN env vars).
+apply plugin: 'me.modmuss50.mod-publish-plugin'
+
+// The Forge jar also runs on NeoForge 1.20.1, a Forge-compatible fork, so the upload names both loaders.
+publishMods {
+    file = remapJar.archiveFile
+    version = rootProject.mod_version
+    displayName = "The Lead Age ${rootProject.mod_version}"
+    changelog = rootProject.ext.latestChangelog()
+    type = STABLE
+    modLoaders.add("forge")
+    modLoaders.add("neoforge")
+    dryRun = project.hasProperty("publishDryRun")
+
+    modrinth {
+        projectId = providers.gradleProperty("modrinth_project_id")
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN").orElse(providers.gradleProperty("modrinth_token"))
+        rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
+        // Forge only needs Architectury — fabric-api / cloth-config are Fabric-only.
+        requires("architectury-api")
+        optional("create", "farmers-delight", "jei", "emi")
+    }
+    curseforge {
+        projectId = providers.gradleProperty("curseforge_project_id")
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN").orElse(providers.gradleProperty("curseforge_token"))
+        rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
+        // CurseForge requires explicit side flags (Modrinth infers them from the jar).
+        client = true
+        server = true
+        requires("architectury-api")
+        optional("create", "farmers-delight", "jei", "emi")
+    }
+}
+
+sourcesJar {
+    def commonSources = project(':common').sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenForge(MavenPublication) {
+            artifactId = "${rootProject.mod_id}-forge"
+            from components.java
+        }
+    }
+
+    repositories {
+        // Add repositories to publish to here.
+    }
+}

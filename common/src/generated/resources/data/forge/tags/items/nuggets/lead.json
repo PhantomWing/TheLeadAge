@@ -1,0 +1,9 @@
+{
+  "values": [
+    "theleadage:lead_nugget",
+    {
+      "id": "#c:lead_nuggets",
+      "required": false
+    }
+  ]
+}

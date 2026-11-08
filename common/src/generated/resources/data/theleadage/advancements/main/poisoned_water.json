@@ -1,0 +1,30 @@
+{
+  "parent": "theleadage:main/root",
+  "criteria": {
+    "poisoned_water": {
+      "conditions": {},
+      "trigger": "theleadage:swam_in_poisoned_water"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "theleadage.advancement.poisoned_water.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "theleadage:raw_lead_block"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "theleadage.advancement.poisoned_water"
+    }
+  },
+  "requirements": [
+    [
+      "poisoned_water"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

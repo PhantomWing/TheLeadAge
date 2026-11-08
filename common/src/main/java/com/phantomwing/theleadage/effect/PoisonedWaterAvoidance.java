@@ -7,7 +7,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.level.pathfinder.Node;
-import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +59,7 @@ public final class PoisonedWaterAvoidance {
     @Nullable
     public static Node costed(@Nullable Node node, Mob mob) {
         // Water against a wall is WATER_BORDER to an amphibian, as dry land beside water is to a walker: both are asked.
-        if (node == null || node.type != PathType.WATER && node.type != PathType.WATER_BORDER && node.type != PathType.BREACH) {
+        if (node == null || node.type != BlockPathTypes.WATER && node.type != BlockPathTypes.WATER_BORDER && node.type != BlockPathTypes.BREACH) {
             return node;
         }
         float cost = Math.max(0.0F, mob.getPathfindingMalus(node.type)) + PATH_COST;

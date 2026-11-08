@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * Single, loader-agnostic source of truth for the lead loot injections. Both the
- * NeoForge Global Loot Modifier datagen provider and the Fabric loot mixin iterate
+ * Forge Global Loot Modifier datagen provider and the Fabric loot mixin iterate
  * this list, so the two loaders behave identically. (Mirrors The Silver Age's
  * {@code SilverLootSpec}; lead currently does REPLACE only.)
  *
@@ -61,7 +61,7 @@ public final class LeadLootSpec {
     private static final float INGOT_CHANCE = 0.20f;
 
     private static ResourceLocation mc(String path) {
-        return ResourceLocation.withDefaultNamespace(path);
+        return new ResourceLocation(path);
     }
 
     private static Supplier<Item> vanilla(Item item) {

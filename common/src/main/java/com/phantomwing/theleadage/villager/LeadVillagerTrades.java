@@ -4,19 +4,18 @@ import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 
 /**
  * Loader-agnostic source of truth for the lead villager trades — the "shared spec,
  * per-loader apply" model already used for loot. Trade content (items, counts,
  * uses, xp, price) is defined here once as {@code VillagerTrades.ItemListing}
- * factories; each loader registers them through its own API (NeoForge from
+ * factories; each loader registers them through its own API (Forge from
  * {@code VillagerTradesEvent}/{@code WandererTradesEvent}, Fabric via
  * {@code TradeOfferHelper}). Config gating is applied per loader, not here.
  *
  * <p>To add a trade: write a static {@code VillagerTrades.ItemListing factoryMethod()}
- * here, then wire it into BOTH {@code com.phantomwing.theleadage.neoforge.villager.ModVillagerTrades}
+ * here, then wire it into BOTH {@code com.phantomwing.theleadage.forge.villager.ModVillagerTrades}
  * and {@code com.phantomwing.theleadage.fabric.villager.ModVillagerTrades}.</p>
  */
 public final class LeadVillagerTrades {
@@ -33,7 +32,7 @@ public final class LeadVillagerTrades {
      */
     public static VillagerTrades.ItemListing smithBuysLeadIngots() {
         return (trader, random) -> new MerchantOffer(
-                new ItemCost(ModItems.LEAD_INGOT.get(), 4),
+                new ItemStack(ModItems.LEAD_INGOT.get(), 4),
                 new ItemStack(Items.EMERALD, 1),
                 12,
                 10,

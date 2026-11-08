@@ -53,8 +53,16 @@ if (!['jei', 'emi', 'both', 'none'].contains(selectedRecipeViewer)) {
 }
 def loadJei = selectedRecipeViewer == 'jei' || selectedRecipeViewer == 'both'
 def loadEmi = selectedRecipeViewer == 'emi' || selectedRecipeViewer == 'both'
-def loadVanillaBackport = (project.findProperty('enable_vanilla_backport') ?: rootProject.enable_vanilla_backport).toString().toBoolean()
 logger.lifecycle("[TheLeadAge] (fabric) Recipe viewer: ${selectedRecipeViewer} (JEI=${loadJei}, EMI=${loadEmi})")
+
+// Each game-test run in a world of its own. 1.20.1's game-test server keeps its world (run/gametest/world) from one run
+// to the next, so a run's tests stood among what the last run's left - raw lead, its water - and the mob avoidance tests
+// found lead where they set none.
+tasks.matching { it.name == 'runGameTest' }.configureEach {
+    doFirst {
+        delete file('run/gametest/world')
+    }
+}
 
 configurations {
     common
@@ -84,31 +92,26 @@ dependencies {
         exclude group: "net.fabricmc.fabric-api"
     }
 
-    // Backported Spears and Vanilla Backport, which the Lead Spear and Lead Nautilus Armor are made with
-    // (BackportPlatformImpl). Backported Spears asks for Fabric Loader 0.18.1, past this line's, so only Vanilla
-    // Backport runs in dev here.
-    modCompileOnly("maven.modrinth:backported-spears:${rootProject.backported_spears_fabric_version}") { transitive = false }
+    // Vanilla Backport, which the Lead Spear and Lead Nautilus Armor are made with (BackportPlatformImpl).
+    // Backported Spears has no 1.20.1 build.
     modCompileOnly("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_fabric_version}") { transitive = false }
     modCompileOnly("maven.modrinth:platform:${rootProject.platform_fabric_version}") { transitive = false }
-    if (loadVanillaBackport && !runningGameTest) {
-        modLocalRuntime("maven.modrinth:vanillabackport:${rootProject.vanilla_backport_fabric_version}") { transitive = false }
-        modLocalRuntime("maven.modrinth:platform:${rootProject.platform_fabric_version}") { transitive = false }
-    }
+    // Not in Fabric's dev runs on this line: Vanilla Backport 1.20.1 and its Platform library bundle MixinSquared and
+    // Reach Entity Attributes, which Loom 1.7 doesn't unpack for a dev run, and the server dies without them
+    // (NoClassDefFoundError: MixinSquaredBootstrap). The compat is compiled here either way.
 
     // ---- Dev-runtime niceties (modLocalRuntime ONLY — never compiled against,
     //      never shipped, never a hard dependency). ----
     // Recipe viewer: both the JEI and EMI plugins live in :common, so both work on Fabric too.
     //   ./gradlew :fabric:runClient -Precipe_viewer=jei|emi|both|none
     if (loadJei && !runningGameTest) {
-        modLocalRuntime("mezz.jei:jei-1.21.1-fabric:${rootProject.jei_version}")
+        modLocalRuntime("mezz.jei:jei-1.20.1-fabric:${rootProject.jei_version}")
     }
     if (loadEmi && !runningGameTest) {
         modLocalRuntime("dev.emi:emi-fabric:${rootProject.emi_version}")
     }
     if (!runningGameTest) {
-        modLocalRuntime("squeek.appleskin:appleskin-fabric:mc1.21-3.0.6")
-        // The Silver Age (sibling mod) from CurseForge, for side-by-side comparison.
-        modLocalRuntime("curse.maven:the-silver-age-1355287:8174931")
+        modLocalRuntime("squeek.appleskin:appleskin-fabric:${rootProject.appleskin_fabric_version}")
     }
 }
 

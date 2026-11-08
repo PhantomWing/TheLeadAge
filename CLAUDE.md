@@ -1,9 +1,10 @@
 @~/Documents/Projects/Minecraft/MinecraftDeveloperPortal/.claude/profiles/architectury.md
 
-# The Lead Age - `version/1.21`
+# The Lead Age - `version/1.20`
 
-**This file describes the `version/1.21` line**: Minecraft 1.21.1 (the jar covers 1.21 and 1.21.1), Fabric and NeoForge. A **baseline** line: new features start here.
+**This file describes the `version/1.20` line**: Minecraft 1.20.1, Fabric and Forge (the Forge jar also runs on NeoForge 1.20.1).
 Built with Architectury Loom (`dev.architectury.loom`) with Mojang mappings layered with Parchment; `remapJar` is the shipped jar.
+Branched from `version/1.21` on 2026-11-08, at 1.3.0, as The Silver Age's `version/1.20` was: the first 1.20.1 line of the mod.
 
 It belongs to whichever folder has this branch checked out - the main `TheLeadAge` folder or a worktree
 under `TheLeadAge/.worktrees/`. A session started in a worktree also loads the main folder's CLAUDE.md,
@@ -38,53 +39,26 @@ and trade sets from 26.1; the vein tests read the veins through `leadVeins` and 
 through `leadVeinsOutOfPlace`, a NoiseChunk's fillers up to 26.2 and the noise settings' material rule from 26.3. So
 the gametest folder, `TestCompat` aside, diffs clean against every other line's.
 
+Not on this line, yet: its port to 1.20.1 edited the bodies where 1.21's call a method or class 1.20.1 hasn't got
+(`makeMockServerPlayerInLevel` is `TestLoader.mockServerPlayer`, components are `TestCompat` calls, the bulb is
+`LeadBulbBlock`), and `GameTests` leaves out the trim darkening, rebalanced armorer and trial vault tests rather than
+skipping them through `TestCompat`. Making the bodies one again means the same wrappers on every other line.
+
 ## This line
 
-- Java 21, Mojang mappings with Parchment. `org.gradle.java.home` is pinned in `gradle.properties` to a JDK on this machine; if the daemon fails to start, check that path first.
-- Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited.
-- Game tests in `common/src/gametest`, run on both loaders: `:neoforge:runGameTest` and `:fabric:runGameTest`. Laid out with the test shim above; each loader's `GameTestRegistration` and `TestLoader` are in its own `src/test` (`architectury.md`, "Game tests on Fabric too").
-- 14 play scenarios in `scenarios/`, one of them Fabric's alone, and 1 in `scenarios/server`.
-- Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. The Fabric upload is tagged from `supported_minecraft_versions`, 1.21 and 1.21.1, and the NeoForge one from `neoforge_minecraft_versions`, 1.21.1 alone, since NeoForge 21.1 exists for 1.21.1 only. The Fabric manifest asks for `fabric-api >=0.102.0`, the newest for 1.21, which the Fabric code compiled against on 2026-11-03: a change that needs a newer Fabric API raises that floor and drops 1.21 from the list.
-- Newer vanilla content that mods backport to 1.21.1, under vanilla's own ids, as The Silver Age's 1.21.1 line has it (1.3.0):
-  - The Lead Spear and Lead Nautilus Armor are always registered, so a world keeps them, and only shown in the
-    creative tabs with the mod that backports them (`ModItems`, `BackportPlatform`). With Backported Spears (`spears`)
-    the spear is made by its `Spears.registerSpearRaw`, with Vanilla Backport by its `SpearItem`, both with the 1.21.11
-    line's numbers (`compat/LeadSpearStats`); with Vanilla Backport the armour is its `NautilusArmorItem`, with the
-    Lead Horse Armor's knockback resistance, whose renderer reads `theleadage:textures/entity/nautilus/armor/lead.png`
-    (a copy of `equipment/nautilus_body/lead.png`). Without them each is a plain item. The two mods crash a client
-    holding a spear when both are installed, so NeoForge's game runs take Backported Spears and its datagen Vanilla
-    Backport (whose iron nautilus armour and spear the loot modifiers name), and Fabric's runs Vanilla Backport alone.
-  - Vanilla Backport draws only its own spears held as spears, so the Lead Spear's held model is registered with its
-    Platform library in each loader's client setup. Its recipe and smelting load with either mod (`neoforge:or`, which
-    `FabricConditionsProvider` turns into `fabric:or`). `weapon_attributes/lead_spear.json` gives it Better Combat's
-    spear swings.
-  - Lead Nautilus Armor takes the 1.21.11 line's six ocean chest swaps from Vanilla Backport's iron nautilus armour, and
-    the Lead Spear its two from the iron spear (`LeadLootSpec`, each with `requiredMods`, so its loot modifier loads, and
-    Fabric's mixin applies it, only with Vanilla Backport). A zombie's iron spear can turn into it as its sword does.
-  - Sulfur Cubes swallow lead's blocks, ores, cut and chiseled lead and the bulb (`minecraft:sulfur_cube_archetype/slow_flat`);
-    Parched are in `can_wear_lead_armor`, optional; `BackportTags` holds the 1.21.9 `bars`, `chains`, `lanterns` and
-    `spears` tags Vanilla Backport and Copper Age Backport fill.
-  - Yori3o's Grappling Hooks reads every jar's `yo_hooks/hooks.json`, so the Lead Grappling Hook is data alone, in
-    `common/src/main/resources`: 21 durability, 10 long, 4 enchantability and 2 damage on hit, the glass cannon lead's
-    tools are (gold's hook is 24 durability, copper's 10 long, diamond's 2 damage); its textures are The Silver Age's
-    hook on the Lead Pickaxe's ramp, its recipes hand-written behind the mod-loaded condition and `enable_lead_gear`.
-  - Backported Spears needs Fabric Loader 0.18.1 and Grappling Hooks 0.19, past this line's 0.16.14, so both are only
-    tried on NeoForge in dev. YACL's jar bundles libraries a dev run doesn't unpack, which `forgeRuntimeLibrary` adds.
-- Mekanism (NeoForge only, 10.7) has lead of its own, whose processing takes this mod's ore and raw lead through
-  `c:ores/lead` and `c:raw_materials/lead`, so the mod adds no processing items. `resourcepacks/mekanism_lead` in the
-  NeoForge resources is a built-in pack, off until turned on (`MekanismLeadPackHandler`), listed only with Mekanism:
-  Mekanism's lead ingot, nugget, raw lead, blocks and ores as this mod's textures, and its dust, dirty dust, clump,
-  shard and crystal as Mekanism's own lead ones on the Lead Ingot's ramp, blended (`recolor.js --blend`) since they
-  have 12 to 31 shades to its 8, the dirty dust's stone kept as it is. Its slurries are tinted in Mekanism's code
-  (`PrimaryResource.LEAD`), which a pack can't change.
-- Three config options for modpacks: `enable_lead_gear` takes away the gear in `ModItems.isLeadGear` - recipes through
-  their condition, loot (`LeadLootSpec.itemEnabled`), mobs wearing it (folded into `mobLeadEquipment()`), the creative
-  tabs - and `enable_creative_tab` and `enable_vanilla_creative_tabs` pick the tabs (`ui/VanillaTabs`, each item after
-  its iron or copper counterpart, filled through `platform/CreativeTabPlatform` as The Silver Age's are). All three are
-  read from each side's own config; unlike Silver's, `enable_lead_gear` isn't sent to clients, since `LeadSettingsPayload`
-  is what the game tests compare across lines.
-- The Lead Bulb, lead armour, the Lead Weight and leaded glass panes play sound events of their own (`ModSounds`), each
-  vanilla's sound under the mod's name, so the subtitles don't name a copper bulb, iron armour, an anvil, a mace or an
-  item frame.
+- Java 17 bytecode, built on JDK 21: Architectury Loom 1.7 needs the daemon on 21, so `org.gradle.java.home` is pinned in `gradle.properties` to a JDK on this machine; if the daemon fails to start, check that path first. Mojang mappings with Parchment; `remapJar` is the shipped jar.
+- Forge 47.4.20 (the `forge` subproject, `loom.platform=forge` in its `gradle.properties`) with Architectury API 9.2.14, Fabric Loader 0.16.10 with Fabric API 0.92.2. Forge's access transformer is converted from the common access widener (`convertAccessWideners`), and its mixin config is named in `loom.forge` with a refmap of its own. Forge 47 bundles no MixinExtras, so the Forge jar carries it (jar-in-jar).
+- Datagen: `:forge:runData`. Output: `common/src/generated/resources`, never hand-edited, in 1.20.1's plural folders (`recipes`, `loot_tables`, `advancements`, `tags/items`, `tags/blocks`). Datagen writes only what it makes: delete the folder before a run that changes the folder layout, or the old files stay.
+- Tags are Forge's: `CommonTags` holds the `forge:` ones (`forge:ingots/lead`), and `FabricTags` their Fabric twins (`c:lead_ingots`), which the Fabric recipes and the `c:` lang keys name. A recipe both loaders load names vanilla's items rather than `forge:rods/wooden` or `forge:string`, which Fabric hasn't got. The dyed leaded glass pack puts a dye mod's colours in `forge:stained_glass`, which 1.20.1's datagen puts vanilla's sixteen in, since 1.21's `c:dyed` doesn't exist.
+- 1.20.1 has no data components: a leaded glass design rides in the stack's tag, under `theleadage:leaded_glass_config` and `theleadage:leaded_glass_door_config` (`ModDataComponents.StackData`, written through each config's codec). Recipes take the whole `CraftingContainer`, which `recipe/CraftingInput` trims as 1.21's input is trimmed, and the coloured pane's stonecutter recipe has a serializer of its own, since vanilla's `SingleItemRecipe.Serializer` writes no NBT. The networking is Architectury's `NetworkManager` with the payloads as records that read and write themselves.
+- Content 1.20.1 hasn't got: the Lead Bulb and Lead Grate are blocks of the mod's own (`LeadBulbBlock` is 1.21's copper bulb rebuilt), on `METAL` sounds, the bulb clicking as a lever does; leaded glass doors use iron door sounds and the weight lands with the anvil's. No Heavy Core (its config option is gone too), no trial chamber loot, no bolt or flow trim, no trade rebalance, no `mob_interactable_doors` tag. Lead armour is an `ArmorMaterial` enum with its modifiers keyed by UUID, there is no gravity attribute (`GravityPlatform`: Forge's `ENTITY_GRAVITY`, Fabric's `LivingEntityMixin` on `travel`'s 0.08), and the Lead Horse Armor's knockback resistance is put on the horse as it is equipped (`LeadHorseArmorItem.equipmentChanged`). The darker trim palette for lead trim on lead armour is keyed by vanilla's `ArmorMaterials` only, so lead armour trimmed with lead isn't darker here.
+- The Lead Spear and Lead Nautilus Armor are always registered and shown only with Vanilla Backport (`BackportPlatform`), whose spear and nautilus armour they are made as; without it each is a plain item. Backported Spears has no 1.20.1 build. The dev runs carry Vanilla Backport on Forge only.
+- Game tests in `common/src/gametest`, run on both loaders: `:forge:runGameTest` and `:fabric:runGameTest`, 99 each. Three of 1.21's are left out, for what 1.20.1 hasn't got: the darker trim, the rebalanced armorer and the trial vaults. Forge's `TestLoader.mockServerPlayer` is a plain `ServerPlayer` added to the level: Forge 47's `placeNewPlayer` wants a channel the mock connection hasn't got, and a Forge `FakePlayer` never earns an advancement. Each run deletes `run/gametest/world` first, since 1.20.1's game-test server keeps it, and Forge's run writes `level-type=minecraft\:flat` into `run/gametest/server.properties`, since Forge makes the test world from that file rather than vanilla's flat test world.
+- 14 play scenarios in `scenarios/`, one of them Fabric's alone, and 1 in `scenarios/server`, whose config for each loader is in `scenarios/server/forge` and `scenarios/server/fabric`. Item stacks in them are written in NBT (`{Enchantments:[{id:"minecraft:silk_touch",lvl:1s}]}`), not 1.21's components.
+- Mekanism (Forge only) has lead of its own, whose processing takes this mod's ore and raw lead through `forge:ores/lead` and `forge:raw_materials/lead`; `resourcepacks/mekanism_lead` in the Forge resources is a built-in pack, off until turned on, listed only with Mekanism, of Mekanism's lead items in this mod's textures. Create, Farmer's Delight and Yori3o's Grappling Hooks (Forge only, data alone in `common/src/main/resources/yo_hooks`) load in Forge's dev runs; Fabric's carry none of them.
+- Worn lead armour draws on Fabric through `HumanoidArmorLayerMixin`: the material is named `theleadage:lead`, which
+  1.20.1's `getArmorLocation` puts whole into a path in Minecraft's namespace; Forge resolves the namespace itself.
+- Three config options for modpacks, as on 1.21.1: `enable_lead_gear`, `enable_creative_tab` and `enable_vanilla_creative_tabs`. There is no config screen on Forge.
+- Published with `publishMods` from `fabric/build.gradle` and `forge/build.gradle`, with the `-PpublishDryRun` flag. Both uploads are tagged from `supported_minecraft_versions`, 1.20.1, and the Forge one lists Forge and NeoForge as its modloaders: NeoForge 1.20.1 runs Forge 47 mods.
 - GitHub Actions: `release.yml`.
-- Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.
+- Hand-authored access widener: `common/src/main/resources/theleadage.accesswidener`, which Forge's build converts. A first suspect when a port fails to load.

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/lead"
+    },
+    "L": {
+      "item": "theleadage:lead_block"
+    }
+  },
+  "pattern": [
+    "III",
+    "ILI",
+    "III"
+  ],
+  "result": {
+    "item": "theleadage:lead_weight"
+  },
+  "show_notification": true
+}

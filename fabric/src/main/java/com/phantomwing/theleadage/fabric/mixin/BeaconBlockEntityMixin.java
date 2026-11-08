@@ -2,6 +2,7 @@ package com.phantomwing.theleadage.fabric.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.DyeColor;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 
 /**
- * Tints a beacon's beam through a dyed leaded glass pane, which NeoForge does through
+ * Tints a beacon's beam through a dyed leaded glass pane, which Forge does through
  * {@code getBeaconColorMultiplier}. Vanilla takes a beam's colour from the block alone, and a
  * pane's colours are in its block entity, so the pane is read where the beacon reads each block
  * on the beam's way up, and that colour stands in for the one the block gives.
@@ -43,9 +44,9 @@ public abstract class BeaconBlockEntityMixin {
     }
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/item/DyeColor;getTextureDiffuseColor()I"))
-    private static int theleadage$paneTint(DyeColor color, Operation<Integer> original) {
+            target = "Lnet/minecraft/world/item/DyeColor;getTextureDiffuseColors()[F"))
+    private static float[] theleadage$paneTint(DyeColor color, Operation<float[]> original) {
         Integer pane = theleadage$paneColor.get();
-        return pane != null ? pane : original.call(color);
+        return pane != null ? LeadedGlassDyes.floatsOf(pane) : original.call(color);
     }
 }

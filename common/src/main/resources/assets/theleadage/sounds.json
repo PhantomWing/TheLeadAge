@@ -8,7 +8,7 @@
   "block.lead_bulb.turn_on": {
     "sounds": [
       {
-        "name": "minecraft:block.copper_bulb.turn_on",
+        "name": "minecraft:block.lever.click",
         "type": "event"
       }
     ],
@@ -17,7 +17,7 @@
   "block.lead_bulb.turn_off": {
     "sounds": [
       {
-        "name": "minecraft:block.copper_bulb.turn_off",
+        "name": "minecraft:block.lever.click",
         "type": "event"
       }
     ],
@@ -53,7 +53,7 @@
   "block.lead_weight.land": {
     "sounds": [
       {
-        "name": "minecraft:item.mace.smash_ground_heavy",
+        "name": "minecraft:block.anvil.land",
         "type": "event"
       }
     ],

@@ -4,10 +4,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.phantomwing.theleadage.recipe.ColoredPaneStonecutterRecipe;
 import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.StonecutterMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,14 +28,14 @@ public abstract class StonecutterScreenMixin {
     @WrapOperation(
             method = {"renderRecipes", "renderTooltip"},
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/crafting/StonecutterRecipe;getResultItem(Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/world/item/ItemStack;"),
+                    target = "Lnet/minecraft/world/item/crafting/StonecutterRecipe;getResultItem(Lnet/minecraft/core/RegistryAccess;)Lnet/minecraft/world/item/ItemStack;"),
             require = 0)
-    private ItemStack theleadage$colourPreview(StonecutterRecipe recipe, HolderLookup.Provider registries,
+    private ItemStack theleadage$colourPreview(StonecutterRecipe recipe, RegistryAccess registries,
                                                Operation<ItemStack> original) {
         if (recipe instanceof ColoredPaneStonecutterRecipe colored) {
             ItemStack input = ((StonecutterScreen) (Object) this).getMenu().container.getItem(StonecutterMenu.INPUT_SLOT);
             if (!input.isEmpty()) {
-                return colored.assemble(new SingleRecipeInput(input), registries);
+                return colored.assemble(new SimpleContainer(input), registries);
             }
         }
         return original.call(recipe, registries);

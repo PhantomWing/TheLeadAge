@@ -25,7 +25,7 @@ import com.phantomwing.theleadage.ui.VanillaTabs;
  * Common (loader-agnostic) entrypoint for The Lead Age.
  *
  * <p>Registers the Architectury {@code DeferredRegister}s (blocks, items, creative
- * tab). Loader-specific bootstrap (NeoForge config + datagen, Fabric AutoConfig,
+ * tab). Loader-specific bootstrap (Forge config + datagen, Fabric AutoConfig,
  * biome injection) is performed by the per-loader entrypoints.</p>
  */
 public final class TheLeadAgeCommon {
@@ -45,10 +45,8 @@ public final class TheLeadAgeCommon {
         ModItems.register();
         ModEntities.register();
         ModBlockEntities.register();
-        ModDataComponents.register();
         ModRecipes.register();
         ModParticles.register();
-        ModTriggers.register();
         ModCreativeModeTab.register();
         VanillaTabs.register();       // each item beside its vanilla counterpart in vanilla's tabs too
         LeadWeightTransforms.register(); // datapack loader for heavy-weight impact block transforms
@@ -60,5 +58,14 @@ public final class TheLeadAgeCommon {
         LeadArmorItem.register();     // ticks the Heaviness penalties so they clear when the armor comes off
         LeadSettingsSync.register();  // the server's raw lead settings, which its players draw the water and smoke by
         RecedingLeads.register();     // contamination receding where raw lead stopped leaking, which players see too
+    }
+
+    /**
+     * What goes in vanilla's plain static maps, called on the main thread: from Forge's common setup's
+     * {@code enqueueWork} (Forge 47 runs common setup, and constructs mods, in parallel), and from Fabric's
+     * entrypoint. The advancement trigger goes in {@code CriteriaTriggers}' {@code HashMap}.
+     */
+    public static void setup() {
+        ModTriggers.register();
     }
 }
