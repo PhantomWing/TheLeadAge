@@ -6,7 +6,6 @@ import com.phantomwing.theleadage.block.custom.RawLeadBlock;
 import com.phantomwing.theleadage.effect.LeadFumes;
 import com.phantomwing.theleadage.effect.LeadWater;
 import com.phantomwing.theleadage.effect.RecedingLeads;
-import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -241,15 +240,15 @@ public final class LeadWaterGameTest {
     /** A player swimming in fouled water, and breathing it, earns the advancement for it. */
     public static void swimmingInPoisonedWaterEarnsItsAdvancement(GameTestHelper helper) {
         LeadOreGameTest.whenSpawnLoaded(helper, LeadOreGameTest.SPAWN_TICKS, () -> {
-            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            ServerPlayer player = TestLoader.mockServerPlayer(helper);
             player.setGameMode(GameType.SURVIVAL);
             BlockPos lead = new BlockPos(0, 2, 0);
             helper.setBlock(lead, ModBlocks.RAW_LEAD_BLOCK.get().defaultBlockState().setValue(RawLeadBlock.CONTAMINATION, LeadWater.MAX_STEP));
             helper.setBlock(lead.above(), Blocks.WATER);
             helper.setBlock(lead.above(2), Blocks.WATER);
             TestCompat.moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(lead.above())));
-            AdvancementHolder advancement = helper.getLevel().getServer().getAdvancements()
-                    .get(TheLeadAge.resourceLocation("main/poisoned_water"));
+            var advancement = TestCompat.advancement(helper.getLevel().getServer(),
+                    TheLeadAge.resourceLocation("main/poisoned_water"));
             if (advancement == null) {
                 fail(helper, "There is no advancement for swimming in fouled water");
                 return;

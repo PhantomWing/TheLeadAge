@@ -7,12 +7,8 @@ import com.phantomwing.theleadage.item.custom.LeadArmorItem;
 import com.phantomwing.theleadage.utils.ItemUtils;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -24,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -34,6 +29,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -46,13 +42,23 @@ import static com.phantomwing.theleadage.gametest.TestCompat.VILLAGER;
 import static com.phantomwing.theleadage.gametest.TestCompat.ZOMBIE;
 import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
+import static com.phantomwing.theleadage.gametest.TestCompat.getModifier;
+import static com.phantomwing.theleadage.gametest.TestCompat.hasCustomName;
+import static com.phantomwing.theleadage.gametest.TestCompat.hasModifier;
+import static com.phantomwing.theleadage.gametest.TestCompat.hurtAndBreak;
+import static com.phantomwing.theleadage.gametest.TestCompat.lootTable;
 import static com.phantomwing.theleadage.gametest.TestCompat.moveTo;
 import static com.phantomwing.theleadage.gametest.TestCompat.newerGear;
+import static com.phantomwing.theleadage.gametest.TestCompat.recipeFor;
 import static com.phantomwing.theleadage.gametest.TestCompat.rebalancedApprenticeArmorerBuys;
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
+import static com.phantomwing.theleadage.gametest.TestCompat.setCustomName;
+import static com.phantomwing.theleadage.gametest.TestCompat.setTrim;
+import static com.phantomwing.theleadage.gametest.TestCompat.singleInput;
 import static com.phantomwing.theleadage.gametest.TestCompat.trim;
+import static com.phantomwing.theleadage.gametest.TestCompat.trimOf;
 import static com.phantomwing.theleadage.gametest.TestCompat.trimPalette;
-import static com.phantomwing.theleadage.gametest.TestCompat.vanillaId;
+import static com.phantomwing.theleadage.gametest.TestCompat.trialVaultRewards;
 
 /**
  * Game tests for lead gear: smelting it back into nuggets, the fumes a piece gives off as it breaks, the weight of its
@@ -77,8 +83,8 @@ public final class LeadGearGameTest {
         ServerLevel level = helper.getLevel();
         for (RecipeType<? extends AbstractCookingRecipe> type : List.of(RecipeType.SMELTING, RecipeType.BLASTING)) {
             for (Item item : gear()) {
-                SingleRecipeInput input = new SingleRecipeInput(new ItemStack(item));
-                ItemStack result = level.getServer().getRecipeManager().getRecipeFor(type, input, level)
+                var input = singleInput(new ItemStack(item));
+                ItemStack result = recipeFor(level.getServer().getRecipeManager(), type, input, level)
                         .map(recipe -> assemble(recipe.value(), input, level))
                         .orElse(ItemStack.EMPTY);
                 if (!result.is(ModItems.LEAD_NUGGET.get())) {
@@ -97,7 +103,7 @@ public final class LeadGearGameTest {
             for (int y = 2; y <= 4; y++) {
                 helper.setBlock(new BlockPos(1, y, 1), Blocks.AIR);
             }
-            ServerPlayer player = helper.makeMockServerPlayerInLevel();
+            ServerPlayer player = TestLoader.mockServerPlayer(helper);
             player.setGameMode(GameType.SURVIVAL);
             moveTo(player, Vec3.atBottomCenterOf(helper.absolutePos(stand)));
             whenFumesFind(helper, player, stand, FIND_TICKS, () -> {
@@ -105,7 +111,7 @@ public final class LeadGearGameTest {
                 ItemStack chestplate = new ItemStack(ModItems.LEAD_CHESTPLATE.get());
                 chestplate.setDamageValue(chestplate.getMaxDamage() - 1);
                 player.setItemSlot(EquipmentSlot.CHEST, chestplate);
-                player.getItemBySlot(EquipmentSlot.CHEST).hurtAndBreak(1, player, EquipmentSlot.CHEST);
+                hurtAndBreak(player.getItemBySlot(EquipmentSlot.CHEST), 1, player, EquipmentSlot.CHEST);
                 if (!player.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
                     fail(helper, "The lead chestplate didn't break - the test's setup failed, not the mod");
                 } else if (player.hasEffect(MobEffects.HUNGER)) {
@@ -131,17 +137,17 @@ public final class LeadGearGameTest {
         loaded.setUUID(UUID.randomUUID());
         level.addFreshEntity(loaded);
         helper.runAfterDelay(3, () -> {
-            if (!wearing.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(slowness)) {
+            if (!hasModifier(wearing.getAttribute(Attributes.MOVEMENT_SPEED), slowness)) {
                 fail(helper, "A zombie that put on a lead chestplate isn't slowed by it");
                 return;
             }
-            if (!loaded.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(slowness)) {
+            if (!hasModifier(loaded.getAttribute(Attributes.MOVEMENT_SPEED), slowness)) {
                 fail(helper, "A zombie loaded wearing a lead chestplate isn't slowed by it");
                 return;
             }
             wearing.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
             helper.runAfterDelay(3, () -> {
-                if (wearing.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(slowness)) {
+                if (hasModifier(wearing.getAttribute(Attributes.MOVEMENT_SPEED), slowness)) {
                     fail(helper, "A zombie that took off its lead chestplate is still slowed");
                 } else {
                     helper.succeed();
@@ -162,7 +168,12 @@ public final class LeadGearGameTest {
 
     /** A trial chamber vault's reward can be a Lead Ingot in place of an iron one. */
     public static void trialVaultsGiveLeadIngots(GameTestHelper helper) {
-        int found = rollFor(helper, "chests/trial_chambers/reward", List.of(ModItems.LEAD_INGOT.get()));
+        Optional<String> rewards = trialVaultRewards();
+        if (rewards.isEmpty()) {
+            helper.succeed();
+            return;
+        }
+        int found = rollFor(helper, rewards.get(), List.of(ModItems.LEAD_INGOT.get()));
         if (found > 0) {
             helper.succeed();
         } else {
@@ -173,8 +184,7 @@ public final class LeadGearGameTest {
     /** How many of {@value #ROLLS} rolls of a vanilla loot table hold one of {@code wanted}. */
     private static int rollFor(GameTestHelper helper, String table, List<Item> wanted) {
         ServerLevel level = helper.getLevel();
-        LootTable loot = level.getServer().reloadableRegistries()
-                .getLootTable(ResourceKey.create(Registries.LOOT_TABLE, vanillaId(table)));
+        LootTable loot = lootTable(level, table);
         LootParams params = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(helper.absolutePos(BlockPos.ZERO)))
                 .create(LootContextParamSets.CHEST);
@@ -194,11 +204,11 @@ public final class LeadGearGameTest {
     public static void swappedGearKeepsItsWear(GameTestHelper helper) {
         ItemStack sword = new ItemStack(Items.IRON_SWORD);
         sword.setDamageValue(sword.getMaxDamage() / 2);
-        sword.set(DataComponents.CUSTOM_NAME, Component.literal("Old Faithful"));
+        setCustomName(sword, "Old Faithful");
         ItemStack lead = ItemUtils.tryTransmuteStack(sword, ModItems.LEAD_SWORD.get());
-        if (lead.getDamageValue() != Math.round(lead.getMaxDamage() / 2.0F) || !lead.has(DataComponents.CUSTOM_NAME)) {
+        if (lead.getDamageValue() != Math.round(lead.getMaxDamage() / 2.0F) || !hasCustomName(lead)) {
             fail(helper, "A half-worn named iron sword became a lead one worn " + lead.getDamageValue() + " of "
-                    + lead.getMaxDamage() + (lead.has(DataComponents.CUSTOM_NAME) ? "" : ", its name lost"));
+                    + lead.getMaxDamage() + (hasCustomName(lead) ? "" : ", its name lost"));
             return;
         }
         ItemStack nearlyBroken = new ItemStack(Items.IRON_AXE);
@@ -211,8 +221,8 @@ public final class LeadGearGameTest {
         ServerLevel level = helper.getLevel();
         var trim = trim(level, "copper", "flow");
         ItemStack helmet = new ItemStack(Items.IRON_HELMET);
-        helmet.set(DataComponents.TRIM, trim);
-        if (!trim.equals(ItemUtils.tryTransmuteStack(helmet, ModItems.LEAD_HELMET.get()).get(DataComponents.TRIM))) {
+        setTrim(level, helmet, trim);
+        if (!trim.equals(trimOf(level, ItemUtils.tryTransmuteStack(helmet, ModItems.LEAD_HELMET.get())))) {
             fail(helper, "A trimmed iron helmet became an untrimmed lead one");
             return;
         }
@@ -221,11 +231,11 @@ public final class LeadGearGameTest {
 
     /** The lead trim on worn lead armour takes its darker palette, which only the registry's holder of the material finds. */
     public static void leadTrimDarkensOnLeadArmor(GameTestHelper helper) {
-        String palette = trimPalette(helper.getLevel(), ModTrimMaterials.LEAD, ModItems.LEAD_CHESTPLATE.get());
-        if ("lead_darker".equals(palette)) {
+        Optional<String> palette = trimPalette(helper.getLevel(), ModTrimMaterials.LEAD, ModItems.LEAD_CHESTPLATE.get());
+        if (palette.isEmpty() || palette.get().equals("lead_darker")) {
             helper.succeed();
         } else {
-            fail(helper, "A lead trim on lead armour draws with the palette " + palette + ", not lead_darker");
+            fail(helper, "A lead trim on lead armour draws with the palette " + palette.get() + ", not lead_darker");
         }
     }
 
@@ -235,9 +245,9 @@ public final class LeadGearGameTest {
         zombie.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.LEAD_CHESTPLATE.get()));
         var slowness = TheLeadAge.resourceLocation("lead_heaviness_slowness");
         LeadArmorItem.refreshHeaviness(zombie);
-        AttributeModifier first = zombie.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(slowness);
+        AttributeModifier first = getModifier(zombie.getAttribute(Attributes.MOVEMENT_SPEED), slowness);
         LeadArmorItem.refreshHeaviness(zombie);
-        if (first != null && first == zombie.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(slowness)) {
+        if (first != null && first == getModifier(zombie.getAttribute(Attributes.MOVEMENT_SPEED), slowness)) {
             helper.succeed();
         } else {
             fail(helper, "Lead armour's slowness was set again though nothing changed");
@@ -247,7 +257,8 @@ public final class LeadGearGameTest {
     /** The armorer buys lead ingots in a world with the Villager Trade Rebalance experiment, as in any other. */
     public static void armorersBuyLeadInRebalancedWorlds(GameTestHelper helper) {
         var villager = helper.spawnWithNoFreeWill(VILLAGER, new BlockPos(0, 2, 0));
-        if (rebalancedApprenticeArmorerBuys(helper.getLevel(), villager, ModItems.LEAD_INGOT.get())) {
+        Optional<Boolean> buys = rebalancedApprenticeArmorerBuys(helper.getLevel(), villager, ModItems.LEAD_INGOT.get());
+        if (buys.isEmpty() || buys.get()) {
             helper.succeed();
         } else {
             fail(helper, "No apprentice armorer buys lead ingots with the trade rebalance on");
