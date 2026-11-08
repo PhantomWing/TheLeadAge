@@ -91,6 +91,25 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import com.mojang.serialization.DataResult;
+import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import com.phantomwing.theleadage.component.ModDataComponents;
+import com.phantomwing.theleadage.network.LeadSettingsPayload;
+import io.netty.buffer.Unpooled;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 /**
  * The calls a test makes whose shape differs between Minecraft versions, each behind a signature every
@@ -316,12 +335,20 @@ public final class TestCompat {
     }
 
     /**
+     * The palette a trim of {@code material} draws with on worn {@code armor}, "null" for its own. Empty on 1.20.1,
+     * which names a darker palette only by vanilla's armour materials.
+     */
+    public static Optional<String> trimPalette(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
+        return Optional.of(String.valueOf(paletteOf(level, material, armor)));
+    }
+
+    /**
      * The palette a trim of {@code material} draws with on worn {@code armor}. Before 1.21.2 a trim material named it by
      * the armour's material, its registry holder; from 1.21.2 by the armour's equipment model, which 1.21.4 made an
      * equipment asset. 1.21.5 moved the palettes into the material's asset group, which answers its base palette where
      * the armour has none of its own.
      */
-    public static String trimPalette(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
+    private static String paletteOf(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
         return level.registryAccess().lookupOrThrow(Registries.TRIM_MATERIAL).getValueOrThrow(material)
                 .assets().assetId(armor.components().get(DataComponents.EQUIPPABLE).assetId().orElseThrow()).suffix();
     }
@@ -380,13 +407,21 @@ public final class TestCompat {
     }
 
     /**
+     * Whether an apprentice armorer buys {@code item} in a world with the Villager Trade Rebalance experiment on. Empty
+     * on 1.20.1, which has no such experiment (1.20.2's).
+     */
+    public static Optional<Boolean> rebalancedApprenticeArmorerBuys(ServerLevel level, Villager villager, Item item) {
+        return Optional.of(rebalancedArmorerBuys(level, villager, item));
+    }
+
+    /**
      * Whether an apprentice armorer buys {@code item} in a world with the Villager Trade Rebalance experiment on. Up to
      * 1.21.11 the experiment's trades are code, VillagerTrades.EXPERIMENTAL_TRADES, whose listings make the offers. From
      * 26.1 trades are data, and the experiment is a datapack the world loads after every mod's, which replaces the
      * minecraft:armorer/level_2 tag: a trade survives it only listed in a tag of another namespace that the armorer's level
      * 2 trade set draws from, which is what this reads.
      */
-    public static boolean rebalancedApprenticeArmorerBuys(ServerLevel level, Villager villager, Item item) {
+    private static boolean rebalancedArmorerBuys(ServerLevel level, Villager villager, Item item) {
         HolderSet<VillagerTrade> trades = level.registryAccess().lookupOrThrow(Registries.TRADE_SET)
                 .getValueOrThrow(TradeSets.ARMORER_LEVEL_2).getTrades();
         Optional<TagKey<VillagerTrade>> tag = trades.unwrapKey();
@@ -456,5 +491,169 @@ public final class TestCompat {
         try (PackResources resources = pack.open()) {
             return resources.getResource(type, id) != null;
         }
+    }
+
+    /** A player not in the level, in {@code mode}. {@code GameTestHelper.makeMockPlayer} takes the game mode from 1.20.5. */
+    public static Player mockPlayer(GameTestHelper helper, GameType mode) {
+        return helper.makeMockPlayer(mode);
+    }
+
+    /**
+     * Wears {@code stack}, worn in {@code slot} by {@code wearer}, by {@code amount}, breaking it as wear does. Before
+     * 1.20.5 a break is told through a callback.
+     */
+    public static void hurtAndBreak(ItemStack stack, int amount, LivingEntity wearer, EquipmentSlot slot) {
+        stack.hurtAndBreak(amount, wearer, slot);
+    }
+
+    /** {@code stack} named {@code name}, as an anvil names it. A name is a component from 1.20.5, a tag before. */
+    public static void setCustomName(ItemStack stack, String name) {
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal(name));
+    }
+
+    /** Whether {@code stack} carries a name it was given. A name is a component from 1.20.5, a tag before. */
+    public static boolean hasCustomName(ItemStack stack) {
+        return stack.has(DataComponents.CUSTOM_NAME);
+    }
+
+    /** {@code stack} given {@code trim}. A trim is a component from 1.20.5, a tag before. */
+    public static void setTrim(ServerLevel level, ItemStack stack, ArmorTrim trim) {
+        stack.set(DataComponents.TRIM, trim);
+    }
+
+    /** The trim {@code stack} carries, or null. A trim is a component from 1.20.5, a tag before. */
+    @Nullable
+    public static ArmorTrim trimOf(ServerLevel level, ItemStack stack) {
+        return stack.get(DataComponents.TRIM);
+    }
+
+    /** Whether two stacks are the same item with the same data. 1.20.5's components are a stack's tag before. */
+    public static boolean isSameItemSameComponents(ItemStack a, ItemStack b) {
+        return ItemStack.isSameItemSameComponents(a, b);
+    }
+
+    /** A dye's colour as {@code 0xFFRRGGBB}. {@code DyeColor.getTextureDiffuseColor} gives three floats before 1.20.5. */
+    public static int textureDiffuseColor(DyeColor color) {
+        return color.getTextureDiffuseColor();
+    }
+
+    /** Whether a mob plans a path through {@code state}. It takes the level and place before 1.20.5. */
+    public static boolean isPathfindable(BlockState state, PathComputationType type) {
+        return state.isPathfindable(type);
+    }
+
+    /** What a codec read or wrote, or an exception saying why it couldn't. DataResult's getOrThrow takes no arguments from DFU 7. */
+    public static <T> T orThrow(DataResult<T> result) {
+        return result.getOrThrow();
+    }
+
+    /** The leaded glass design {@code stack} carries, or null. A component from 1.20.5, kept in the stack's tag before. */
+    @Nullable
+    public static LeadedGlassConfig leadedGlassConfig(ItemStack stack) {
+        return stack.get(ModDataComponents.LEADED_GLASS_CONFIG.get());
+    }
+
+    /** {@code stack} enchanted with {@code enchantment}. Enchantments are a registry of data from 1.21. */
+    public static void enchant(ServerLevel level, ItemStack stack, ResourceKey<Enchantment> enchantment, int enchantmentLevel) {
+        Holder<Enchantment> holder = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(enchantment);
+        stack.enchant(holder, enchantmentLevel);
+    }
+
+    /**
+     * The attribute modifiers an item has in the hand. A component of its own from 1.20.5, which 1.21.1's
+     * {@code getDefaultAttributeModifiers} doesn't read for a tool; the main hand's on 1.20.1.
+     */
+    @Nullable
+    public static ItemAttributeModifiers heldModifiers(Item item) {
+        return item.components().get(DataComponents.ATTRIBUTE_MODIFIERS);
+    }
+
+    /**
+     * The armour and knockback resistance modifiers a horse wearing {@code item} has: the armour's own from 1.20.5,
+     * whose body slot carries them. 1.20.1's horse armour has none, and the horse is asked.
+     */
+    public static ItemAttributeModifiers horseArmorModifiers(GameTestHelper helper, Item item) {
+        return defaultModifiers(item);
+    }
+
+    /** Whether {@code modifiers} change {@code attribute}. They are a component of their own from 1.20.5. */
+    public static boolean hasModifier(@Nullable ItemAttributeModifiers modifiers, Attribute attribute) {
+        return modifiers != null && modifiers.modifiers().stream().anyMatch(e -> e.attribute().value() == attribute);
+    }
+
+    /** Whether {@code modifiers} change {@code attribute}, vanilla's attributes being registry holders from 1.20.5. */
+    public static boolean hasModifier(@Nullable ItemAttributeModifiers modifiers, Holder<Attribute> attribute) {
+        return hasModifier(modifiers, attribute.value());
+    }
+
+    /** Whether {@code instance} has the mod's modifier {@code id}. A modifier is known by a UUID before 1.21. */
+    public static boolean hasModifier(AttributeInstance instance, Identifier id) {
+        return instance.hasModifier(id);
+    }
+
+    /** The mod's modifier {@code id} on {@code instance}, or null. A modifier is known by a UUID before 1.21. */
+    @Nullable
+    public static AttributeModifier getModifier(AttributeInstance instance, Identifier id) {
+        return instance.getModifier(id);
+    }
+
+    /** Whether {@code item} is a tool, which 1.20.5 gave a tool component of its own. */
+    public static boolean isTool(Item item) {
+        return item.components().get(DataComponents.TOOL) != null;
+    }
+
+    /** A vanilla loot table by its path, e.g. {@code chests/village/village_weaponsmith}. Loot tables are a registry from 1.20.5. */
+    public static LootTable lootTable(ServerLevel level, String path) {
+        return level.getServer().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, vanillaId(path)));
+    }
+
+    /** The loot table of a trial chamber vault's rewards. Empty before 1.21, which brought trial chambers. */
+    public static Optional<String> trialVaultRewards() {
+        return Optional.of("chests/trial_chambers/reward");
+    }
+
+    /** A crafting grid {@code width} by {@code height} holding {@code items} row by row, as a recipe matches it. */
+    public static CraftingInput craftingInput(int width, int height, List<ItemStack> items) {
+        return CraftingInput.of(width, height, items);
+    }
+
+    /** One stack, as a furnace or a stonecutter matches it. */
+    public static SingleRecipeInput singleInput(ItemStack item) {
+        return new SingleRecipeInput(item);
+    }
+
+    /** The first recipe of {@code type} that takes {@code input}, with its id. A 1.20.1 recipe matches a container. */
+    public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> recipeFor(RecipeManager recipes,
+            RecipeType<T> type, I input, Level level) {
+        return recipes.getRecipeFor(type, input, level);
+    }
+
+    /** Whether {@code recipe} takes {@code input}. A 1.20.1 recipe matches a container rather than a recipe input. */
+    public static <I extends RecipeInput> boolean matches(Recipe<I> recipe, I input, Level level) {
+        return recipe.matches(input, level);
+    }
+
+    /** The advancement {@code id}, or null. 1.20.2 gave advancements a holder with their id. */
+    @Nullable
+    public static AdvancementHolder advancement(MinecraftServer server, Identifier id) {
+        return server.getAdvancements().get(id);
+    }
+
+    /**
+     * A buffer the raw lead settings can be written to and read back from, as they go to a client. 1.20.5's payloads
+     * write to a buffer that carries the registries.
+     */
+    public static RegistryFriendlyByteBuf wire(ServerLevel level) {
+        return new RegistryFriendlyByteBuf(Unpooled.buffer(), level.registryAccess());
+    }
+
+    /** Writes {@code settings} to {@code wire}. A payload has a stream codec from 1.20.5. */
+    public static void writeSettings(RegistryFriendlyByteBuf wire, LeadSettingsPayload settings) {
+        LeadSettingsPayload.CODEC.encode(wire, settings);
+    }
+
+    /** Reads the raw lead settings from {@code wire}. A payload has a stream codec from 1.20.5. */
+    public static LeadSettingsPayload readSettings(RegistryFriendlyByteBuf wire) {
+        return LeadSettingsPayload.CODEC.decode(wire);
     }
 }
