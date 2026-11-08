@@ -35,8 +35,8 @@ public class ModTrimMaterials {
     public static final float LEAD_INDEX = 0.0019604F;
     public static final ResourceKey<TrimMaterial> LEAD = trimMaterialKey("lead");
 
-    // On 1.20.1 a trim material's darker palettes are keyed by vanilla's armour materials alone, so lead armour can't
-    // take lead_darker as it does from 1.21: a lead trim on it draws in the plain lead palette.
+    // On 1.20.1 a trim material's darker palettes are keyed by vanilla's armour materials alone, so lead armour can't be
+    // named here: TrimPalettes gives lead trim on lead armour its lead_darker palette instead.
     public static void bootstrap(BootstapContext<TrimMaterial> context) {
         registerMaterial(context, LEAD,
                 ModItems.LEAD_INGOT.get(),

@@ -8,6 +8,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import com.phantomwing.theleadage.armor.ModTrimMaterials;
+import com.phantomwing.theleadage.armor.TrimPalettes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -161,9 +162,8 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         record Entry(String suffix, float index) {}
         List<Entry> entries = new ArrayList<>();
-        // Lead on lead draws in the plain lead palette here: 1.20.1 keys a trim's darker palettes by vanilla's armour
-        // materials alone (see ModTrimMaterials), so the icon shows what the worn armour does.
-        entries.add(new Entry("lead", ModTrimMaterials.LEAD_INDEX));
+        // Lead on lead takes the darker palette, as the worn armour does (TrimPalettes).
+        entries.add(new Entry(TrimPalettes.LEAD_DARKER, ModTrimMaterials.LEAD_INDEX));
         for (VanillaTrim vanilla : VANILLA_TRIMS) {
             entries.add(new Entry(vanilla.name(), vanilla.index()));
         }

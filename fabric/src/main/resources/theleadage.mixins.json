@@ -4,6 +4,7 @@
   "package": "com.phantomwing.theleadage.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ArmorTrimMixin",
     "BaseCoralPlantTypeBlockMixin",
     "BeaconBlockEntityMixin",
     "BuiltInPackSourceMixin",

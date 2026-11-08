@@ -72,6 +72,7 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.armortrim.TrimPatterns;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -481,12 +482,16 @@ public final class TestCompat {
     }
 
     /**
-     * The palette a trim of {@code material} draws with on worn {@code armor}, "null" for its own. Before 1.21.2 a trim
-     * material named it by the armour's material. Empty on 1.20.1, which names it only by vanilla's armour materials,
-     * so a mod's armour always takes the trim's own palette.
+     * The palette a trim of {@code material} draws with on worn {@code armor}, read off the texture a trim of it draws
+     * with: the palettes a 1.20.1 trim material names are only ever vanilla armour's, and lead armour's comes from
+     * {@code ArmorTrimMixin}. Where nothing overrides it, it is the trim's own name.
      */
     public static Optional<String> trimPalette(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
-        return Optional.empty();
+        var pattern = level.registryAccess().registryOrThrow(Registries.TRIM_PATTERN).getHolderOrThrow(TrimPatterns.COAST);
+        var trim = new ArmorTrim(level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL).getHolderOrThrow(material), pattern);
+        String path = trim.innerTexture(((ArmorItem) armor).getMaterial()).getPath();
+        String prefix = "trims/models/armor/" + pattern.value().assetId().getPath() + "_leggings_";
+        return Optional.of(path.startsWith(prefix) ? path.substring(prefix.length()) : path);
     }
 
     /** Whether the recipe {@code id} is loaded. Recipes are found by a ResourceKey from 1.21.2. */
