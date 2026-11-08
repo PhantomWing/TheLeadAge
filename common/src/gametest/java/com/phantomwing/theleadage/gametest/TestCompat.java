@@ -5,6 +5,8 @@ import com.google.common.collect.Multimap;
 import com.mojang.serialization.DataResult;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDyes;
+import com.phantomwing.theleadage.component.LeadedGlassConfig;
+import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.network.LeadSettingsPayload;
 import com.phantomwing.theleadage.recipe.StainedLeadedGlassRecipe;
@@ -29,6 +31,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
@@ -56,6 +59,9 @@ import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.DyeColor;
@@ -70,6 +76,7 @@ import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.EmptyBlockGetter;
@@ -94,6 +101,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -108,9 +116,9 @@ import java.util.UUID;
  * when a port turns up another such call, it goes here rather than into a body. A call each modloader
  * answers its own way goes in {@link TestLoader} instead.
  *
- * <p>On 1.20.1 too the recipe inputs 1.20.5 and 1.21 brought ({@link CraftingInput}, {@link SingleRecipeInput},
- * {@link RecipeInput}) and 1.20.2's {@link RecipeHolder}, which this line has as classes of the tests', and the calls
- * 1.21's bodies make on data components, which 1.20.1 keeps in a stack's tag.</p>
+ * <p>On 1.20.1 the recipe inputs 1.20.5 and 1.21 brought ({@link CraftingInput}, {@link SingleRecipeInput},
+ * {@link RecipeInput}) and 1.20.2's {@link RecipeHolder} are classes of this file's, which the bodies never name: they
+ * hold what {@link #craftingInput}, {@link #singleInput} and {@link #recipeFor} give in a var.</p>
  */
 public final class TestCompat {
     /** {@code MobEffects.CONFUSION} before 1.21.5. A plain MobEffect before 1.20.5 made effects registry holders. */
@@ -198,6 +206,16 @@ public final class TestCompat {
         entity.moveTo(at.x, at.y, at.z, 0.0f, 0.0f);
     }
 
+    /** A crafting grid {@code width} by {@code height} holding {@code items} row by row, as a recipe matches it. */
+    public static CraftingInput craftingInput(int width, int height, List<ItemStack> items) {
+        return new CraftingInput(width, height, items);
+    }
+
+    /** One stack, as a furnace or a stonecutter matches it. */
+    public static SingleRecipeInput singleInput(ItemStack item) {
+        return new SingleRecipeInput(item);
+    }
+
     /**
      * What {@code recipe} makes from {@code input}, crafted or cooked. It no longer takes the registries from 26.1. A
      * 1.20.1 recipe takes a container rather than a recipe input.
@@ -230,6 +248,14 @@ public final class TestCompat {
     public static Multimap<Attribute, AttributeModifier> defaultModifiers(Item item) {
         EquipmentSlot slot = item instanceof ArmorItem armor ? armor.getEquipmentSlot() : EquipmentSlot.MAINHAND;
         return item.getDefaultAttributeModifiers(slot);
+    }
+
+    /**
+     * The attribute modifiers an item has in the hand. A component of its own from 1.20.5, which 1.21.1's
+     * {@code getDefaultAttributeModifiers} doesn't read for a tool; the main hand's on 1.20.1.
+     */
+    public static Multimap<Attribute, AttributeModifier> heldModifiers(Item item) {
+        return item.getDefaultAttributeModifiers(EquipmentSlot.MAINHAND);
     }
 
     /**
@@ -312,6 +338,17 @@ public final class TestCompat {
     @Nullable
     public static ArmorTrim trimOf(ServerLevel level, ItemStack stack) {
         return ArmorTrim.getTrim(level.registryAccess(), stack).orElse(null);
+    }
+
+    /** The leaded glass design {@code stack} carries, or null. A component from 1.20.5, kept in the stack's tag before. */
+    @Nullable
+    public static LeadedGlassConfig leadedGlassConfig(ItemStack stack) {
+        return ModDataComponents.LEADED_GLASS_CONFIG.get(stack);
+    }
+
+    /** {@code stack} enchanted with {@code enchantment}. Enchantments are a registry of data from 1.21. */
+    public static void enchant(ServerLevel level, ItemStack stack, Enchantment enchantment, int enchantmentLevel) {
+        stack.enchant(enchantment, enchantmentLevel);
     }
 
     /** Whether two stacks are the same item with the same data. 1.20.5's components are a stack's tag before. */
@@ -444,14 +481,12 @@ public final class TestCompat {
     }
 
     /**
-     * The palette a trim of {@code material} draws with on worn {@code armor}, or null for its own. Before 1.21.2 a trim
-     * material named it by the armour's material; on 1.20.1 only by vanilla's armour materials, so a mod's armour always
-     * takes the trim's own palette ({@code lead_trim_darkens_on_lead_armor} isn't on this line).
+     * The palette a trim of {@code material} draws with on worn {@code armor}, "null" for its own. Before 1.21.2 a trim
+     * material named it by the armour's material. Empty on 1.20.1, which names it only by vanilla's armour materials,
+     * so a mod's armour always takes the trim's own palette.
      */
-    @Nullable
-    public static String trimPalette(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
-        return level.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL).getOrThrow(material)
-                .overrideArmorMaterials().get(((ArmorItem) armor).getMaterial());
+    public static Optional<String> trimPalette(ServerLevel level, ResourceKey<TrimMaterial> material, Item armor) {
+        return Optional.empty();
     }
 
     /** Whether the recipe {@code id} is loaded. Recipes are found by a ResourceKey from 1.21.2. */
@@ -543,11 +578,16 @@ public final class TestCompat {
     /**
      * Whether an apprentice armorer buys {@code item} in a world with the Villager Trade Rebalance experiment on. Up to
      * 1.21.11 the experiment's trades are code, VillagerTrades.EXPERIMENTAL_TRADES, whose listings make the offers. From
-     * 26.1 trades are data, and the experiment is a datapack the world loads after every mod's. 1.20.1 has no such
-     * experiment (1.20.2's), so {@code armorers_buy_lead_in_rebalanced_worlds} isn't on this line.
+     * 26.1 trades are data, and the experiment is a datapack the world loads after every mod's. Empty on 1.20.1, which
+     * has no such experiment (1.20.2's).
      */
-    public static boolean rebalancedApprenticeArmorerBuys(ServerLevel level, Villager villager, Item item) {
-        return false;
+    public static Optional<Boolean> rebalancedApprenticeArmorerBuys(ServerLevel level, Villager villager, Item item) {
+        return Optional.empty();
+    }
+
+    /** The loot table of a trial chamber vault's rewards. Empty before 1.21, which brought trial chambers. */
+    public static Optional<String> trialVaultRewards() {
+        return Optional.empty();
     }
 
     /**
@@ -603,6 +643,60 @@ public final class TestCompat {
     public static boolean serves(Pack pack, PackType type, ResourceLocation id) {
         try (PackResources resources = pack.open()) {
             return resources.getResource(type, id) != null;
+        }
+    }
+
+    /** 1.21's {@code RecipeInput}: what a recipe is matched against, as the container 1.20.1's recipes take. */
+    public interface RecipeInput {
+        Container container();
+    }
+
+    /** 1.20.2's {@code RecipeHolder}: a recipe and its id, which a 1.20.1 recipe carries itself. */
+    public record RecipeHolder<T>(ResourceLocation id, T value) {
+    }
+
+    /** 1.21's {@code SingleRecipeInput}: one stack, held as the container 1.20.1's recipes take. */
+    public record SingleRecipeInput(ItemStack item) implements RecipeInput {
+        @Override
+        public SimpleContainer container() {
+            return new SimpleContainer(item);
+        }
+    }
+
+    /**
+     * 1.21's {@code CraftingInput}: a crafting grid of its width and height, filled row by row. The mod's own
+     * {@code recipe.CraftingInput} is what its recipes read a grid as.
+     */
+    public static final class CraftingInput implements RecipeInput {
+        private final TransientCraftingContainer container;
+
+        private CraftingInput(int width, int height, List<ItemStack> items) {
+            this.container = new TransientCraftingContainer(new NoMenu(), width, height);
+            for (int i = 0; i < items.size(); i++) {
+                container.setItem(i, items.get(i));
+            }
+        }
+
+        @Override
+        public TransientCraftingContainer container() {
+            return container;
+        }
+
+        /** A grid no menu shows: its slots tell no one when they change. */
+        private static final class NoMenu extends AbstractContainerMenu {
+            private NoMenu() {
+                super((MenuType<?>) null, -1);
+            }
+
+            @Override
+            public @NotNull ItemStack quickMoveStack(@NotNull Player player, int slot) {
+                return ItemStack.EMPTY;
+            }
+
+            @Override
+            public boolean stillValid(@NotNull Player player) {
+                return false;
+            }
         }
     }
 }

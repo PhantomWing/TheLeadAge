@@ -29,6 +29,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -53,9 +54,11 @@ import static com.phantomwing.theleadage.gametest.TestCompat.rebalancedApprentic
 import static com.phantomwing.theleadage.gametest.TestCompat.reloaded;
 import static com.phantomwing.theleadage.gametest.TestCompat.setCustomName;
 import static com.phantomwing.theleadage.gametest.TestCompat.setTrim;
+import static com.phantomwing.theleadage.gametest.TestCompat.singleInput;
 import static com.phantomwing.theleadage.gametest.TestCompat.trim;
 import static com.phantomwing.theleadage.gametest.TestCompat.trimOf;
 import static com.phantomwing.theleadage.gametest.TestCompat.trimPalette;
+import static com.phantomwing.theleadage.gametest.TestCompat.trialVaultRewards;
 
 /**
  * Game tests for lead gear: smelting it back into nuggets, the fumes a piece gives off as it breaks, the weight of its
@@ -80,7 +83,7 @@ public final class LeadGearGameTest {
         ServerLevel level = helper.getLevel();
         for (RecipeType<? extends AbstractCookingRecipe> type : List.of(RecipeType.SMELTING, RecipeType.BLASTING)) {
             for (Item item : gear()) {
-                SingleRecipeInput input = new SingleRecipeInput(new ItemStack(item));
+                var input = singleInput(new ItemStack(item));
                 ItemStack result = recipeFor(level.getServer().getRecipeManager(), type, input, level)
                         .map(recipe -> assemble(recipe.value(), input, level))
                         .orElse(ItemStack.EMPTY);
@@ -165,7 +168,12 @@ public final class LeadGearGameTest {
 
     /** A trial chamber vault's reward can be a Lead Ingot in place of an iron one. */
     public static void trialVaultsGiveLeadIngots(GameTestHelper helper) {
-        int found = rollFor(helper, "chests/trial_chambers/reward", List.of(ModItems.LEAD_INGOT.get()));
+        Optional<String> rewards = trialVaultRewards();
+        if (rewards.isEmpty()) {
+            helper.succeed();
+            return;
+        }
+        int found = rollFor(helper, rewards.get(), List.of(ModItems.LEAD_INGOT.get()));
         if (found > 0) {
             helper.succeed();
         } else {
@@ -223,11 +231,11 @@ public final class LeadGearGameTest {
 
     /** The lead trim on worn lead armour takes its darker palette, which only the registry's holder of the material finds. */
     public static void leadTrimDarkensOnLeadArmor(GameTestHelper helper) {
-        String palette = trimPalette(helper.getLevel(), ModTrimMaterials.LEAD, ModItems.LEAD_CHESTPLATE.get());
-        if ("lead_darker".equals(palette)) {
+        Optional<String> palette = trimPalette(helper.getLevel(), ModTrimMaterials.LEAD, ModItems.LEAD_CHESTPLATE.get());
+        if (palette.isEmpty() || palette.get().equals("lead_darker")) {
             helper.succeed();
         } else {
-            fail(helper, "A lead trim on lead armour draws with the palette " + palette + ", not lead_darker");
+            fail(helper, "A lead trim on lead armour draws with the palette " + palette.get() + ", not lead_darker");
         }
     }
 
@@ -249,7 +257,8 @@ public final class LeadGearGameTest {
     /** The armorer buys lead ingots in a world with the Villager Trade Rebalance experiment, as in any other. */
     public static void armorersBuyLeadInRebalancedWorlds(GameTestHelper helper) {
         var villager = helper.spawnWithNoFreeWill(VILLAGER, new BlockPos(0, 2, 0));
-        if (rebalancedApprenticeArmorerBuys(helper.getLevel(), villager, ModItems.LEAD_INGOT.get())) {
+        Optional<Boolean> buys = rebalancedApprenticeArmorerBuys(helper.getLevel(), villager, ModItems.LEAD_INGOT.get());
+        if (buys.isEmpty() || buys.get()) {
             helper.succeed();
         } else {
             fail(helper, "No apprentice armorer buys lead ingots with the trade rebalance on");

@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.phantomwing.theleadage.gametest.TestCompat.assemble;
+import static com.phantomwing.theleadage.gametest.TestCompat.craftingInput;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.isSameItemSameComponents;
 import static com.phantomwing.theleadage.gametest.TestCompat.matches;
@@ -169,13 +170,12 @@ public final class DyedLeadedGlassGameTest {
         StainedLeadedGlassRecipe special = TestCompat.stainedLeadedGlassRecipe();
         Block red = ModBlocks.STAINED_LEADED_GLASS.get(DyeColor.RED).get();
         for (List<ItemStack> grid : List.of(byDye, byLead)) {
-            CraftingInput input = CraftingInput.of(3, 3, grid);
+            var input = craftingInput(3, 3, grid);
             if (matches(special, input, level)) {
                 fail(helper, "The dye mods' recipe takes " + grid.get(4) + ", whose colour has a recipe of its own");
                 return;
             }
-            Optional<RecipeHolder<CraftingRecipe>> match =
-                    recipeFor(level.getServer().getRecipeManager(), RecipeType.CRAFTING, input, level);
+            var match = recipeFor(level.getServer().getRecipeManager(), RecipeType.CRAFTING, input, level);
             ItemStack result = match.isEmpty() ? ItemStack.EMPTY : assemble(match.get().value(), input, level);
             if (!result.is(red.asItem()) || result.getCount() != 8) {
                 fail(helper, "Red leaded glass around " + grid.get(4) + " made " + result + ", not 8 red leaded glass");
@@ -190,9 +190,8 @@ public final class DyedLeadedGlassGameTest {
         ServerLevel level = helper.getLevel();
         List<ItemStack> grid = new ArrayList<>(Collections.nCopies(9, LeadedGlassDisplayRecipe.plainPane(LeadedGlassConfig.CLEAR)));
         grid.set(4, new ItemStack(TestCompat.RED_DYE));
-        CraftingInput input = CraftingInput.of(3, 3, grid);
-        Optional<RecipeHolder<CraftingRecipe>> match =
-                recipeFor(level.getServer().getRecipeManager(), RecipeType.CRAFTING, input, level);
+        var input = craftingInput(3, 3, grid);
+        var match = recipeFor(level.getServer().getRecipeManager(), RecipeType.CRAFTING, input, level);
         ItemStack result = match.isEmpty() ? ItemStack.EMPTY : assemble(match.get().value(), input, level);
         ItemStack red = LeadedGlassDisplayRecipe.plainPane(DyeColor.RED.getId());
         if (result.getCount() != 8 || !isSameItemSameComponents(result, red)) {

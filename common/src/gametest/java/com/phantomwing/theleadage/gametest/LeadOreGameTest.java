@@ -84,11 +84,14 @@ import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.carvedByCaves;
 import static com.phantomwing.theleadage.gametest.TestCompat.chargesAsASpear;
 import static com.phantomwing.theleadage.gametest.TestCompat.copperBlock;
+import static com.phantomwing.theleadage.gametest.TestCompat.craftingInput;
 import static com.phantomwing.theleadage.gametest.TestCompat.defaultModifiers;
+import static com.phantomwing.theleadage.gametest.TestCompat.enchant;
 import static com.phantomwing.theleadage.gametest.TestCompat.entitiesLoadedAroundSpawn;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.fitsTheNautilus;
 import static com.phantomwing.theleadage.gametest.TestCompat.hasModifier;
+import static com.phantomwing.theleadage.gametest.TestCompat.heldModifiers;
 import static com.phantomwing.theleadage.gametest.TestCompat.hasRecipe;
 import static com.phantomwing.theleadage.gametest.TestCompat.horseArmorModifiers;
 import static com.phantomwing.theleadage.gametest.TestCompat.isTool;
@@ -127,10 +130,6 @@ public class LeadOreGameTest {
     static final int FIND_TICKS = 40;
     /** Ticks a test waits for the entities around the world spawn, before it can make a mock player. */
     static final int SPAWN_TICKS = 40;
-
-    /** Every effect Lead Sickness can apply — cleared between trials to keep them independent. */
-    private static final List<MobEffect> SICKNESS_EFFECTS =
-            List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, NAUSEA);
 
     /** Lead ore doses the player sometimes (but not on every break). */
     public static void leadOreSometimesGivesLeadSickness(GameTestHelper helper) {
@@ -253,11 +252,11 @@ public class LeadOreGameTest {
         ServerLevel level = helper.getLevel();
         RecipeManager recipes = level.getServer().getRecipeManager();
         // A lead door + two panes (first pane in reading order = the door's top half).
-        CraftingInput input = CraftingInput.of(1, 3, List.of(
+        var input = craftingInput(1, 3, List.of(
                 new ItemStack(ModItems.LEAD_DOOR.get()),
                 new ItemStack(ModItems.LEADED_GLASS_PANEL.get()),
                 new ItemStack(ModItems.LEADED_GLASS_PANEL.get())));
-        Optional<RecipeHolder<CraftingRecipe>> match = recipeFor(recipes, RecipeType.CRAFTING, input, level);
+        var match = recipeFor(recipes, RecipeType.CRAFTING, input, level);
         if (match.isEmpty()) {
             fail(helper, "No crafting recipe matched lead_door + two leaded glass panes");
             return;
@@ -290,11 +289,11 @@ public class LeadOreGameTest {
             return;
         }
         ItemStack stick = new ItemStack(Items.STICK);
-        CraftingInput input = CraftingInput.of(3, 3, List.of(
+        var input = craftingInput(3, 3, List.of(
                 ItemStack.EMPTY, ItemStack.EMPTY, stick,
                 ItemStack.EMPTY, stick, new ItemStack(Items.STRING),
                 stick, ItemStack.EMPTY, new ItemStack(ModItems.LEAD_NUGGET.get())));
-        Optional<RecipeHolder<CraftingRecipe>> match = recipeFor(recipes, RecipeType.CRAFTING, input, level);
+        var match = recipeFor(recipes, RecipeType.CRAFTING, input, level);
         if (match.isEmpty() || !assemble(match.get().value(), input, level).is(Items.FISHING_ROD)) {
             fail(helper, "Sticks, a string and a lead nugget don't craft a Fishing Rod: another minecraft:fishing_rod "
                     + "outranks the override");
@@ -312,19 +311,19 @@ public class LeadOreGameTest {
         ServerLevel level = helper.getLevel();
         ItemStack ingot = new ItemStack(ModItems.LEAD_INGOT.get());
         ItemStack cut = new ItemStack(ModItems.CUT_LEAD.get());
-        record Grid(String name, CraftingInput input, Item result, int count) {
+        record Grid(String name, int width, int height, List<ItemStack> items, Item result, int count) {
         }
         for (Grid grid : List.of(
-                new Grid("4 lead ingots in a square", CraftingInput.of(2, 2, Collections.nCopies(4, ingot)), ModItems.LEAD_TRAPDOOR.get(), 1),
-                new Grid("6 lead ingots in two rows", CraftingInput.of(3, 2, Collections.nCopies(6, ingot)), ModItems.LEAD_BARS.get(), 16),
-                new Grid("4 cut lead in a square", CraftingInput.of(2, 2, Collections.nCopies(4, cut)), ModItems.LEAD_BRICKS.get(), 4))) {
-            List<RecipeHolder<CraftingRecipe>> matches = recipesFor(level.getServer().getRecipeManager(),
-                    RecipeType.CRAFTING, grid.input(), level);
+                new Grid("4 lead ingots in a square", 2, 2, Collections.nCopies(4, ingot), ModItems.LEAD_TRAPDOOR.get(), 1),
+                new Grid("6 lead ingots in two rows", 3, 2, Collections.nCopies(6, ingot), ModItems.LEAD_BARS.get(), 16),
+                new Grid("4 cut lead in a square", 2, 2, Collections.nCopies(4, cut), ModItems.LEAD_BRICKS.get(), 4))) {
+            var input = craftingInput(grid.width(), grid.height(), grid.items());
+            var matches = recipesFor(level.getServer().getRecipeManager(), RecipeType.CRAFTING, input, level);
             if (matches.size() != 1) {
                 fail(helper, grid.name() + " match " + matches.size() + " recipes, not one");
                 return;
             }
-            ItemStack result = assemble(matches.get(0).value(), grid.input(), level);
+            ItemStack result = assemble(matches.get(0).value(), input, level);
             if (!result.is(grid.result()) || result.getCount() != grid.count()) {
                 fail(helper, grid.name() + " craft " + result + ", not " + grid.count() + " " + grid.result());
                 return;
@@ -891,7 +890,7 @@ public class LeadOreGameTest {
             helper.succeed();
             return;
         }
-        var components = defaultModifiers(ModItems.LEAD_KNIFE.get());
+        var components = heldModifiers(ModItems.LEAD_KNIFE.get());
         if (!hasModifier(components, Attributes.ATTACK_DAMAGE)
                 || !hasModifier(components, Attributes.ATTACK_SPEED)) {
             fail(helper, "lead knife lost its attack attributes");
@@ -1189,9 +1188,12 @@ public class LeadOreGameTest {
         }
     }
 
-    /** Wipe every Lead Sickness effect, so the next dose starts the ladder from stage 0. */
+    /**
+     * Wipe every effect Lead Sickness can apply, so the next dose starts the ladder from stage 0 and trials stay
+     * independent.
+     */
     static void clearSickness(ServerPlayer player) {
-        for (MobEffect effect : SICKNESS_EFFECTS) {
+        for (var effect : List.of(MobEffects.HUNGER, MobEffects.WEAKNESS, MobEffects.POISON, NAUSEA)) {
             player.removeEffect(effect);
         }
     }
@@ -1199,7 +1201,7 @@ public class LeadOreGameTest {
     private static ItemStack pickaxe(GameTestHelper helper, boolean silkTouch) {
         ItemStack pick = new ItemStack(Items.IRON_PICKAXE);
         if (silkTouch) {
-            pick.enchant(Enchantments.SILK_TOUCH, 1);
+            enchant(helper.getLevel(), pick, Enchantments.SILK_TOUCH, 1);
         }
         return pick;
     }

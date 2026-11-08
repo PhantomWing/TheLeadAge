@@ -2,12 +2,10 @@ package com.phantomwing.theleadage.gametest;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
-import com.phantomwing.theleadage.block.custom.LeadBulbBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassShatter;
 import com.phantomwing.theleadage.block.entity.LeadedGlassPanelBlockEntity;
 import com.phantomwing.theleadage.component.LeadedGlassConfig;
-import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +24,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +37,7 @@ import static com.phantomwing.theleadage.gametest.TestCompat.IMMOVABLE;
 import static com.phantomwing.theleadage.gametest.TestCompat.blockEntity;
 import static com.phantomwing.theleadage.gametest.TestCompat.fail;
 import static com.phantomwing.theleadage.gametest.TestCompat.isPathfindable;
+import static com.phantomwing.theleadage.gametest.TestCompat.leadedGlassConfig;
 import static com.phantomwing.theleadage.gametest.TestCompat.mockPlayer;
 import static com.phantomwing.theleadage.gametest.TestCompat.shownAs;
 import static com.phantomwing.theleadage.gametest.TestCompat.textureDiffuseColor;
@@ -57,19 +57,19 @@ public final class LeadBlocksGameTest {
         helper.setBlock(bulb, ModBlocks.LEAD_BULB.get());
         helper.setBlock(power, Blocks.REDSTONE_BLOCK);
         helper.runAfterDelay(2, () -> {
-            if (!helper.getBlockState(bulb).getValue(LeadBulbBlock.LIT)) {
+            if (!helper.getBlockState(bulb).getValue(BlockStateProperties.LIT)) {
                 fail(helper, "A redstone pulse didn't turn the Lead Bulb on");
                 return;
             }
             helper.setBlock(power, Blocks.AIR);
             helper.runAfterDelay(2, () -> {
-                if (!helper.getBlockState(bulb).getValue(LeadBulbBlock.LIT)) {
+                if (!helper.getBlockState(bulb).getValue(BlockStateProperties.LIT)) {
                     fail(helper, "The Lead Bulb turned off when its power went");
                     return;
                 }
                 helper.setBlock(power, Blocks.REDSTONE_BLOCK);
                 helper.runAfterDelay(2, () -> {
-                    if (helper.getBlockState(bulb).getValue(LeadBulbBlock.LIT)) {
+                    if (helper.getBlockState(bulb).getValue(BlockStateProperties.LIT)) {
                         fail(helper, "A second redstone pulse didn't turn the Lead Bulb off");
                     } else {
                         helper.succeed();
@@ -222,7 +222,7 @@ public final class LeadBlocksGameTest {
         List<Integer> red = List.of(DyeColor.RED.getId());
         pane.setColors(red);
         List<ItemStack> drops = Block.getDrops(helper.getBlockState(pos), helper.getLevel(), helper.absolutePos(pos), pane);
-        LeadedGlassConfig config = drops.size() == 1 ? ModDataComponents.LEADED_GLASS_CONFIG.get(drops.get(0)) : null;
+        LeadedGlassConfig config = drops.size() == 1 ? leadedGlassConfig(drops.get(0)) : null;
         if (config != null && config.colors().equals(red)) {
             helper.succeed();
         } else {
