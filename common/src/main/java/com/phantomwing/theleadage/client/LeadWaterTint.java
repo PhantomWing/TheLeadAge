@@ -165,6 +165,11 @@ public final class LeadWaterTint {
      * water it changes, is drawn again.
      */
     public static void blockChanged(LevelExtractor renderer, BlockPos pos, BlockState oldState, BlockState newState) {
+        // Other mods ask for a block to be drawn again with null states (Open Elevators' elevator as it loads). Thrown
+        // here, in a packet's handler, the client is disconnected from its server.
+        if (oldState == null || newState == null) {
+            return;
+        }
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null && LeadWater.isLeaking(oldState) && !LeadWater.isLeaking(newState)) {
             // Without it, water raw lead the player breaks shows clean until the server says what recedes there.

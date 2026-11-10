@@ -213,6 +213,11 @@ public final class TestCompat {
         return recipe.assemble(input);
     }
 
+    /** Vanilla's chain, which 1.21.9 renamed the iron chain beside the copper ones. */
+    public static Block vanillaChain() {
+        return Blocks.IRON_CHAIN;
+    }
+
     /** The block of copper in {@code state}, waxed or not. 26.2 gathered them into a collection on Blocks. */
     public static Block copperBlock(WeatherState state, boolean isWaxed) {
         return (isWaxed ? Blocks.COPPER_BLOCK.waxed() : Blocks.COPPER_BLOCK.weathering()).pick(state);
