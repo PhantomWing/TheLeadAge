@@ -29,6 +29,8 @@
 ### Fixes
 - Fixed a typo in a config tooltip
 - Block of Lead now uses the same sounds as the other lead blocks
+- Fixed players being disconnected from servers with mods like Open Elevators and Waystones
+- Lead Chain, Lead Bars and Lead Lantern can now be mined with any pickaxe, like vanilla's
 
 
 # 1.2.2
