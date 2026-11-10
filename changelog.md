@@ -1,3 +1,10 @@
+# 1.3.1
+
+### Fixes
+- Fixed players being disconnected from servers with mods like Open Elevators and Waystones
+- Lead Chain, Lead Bars and Lead Lantern can now be mined with any pickaxe, like vanilla's
+
+
 # 1.3.0
 
 ### Additions
