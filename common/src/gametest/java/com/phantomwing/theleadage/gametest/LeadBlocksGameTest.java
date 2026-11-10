@@ -161,6 +161,30 @@ public final class LeadBlocksGameTest {
         }
     }
 
+    /** A wooden pickaxe takes the Lead Chain, Lead Bars and Lead Lantern as it takes vanilla's chain, iron bars and lantern. */
+    public static void woodenPickaxeTakesLeadFittingsAsVanillas(GameTestHelper helper) {
+        ItemStack wood = new ItemStack(Items.WOODEN_PICKAXE);
+        Block[][] pairs = {{ModBlocks.LEAD_CHAIN.get(), TestCompat.vanillaChain()}, {ModBlocks.LEAD_BARS.get(), Blocks.IRON_BARS},
+                {ModBlocks.LEAD_LANTERN.get(), Blocks.LANTERN}};
+        List<String> wrong = new ArrayList<>();
+        for (Block[] pair : pairs) {
+            BlockState lead = pair[0].defaultBlockState();
+            BlockState vanilla = pair[1].defaultBlockState();
+            boolean leadDrops = !lead.requiresCorrectToolForDrops() || wood.isCorrectToolForDrops(lead);
+            boolean vanillaDrops = !vanilla.requiresCorrectToolForDrops() || wood.isCorrectToolForDrops(vanilla);
+            if (leadDrops != vanillaDrops || wood.getDestroySpeed(lead) != wood.getDestroySpeed(vanilla)) {
+                wrong.add(BuiltInRegistries.BLOCK.getKey(pair[0]) + " (drops " + leadDrops + ", speed " + wood.getDestroySpeed(lead)
+                        + ") against " + BuiltInRegistries.BLOCK.getKey(pair[1]) + " (drops " + vanillaDrops + ", speed "
+                        + wood.getDestroySpeed(vanilla) + ")");
+            }
+        }
+        if (wrong.isEmpty()) {
+            helper.succeed();
+        } else {
+            fail(helper, "A wooden pickaxe takes " + String.join("; ", wrong));
+        }
+    }
+
     /** A pane in a wall is in a mob's way, as a glass pane is, and turns with a build; one on the floor is walked over. */
     public static void wallPanesBlockPathsAndTurnWithTheBuild(GameTestHelper helper) {
         BlockState wall = ModBlocks.LEADED_GLASS_PANEL.get().defaultBlockState().setValue(LeadedGlassPaneBlock.FACING, Direction.NORTH);

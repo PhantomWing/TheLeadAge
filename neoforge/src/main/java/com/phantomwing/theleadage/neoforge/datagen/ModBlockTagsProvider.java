@@ -51,13 +51,14 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
                 ModBlocks.CHISELED_LEAD.get(), ModBlocks.LEAD_PILLAR.get(),
                 ModBlocks.LEAD_GRATE.get(),
                 ModBlocks.LEAD_TRAPDOOR.get(), ModBlocks.LEAD_DOOR.get(),
-                ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(), ModBlocks.LEAD_LANTERN.get(),
                 ModBlocks.LEAD_BULB.get(),
                 ModBlocks.LEADED_GLASS_DOOR.get(), ModBlocks.LEADED_GLASS_TRAPDOOR.get(),
                 ModBlocks.LEAD_WEIGHT.get(), ModBlocks.CHIPPED_LEAD_WEIGHT.get(),
                 ModBlocks.DAMAGED_LEAD_WEIGHT.get()};
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(mineable);
         tag(BlockTags.NEEDS_STONE_TOOL).add(mineable);
+        // Any pickaxe takes vanilla's chain, iron bars and lantern, so these stay out of NEEDS_STONE_TOOL.
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.LEAD_CHAIN.get(), ModBlocks.LEAD_BARS.get(), ModBlocks.LEAD_LANTERN.get());
 
         tag(BlockTags.SLABS).addTag(ModTags.Blocks.LEAD_SLABS);
         tag(BlockTags.STAIRS).addTag(ModTags.Blocks.LEAD_STAIRS);
