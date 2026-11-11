@@ -206,5 +206,19 @@
   "tag.block.theleadage.campfire_fume_sources": "Fonti di fumi per fuochi da campo",
   "tag.item.theleadage.creeper_repellents": "Repellenti per creeper",
   "tag.item.theleadage.pillager_repellents": "Repellenti per predoni",
-  "tag.item.theleadage.lead_equipment": "Equipaggiamento di piombo"
+  "tag.item.theleadage.lead_equipment": "Equipaggiamento di piombo",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Equipaggiamento di piombo",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Esistono strumenti, armi e armature di piombo? Disattivato, non si possono più creare, trovare nei forzieri né essere indossati dalle creature, e sono nascosti dalle schede della modalità creativa, per quando l'equipaggiamento di piombo di un'altra mod prende il loro posto.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Scheda della modalità creativa",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "The Lead Age deve avere una propria scheda nel menu creativo?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Oggetti nelle schede vanilla",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Gli oggetti di piombo devono comparire anche accanto ai loro equivalenti nelle schede del menu creativo di vanilla e di altre mod?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Lampada di piombo si accende",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Lampada di piombo si spegne",
+  "subtitles.theleadage.item.armor.equip_lead": "Armatura di piombo sferraglia",
+  "subtitles.theleadage.block.lead_weight.chip": "Peso di piombo si scheggia",
+  "subtitles.theleadage.block.lead_weight.break": "Peso di piombo cede",
+  "subtitles.theleadage.block.lead_weight.land": "Peso di piombo atterra",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Pannello di vetro piombato ruotato",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Pannello di vetro piombato riempito"
 }

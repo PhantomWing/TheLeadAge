@@ -206,5 +206,19 @@
   "tag.block.theleadage.campfire_fume_sources": "Dampfquellen für Lagerfeuer",
   "tag.item.theleadage.creeper_repellents": "Creeper-Abschreckmittel",
   "tag.item.theleadage.pillager_repellents": "Plünderer-Abschreckmittel",
-  "tag.item.theleadage.lead_equipment": "Bleiausrüstung"
+  "tag.item.theleadage.lead_equipment": "Bleiausrüstung",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Bleiausrüstung",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Gibt es Bleiwerkzeuge, -waffen und -rüstung? Ausgeschaltet können sie weder hergestellt, in Truhen gefunden noch von Kreaturen getragen werden und sind in den Kreativ-Tabs verborgen, für den Fall, dass die Bleiausrüstung eines anderen Mods ihren Platz einnimmt.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Kreativ-Tab",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "Soll The Lead Age einen eigenen Tab im Kreativmenü haben?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Gegenstände in Vanilla-Tabs",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Sollen Bleigegenstände auch neben ihren Gegenstücken in den Kreativ-Tabs von Vanilla und anderen Mods stehen?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Bleileuchte schaltet ein",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Bleileuchte schaltet aus",
+  "subtitles.theleadage.item.armor.equip_lead": "Bleirüstung scheppert",
+  "subtitles.theleadage.block.lead_weight.chip": "Bleigewicht splittert",
+  "subtitles.theleadage.block.lead_weight.break": "Bleigewicht zerbricht",
+  "subtitles.theleadage.block.lead_weight.land": "Bleigewicht landet",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Bleiglasscheibe klickt",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Bleiglasscheibe wird gefüllt"
 }

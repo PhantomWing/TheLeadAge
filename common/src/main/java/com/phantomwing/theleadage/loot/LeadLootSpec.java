@@ -1,6 +1,7 @@
 package com.phantomwing.theleadage.loot;
 
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.platform.CommonConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -33,6 +34,15 @@ public final class LeadLootSpec {
      */
     public record Entry(String id, ResourceLocation targetLootTable, float chance,
                         Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems) {
+        /** Whether {@code enable_lead_gear} lets its item be found. */
+        public boolean applies() {
+            return itemEnabled(item.get());
+        }
+    }
+
+    /** Whether loot may give this item: lead gear only while {@code enable_lead_gear} is on. */
+    public static boolean itemEnabled(Item item) {
+        return !ModItems.isLeadGear(item) || CommonConfig.leadGear();
     }
 
     /** Low chance for a given iron-horse-armor or iron gear roll to become lead instead. */

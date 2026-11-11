@@ -206,5 +206,19 @@
   "tag.block.theleadage.campfire_fume_sources": "Dampbronnen voor kampvuren",
   "tag.item.theleadage.creeper_repellents": "Creeperafweermiddelen",
   "tag.item.theleadage.pillager_repellents": "Roverafweermiddelen",
-  "tag.item.theleadage.lead_equipment": "Loden uitrusting"
+  "tag.item.theleadage.lead_equipment": "Loden uitrusting",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Loden uitrusting",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Bestaan loden gereedschappen, wapens en harnassen? Uitgezet kunnen ze niet meer worden gemaakt, in kisten gevonden of door wezens gedragen, en zijn ze verborgen in de creatieve tabbladen, voor als de loden uitrusting van een andere mod hun plaats inneemt.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Creatief tabblad",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "Moet The Lead Age een eigen tabblad in het creatieve menu hebben?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Voorwerpen in vanilla-tabbladen",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Moeten loden voorwerpen ook naast hun tegenhangers in de creatieve tabbladen van vanilla en andere mods staan?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Loden lamp gaat aan",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Loden lamp gaat uit",
+  "subtitles.theleadage.item.armor.equip_lead": "Loden harnas rammelt",
+  "subtitles.theleadage.block.lead_weight.chip": "Loodgewicht splintert",
+  "subtitles.theleadage.block.lead_weight.break": "Loodgewicht breekt",
+  "subtitles.theleadage.block.lead_weight.land": "Loodgewicht landt",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Loodglazen ruit klikt",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Loodglazen ruit wordt gevuld"
 }

@@ -45,5 +45,19 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
 - Game tests in `common/src/gametest`, run on both loaders: `:neoforge:runGameTest` and `:fabric:runGameTest`. Laid out with the test shim above; each loader's `GameTestRegistration` and `TestLoader` are in its own `src/test` (`architectury.md`, "Game tests on Fabric too").
 - 15 play scenarios in `scenarios/`, one of them Fabric's alone, and 1 in `scenarios/server`.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`, the NeoForge one from `neoforge_minecraft_versions` (1.21.3 alone: it needs NeoForge 21.3, which 1.21.2 doesn't have). `fabric.mod.json` asks for Fabric API from 0.106.1, 1.21.2's newest, not the 0.114.1 it builds against, so the jar loads on 1.21.2 too.
+- Three config options for modpacks (1.3.0): `enable_lead_gear` takes away the gear in `ModItems.isLeadGear` - recipes
+  through their condition, loot (`LeadLootSpec.itemEnabled`), mobs wearing it (folded into `mobLeadEquipment()`), the
+  creative tabs - and `enable_creative_tab` and `enable_vanilla_creative_tabs` pick the tabs (`ui/VanillaTabs`, each item
+  after its iron or copper counterpart, filled through `platform/CreativeTabPlatform`: NeoForge on the mod's own bus,
+  Fabric in a phase after the default one). All three are read from each side's own config, as on 1.21.1.
+- The Lead Bulb, lead armour, the Lead Weight and leaded glass panes play sound events of their own (`ModSounds`), each
+  vanilla's sound under the mod's name, so the subtitles don't name a copper bulb, iron armour, an anvil, a mace or an
+  item frame.
+- Not on this line of 1.3.0's compatibility, since its mods have no 1.21.2/1.21.3 build: Create (and the Lead Sheet in
+  its tab), Farmer's Delight (and the Lead Knife in its tab), JEI and EMI (their info pages), Backported Spears, Vanilla
+  Backport and Copper Age Backport (the Lead Spear, Lead Nautilus Armor and the 1.21.9 tags), Better Combat and Mekanism.
+  Yori3o's Grappling Hooks' 1.21.2/1.21.3 builds (3.4.0, 3.8.0) register hook tiers in code and read no
+  `yo_hooks/hooks.json`, so there is no Lead Grappling Hook either. `VanillaTabs` still names Farmer's Delight's and
+  Create's tabs, which add nothing until those mods are here.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

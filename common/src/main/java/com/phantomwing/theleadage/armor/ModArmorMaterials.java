@@ -1,11 +1,11 @@
 package com.phantomwing.theleadage.armor;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.tags.CommonTags;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 
@@ -48,7 +48,7 @@ public class ModArmorMaterials {
                 ArmorType.HELMET, headDefense,
                 ArmorType.BODY, bodyDefense // Body is for Horse/Wolf armor
         );
-        Holder<SoundEvent> equipSound = SoundEvents.ARMOR_EQUIP_IRON;
+        Holder<SoundEvent> equipSound = ModSounds.ARMOR_EQUIP_LEAD;
         ResourceLocation modelId = TheLeadAge.resourceLocation(name);
 
         // ArmorMaterial(int durability, Map<ArmorType,Integer> defense, int enchantmentValue,
