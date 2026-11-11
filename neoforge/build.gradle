@@ -13,16 +13,21 @@ architectury {
 def datagenModId = rootProject.property('mod_id').toString()
 def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
 def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
+// What only the Fabric jar carries: the Create Fly recipes (datagen/CreateFlyRecipeProvider).
+def datagenFabricOutput = rootProject.file('fabric/src/generated/resources/').absolutePath
 
 // A recipe viewer is useless in the headless game-test and data-generation runs and can hang
 // or crash them, so the dev-runtime JEI below is skipped for those task names.
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
+// Which optional mods the dev runs load, one switch each (gradle.properties).
+//   ./gradlew :neoforge:runClient -Penable_grappling_hooks=true
+def loadHooks = (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
 
 // 1.21.11: JEI publishes for both loaders, but is PINNED to 27.6.0.28 (newer builds use a Loom
 // this toolchain refuses). Create, FD-NeoForge and EMI still have no build.
 // See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.11 branch: JEI kept; no Create/FD-NeoForge/EMI compat")
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.11 branch: JEI kept; no Create/FD-NeoForge/EMI compat; Grappling Hooks: ${loadHooks}")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -48,6 +53,7 @@ loom {
             clientData()
             name = "Data Generation"
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
+            property('theleadage.datagen.fabricOutput', datagenFabricOutput)
             // The mod without the test source set, which carries the datagen output into dev runs: datagen would
             // otherwise load the output of the run before as the mod's own while it writes the new one.
             mods {
@@ -124,6 +130,11 @@ dependencies {
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
     if (!runningGameTest && !runningDataGen) {
         modLocalRuntime "mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}"
+    }
+
+    // Yori3o's Grappling Hooks, which reads the Lead Grappling Hook from common's yo_hooks/hooks.json.
+    if (loadHooks && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("maven.modrinth:yori3os-grappling-hooks:${rootProject.grappling_hooks_neoforge_version}")
     }
 
     // NOTE (1.21.11 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and
