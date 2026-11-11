@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.BackportTags;
 import com.phantomwing.theleadage.tags.CommonTags;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
@@ -68,6 +69,9 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.AXES).add(ModItems.LEAD_AXE.get());
         tag(ItemTags.SHOVELS).add(ModItems.LEAD_SHOVEL.get());
         tag(ItemTags.HOES).add(ModItems.LEAD_HOE.get());
+        // 1.21.11's spears, which Backported Spears fills on this version and puts into the enchantable tags, so the
+        // Lead Spear takes Lunge and the melee enchantments through it.
+        tag(BackportTags.Items.SPEARS).add(ModItems.LEAD_SPEAR.get());
 
         // Armor — slot tags + trim support.
         tag(ItemTags.HEAD_ARMOR).add(ModItems.LEAD_HELMET.get());
@@ -124,7 +128,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ModTags.Items.LEAD_EQUIPMENT).add(
                 ModItems.LEAD_SWORD.get(), ModItems.LEAD_PICKAXE.get(), ModItems.LEAD_AXE.get(),
                 ModItems.LEAD_SHOVEL.get(), ModItems.LEAD_HOE.get(), ModItems.LEAD_KNIFE.get(),
-                ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
+                ModItems.LEAD_SPEAR.get(), ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
                 ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get());
     }
 

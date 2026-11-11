@@ -206,5 +206,22 @@
   "tag.block.theleadage.campfire_fume_sources": "焚き火の煙の発生源",
   "tag.item.theleadage.creeper_repellents": "クリーパーが忌避するブロック",
   "tag.item.theleadage.pillager_repellents": "ピリジャーが忌避するブロック",
-  "tag.item.theleadage.lead_equipment": "鉛の装備"
+  "tag.item.theleadage.lead_equipment": "鉛の装備",
+  "item.theleadage.lead_spear": "鉛の槍",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "鉛の装備",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "鉛の道具・武器・防具を使えるようにしますか？オフにすると、クラフト、チェストでの入手、モブの装備ができなくなり、クリエイティブタブからも隠れます。別のModの鉛の装備で置き換える場合に使います。",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "クリエイティブタブ",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "The Lead Age専用のタブをクリエイティブメニューに表示しますか？",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "バニラのタブに表示",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "鉛のアイテムを、バニラや他のMODのクリエイティブタブにも、対応するアイテムの隣に表示しますか？",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "鉛の電球が点く",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "鉛の電球が消える",
+  "subtitles.theleadage.item.armor.equip_lead": "鉛の防具が装着される",
+  "subtitles.theleadage.block.lead_weight.chip": "鉛の重りが欠ける",
+  "subtitles.theleadage.block.lead_weight.break": "鉛の重りが壊れる",
+  "subtitles.theleadage.block.lead_weight.land": "鉛の重りが落下する",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "鉛ガラス板が回される",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "鉛ガラス板にガラスが入れられる",
+  "theleadage.info.lead_pressure_plate": "鉛の感圧板を押せるのはMobとプレイヤーだけで、落としたアイテムは軽すぎて押せません。上に乗っている1体ごとに信号が1ずつ強くなり、最大で15になります。",
+  "theleadage.info.lead_light": "クリーパーは火のついた鉛の松明や鉛のランタンから離れ、うろついているピリジャーも同じように離れます。"
 }

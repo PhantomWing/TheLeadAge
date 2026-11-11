@@ -6,6 +6,7 @@ import com.phantomwing.theleadage.neoforge.condition.ModConditions;
 import com.phantomwing.theleadage.neoforge.loot.ModLootModifiers;
 import com.phantomwing.theleadage.neoforge.world.ModBiomeModifiers;
 import com.phantomwing.theleadage.pack.DyedLeadedGlassPack;
+import com.phantomwing.theleadage.platform.neoforge.CreativeTabPlatformImpl;
 import net.minecraft.server.packs.repository.Pack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -40,6 +41,10 @@ public final class TheLeadAgeNeoForge {
                 packs.accept(pack.hidden());
             }
         }));
+
+        // The vanilla creative tabs, filled from the mod's own bus so the mods neoforge.mods.toml orders first
+        // (Backported Spears) have listed what the lead items go after.
+        modEventBus.addListener(CreativeTabPlatformImpl::buildContents);
 
         container.registerConfig(ModConfig.Type.COMMON, Configuration.COMMON_CONFIG);
 

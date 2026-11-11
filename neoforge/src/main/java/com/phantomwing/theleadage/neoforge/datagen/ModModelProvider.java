@@ -20,7 +20,10 @@ import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.renderer.item.properties.select.DisplayContext;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
@@ -33,6 +36,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import com.phantomwing.theleadage.armor.ModTrimMaterials;
 import net.minecraft.client.renderer.item.SelectItemModel;
 import net.minecraft.client.renderer.item.properties.select.TrimMaterialProperty;
@@ -138,7 +142,7 @@ public class ModModelProvider extends ModelProvider {
         img.generateFlatItem(ModItems.RAW_LEAD.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_INGOT.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_NUGGET.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_SHEET.get(), ModelTemplates.FLAT_ITEM); // Create compat (dormant)
+        img.generateFlatItem(ModItems.LEAD_SHEET.get(), ModelTemplates.FLAT_ITEM); // Create Fly compat
         // Trimmable armor: a trim_material select per piece, so a trim shows on the inventory icon.
         // Vanilla armor is left alone: on NeoForge its trimmed_armor model resolves any registered
         // material at runtime, and shadowing vanilla's own files would break that for every other mod.
@@ -150,6 +154,7 @@ public class ModModelProvider extends ModelProvider {
 
         img.generateFlatItem(ModItems.LEAD_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         img.generateFlatItem(ModItems.LEAD_KNIFE.get(), ModelTemplates.FLAT_HANDHELD_ITEM); // FD compat (dormant)
+        spear(img, ModItems.LEAD_SPEAR); // Backported Spears compat
         img.generateFlatItem(ModItems.LEAD_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         img.generateFlatItem(ModItems.LEAD_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         img.generateFlatItem(ModItems.LEAD_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -601,5 +606,23 @@ public class ModModelProvider extends ModelProvider {
             case "west" -> 270;
             default -> 0; // north
         };
+    }
+
+    /** The mod's own copy of a held spear's display, so the held model has a parent without Backported Spears. */
+    private static final ModelTemplate SPEAR_IN_HAND = new ModelTemplate(
+            Optional.of(TheLeadAge.resourceLocation("item/spear_in_hand")), Optional.empty(), TextureSlot.LAYER0);
+
+    /**
+     * A spear as Backported Spears draws one, and 1.21.11 its own: flat in the inventory, on the ground and in a
+     * frame, and its {@code _in_hand} texture held, through the display context.
+     */
+    private static void spear(ItemModelGenerators img, RegistrySupplier<Item> item) {
+        Item spear = item.get();
+        ResourceLocation flat = img.createFlatItemModel(spear, ModelTemplates.FLAT_ITEM);
+        ResourceLocation inHand = SPEAR_IN_HAND.create(ModelLocationUtils.getModelLocation(spear, "_in_hand"),
+                TextureMapping.layer0(TextureMapping.getItemTexture(spear, "_in_hand")), img.modelOutput);
+        img.itemModelOutput.accept(spear, ItemModelUtils.select(new DisplayContext(), ItemModelUtils.plainModel(inHand),
+                ItemModelUtils.when(List.of(ItemDisplayContext.GUI, ItemDisplayContext.GROUND, ItemDisplayContext.FIXED),
+                        ItemModelUtils.plainModel(flat))));
     }
 }

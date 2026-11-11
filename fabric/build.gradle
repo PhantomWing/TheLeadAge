@@ -9,6 +9,14 @@ architectury {
 
 // The dev niceties below can only get in the way of the headless game-test server, which tests this mod alone.
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
+// Create Fly, one switch in gradle.properties:   ./gradlew :fabric:runClient -Penable_create_fly=false
+// Not in the portal's server scenarios, its server (an init script named *.server.gradle) or the client that joins it
+// (quick play into a server): with Create Fly a dev server's /reload holds its thread over 30 seconds on a busy machine,
+// and the client times out. The scenarios test the lead water's range, which Create Fly has nothing to do with.
+def playingOnServer = gradle.startParameter.initScripts.any {
+    it.name.endsWith('.server.gradle') || (it.name.endsWith('.gradle') && it.isFile() && it.text.contains('--quickPlayMultiplayer'))
+}
+def loadCreateFly = !playingOnServer && (project.findProperty('enable_create_fly') ?: rootProject.enable_create_fly).toString().toBoolean()
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -37,6 +45,11 @@ loom {
 // Test-only source set for game tests, kept out of `main` so nothing in it ships. The tests are
 // common/src/gametest, shared with NeoForge; only the registration and TestLoader are Fabric's own.
 sourceSets {
+    // Datagen's Fabric-only output: the Create Fly recipes (neoforge/.../datagen/CreateFlyRecipeProvider), in Create
+    // Fly's own format, which Create on NeoForge can't read.
+    main {
+        resources.srcDir file('src/generated/resources')
+    }
     test {
         java.srcDir project(':common').file('src/gametest/java')
         resources.srcDir project(':common').file('src/gametest/resources')
@@ -48,7 +61,7 @@ sourceSets {
 // 1.21.10: Farmer's Delight Refabricated (1.21.10-3.4.2, covers 1.21.9 too) and JEI (26.3.0.31)
 // both publish, so the Lead Knife and the recipe-viewer plugin are both live; EMI still has
 // nothing past 1.21.1. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 1.21.10 branch: FDR + JEI compat; no EMI")
+logger.lifecycle("[TheLeadAge] (fabric) 1.21.10 branch: FDR + JEI compat; no EMI; Create Fly: ${loadCreateFly}")
 
 configurations {
     common
@@ -59,7 +72,8 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    // The dev runs' loader, newer than the shipped manifest's floor (fabric_loader_version) for Create Fly.
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_dev_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     // Architectury API (Fabric).
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
@@ -93,6 +107,16 @@ dependencies {
         modLocalRuntime "mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}"
     }
 
+    // Create Fly, the Fabric port of Create: never compiled against. Its recipes are ours, written by NeoForge's datagen
+    // into src/generated/resources, which only this jar carries (see sourceSets above). The game tests load it too.
+    if (loadCreateFly) {
+        modLocalRuntime("maven.modrinth:create-fly:${rootProject.create_fly_version}")
+    }
+
+    // Backported Spears, which the Lead Spear is made with (BackportPlatformImpl): its Fabric jar is built with Loom
+    // 1.17, which this rung's Loom refuses, and asks for Fabric Loader 0.19.5, past the dev loader, so the Fabric side
+    // compiles against a stub (com/notunanancyowen/spears/Spears, left out of the jar) and its dev runs go without it.
+
     // NOTE (1.21.10 branch): no other dev-runtime niceties. AppleSkin has a 1.21.9 build again
     // (3.0.7+mc1.21.9) but stays out; it is dev-only and was dropped back on the 1.21.4 line.
 }
@@ -116,6 +140,8 @@ shadowJar {
     // modCompileOnly dependency, which already keeps it out of the shipped jar; this stays as a guard
     // against a stray class under that package sneaking back in.
     exclude 'vectorwing/**'
+    // The compile-only Backported Spears stub, likewise: the real Spears binds at runtime.
+    exclude 'com/notunanancyowen/**'
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = 'dev-shadow'

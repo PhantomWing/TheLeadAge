@@ -53,6 +53,15 @@ versionRange = "[0,)"
 ordering = "AFTER"
 side = "CLIENT"
 
+# Optional: after Backported Spears, so the Lead Spear goes in the Combat tab after its Iron Spear, which it adds in
+# the same creative tab event (VanillaTabs), and is made with the spear components it registers.
+[[dependencies.theleadage]]
+modId = "spears"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
 # A lit campfire over raw lead gives off lead fumes from its block entity's tick, which Lithium stops once nothing
 # cooks on it.
 ["lithium:options"]
