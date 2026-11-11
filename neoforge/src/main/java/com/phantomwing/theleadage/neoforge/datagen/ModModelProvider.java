@@ -139,7 +139,7 @@ public class ModModelProvider extends ModelProvider {
         img.generateFlatItem(ModItems.RAW_LEAD.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_INGOT.get(), ModelTemplates.FLAT_ITEM);
         img.generateFlatItem(ModItems.LEAD_NUGGET.get(), ModelTemplates.FLAT_ITEM);
-        img.generateFlatItem(ModItems.LEAD_SHEET.get(), ModelTemplates.FLAT_ITEM); // Create compat (dormant)
+        img.generateFlatItem(ModItems.LEAD_SHEET.get(), ModelTemplates.FLAT_ITEM); // Create Fly compat
         // Trimmable armor: a trim_material select per piece, so a trim shows on the inventory icon.
         // Vanilla armor is left alone: on NeoForge its trimmed_armor model resolves any registered
         // material at runtime, and shadowing vanilla's own files would break that for every other mod.

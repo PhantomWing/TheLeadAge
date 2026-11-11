@@ -51,6 +51,18 @@ public final class CommonConfigImpl {
     }
 
     public static boolean mobLeadEquipment() {
-        return Configuration.ENABLE_MOB_LEAD_EQUIPMENT.get();
+        return Configuration.ENABLE_MOB_LEAD_EQUIPMENT.get() && leadGear();
+    }
+
+    public static boolean leadGear() {
+        return Configuration.ENABLE_LEAD_GEAR.get();
+    }
+
+    public static boolean creativeTab() {
+        return Configuration.ENABLE_CREATIVE_TAB.get();
+    }
+
+    public static boolean vanillaCreativeTabs() {
+        return Configuration.ENABLE_VANILLA_CREATIVE_TABS.get();
     }
 }

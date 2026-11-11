@@ -85,6 +85,27 @@ public final class CommonConfig {
         throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
+    /**
+     * Gate for lead gear ({@code ModItems.isLeadGear}): its loot, mobs wearing it and the creative tabs. Its recipes
+     * are gated by condition, as the overrides are.
+     */
+    @ExpectPlatform
+    public static boolean leadGear() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Whether the mod's own creative tab lists anything, read from the player's own config. */
+    @ExpectPlatform
+    public static boolean creativeTab() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
+    /** Whether lead items go in vanilla's creative tabs too ({@code VanillaTabs}), read from the player's own config. */
+    @ExpectPlatform
+    public static boolean vanillaCreativeTabs() {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
+    }
+
     // Recipe-override toggles are read at datapack-load time directly by the
     // conditional recipes (NeoForge ConfigBooleanCondition / Fabric config_boolean
     // resource condition), so they don't need a CommonConfig bridge here.

@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.phantomwing.theleadage.loot.LeadLootAlgorithms;
+import com.phantomwing.theleadage.loot.LeadLootSpec;
 import com.phantomwing.theleadage.platform.CommonConfig;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -58,7 +59,7 @@ public class ReplaceItemModifier extends LootModifier {
 
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(@NotNull ObjectArrayList<ItemStack> generatedLoot, @NotNull LootContext lootContext) {
-        if (!CommonConfig.enableStructureLoot()) {
+        if (!CommonConfig.enableStructureLoot() || !LeadLootSpec.itemEnabled(this.item)) {
             return generatedLoot;
         }
         LeadLootAlgorithms.applyReplaceItem(generatedLoot, lootContext, this.item, this.removedItems, this.minStacks, this.maxStacks);

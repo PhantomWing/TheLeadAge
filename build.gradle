@@ -143,13 +143,18 @@ allprojects {
             content { includeGroup "curse.maven" }
         }
 
-        // Modrinth mods. Nothing resolves a maven.modrinth coordinate on this branch (the
-        // compile-only FDR dependency is gone, see fabric/build.gradle), but the repo is kept so
-        // restoring it is a one-line change. Scoped to the maven.modrinth group either way.
+        // Modrinth mods: the dev runs' Create Fly, Yori3o's Grappling Hooks and YACL. Scoped to the maven.modrinth
+        // group.
         maven {
             name = "Modrinth"
             url = "https://api.modrinth.com/maven"
             content { includeGroup "maven.modrinth" }
+        }
+
+        // Quilt's JSON parsers, which YACL bundles in its jar; dev runs don't unpack a jar's bundled libraries.
+        maven {
+            url = "https://maven.quiltmc.org/repository/release"
+            content { includeGroup "org.quiltmc.parsers" }
         }
 
         // EMI (recipe viewer â€” plugin lives in common, so both loaders use it).

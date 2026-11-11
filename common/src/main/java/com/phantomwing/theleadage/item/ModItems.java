@@ -39,6 +39,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.LinkedHashSet;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(TheLeadAge.MOD_ID, Registries.ITEM);
@@ -197,6 +198,13 @@ public class ModItems {
                 || stack.is(LEADED_GLASS_PANE_DIAGONAL.get()) || stack.is(LEADED_GLASS_PANE_CROSS.get())
                 || stack.is(LEADED_GLASS_PANE_DIAMOND.get()) || stack.is(LEADED_GLASS_PANE_LATTICE.get())
                 || stack.is(LEADED_GLASS_PANE_BARS.get()) || stack.is(LEADED_GLASS_PANE_DIAGONAL_BARS.get());
+    }
+
+    /** The tools, weapons and armor {@code enable_lead_gear} takes away. */
+    public static boolean isLeadGear(Item item) {
+        return Stream.of(LEAD_SHOVEL, LEAD_PICKAXE, LEAD_AXE, LEAD_HOE, LEAD_SWORD, LEAD_KNIFE, LEAD_SPEAR,
+                        LEAD_HELMET, LEAD_CHESTPLATE, LEAD_LEGGINGS, LEAD_BOOTS, LEAD_HORSE_ARMOR, LEAD_NAUTILUS_ARMOR)
+                .anyMatch(gear -> gear.get() == item);
     }
 
     public static Item.Properties baseItem() {

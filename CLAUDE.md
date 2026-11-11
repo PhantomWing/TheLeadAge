@@ -53,6 +53,41 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
 - 1.21.11 content of its own: the Lead Spear (dismount threshold 9.0, as 26.1's netherite spear) and the Lead Nautilus Armor (with their recipes, tags, loot and nugget smelting), spears in the mob gear and chest swaps, parched in `can_wear_lead_armor`, and the `c:armors/horse` and `c:armors/nautilus` tags.
 - JEI's plugin (`compat/jei`, JEI 29.6.2.31, as The Silver Age's 26.1 line) shows the leaded glass recipes, info entries and, through `LeadedGlassSubtypes`, each design as its own stack; JEI runs in the dev client but not in the game tests or datagen. EMI has no build past 1.21.1.
 - Fabric's config screen opens from Mod Menu (`TheLeadAgeModMenu`, through Cloth Config's `AutoConfigClient` from 26.1), compiled against Mod Menu 18.0.2, its newest for 26.1.x. Farmer's Delight Refabricated isn't a dependency here: the Lead Knife compiles against a stub in `fabric/src/main/java/vectorwing`, kept out of every jar.
+- 1.3.0's compatibility and modpack options (2026-11-11), from the 1.21.1 line and The Silver Age's 26.1 line:
+  - Three config options for modpacks: `enable_lead_gear` takes away the gear in `ModItems.isLeadGear` (the tools,
+    sword, knife, spear, armour, horse and nautilus armour) - recipes through their condition, loot
+    (`LeadLootSpec.itemEnabled`), mobs wearing it (folded into `mobLeadEquipment()`), the creative tabs - and
+    `enable_creative_tab` and `enable_vanilla_creative_tabs` pick the tabs (`ui/VanillaTabs`, each item after its iron
+    or copper counterpart, after the last of the copper age's families, the spear after the Iron Spear and the nautilus
+    armour after the Iron Nautilus Armor). They are filled through `platform/CreativeTabPlatform`: NeoForge's mod bus
+    and, on Fabric, a phase after `Event.DEFAULT_PHASE` of 26.1's `CreativeModeTabEvents.modifyOutputEvent`. All three
+    are read from each side's own config. The knife goes in Farmer's Delight's tab after its Iron Knife, the sheet in
+    Create Fly's `create:base` after its Iron Sheet, both Fabric's alone on this rung.
+  - JEI shows `compat/LeadInfo`'s info pages for the pressure plate and lead light. The Lead Bulb, lead armour, the Lead
+    Weight and leaded glass panes play sound events of their own (`ModSounds`), each vanilla's sound under the mod's name.
+  - Yori3o's Grappling Hooks reads every jar's `yo_hooks/hooks.json`, so the Lead Grappling Hook is data alone, in
+    `common/src/main/resources`: the hook, its `yo_hooks` models with 26.1's `items/` definitions (the
+    `yo_hooks:hook_active` condition picks the handle), textures, names and tags, and its recipes, hand-written in
+    `data/theleadage/recipe` behind both loaders' mod-loaded conditions and `enable_lead_gear`. 5.4.0 for 26.1 runs in
+    both loaders' dev runs with YACL 3.9.7 (`enable_grappling_hooks`), but for the game tests (and NeoForge's datagen);
+    NeoForge's dev run gets YACL's bundled libraries through `forgeRuntimeLibrary` (Quilt's maven), and Fabric's takes
+    MixinExtras 0.5.5, since YACL's mixin fails with the 0.5.4 Fabric Loader 0.19.3 brings.
+  - `weapon_attributes/lead_spear.json` gives the Lead Spear Better Combat's spear swings, which Better Combat 3.2.2 for
+    26.1 would also pick by name through its fallback. Better Combat isn't in the dev runs.
+  - Not on this line: Backported Spears and Vanilla Backport (spears, nautilus armour, their loot, mob spears and
+    parched are vanilla's here and this line has its own), Copper Age Backport (its tags are vanilla's), Sulfur Cubes
+    (26.2's), Mekanism and its resource pack and EMI (no 26.1 build).
+- **Create Fly** (Fabric's Create, mod id `create`) gets 1.21.1's Create recipes in its own format, which isn't Create's
+  (one `ingredient`): `neoforge/.../datagen/CreateFlyRecipeProvider` writes them as JSON into
+  `fabric/src/generated/resources`, which only the Fabric jar carries (`fabric/build.gradle`'s `main` resources; the data
+  run passes the folder as `theleadage.datagen.fabricOutput`), each under `fabric:load_conditions` alone: the Press makes
+  Lead Sheets (`result` and `results` both; 26.1's Create Fly reads the list), Crushed Raw Lead (`create:crushed_raw_lead`)
+  is washed into 9 nuggets and smelted or blasted into an ingot, and the ore, raw lead and its block are crushed, which
+  Create Fly leaves out. The Fabric dev runs load Create Fly 26.1.2-6.0.9-4 (`enable_create_fly`), the game tests too, but
+  not the portal's server scenarios (`fabric/build.gradle` knows them by their init scripts). Its manifest takes any
+  Fabric Loader, so this line needs no dev loader of its own. `common/src/generated` holds no Create recipes: 1.21.1's,
+  in Create's format, which Create Fly fails to parse, were left there by earlier ports and removed. Create for NeoForge
+  has no 26.1 build.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`, which leaves out `26.1` and `26.1.1` of the rung.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

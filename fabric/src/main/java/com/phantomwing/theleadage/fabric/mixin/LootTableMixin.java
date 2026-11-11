@@ -63,7 +63,7 @@ public abstract class LootTableMixin implements LeadLootTableId {
         for (LeadLootSpec.Entry entry : LeadLootSpec.entriesFor(tableId)) {
             // GLM condition: the random_chance draw (random.nextFloat() < chance, identical to
             // LootItemRandomChanceCondition).
-            if (random.nextFloat() >= entry.chance()) {
+            if (random.nextFloat() >= entry.chance() || !entry.applies()) {
                 continue;
             }
             Item item = entry.item().get();

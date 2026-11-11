@@ -3,6 +3,10 @@
     {
       "type": "neoforge:mod_loaded",
       "modid": "farmersdelight"
+    },
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
     }
   ],
   "type": "minecraft:crafting_shaped",
@@ -13,6 +17,10 @@
       "values": [
         "farmersdelight"
       ]
+    },
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
     }
   ],
   "key": {
