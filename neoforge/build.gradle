@@ -22,7 +22,13 @@ def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().cont
 
 // Which optional mods the dev runs load, one switch each (gradle.properties).
 //   ./gradlew :neoforge:runClient -Penable_grappling_hooks=false
-def loadHooks = (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
+// Grappling Hooks isn't in the portal's server scenarios, its server (an init script named *.server.gradle) or the client
+// that joins it (quick play into a server): with it the dev client never left the title screen for the server, and
+// the scenarios have nothing to do with it.
+def playingOnServer = gradle.startParameter.initScripts.any {
+    it.name.endsWith('.server.gradle') || (it.name.endsWith('.gradle') && it.isFile() && it.text.contains('--quickPlayMultiplayer'))
+}
+def loadHooks = !playingOnServer && (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
 
 // 26.3: JEI publishes for both loaders. Create, FD-NeoForge and EMI still have no build.
 // See the port notes in gradle.properties.

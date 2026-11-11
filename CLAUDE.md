@@ -72,7 +72,8 @@ into its `trim_overrides`. A mock player can be made at once on 26.3 (`entitiesL
   registered only with the mod, `GrapplingHookPackHandler` on NeoForge). YACL's 26.3 NeoForge build (3.9.7) writes
   `[26.2,26.3)` in its `neoforge.mods.toml`, but under the quoted key `[["dependencies.yet_another_config_lib_v3"]]`,
   which TOML reads as one key with a dot in it rather than FML's `dependencies.<modid>` table, so the range is never
-  enforced and it loads on 26.3 with Grappling Hooks 5.4.0, as their authors ship them. Create, Mekanism, EMI, Backported Spears and Vanilla Backport have nothing
+  enforced and it loads on 26.3 with Grappling Hooks 5.4.0, as their authors ship them. NeoForge's server scenarios leave
+  the pair out: with them the dev client quick-playing into the server never left the title screen. Create, Mekanism, EMI, Backported Spears and Vanilla Backport have nothing
   for 26.3, and the spear, nautilus armour, their loot and mob spears and the bars, chains and lanterns tags are
   vanilla's here. The 1.21.1 Create recipes datagen never deletes (`pressing/lead_sheet`, `splashing/crushed_raw_lead`)
   are gone from `common/src/generated`. Each optional dev-run mod has a switch in `gradle.properties`.
