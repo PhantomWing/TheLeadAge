@@ -71,7 +71,8 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
 - Yori3o's Grappling Hooks reads every jar's `yo_hooks/hooks.json` from its Fabric 4.0 on 1.21.4, so the Lead
   Grappling Hook is data alone, in `common/src/main/resources`: the hook (21 durability, 10 long, 4 enchantability),
   its `yo_hooks` models, textures, names and tags, its `items/` definitions in the built-in pack
-  `resourcepacks/grappling_hooks`, which Fabric's client turns on only with the mod, and its recipes, hand-written in
+  `fabric/src/main/resources/resourcepacks/grappling_hooks`, which Fabric's client turns on only with the mod (in
+  Fabric's own resources, since in a dev run common's are a mod of their own, which the pack lookup misses), and its recipes, hand-written in
   `data/theleadage/recipe` behind the hook item being registered (`neoforge:registered`, `fabric:registry_contains`)
   and `enable_lead_gear`. Its NeoForge builds for 1.21.4 (to 3.8) have a fixed set of hooks. The Fabric build needs
   Fabric Loader 0.17, past this line's 0.16.14, so no dev run loads it and the hook is untested in the game here.
