@@ -2,26 +2,28 @@ package com.phantomwing.theleadage.compat.jei;
 
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.compat.LeadInfo;
+import com.phantomwing.theleadage.compat.LeadedGlassDisplayRecipe;
 import com.phantomwing.theleadage.compat.LeadedGlassInfo;
 import com.phantomwing.theleadage.compat.LeadedGlassSubtypes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * JEI integration: info entries for the in-world interactions that aren't recipes at all ({@link LeadedGlassInfo},
- * {@link LeadInfo}), and each leaded glass design as a stack of its own.
- *
- * <p>The code-matched leaded-glass crafting arrangements ({@code LeadedGlassDisplayRecipe}) aren't shown on this line:
- * JEI 20.0.0.4, its only 1.21.4 build, lays a crafting extension out from its slot displays alone, with no grid
- * helper and no focus links, so a pane's colours would cycle out of step with the result's.</p>
+ * JEI integration. The mod's leaded-glass crafting recipes are code-matched (the grid arrangement decides the pattern,
+ * and colours ride on data components), which JEI cannot introspect - so this plugin hands JEI the shared display
+ * arrangements ({@link LeadedGlassDisplayRecipe}) rendered by a crafting-category extension with all colour variants
+ * cycling in step ({@link JeiLeadedGlassExtension}), plus info entries for the in-world interactions that aren't
+ * recipes at all ({@link LeadedGlassInfo}, {@link LeadInfo}).
  *
  * <p>Lives in common - the JEI plugin API is loader-agnostic, and this class is only classloaded by JEI itself, so JEI
  * remains an optional dependency. JEI has only a NeoForge build for 1.21.4, and EMI none.</p>
@@ -36,8 +38,9 @@ public class TheLeadAgeJeiPlugin implements IModPlugin {
     }
 
     /**
-     * Each design its own stack in the ingredient list ({@link LeadedGlassSubtypes}). Looking up recipes stays by
-     * item: what the stonecutter and the info entries take is plain glass.
+     * Each design its own stack in the ingredient list and when a recipe is filled in ({@link LeadedGlassSubtypes}).
+     * Looking up recipes stays by item: what the stonecutter and the info entries take is plain glass. JEI 20's
+     * interpreter has only getSubtypeData.
      */
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
@@ -49,7 +52,14 @@ public class TheLeadAgeJeiPlugin implements IModPlugin {
     }
 
     @Override
+    public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
+        registration.getCraftingCategory().addExtension(LeadedGlassDisplayRecipe.class, new JeiLeadedGlassExtension());
+    }
+
+    @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(RecipeTypes.CRAFTING, LeadedGlassDisplayRecipe.displayRecipes());
+
         // In-world interactions that aren't recipes: shown as JEI information entries.
         registration.addIngredientInfo(LeadedGlassInfo.paneStacks(), VanillaTypes.ITEM_STACK,
                 LeadedGlassInfo.text("pane"));

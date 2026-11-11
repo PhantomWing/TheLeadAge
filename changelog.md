@@ -6,7 +6,7 @@
 - Added `enable_lead_gear`: turned off, lead tools, weapons and armor (horse armor too) can't be crafted, found or worn by mobs, and are hidden from the creative tabs, for modpacks where another mod's lead gear takes their place
 - Added compatibility with Yori3o's Grappling Hooks on Fabric (4.0 and up): the Lead Grappling Hook, with a range of 10 blocks
 - Added compatibility with JEI on NeoForge: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
-  - Leaded glass panes, doors and trapdoors have their info pages too, and each leaded glass design shows up on its own
+  - JEI also shows the leaded glass recipes again, the info pages for leaded glass panes, doors and trapdoors, and each leaded glass design on its own
 
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles

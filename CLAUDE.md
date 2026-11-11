@@ -59,9 +59,15 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
   equip sound holder, so `ModSounds` registers before the items.
 - JEI has a NeoForge build for 1.21.4 (20.0.0.4) and none for Fabric: `compat/jei` is compiled against
   `jei-1.21.4-common-api` and loaded in NeoForge dev runs while `enable_jei` is on (`-Penable_jei=false` leaves it
-  out). It shows the info pages (`compat/LeadInfo`, `LeadedGlassInfo`) and each leaded glass design as its own stack,
-  but not the leaded glass crafting arrangements: JEI 20.0.0.4's crafting extension takes slot displays alone, with no
-  grid helper or focus links, so `LeadedGlassDisplayRecipe`'s colours couldn't cycle in step. EMI has no 1.21.4 build.
+  out). It shows the leaded glass crafting arrangements, the info pages (`compat/LeadInfo`, `LeadedGlassInfo`) and each
+  leaded glass design as its own stack. JEI 20's crafting extension has no `setRecipe`, grid helper or focus links:
+  `JeiLeadedGlassExtension.getIngredients` gives each cell's variants as a `SlotDisplay.Composite`, and the result
+  comes from the recipe's own `display()`, which `LeadedGlassDisplayRecipe` overrides with a
+  `ShapedCraftingRecipeDisplay` (a `CustomRecipe` has none from 1.21.2, and JEI takes the first). Every slot reads one
+  shared cycle, so index-aligned variants cycle in step; under a focus only the matched slot is narrowed, so
+  `onDisplayedIngredientsUpdate` pins the other cycling slots to its colour, matching stacks by design as JEI does
+  (`LeadedGlassSubtypes`). Checked in a play session: the panes around a lead ingot cycle with their result, and the
+  Leaded Glass Pane's recipes (R) show clear leaded glass for the clear pane. EMI has no 1.21.4 build.
 - Yori3o's Grappling Hooks reads every jar's `yo_hooks/hooks.json` from its Fabric 4.0 on 1.21.4, so the Lead
   Grappling Hook is data alone, in `common/src/main/resources`: the hook (21 durability, 10 long, 4 enchantability),
   its `yo_hooks` models, textures, names and tags, its `items/` definitions in the built-in pack

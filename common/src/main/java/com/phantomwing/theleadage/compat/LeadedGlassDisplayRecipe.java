@@ -27,6 +27,10 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
@@ -317,6 +321,37 @@ public class LeadedGlassDisplayRecipe extends CustomRecipe {
             colors.add(dye.getId());
         }
         return List.copyOf(colors);
+    }
+
+    /**
+     * Per grid cell, what a viewer shows there as a {@link SlotDisplay}: nothing for an empty cell, the one stack of a
+     * constant cell, and every colour variant, in order, as a composite for a cycling one.
+     */
+    public List<SlotDisplay> inputDisplays() {
+        List<SlotDisplay> displays = new ArrayList<>();
+        for (List<ItemStack> variants : inputVariants()) {
+            displays.add(variants == null ? SlotDisplay.Empty.INSTANCE : displayOf(variants));
+        }
+        return displays;
+    }
+
+    /**
+     * The arrangement as the crafting book's display. {@link CustomRecipe} has none from 1.21.2, and JEI 20 takes a
+     * crafting recipe's result from its first display: the result variants as one composite, index-aligned with the
+     * cycling cells' variants, so they cycle in step.
+     */
+    @Override
+    public List<RecipeDisplay> display() {
+        return List.of(new ShapedCraftingRecipeDisplay(width, height, inputDisplays(), displayOf(resultVariants()),
+                new SlotDisplay.ItemSlotDisplay(Items.CRAFTING_TABLE)));
+    }
+
+    private static SlotDisplay displayOf(List<ItemStack> stacks) {
+        if (stacks.size() == 1) {
+            return new SlotDisplay.ItemStackSlotDisplay(stacks.getFirst());
+        }
+        return new SlotDisplay.Composite(stacks.stream()
+                .map(stack -> (SlotDisplay) new SlotDisplay.ItemStackSlotDisplay(stack)).toList());
     }
 
     // ---- Never a real recipe: display only ----
