@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.fabric.client;
 
+import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.block.entity.ModBlockEntities;
 import com.phantomwing.theleadage.client.LeadFumesParticles;
@@ -8,6 +9,7 @@ import com.phantomwing.theleadage.client.LeadedGlassDoorRenderer;
 import com.phantomwing.theleadage.client.LeadedGlassItemModels;
 import com.phantomwing.theleadage.client.LeadedGlassTrapdoorRenderer;
 import com.phantomwing.theleadage.client.ModColorHandlers;
+import com.phantomwing.theleadage.compat.ModIds;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.entity.ModEntities;
 import net.fabricmc.api.ClientModInitializer;
@@ -16,9 +18,13 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.particle.FlameParticle;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -70,5 +76,14 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
         // Leaded glass door + trapdoor renderers.
         BlockEntityRendererRegistry.register(ModBlockEntities.LEADED_GLASS_DOOR.get(), LeadedGlassDoorRenderer::new);
         BlockEntityRendererRegistry.register(ModBlockEntities.LEADED_GLASS_TRAPDOOR.get(), LeadedGlassTrapdoorRenderer::new);
+
+        // The Lead Grappling Hook's items/ definitions name Grappling Hooks' hook_active property, and a client
+        // without the mod logs an error for each definition it can't read, so they are a pack on only with the mod.
+        if (FabricLoader.getInstance().isModLoaded(ModIds.GRAPPLING_HOOKS)) {
+            FabricLoader.getInstance().getModContainer(TheLeadAge.MOD_ID).ifPresent(container ->
+                    ResourceManagerHelper.registerBuiltinResourcePack(TheLeadAge.resourceLocation("grappling_hooks"),
+                            container, Component.literal("The Lead Age: Grappling Hooks"),
+                            ResourcePackActivationType.ALWAYS_ENABLED));
+        }
     }
 }

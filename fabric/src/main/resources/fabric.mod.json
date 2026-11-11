@@ -36,6 +36,9 @@
     "architectury": ">=15.0.3",
     "cloth-config": ">=17.0.144"
   },
+  "suggests": {
+    "yo_hooks": "*"
+  },
   "custom": {
     "lithium:options": {
       "mixin.world.block_entity_ticking.sleeping.campfire": false

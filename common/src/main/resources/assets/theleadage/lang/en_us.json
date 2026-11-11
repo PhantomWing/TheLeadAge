@@ -206,5 +206,21 @@
   "tag.block.theleadage.campfire_fume_sources": "Campfire Fume Sources",
   "tag.item.theleadage.creeper_repellents": "Creeper Repellents",
   "tag.item.theleadage.pillager_repellents": "Pillager Repellents",
-  "tag.item.theleadage.lead_equipment": "Lead Equipment"
+  "tag.item.theleadage.lead_equipment": "Lead Equipment",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Lead Gear",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Can lead tools, weapons and armor be had? Turning it off stops them from being crafted, found in chests or worn by mobs, and hides them from the creative tabs, for when another mod's lead gear takes their place.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Creative Mode Tab",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "Should The Lead Age have a tab of its own in the creative menu?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Items in Vanilla Tabs",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Should lead items also be listed beside their counterparts in the vanilla creative tabs and other mods' tabs?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Lead Bulb turns on",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Lead Bulb turns off",
+  "subtitles.theleadage.item.armor.equip_lead": "Lead armor clanks",
+  "subtitles.theleadage.block.lead_weight.chip": "Lead Weight chips",
+  "subtitles.theleadage.block.lead_weight.break": "Lead Weight breaks",
+  "subtitles.theleadage.block.lead_weight.land": "Lead Weight lands",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Leaded Glass Pane clicks",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Leaded Glass Pane fills",
+  "theleadage.info.lead_pressure_plate": "Only mobs and players press a Lead Pressure Plate: dropped items are too light. Each one standing on it adds one to its signal, up to 15.",
+  "theleadage.info.lead_light": "Creepers keep away from a lit Lead Torch or Lead Lantern, and wandering pillagers do too."
 }

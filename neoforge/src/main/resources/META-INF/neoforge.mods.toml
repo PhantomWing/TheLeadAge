@@ -41,8 +41,15 @@ versionRange = "[15.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
-# No optional integration dependencies on this line: Create, Farmer's Delight, JEI and EMI publish
-# no 1.21.4 build (JEI has one; its plugin is not yet restored). They come back with their compat (see the port notes in gradle.properties).
+# Optional: JEI, whose plugin shows the leaded glass recipes and the info pages. Create, Farmer's Delight and EMI
+# publish no 1.21.4 build, so they come back with their compat (see the port notes in gradle.properties). versionRange
+# is "[0,)": an optional dependency gains nothing from a lower bound.
+[[dependencies.theleadage]]
+modId = "jei"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"
 
 # A lit campfire over raw lead gives off lead fumes from its block entity's tick, which Lithium stops once nothing
 # cooks on it.

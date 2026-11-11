@@ -20,9 +20,10 @@ def datagenExisting = rootProject.file('common/src/main/resources/').absolutePat
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
 
-// Create, Farmer's Delight, JEI and EMI publish no 1.21.2/1.21.3 build, so their compat and the
-// recipe_viewer switch are absent on this branch. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.3 branch — no Create/FD/JEI/EMI compat on this line")
+// Create, Farmer's Delight and EMI publish no 1.21.4 build, so their compat and the recipe_viewer switch are absent
+// on this branch; JEI has a NeoForge build, loaded in the dev runs while enable_jei is on. See gradle.properties.
+def loadJei = (project.findProperty('enable_jei') ?: rootProject.enable_jei).toString().toBoolean()
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.4 branch — JEI: ${loadJei}; no Create/FD/EMI compat on this line")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -122,6 +123,10 @@ dependencies {
     if (!runningGameTest && !runningDataGen) {
         modLocalRuntime("squeek.appleskin:appleskin-neoforge:${rootProject.appleskin_neoforge_version}")
     }
+    // JEI, for the leaded glass recipes and the info pages. Never on the game-test run or datagen.
+    if (loadJei && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_neoforge_version}")
+    }
 }
 
 // A widened member missing from the access transformer still compiles and runs in dev, then throws
@@ -189,6 +194,7 @@ publishMods {
         rootProject.supported_minecraft_versions.tokenize(' ,').each { minecraftVersions.add(it) }
         // NeoForge only needs Architectury — fabric-api / cloth-config are Fabric-only.
         requires("architectury-api")
+        optional("jei")
     }
     curseforge {
         projectId = providers.gradleProperty("curseforge_project_id")
@@ -198,6 +204,7 @@ publishMods {
         client = true
         server = true
         requires("architectury-api")
+        optional("jei")
     }
 }
 

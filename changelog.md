@@ -1,3 +1,17 @@
+# 1.3.0
+
+### Additions
+- Lead items now also show up in the vanilla creative tabs, beside their vanilla counterparts
+  - `enable_creative_tab` and `enable_vanilla_creative_tabs` choose which tabs lead items show up in
+- Added `enable_lead_gear`: turned off, lead tools, weapons and armor (horse armor too) can't be crafted, found or worn by mobs, and are hidden from the creative tabs, for modpacks where another mod's lead gear takes their place
+- Added compatibility with Yori3o's Grappling Hooks on Fabric (4.0 and up): the Lead Grappling Hook, with a range of 10 blocks
+- Added compatibility with JEI on NeoForge: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
+  - Leaded glass panes, doors and trapdoors have their info pages too, and each leaded glass design shows up on its own
+
+### Changes
+- Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
+
+
 # 1.2.1
 
 ### Fixes

@@ -206,5 +206,21 @@
   "tag.block.theleadage.campfire_fume_sources": "營火煙源",
   "tag.item.theleadage.creeper_repellents": "苦力怕驅避物",
   "tag.item.theleadage.pillager_repellents": "掠奪者驅避物",
-  "tag.item.theleadage.lead_equipment": "鉛裝備"
+  "tag.item.theleadage.lead_equipment": "鉛裝備",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "鉛裝備",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "是否啟用鉛工具、武器和盔甲？關閉後將無法合成、在箱子中找到或由生物穿戴，並從創造模式分頁中隱藏，適用於由其他模組的鉛裝備取而代之時。",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "創造模式物品欄",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "The Lead Age 是否在創造模式物品欄中擁有自己的分頁？",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "原版分頁中的物品",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "是否也在原版和其他模組的創造模式分頁中，將鉛製物品列在對應的物品旁邊？",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "鉛燈亮起",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "鉛燈熄滅",
+  "subtitles.theleadage.item.armor.equip_lead": "鉛製盔甲鏗噹聲",
+  "subtitles.theleadage.block.lead_weight.chip": "鉛墜磕損",
+  "subtitles.theleadage.block.lead_weight.break": "鉛墜被破壞",
+  "subtitles.theleadage.block.lead_weight.land": "鉛墜落地",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "鉛玻璃片咔嗒聲",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "填充鉛玻璃片",
+  "theleadage.info.lead_pressure_plate": "只有生物和玩家能壓下鉛製壓力板：掉落的物品太輕。站在上面的每一個都會讓訊號增強一級，最高為 15。",
+  "theleadage.info.lead_light": "苦力怕會遠離點燃的鉛火把或鉛燈籠，四處遊蕩的掠奪者也是如此。"
 }

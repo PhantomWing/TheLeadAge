@@ -61,6 +61,18 @@ public final class CommonConfigImpl {
 
     public static boolean mobLeadEquipment() {
         return TheLeadAgeFabricConfig.getBooleanConfigurationValue(
-                TheLeadAgeFabricConfig.ENABLE_MOB_LEAD_EQUIPMENT_ID);
+                TheLeadAgeFabricConfig.ENABLE_MOB_LEAD_EQUIPMENT_ID) && leadGear();
+    }
+
+    public static boolean leadGear() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(TheLeadAgeFabricConfig.ENABLE_LEAD_GEAR_ID);
+    }
+
+    public static boolean creativeTab() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(TheLeadAgeFabricConfig.ENABLE_CREATIVE_TAB_ID);
+    }
+
+    public static boolean vanillaCreativeTabs() {
+        return TheLeadAgeFabricConfig.getBooleanConfigurationValue(TheLeadAgeFabricConfig.ENABLE_VANILLA_CREATIVE_TABS_ID);
     }
 }

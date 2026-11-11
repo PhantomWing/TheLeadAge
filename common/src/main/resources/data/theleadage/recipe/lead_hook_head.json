@@ -1,0 +1,39 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:registered",
+      "value": "yo_hooks:lead_hook_head"
+    },
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "yo_hooks:lead_hook_head"
+      ]
+    },
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "#c:ingots/lead",
+    "B": "#c:nuggets/lead"
+  },
+  "pattern": [
+    "AA",
+    "BA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "yo_hooks:lead_hook_head"
+  }
+}
