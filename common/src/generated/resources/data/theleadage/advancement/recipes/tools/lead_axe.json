@@ -1,4 +1,10 @@
 {
+  "neoforge:conditions": [
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
   "parent": "minecraft:recipes/root",
   "criteria": {
     "has_ingots_lead": {
@@ -18,6 +24,12 @@
       "trigger": "minecraft:recipe_unlocked"
     }
   },
+  "fabric:load_conditions": [
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
+    }
+  ],
   "requirements": [
     [
       "has_the_recipe",

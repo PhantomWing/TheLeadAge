@@ -36,6 +36,8 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.LinkedHashSet;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(TheLeadAge.MOD_ID, Registries.ITEM);
@@ -79,11 +81,11 @@ public class ModItems {
     public static final RegistrySupplier<Item> LEAD_LEGGINGS = registerArmor("lead_leggings", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorType.LEGGINGS);
     public static final RegistrySupplier<Item> LEAD_BOOTS = registerArmor("lead_boots", ModArmorMaterials.LEAD_ARMOR_MATERIAL, ArmorType.BOOTS);
     public static final RegistrySupplier<Item> LEAD_HORSE_ARMOR = register("lead_horse_armor",
-            (props) -> new LeadHorseArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, props),
+            (props) -> new LeadHorseArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL.get(), props),
             baseItem().stacksTo(1));
     // Loot-only, like vanilla's nautilus armor and the horse armor above. See LeadLootSpec.
     public static final RegistrySupplier<Item> LEAD_NAUTILUS_ARMOR = register("lead_nautilus_armor",
-            (props) -> new LeadNautilusArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL, props),
+            (props) -> new LeadNautilusArmorItem(ModArmorMaterials.LEAD_ARMOR_MATERIAL.get(), props),
             baseItem().stacksTo(1));
 
     // One item places the standing or wall torch depending on the clicked face (like vanilla).
@@ -196,6 +198,13 @@ public class ModItems {
                 || stack.is(LEADED_GLASS_PANE_BARS.get()) || stack.is(LEADED_GLASS_PANE_DIAGONAL_BARS.get());
     }
 
+    /** The tools, weapons and armor {@code enable_lead_gear} takes away. */
+    public static boolean isLeadGear(Item item) {
+        return Stream.of(LEAD_SHOVEL, LEAD_PICKAXE, LEAD_AXE, LEAD_HOE, LEAD_SWORD, LEAD_KNIFE, LEAD_SPEAR,
+                        LEAD_HELMET, LEAD_CHESTPLATE, LEAD_LEGGINGS, LEAD_BOOTS, LEAD_HORSE_ARMOR, LEAD_NAUTILUS_ARMOR)
+                .anyMatch(gear -> gear.get() == item);
+    }
+
     public static Item.Properties baseItem() {
         return new Item.Properties();
     }
@@ -252,8 +261,8 @@ public class ModItems {
      * durability (the material's factor × {@link ArmorType#getDurability}), defense, toughness,
      * knockback resistance and the equip sound — so none of that is set on the Properties here.
      */
-    private static RegistrySupplier<Item> registerArmor(String name, ArmorMaterial material, ArmorType type) {
-        return register(name, (props) -> new LeadArmorItem(material, type, props), baseItem());
+    private static RegistrySupplier<Item> registerArmor(String name, Supplier<ArmorMaterial> material, ArmorType type) {
+        return register(name, (props) -> new LeadArmorItem(material.get(), type, props), baseItem());
     }
 
     private static RegistrySupplier<Item> register(String name) {

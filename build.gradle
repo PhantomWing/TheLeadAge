@@ -155,9 +155,8 @@ allprojects {
             content { includeGroup "curse.maven" }
         }
 
-        // Modrinth mods. Nothing resolves a maven.modrinth coordinate on this branch (the
-        // compile-only FDR dependency is gone, see fabric/build.gradle), but the repo is kept so
-        // restoring it is a one-line change. Scoped to the maven.modrinth group either way.
+        // Modrinth mods: Yori3o's Grappling Hooks and YACL in the Fabric dev runs. Scoped to the
+        // maven.modrinth group.
         maven {
             name = "Modrinth"
             url = "https://api.modrinth.com/maven"

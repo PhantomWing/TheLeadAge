@@ -1,17 +1,20 @@
 package com.phantomwing.theleadage.armor;
 
+import com.google.common.base.Suppliers;
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.tags.CommonTags;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Lead armor material.
@@ -25,8 +28,10 @@ import java.util.Map;
 public class ModArmorMaterials {
     // Heavy plate: diamond/netherite-level protection, no toughness, and the lowest durability factor
     // in the mod (6 — between Leather 5 and Gold 7). The movement-speed + gravity penalties live on
-    // LeadArmorItem. Repaired with lead.
-    public static final ArmorMaterial LEAD_ARMOR_MATERIAL = create(
+    // LeadArmorItem. Repaired with lead. Made the first time an item asks for it, as the item registers: its equip
+    // sound's holder only exists once the sound is registered, and from Architectury 21 a RegistrySupplier is no
+    // longer a holder of its own.
+    public static final Supplier<ArmorMaterial> LEAD_ARMOR_MATERIAL = Suppliers.memoize(() -> create(
             "lead",
             6,    // durability factor — multiplied per-slot by ArmorType#getDurability
             3,    // boots      (matches Diamond/Netherite 3)
@@ -37,7 +42,7 @@ public class ModArmorMaterials {
             0f,   // toughness — none, unlike Diamond 2 / Netherite 3 (soft metal: it stops a blow, it doesn't blunt one)
             0f,   // knockback resistance
             5     // enchantment value
-    );
+    ));
 
     private static ArmorMaterial create(String name, int durability,
                                         int bootsDefense, int legsDefense, int chestDefense,
@@ -50,7 +55,8 @@ public class ModArmorMaterials {
                 ArmorType.HELMET, headDefense,
                 ArmorType.BODY, bodyDefense // Body is for Horse/Wolf armor
         );
-        Holder<SoundEvent> equipSound = SoundEvents.ARMOR_EQUIP_IRON;
+        Holder<SoundEvent> equipSound = Objects.requireNonNull(ModSounds.ARMOR_EQUIP_LEAD.asHolder(),
+                "the lead equip sound isn't registered yet");
         // 1.21.4: the equipment model id is a typed ResourceKey<EquipmentAsset>, resolving to
         // assets/<ns>/equipment/<path>.json (the models/ segment was dropped from the lookup).
         ResourceKey<EquipmentAsset> assetId =

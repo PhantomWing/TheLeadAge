@@ -90,6 +90,10 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.HOES).add(ModItems.LEAD_HOE.get());
         // Also what lets the spear take Lunge and the melee enchantments.
         tag(ItemTags.SPEARS).add(ModItems.LEAD_SPEAR.get());
+        // What a Sulfur Cube swallowing it turns into, as vanilla's metal blocks, ores and bulbs do.
+        tag(ItemTags.SULFUR_CUBE_ARCHETYPE_SLOW_FLAT).add(ModItems.LEAD_ORE.get(), ModItems.DEEPSLATE_LEAD_ORE.get(),
+                ModItems.RAW_LEAD_BLOCK.get(), ModItems.LEAD_BLOCK.get(), ModItems.CUT_LEAD.get(),
+                ModItems.CHISELED_LEAD.get(), ModItems.LEAD_BULB.get());
 
         // Armor — slot tags + trim support.
         tag(ItemTags.HEAD_ARMOR).add(ModItems.LEAD_HELMET.get());
