@@ -206,5 +206,21 @@
   "tag.block.theleadage.campfire_fume_sources": "Nguồn khói cho lửa trại",
   "tag.item.theleadage.creeper_repellents": "Vật xua đuổi creeper",
   "tag.item.theleadage.pillager_repellents": "Vật xua đuổi kẻ cướp",
-  "tag.item.theleadage.lead_equipment": "Trang bị chì"
+  "tag.item.theleadage.lead_equipment": "Trang bị chì",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Trang bị chì",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Có công cụ, vũ khí và giáp chì không? Khi tắt, chúng không thể được chế tạo, tìm thấy trong rương hay được sinh vật mặc, và bị ẩn khỏi các thẻ Sáng tạo, dành cho khi trang bị chì của mod khác thay thế chúng.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Thẻ chế độ Sáng tạo",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "The Lead Age có nên có thẻ riêng trong menu Sáng tạo không?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Vật phẩm trong thẻ gốc",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Có nên hiển thị vật phẩm chì cạnh vật phẩm tương ứng trong các thẻ Sáng tạo của trò chơi gốc và của các mod khác không?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Bóng đèn chì bật lên",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Bóng đèn chì tắt đi",
+  "subtitles.theleadage.item.armor.equip_lead": "Giáp chì kêu lách cách",
+  "subtitles.theleadage.block.lead_weight.chip": "Quả nặng chì bị sứt mẻ",
+  "subtitles.theleadage.block.lead_weight.break": "Quả nặng chì bị phá",
+  "subtitles.theleadage.block.lead_weight.land": "Quả nặng chì đã tiếp đất",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Tấm thủy tinh chì xoay",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Tấm thủy tinh chì được lắp",
+  "theleadage.info.lead_pressure_plate": "Chỉ sinh vật và người chơi mới nhấn được Tấm áp lực chì: vật phẩm bị thả xuống quá nhẹ. Mỗi kẻ đứng trên đó tăng tín hiệu thêm một, tối đa 15.",
+  "theleadage.info.lead_light": "Creeper tránh xa Đuốc chì hoặc Đèn lồng chì đang cháy, và cướp làng đi lang thang cũng vậy."
 }

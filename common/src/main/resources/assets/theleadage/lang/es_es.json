@@ -206,5 +206,21 @@
   "tag.block.theleadage.campfire_fume_sources": "Fuentes de vapor para hogueras",
   "tag.item.theleadage.creeper_repellents": "Repelentes de creeper",
   "tag.item.theleadage.pillager_repellents": "Repelentes de saqueadores",
-  "tag.item.theleadage.lead_equipment": "Equipo de plomo"
+  "tag.item.theleadage.lead_equipment": "Equipo de plomo",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Equipo de plomo",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "¿Existen las herramientas, armas y armaduras de plomo? Al desactivarlo ya no se pueden fabricar, encontrar en cofres ni llevar por criaturas, y se ocultan de las pestañas del modo creativo, para cuando el equipo de plomo de otro mod ocupe su lugar.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Pestaña del modo creativo",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "¿Debería The Lead Age tener su propia pestaña en el menú creativo?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Objetos en las pestañas de vanilla",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "¿Deberían los objetos de plomo aparecer también junto a sus equivalentes en las pestañas del menú creativo de vanilla y de otros mods?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Lámpara de plomo se enciende",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Lámpara de plomo se apaga",
+  "subtitles.theleadage.item.armor.equip_lead": "Armadura de plomo tintinea",
+  "subtitles.theleadage.block.lead_weight.chip": "Peso de plomo se astilla",
+  "subtitles.theleadage.block.lead_weight.break": "Peso de plomo destruido",
+  "subtitles.theleadage.block.lead_weight.land": "Peso de plomo aterriza",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Chasquido de panel de cristal emplomado",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Panel de cristal emplomado llenado",
+  "theleadage.info.lead_pressure_plate": "Solo las criaturas y los jugadores activan una placa de presión de plomo: los objetos soltados son demasiado ligeros. Cada uno que esté encima suma uno a su señal, hasta 15.",
+  "theleadage.info.lead_light": "Los creepers se alejan de una antorcha o un farol de plomo encendidos, y los saqueadores que deambulan también."
 }

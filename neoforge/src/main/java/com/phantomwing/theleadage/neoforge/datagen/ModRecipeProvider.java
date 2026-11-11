@@ -108,6 +108,10 @@ public class ModRecipeProvider extends RecipeProvider {
         storage(output, ModItems.LEAD_INGOT.get(), ModItems.LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);
         storage(output, ModItems.LEAD_NUGGET.get(), ModItems.LEAD_INGOT.get(), RecipeCategory.MISC);
 
+        // Lead gear is crafted only while enable_lead_gear is on: a modpack with another mod's lead gear turns it off.
+        ICondition gear = new ConfigBooleanCondition(Configuration.ENABLE_LEAD_GEAR_ID);
+        RecipeOutput gearOutput = output.withConditions(gear);
+
         // Farmer's Delight compat: the Lead Knife (ingot over a stick). Gated on FD — without it the
         // item is a hidden SwordItem fallback, so it deliberately has no recipe.
         shaped(RecipeCategory.TOOLS, ModItems.LEAD_KNIFE.get(), 1)
@@ -116,19 +120,19 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('X', LEAD_INGOTS)
                 .define('I', Items.STICK)
                 .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
-                .save(output.withConditions(new ModLoadedCondition(ModIds.FARMERS_DELIGHT)));
+                .save(output.withConditions(new ModLoadedCondition(ModIds.FARMERS_DELIGHT), gear));
 
         // Lead tools + armor, crafted from lead ingots.
         TagKey<Item> ingot = LEAD_INGOTS;
-        sword(output, ModItems.LEAD_SWORD.get(), ingot);
-        pickaxe(output, ModItems.LEAD_PICKAXE.get(), ingot);
-        axe(output, ModItems.LEAD_AXE.get(), ingot);
-        shovel(output, ModItems.LEAD_SHOVEL.get(), ingot);
-        hoe(output, ModItems.LEAD_HOE.get(), ingot);
-        helmet(output, ModItems.LEAD_HELMET.get(), ingot);
-        chestplate(output, ModItems.LEAD_CHESTPLATE.get(), ingot);
-        leggings(output, ModItems.LEAD_LEGGINGS.get(), ingot);
-        boots(output, ModItems.LEAD_BOOTS.get(), ingot);
+        sword(gearOutput, ModItems.LEAD_SWORD.get(), ingot);
+        pickaxe(gearOutput, ModItems.LEAD_PICKAXE.get(), ingot);
+        axe(gearOutput, ModItems.LEAD_AXE.get(), ingot);
+        shovel(gearOutput, ModItems.LEAD_SHOVEL.get(), ingot);
+        hoe(gearOutput, ModItems.LEAD_HOE.get(), ingot);
+        helmet(gearOutput, ModItems.LEAD_HELMET.get(), ingot);
+        chestplate(gearOutput, ModItems.LEAD_CHESTPLATE.get(), ingot);
+        leggings(gearOutput, ModItems.LEAD_LEGGINGS.get(), ingot);
+        boots(gearOutput, ModItems.LEAD_BOOTS.get(), ingot);
 
         // Worn-out lead gear melts back down to a nugget, as vanilla's iron and gold gear does. The
         // knife is left out: it exists without Farmer's Delight only as a hidden fallback.

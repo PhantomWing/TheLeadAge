@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.compat.jei;
 
+import com.phantomwing.theleadage.compat.LeadInfo;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.compat.LeadedGlassDisplayRecipe;
 import com.phantomwing.theleadage.compat.LeadedGlassInfo;
@@ -66,5 +67,8 @@ public class TheLeadAgeJeiPlugin implements IModPlugin {
                 LeadedGlassInfo.text("door"));
         registration.addIngredientInfo(LeadedGlassInfo.trapdoorStack(), VanillaTypes.ITEM_STACK,
                 LeadedGlassInfo.text("trapdoor"));
+        for (LeadInfo page : LeadInfo.all()) {
+            registration.addIngredientInfo(page.stacks(), VanillaTypes.ITEM_STACK, page.text());
+        }
     }
 }

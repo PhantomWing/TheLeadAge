@@ -44,6 +44,26 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
 - Datagen: `:neoforge:runData`. Output: `common/src/generated/resources`, never hand-edited.
 - Game tests in `common/src/gametest`, run on both loaders: `:neoforge:runGameTest` and `:fabric:runGameTest`. Laid out with the test shim above; each loader's `GameTestRegistration` and `TestLoader` are in its own `src/test` (`architectury.md`, "Game tests on Fabric too"). From 1.21.5 Fabric API's own registration takes one annotated method per test, so Fabric's `GameTestRegistration` is the test mod's `main` entrypoint and registers into vanilla's test registries itself, the instances from Fabric's `DynamicRegistrySetupCallback`; NeoForge's skips a plain dedicated server, which posts `RegisterGameTestsEvent` again with its registries frozen.
 - 14 play scenarios in `scenarios/`, one of them Fabric's alone, and 1 in `scenarios/server`.
+- Three config options for modpacks (1.3.0): `enable_lead_gear` takes away the gear in `ModItems.isLeadGear` - recipes
+  through their condition, loot (`LeadLootSpec.itemEnabled`), mobs wearing it (folded into `mobLeadEquipment()`), the
+  creative tabs - and `enable_creative_tab` and `enable_vanilla_creative_tabs` pick the tabs (`ui/VanillaTabs`, each item
+  after its iron or copper counterpart). The tabs are filled through `platform/CreativeTabPlatform` rather than
+  Architectury's `CreativeTabRegistry.modify`, as The Silver Age's are: NeoForge's side on this mod's own bus, Fabric's in
+  a phase after the default one, so another mod's items are there to go after. The knife goes after Farmer's Delight's
+  Iron Knife in its own tab, which Farmer's Delight Refabricated has on Fabric here; the sheet after Create's Iron Sheet in
+  `create:base`, dormant until Create has a 1.21.5 build. All three are read from each side's own config;
+  `enable_lead_gear` isn't sent to clients, as on 1.21.1.
+- The Lead Bulb (`LeadBulbBlock`), lead armour, the Lead Weight and leaded glass panes play sound events of their own
+  (`ModSounds`), each vanilla's sound under the mod's name, so the subtitles don't name a copper bulb, iron armour, an
+  anvil, a mace or an item frame. `ModSounds` registers before the items, whose armour material takes its equip sound.
+- JEI's info pages for the Lead Pressure Plate and lead light (`compat/LeadInfo`) are on both loaders; EMI has no 1.21.5
+  build.
+- What else 1.3.0 brought on 1.21.1 isn't on this line, since the mods it is for have no 1.21.5 build: Backported Spears
+  and Vanilla Backport (the Lead Spear, Lead Nautilus Armor and their loot, Sulfur Cubes, Parched), Copper Age Backport
+  (the 1.21.9 `bars`, `chains` and `lanterns` tags), Better Combat, Mekanism (the Mekanism Lead pack) and Create.
+  Yori3o's Grappling Hooks has 1.21.5 builds (up to 3.8.0), but as The Silver Age found they register their hooks in
+  code and don't read `yo_hooks/hooks.json`, and their Fabric builds ask for Fabric Loader 0.17, so the Lead Grappling
+  Hook isn't here either.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

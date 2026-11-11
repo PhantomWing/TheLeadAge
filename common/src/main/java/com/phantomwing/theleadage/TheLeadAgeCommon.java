@@ -19,6 +19,7 @@ import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.advancement.ModTriggers;
 import com.phantomwing.theleadage.recipe.ModRecipes;
 import com.phantomwing.theleadage.ui.ModCreativeModeTab;
+import com.phantomwing.theleadage.ui.VanillaTabs;
 
 /**
  * Common (loader-agnostic) entrypoint for The Lead Age.
@@ -39,6 +40,7 @@ public final class TheLeadAgeCommon {
         // during ITEMS.register() on Fabric.
         ModBlocks.register();
         ModAttributes.register();
+        ModSounds.register();         // before the items, whose armor material takes its equip sound
         ModArmorMaterials.register();
         ModItems.register();
         ModEntities.register();
@@ -46,9 +48,9 @@ public final class TheLeadAgeCommon {
         ModDataComponents.register();
         ModRecipes.register();
         ModParticles.register();
-        ModSounds.register();
         ModTriggers.register();
         ModCreativeModeTab.register();
+        VanillaTabs.register();       // each item beside its vanilla counterpart in vanilla's tabs too
         LeadWeightTransforms.register(); // datapack loader for heavy-weight impact block transforms
         ModDispenserBehaviors.register(); // dispensers set a Lead Weight down instead of spitting it out
 

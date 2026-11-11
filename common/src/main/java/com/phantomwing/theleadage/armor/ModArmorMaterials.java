@@ -1,11 +1,11 @@
 package com.phantomwing.theleadage.armor;
 
 import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.tags.CommonTags;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAsset;
@@ -50,7 +50,8 @@ public class ModArmorMaterials {
                 ArmorType.HELMET, headDefense,
                 ArmorType.BODY, bodyDefense // Body is for Horse/Wolf armor
         );
-        Holder<SoundEvent> equipSound = SoundEvents.ARMOR_EQUIP_IRON;
+        // The mod's own event, iron's sound under the mod's name, so the subtitle says "Lead armor clanks".
+        Holder<SoundEvent> equipSound = ModSounds.ARMOR_EQUIP_LEAD;
         // 1.21.4: the equipment model id is a typed ResourceKey<EquipmentAsset>, resolving to
         // assets/<ns>/equipment/<path>.json (the models/ segment was dropped from the lookup).
         ResourceKey<EquipmentAsset> assetId =

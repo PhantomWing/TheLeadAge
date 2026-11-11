@@ -206,5 +206,21 @@
   "tag.block.theleadage.campfire_fume_sources": "Fontes de Fumaça de Fogueira",
   "tag.item.theleadage.creeper_repellents": "Repelentes de Creeper",
   "tag.item.theleadage.pillager_repellents": "Repelentes de Saqueador",
-  "tag.item.theleadage.lead_equipment": "Equipamento de Chumbo"
+  "tag.item.theleadage.lead_equipment": "Equipamento de Chumbo",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Equipamento de Chumbo",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Ferramentas, armas e armaduras de chumbo podem ser obtidas? Desativado, elas não podem ser fabricadas, encontradas em baús ou usadas por mobs, e somem das abas do modo criativo, para quando o equipamento de chumbo de outro mod toma o lugar delas.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Aba do Modo Criativo",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "A Idade do Chumbo deveria ter uma aba própria no menu do modo criativo?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Itens nas Abas Vanilla",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Os itens de chumbo também deveriam aparecer ao lado dos seus equivalentes nas abas vanilla do modo criativo e nas abas de outros mods?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Lâmpada de Chumbo acende",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Lâmpada de Chumbo apaga",
+  "subtitles.theleadage.item.armor.equip_lead": "Armadura de Chumbo tine",
+  "subtitles.theleadage.block.lead_weight.chip": "Peso de Chumbo racha",
+  "subtitles.theleadage.block.lead_weight.break": "Peso de Chumbo quebra",
+  "subtitles.theleadage.block.lead_weight.land": "Peso de Chumbo aterrissa",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Vitral estala",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Vitral é preenchido",
+  "theleadage.info.lead_pressure_plate": "Só mobs e jogadores pressionam uma Placa de Pressão de Chumbo: itens largados são leves demais. Cada um que fica em cima dela soma um ao seu sinal, até 15.",
+  "theleadage.info.lead_light": "Creepers se afastam de uma Tocha de Chumbo ou um Lampião de Chumbo aceso, e saqueadores vagando também."
 }

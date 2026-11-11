@@ -206,5 +206,21 @@
   "tag.block.theleadage.campfire_fume_sources": "营火烟源",
   "tag.item.theleadage.creeper_repellents": "苦力怕驱避物",
   "tag.item.theleadage.pillager_repellents": "掠夺者驱避物",
-  "tag.item.theleadage.lead_equipment": "铅装备"
+  "tag.item.theleadage.lead_equipment": "铅装备",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "铅装备",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "是否启用铅工具、武器和盔甲？关闭后将无法合成、在箱子中找到或由生物穿戴，并从创造模式标签页中隐藏，适用于由其他模组的铅装备取而代之时。",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "创造模式物品栏",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "The Lead Age 是否在创造模式物品栏中拥有自己的标签页？",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "原版标签页中的物品",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "是否也在原版和其他模组的创造模式标签页中，将铅质物品列在对应的物品旁边？",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "铅灯：亮起",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "铅灯：熄灭",
+  "subtitles.theleadage.item.armor.equip_lead": "铅盔甲：铿锵",
+  "subtitles.theleadage.block.lead_weight.chip": "铅坠：磕损",
+  "subtitles.theleadage.block.lead_weight.break": "铅坠：损坏",
+  "subtitles.theleadage.block.lead_weight.land": "铅坠：着陆",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "铅玻璃板：转动",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "铅玻璃板：被填充",
+  "theleadage.info.lead_pressure_plate": "只有生物和玩家能压下铅压力板：掉落的物品太轻。站在上面的每一个都会让信号增强一级，最高为15。",
+  "theleadage.info.lead_light": "苦力怕会远离点燃的铅火把或铅灯笼，四处游荡的掠夺者也是如此。"
 }

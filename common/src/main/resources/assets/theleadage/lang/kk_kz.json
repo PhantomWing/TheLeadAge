@@ -206,5 +206,21 @@
   "tag.block.theleadage.campfire_fume_sources": "Ошақ буының көздері",
   "tag.item.theleadage.creeper_repellents": "Крипер қорғаныштары",
   "tag.item.theleadage.pillager_repellents": "Тонаушы қорғаныштары",
-  "tag.item.theleadage.lead_equipment": "Қорғасын жабдығы"
+  "tag.item.theleadage.lead_equipment": "Қорғасын жабдығы",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Қорғасын жабдық",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Қорғасын құралдар, қарулар мен сауыт бола ма? Өшірілсе, оларды жасауға, сандықтан табуға немесе мобтардың киюіне болмайды және шығармашылық қойындыларынан жасырылады — басқа модтың қорғасын жабдығы олардың орнын басқанда.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Шығармашылық қойындысы",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "The Lead Age шығармашылық мәзірде өз қойындысына ие болуы керек пе?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Ванильді қойындылардағы заттар",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Қорғасын заттар ванильді және басқа модтардың шығармашылық қойындыларында да өз баламаларының жанында көрсетілуі керек пе?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Қорғасын шам жанды",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Қорғасын шам сөнді",
+  "subtitles.theleadage.item.armor.equip_lead": "Қорғасын сауыт салдыр етті",
+  "subtitles.theleadage.block.lead_weight.chip": "Қорғасын салмақ кетілді",
+  "subtitles.theleadage.block.lead_weight.break": "Қорғасын салмақ сынды",
+  "subtitles.theleadage.block.lead_weight.land": "Қорғасын салмақтың түсуі",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Қорғасынды әйнек шертілді",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Қорғасынды әйнек толды",
+  "theleadage.info.lead_pressure_plate": "Қорғасын басқышты тек мобтар мен ойыншылар баса алады: тасталған заттар тым жеңіл. Үстінде тұрған әрқайсысы сигналды бірге арттырады, 15-ке дейін.",
+  "theleadage.info.lead_light": "Крипер жанып тұрған қорғасын шырақтан немесе қорғасын шамдалдан аулақ жүреді, кезіп жүрген тонаушылар да солай."
 }
