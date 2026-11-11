@@ -66,9 +66,13 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
   - JEI shows `compat/LeadInfo`'s info pages for the pressure plate and lead light. The Lead Bulb, lead armour, the Lead
     Weight and leaded glass panes play sound events of their own (`ModSounds`), each vanilla's sound under the mod's name.
   - Yori3o's Grappling Hooks reads every jar's `yo_hooks/hooks.json`, so the Lead Grappling Hook is data alone, in
-    `common/src/main/resources`: the hook, its `yo_hooks` models with 26.1's `items/` definitions (the
-    `yo_hooks:hook_active` condition picks the handle), textures, names and tags, and its recipes, hand-written in
-    `data/theleadage/recipe` behind both loaders' mod-loaded conditions and `enable_lead_gear`. 5.4.0 for 26.1 runs in
+    `common/src/main/resources`: the hook, its `yo_hooks` models, textures, names and tags, and its recipes,
+    hand-written in `data/theleadage/recipe` behind both loaders' mod-loaded conditions and `enable_lead_gear`. Its
+    26.1 `items/` definitions (the `yo_hooks:hook_active` condition picks the handle) are in each loader's own
+    `resourcepacks/lead_grappling_hook`, a pack registered only with the mod (`TheLeadAgeFabricClient`,
+    `GrapplingHookPackHandler` on NeoForge), as 26.3's are: every `items/` file is parsed whether its item exists or
+    not, and without the mod the unknown condition logs "Couldn't parse item model" on each resource load. In common
+    the dev runs miss the pack, since common's resources are a mod of their own there. 5.4.0 for 26.1 runs in
     both loaders' dev runs with YACL 3.9.7 (`enable_grappling_hooks`), but for the game tests (and NeoForge's datagen);
     NeoForge's dev run gets YACL's bundled libraries through `forgeRuntimeLibrary` (Quilt's maven), and Fabric's takes
     MixinExtras 0.5.5, since YACL's mixin fails with the 0.5.4 Fabric Loader 0.19.3 brings.
