@@ -146,8 +146,8 @@ allprojects {
             content { includeGroup "curse.maven" }
         }
 
-        // Modrinth mods: Create Fly and Yori3o's Grappling Hooks in the dev runs (dev-runtime
-        // only). Scoped to the maven.modrinth group so it doesn't broaden resolution for anything else.
+        // Modrinth mods: Create Fly and Yori3o's Grappling Hooks in the Fabric dev runs
+        // (dev-runtime only). Scoped to the maven.modrinth group so it doesn't broaden resolution for anything else.
         maven {
             name = "Modrinth"
             url = "https://api.modrinth.com/maven"

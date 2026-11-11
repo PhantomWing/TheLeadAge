@@ -9,6 +9,7 @@
   - Pressing Lead Sheets and crushing and washing Raw Lead work as with Create
 - Added compatibility with Better Combat: the Lead Spear swings like a spear
 - Added compatibility with Yori3o's Grappling Hooks: the Lead Grappling Hook, with a range of 10 blocks
+  - Fabric only on this version
 - Added compatibility with JEI: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
 
 ### Changes

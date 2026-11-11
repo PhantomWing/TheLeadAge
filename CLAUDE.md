@@ -63,12 +63,16 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
     knife's place is unchecked.
   - JEI shows `compat/LeadInfo`'s info pages for the pressure plate and lead light. The Lead Bulb, lead armour, the Lead
     Weight and leaded glass panes play sound events of their own (`ModSounds`), each vanilla's sound under the mod's name.
-  - Yori3o's Grappling Hooks reads every jar's `yo_hooks/hooks.json`, so the Lead Grappling Hook is data alone, in
-    `common/src/main/resources`: the hook, its `yo_hooks` models and 1.21.11 `items/` definitions (`yo_hooks:hook_active`
-    picks the handle), textures, names, tags, and its recipes, hand-written in `data/theleadage/recipe` behind both
-    loaders' mod-loaded conditions and `enable_lead_gear`. `enable_grappling_hooks` (off by default) loads 4.5.2 in both
-    loaders' dev runs, as The Silver Age's 1.21.11 line does: on NeoForge 4.5.2 registers none of its hooks in a dev run,
-    so no world opens, and on both it logs an ERROR on every start, which fails the load check.
+  - Yori3o's Grappling Hooks reads `yo_hooks/hooks.json` to make its hooks, so the Lead Grappling Hook is data alone:
+    the hook, its `yo_hooks` models, textures, names, tags and recipes (hand-written, behind both mod-loaded conditions
+    and `enable_lead_gear`), all in `fabric/src/main/resources`, Fabric's alone, as on The Silver Age's 1.21.11 line.
+    Its Fabric build (4.5.2) reads every mod's `hooks.json`; its NeoForge build (4.5.2) reads only the first the class
+    loader finds, so ours would leave its own hooks unregistered and no world would load. The hook's `items/` definition
+    (the handle while cast) names the mod's `yo_hooks:hook_active` condition, which fails to parse with an error
+    wherever the mod is missing (the client load check caught it), so it is in a built-in pack,
+    `resourcepacks/lead_grappling_hook`, that the Fabric client registers only with the mod loaded. Fabric's dev runs
+    load 4.5.2 with `enable_grappling_hooks` (off by default: it logs an ERROR moving config files that aren't there on
+    every start, which fails the client load check); NeoForge's never.
   - `weapon_attributes/lead_spear.json` gives the spear Better Combat's spear swings.
   - Not on this line: Backported Spears and Vanilla Backport only add what 1.21.11 has (the spear, nautilus armour,
     their chest swaps, zombies' spears, Parched), and Vanilla Backport, Mekanism (and so its resource pack) and EMI

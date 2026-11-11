@@ -5,7 +5,7 @@ public final class ModIds {
     public static final String CREATE = "create";
     /** Farmer's Delight — same mod id on NeoForge (vectorwing) and Fabric (Refabricated). */
     public static final String FARMERS_DELIGHT = "farmersdelight";
-    /** Yori3o's Grappling Hooks, whose hook tiers are read from every jar's {@code yo_hooks/hooks.json}. */
+    /** Yori3o's Grappling Hooks, which makes the Lead Grappling Hook from {@code yo_hooks/hooks.json} (Fabric only here). */
     public static final String GRAPPLING_HOOKS = "yo_hooks";
 
     private ModIds() {
