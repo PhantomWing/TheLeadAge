@@ -77,7 +77,8 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
   - Yori3o's Grappling Hooks' Lead Grappling Hook is data the mod reads (`yo_hooks/hooks.json`, its tags, recipes, models
     and textures under `yo_hooks`); 5.4.0 reads every mod's hooks.json on both loaders. Its `items/` definition names the
     mod's own `yo_hooks:hook_active` property, which fails to parse without it, so it is in a pack of its own
-    (`resourcepacks/lead_grappling_hook`), turned on only with Grappling Hooks (`GrapplingHookPack` on NeoForge, a
+    (`resourcepacks/lead_grappling_hook` in each loader's own resources, since in a dev run common's are a mod of their
+    own, which the pack lookup misses), turned on only with Grappling Hooks (`GrapplingHookPack` on NeoForge, a
     built-in pack in `TheLeadAgeFabricClient`). The dev runs load Grappling Hooks 5.4.0 and YACL 3.9.7
     (`enable_grappling_hooks`), but for the game tests, datagen and NeoForge's server scenarios, whose client the mods'
     warnings screen holds before the title screen.
