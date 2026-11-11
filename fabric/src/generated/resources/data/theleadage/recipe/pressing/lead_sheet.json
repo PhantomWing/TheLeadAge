@@ -1,10 +1,4 @@
 {
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:mod_loaded",
-      "modid": "create"
-    }
-  ],
   "type": "create:pressing",
   "fabric:load_conditions": [
     {
@@ -14,11 +8,10 @@
       ]
     }
   ],
-  "ingredients": [
-    {
-      "tag": "c:ingots/lead"
-    }
-  ],
+  "ingredient": "#c:ingots/lead",
+  "result": {
+    "id": "theleadage:lead_sheet"
+  },
   "results": [
     {
       "id": "theleadage:lead_sheet"

@@ -100,13 +100,17 @@ public class ModRecipeProvider extends RecipeProvider {
         oreSmeltAndBlast(output, ModItems.RAW_LEAD.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.DEEPSLATE_LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
-        // Create compat (crushed lead -> ingot) is absent on this branch: Create publishes no
-        // 1.21.2/1.21.3 build. Re-add with the ModLoadedCondition when it returns.
+        // Crushed Raw Lead's smelting is Create Fly's, on Fabric alone (CreateFlyRecipeProvider): NeoForge has no
+        // Create for this version.
 
         // 9 <-> storage block, 9 nuggets <-> ingot.
         storage(output, ModItems.RAW_LEAD.get(), ModItems.RAW_LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);
         storage(output, ModItems.LEAD_INGOT.get(), ModItems.LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);
         storage(output, ModItems.LEAD_NUGGET.get(), ModItems.LEAD_INGOT.get(), RecipeCategory.MISC);
+
+        // Lead gear is crafted only while enable_lead_gear is on: a modpack with another mod's lead gear turns it off.
+        ICondition gear = new ConfigBooleanCondition(Configuration.ENABLE_LEAD_GEAR_ID);
+        RecipeOutput gearOutput = output.withConditions(gear);
 
         // Farmer's Delight compat: the Lead Knife (ingot over a stick). Gated on FD — without it the
         // item is a hidden SwordItem fallback, so it deliberately has no recipe.
@@ -116,19 +120,33 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('X', LEAD_INGOTS)
                 .define('I', Items.STICK)
                 .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
-                .save(output.withConditions(new ModLoadedCondition(ModIds.FARMERS_DELIGHT)));
+                .save(output.withConditions(new ModLoadedCondition(ModIds.FARMERS_DELIGHT), gear));
+
+        // Backported Spears compat: the Lead Spear, as 1.21.11's (an ingot over two sticks, corner to corner), and its
+        // smelting into a nugget. Without the mod the item is a hidden fallback, so it has neither.
+        ICondition spearMod = new ModLoadedCondition(ModIds.BACKPORTED_SPEARS);
+        shaped(RecipeCategory.COMBAT, ModItems.LEAD_SPEAR.get(), 1)
+                .pattern("  M")
+                .pattern(" S ")
+                .pattern("S  ")
+                .define('M', LEAD_INGOTS)
+                .define('S', Items.STICK)
+                .unlockedBy(getHasName(LEAD_INGOTS), has(LEAD_INGOTS))
+                .save(output.withConditions(spearMod, gear));
+        nuggetFromGear(output.withConditions(spearMod), ModItems.LEAD_NUGGET.get(), "_from_lead_spear",
+                ModItems.LEAD_SPEAR.get());
 
         // Lead tools + armor, crafted from lead ingots.
         TagKey<Item> ingot = LEAD_INGOTS;
-        sword(output, ModItems.LEAD_SWORD.get(), ingot);
-        pickaxe(output, ModItems.LEAD_PICKAXE.get(), ingot);
-        axe(output, ModItems.LEAD_AXE.get(), ingot);
-        shovel(output, ModItems.LEAD_SHOVEL.get(), ingot);
-        hoe(output, ModItems.LEAD_HOE.get(), ingot);
-        helmet(output, ModItems.LEAD_HELMET.get(), ingot);
-        chestplate(output, ModItems.LEAD_CHESTPLATE.get(), ingot);
-        leggings(output, ModItems.LEAD_LEGGINGS.get(), ingot);
-        boots(output, ModItems.LEAD_BOOTS.get(), ingot);
+        sword(gearOutput, ModItems.LEAD_SWORD.get(), ingot);
+        pickaxe(gearOutput, ModItems.LEAD_PICKAXE.get(), ingot);
+        axe(gearOutput, ModItems.LEAD_AXE.get(), ingot);
+        shovel(gearOutput, ModItems.LEAD_SHOVEL.get(), ingot);
+        hoe(gearOutput, ModItems.LEAD_HOE.get(), ingot);
+        helmet(gearOutput, ModItems.LEAD_HELMET.get(), ingot);
+        chestplate(gearOutput, ModItems.LEAD_CHESTPLATE.get(), ingot);
+        leggings(gearOutput, ModItems.LEAD_LEGGINGS.get(), ingot);
+        boots(gearOutput, ModItems.LEAD_BOOTS.get(), ingot);
 
         // Worn-out lead gear melts back down to a nugget, as vanilla's iron and gold gear does. The
         // knife is left out: it exists without Farmer's Delight only as a hidden fallback.
@@ -366,6 +384,11 @@ public class ModRecipeProvider extends RecipeProvider {
 
     /** Vanilla's iron_nugget_from_smelting and _from_blasting: one recipe each, for every piece of gear. */
     private void nuggetFromGear(RecipeOutput output, ItemLike nugget, ItemLike... gear) {
+        nuggetFromGear(output, nugget, "_from", gear);
+    }
+
+    /** As above, for gear that only exists with another mod: {@code infix} keeps its recipes apart from the rest. */
+    private void nuggetFromGear(RecipeOutput output, ItemLike nugget, String infix, ItemLike... gear) {
         SimpleCookingRecipeBuilder smelting = SimpleCookingRecipeBuilder.smelting(
                 Ingredient.of(gear), RecipeCategory.MISC, nugget, 0.1f, 200);
         SimpleCookingRecipeBuilder blasting = SimpleCookingRecipeBuilder.blasting(
@@ -374,8 +397,8 @@ public class ModRecipeProvider extends RecipeProvider {
             smelting.unlockedBy(getHasName(item), has(item));
             blasting.unlockedBy(getHasName(item), has(item));
         }
-        smelting.save(output, id(name(nugget) + "_from_smelting"));
-        blasting.save(output, id(name(nugget) + "_from_blasting"));
+        smelting.save(output, id(name(nugget) + infix + "_smelting"));
+        blasting.save(output, id(name(nugget) + infix + "_blasting"));
     }
 
     private <T extends AbstractCookingRecipe> void cook(RecipeOutput output, ItemLike material, ItemLike result, int time,

@@ -41,7 +41,9 @@
   },
   "suggests": {
     "farmersdelight": "*",
-    "jei": "*"
+    "jei": "*",
+    "spears": "*",
+    "yo_hooks": "*"
   },
   "custom": {
     "lithium:options": {

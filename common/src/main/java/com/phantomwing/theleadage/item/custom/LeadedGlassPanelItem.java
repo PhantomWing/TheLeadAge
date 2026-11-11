@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.item.custom;
 
+import com.phantomwing.theleadage.sound.ModSounds;
 import com.phantomwing.theleadage.block.custom.LeadedGlassDoorBlock;
 import com.phantomwing.theleadage.block.custom.LeadedGlassFrame;
 import com.phantomwing.theleadage.block.custom.LeadedGlassPaneBlock;
@@ -13,7 +14,6 @@ import com.phantomwing.theleadage.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import java.util.function.Consumer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -109,7 +109,7 @@ public class LeadedGlassPanelItem extends BlockItem {
         if (!player.addItem(oldPane)) {
             player.drop(oldPane, false);
         }
-        level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+        level.playSound(null, pos, ModSounds.LEADED_GLASS_PANE_FILL.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
     }
 
     /** The held pane's design, or a clear pane of this item's frame when it carries no component. */

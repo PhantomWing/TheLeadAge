@@ -206,5 +206,22 @@
   "tag.block.theleadage.campfire_fume_sources": "Источники паров для костров",
   "tag.item.theleadage.creeper_repellents": "Отпугиватели криперов",
   "tag.item.theleadage.pillager_repellents": "Отпугиватели разбойников",
-  "tag.item.theleadage.lead_equipment": "Свинцовое снаряжение"
+  "tag.item.theleadage.lead_equipment": "Свинцовое снаряжение",
+  "item.theleadage.lead_spear": "Свинцовое копьё",
+  "text.autoconfig.theleadage.option.enable_lead_gear": "Свинцовое снаряжение",
+  "text.autoconfig.theleadage.option.enable_lead_gear.@Tooltip": "Есть ли свинцовые инструменты, оружие и броня? Если отключить, их нельзя будет создать, найти в сундуках или увидеть на мобах, и они скроются из вкладок творческого режима — на случай, если их место займёт свинцовое снаряжение другого мода.",
+  "text.autoconfig.theleadage.option.enable_creative_tab": "Вкладка творческого режима",
+  "text.autoconfig.theleadage.option.enable_creative_tab.@Tooltip": "Должна ли у The Lead Age быть своя вкладка в творческом меню?",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs": "Предметы во вкладках ванили",
+  "text.autoconfig.theleadage.option.enable_vanilla_creative_tabs.@Tooltip": "Показывать ли свинцовые предметы также рядом с их аналогами во вкладках творческого меню ванили и других модов?",
+  "subtitles.theleadage.block.lead_bulb.turn_on": "Свинцовая лампа включается",
+  "subtitles.theleadage.block.lead_bulb.turn_off": "Свинцовая лампа выключается",
+  "subtitles.theleadage.item.armor.equip_lead": "Бряцанье свинцовой брони",
+  "subtitles.theleadage.block.lead_weight.chip": "Свинцовый груз скалывается",
+  "subtitles.theleadage.block.lead_weight.break": "Свинцовый груз разрушен",
+  "subtitles.theleadage.block.lead_weight.land": "Свинцовый груз упал",
+  "subtitles.theleadage.block.leaded_glass_pane.rotate": "Щелчок свинцовой стеклянной панели",
+  "subtitles.theleadage.block.leaded_glass_pane.fill": "Свинцовая стеклянная панель заполнена",
+  "theleadage.info.lead_pressure_plate": "Свинцовую нажимную пластину нажимают только мобы и игроки: выброшенные предметы слишком лёгкие. Каждый, кто стоит на ней, усиливает сигнал на единицу, до 15.",
+  "theleadage.info.lead_light": "Криперы держатся подальше от горящего свинцового факела или свинцового фонаря, как и бродящие разбойники."
 }

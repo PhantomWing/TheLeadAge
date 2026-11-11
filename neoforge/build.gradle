@@ -13,15 +13,19 @@ architectury {
 def datagenModId = rootProject.property('mod_id').toString()
 def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
 def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
+// What only the Fabric jar carries: the Create Fly recipes (datagen/CreateFlyRecipeProvider).
+def datagenFabricOutput = rootProject.file('fabric/src/generated/resources/').absolutePath
 
 // A recipe viewer is useless in the headless game-test and data-generation runs and can hang
 // or crash them, so the dev-runtime JEI below is skipped for those task names.
 def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().contains('gametest') }
 def runningDataGen = gradle.startParameter.taskNames.any { it.toLowerCase().contains('data') }
+// Which optional mods the dev runs load, one switch each (gradle.properties).
+def loadSpears = (project.findProperty('enable_backported_spears') ?: rootProject.enable_backported_spears).toString().toBoolean()
 
 // 1.21.8: JEI publishes again (24.2.0.6, both loaders), so the recipe-viewer plugin is back.
 // Create, FD-NeoForge and EMI still have no build. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (neoforge) 1.21.8 branch: JEI restored; no Create/FD-NeoForge/EMI compat")
+logger.lifecycle("[TheLeadAge] (neoforge) 1.21.8 branch: JEI restored; no Create/FD-NeoForge/EMI compat. Backported Spears: ${loadSpears}")
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -54,6 +58,7 @@ loom {
             clientData()
             name = "Data Generation"
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
+            property('theleadage.datagen.fabricOutput', datagenFabricOutput)
             // The mod without the test source set, which carries the datagen output into dev runs: datagen would
             // otherwise load the output of the run before as the mod's own while it writes the new one.
             mods {
@@ -130,6 +135,14 @@ dependencies {
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
     if (!runningGameTest && !runningDataGen) {
         modLocalRuntime "mezz.jei:jei-1.21.8-neoforge:${rootProject.jei_version}"
+    }
+
+    // Backported Spears, which the Lead Spear is made with (BackportPlatformImpl). Not in the game tests, whose server
+    // is the check that the mod loads alone, nor in datagen, whose output is the same without it. Yori3o's Grappling
+    // Hooks is Fabric's alone on this line (fabric/build.gradle).
+    modCompileOnly("maven.modrinth:backported-spears:${rootProject.backported_spears_neoforge_version}") { transitive = false }
+    if (loadSpears && !runningGameTest && !runningDataGen) {
+        modLocalRuntime("maven.modrinth:backported-spears:${rootProject.backported_spears_neoforge_version}") { transitive = false }
     }
 
     // NOTE (1.21.8 branch): no other dev-runtime niceties, AppleSkin has no build past 1.21.3.

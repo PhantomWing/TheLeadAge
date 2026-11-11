@@ -8,6 +8,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.ProvidesTrimMaterial;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.compat.ModIds;
+import com.phantomwing.theleadage.platform.BackportPlatform;
 import com.phantomwing.theleadage.platform.KnifePlatform;
 import dev.architectury.platform.Platform;
 import com.phantomwing.theleadage.item.custom.LeadWeightItem;
@@ -38,8 +39,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.block.Block;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(TheLeadAge.MOD_ID, Registries.ITEM);
@@ -71,6 +75,9 @@ public class ModItems {
     // otherwise (so the mod loads standalone). Only appears in the creative tab when FD is loaded,
     // the same pattern as the Create-gated sheet.
     public static final RegistrySupplier<Item> LEAD_KNIFE = registerKnife("lead_knife", ModTiers.LEAD, ModIds.FARMERS_DELIGHT);
+    // 1.21.11's Lead Spear, made as Backported Spears makes a spear when it is installed.
+    public static final RegistrySupplier<Item> LEAD_SPEAR = registerWithModCompat("lead_spear",
+            () -> BackportPlatform.createLeadSpear(baseItem().stacksTo(1).setId(itemKey("lead_spear"))), ModIds.BACKPORTED_SPEARS);
 
     // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
     // (durability = factor x slot base), and 6 sits between Leather 5 and Gold 7 — so a full set is
@@ -193,6 +200,13 @@ public class ModItems {
                 || stack.is(LEADED_GLASS_PANE_BARS.get()) || stack.is(LEADED_GLASS_PANE_DIAGONAL_BARS.get());
     }
 
+    /** The tools, weapons and armor {@code enable_lead_gear} takes away. */
+    public static boolean isLeadGear(Item item) {
+        return Stream.of(LEAD_SHOVEL, LEAD_PICKAXE, LEAD_AXE, LEAD_HOE, LEAD_SWORD, LEAD_KNIFE, LEAD_SPEAR,
+                        LEAD_HELMET, LEAD_CHESTPLATE, LEAD_LEGGINGS, LEAD_BOOTS, LEAD_HORSE_ARMOR)
+                .anyMatch(gear -> gear.get() == item);
+    }
+
     public static Item.Properties baseItem() {
         return new Item.Properties();
     }
@@ -271,8 +285,13 @@ public class ModItems {
 
     /** Register an item that only appears in the creative tab when the given mod is loaded. */
     private static RegistrySupplier<Item> registerWithModCompat(String name, String modId) {
-        RegistrySupplier<Item> item = ITEMS.register(name, () -> new Item(baseItem().setId(itemKey(name))));
-        if (Platform.isModLoaded(modId)) {
+        return registerWithModCompat(name, () -> new Item(baseItem().setId(itemKey(name))), modId);
+    }
+
+    /** An item the creative tabs show only where one of {@code modIds} is loaded. */
+    private static RegistrySupplier<Item> registerWithModCompat(String name, Supplier<Item> factory, String... modIds) {
+        RegistrySupplier<Item> item = ITEMS.register(name, factory);
+        if (Arrays.stream(modIds).anyMatch(Platform::isModLoaded)) {
             CREATIVE_TAB_ITEMS.add(item);
         }
         return item;

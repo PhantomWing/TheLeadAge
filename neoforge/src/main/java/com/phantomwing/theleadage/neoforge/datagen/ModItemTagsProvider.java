@@ -3,6 +3,7 @@ package com.phantomwing.theleadage.neoforge.datagen;
 import com.phantomwing.theleadage.TheLeadAge;
 import com.phantomwing.theleadage.block.ModBlocks;
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.tags.BackportTags;
 import com.phantomwing.theleadage.tags.CommonTags;
 import com.phantomwing.theleadage.tags.ModTags;
 import net.minecraft.core.HolderLookup;
@@ -100,6 +101,9 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         }
 
         tag(c("chains")).add(ModItems.LEAD_CHAIN.get());
+        // Backported Spears puts minecraft:spears into the enchantable tags, so the Lead Spear takes Lunge and the
+        // melee enchantments through it.
+        tag(BackportTags.Items.SPEARS).add(ModItems.LEAD_SPEAR.get());
         // Glass and dye colour, as on the blocks (see ModBlockTagsProvider).
         tag(c("glass_blocks")).addTag(ModTags.Items.LEADED_GLASS_BLOCKS);
         tag(c("glass_blocks/colorless")).add(ModItems.LEADED_GLASS.get());
@@ -121,7 +125,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ModTags.Items.LEAD_EQUIPMENT).add(
                 ModItems.LEAD_SWORD.get(), ModItems.LEAD_PICKAXE.get(), ModItems.LEAD_AXE.get(),
                 ModItems.LEAD_SHOVEL.get(), ModItems.LEAD_HOE.get(), ModItems.LEAD_KNIFE.get(),
-                ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
+                ModItems.LEAD_SPEAR.get(), ModItems.LEAD_HELMET.get(), ModItems.LEAD_CHESTPLATE.get(),
                 ModItems.LEAD_LEGGINGS.get(), ModItems.LEAD_BOOTS.get());
     }
 

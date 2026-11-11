@@ -1,6 +1,8 @@
 package com.phantomwing.theleadage.loot;
 
 import com.phantomwing.theleadage.item.ModItems;
+import com.phantomwing.theleadage.platform.CommonConfig;
+import dev.architectury.platform.Platform;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -29,10 +31,27 @@ public final class LeadLootSpec {
     /**
      * One injection: in {@code targetLootTable}, with probability {@code chance},
      * replace up to {@code [min, max]} matched stacks (0 max ⇒ all) of any
-     * {@code removedItems} with {@code item}.
+     * {@code removedItems} with {@code item}. One that names another mod's items applies only where one of
+     * {@code requiredMods} is loaded, none for most.
      */
     public record Entry(String id, ResourceLocation targetLootTable, float chance,
-                        Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems) {
+                        Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems,
+                        List<String> requiredMods) {
+        public Entry(String id, ResourceLocation targetLootTable, float chance,
+                     Supplier<Item> item, int min, int max, List<Supplier<Item>> removedItems) {
+            this(id, targetLootTable, chance, item, min, max, removedItems, List.of());
+        }
+
+        /** Whether its mods are loaded and {@code enable_lead_gear} lets its item be found. */
+        public boolean applies() {
+            return (requiredMods.isEmpty() || requiredMods.stream().anyMatch(Platform::isModLoaded))
+                    && itemEnabled(item.get());
+        }
+    }
+
+    /** Whether loot may give this item: lead gear only while {@code enable_lead_gear} is on. */
+    public static boolean itemEnabled(Item item) {
+        return !ModItems.isLeadGear(item) || CommonConfig.leadGear();
     }
 
     /** Low chance for a given iron-horse-armor or iron gear roll to become lead instead. */

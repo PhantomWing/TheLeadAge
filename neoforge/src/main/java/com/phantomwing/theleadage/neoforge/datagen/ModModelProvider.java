@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
@@ -33,8 +34,11 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import com.phantomwing.theleadage.armor.ModTrimMaterials;
 import net.minecraft.client.renderer.item.SelectItemModel;
+import net.minecraft.client.renderer.item.properties.select.DisplayContext;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.renderer.item.properties.select.TrimMaterialProperty;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
@@ -154,6 +158,7 @@ public class ModModelProvider extends ModelProvider {
         img.generateFlatItem(ModItems.LEAD_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         img.generateFlatItem(ModItems.LEAD_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         img.generateFlatItem(ModItems.LEAD_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        spear(img, ModItems.LEAD_SPEAR.get()); // Backported Spears compat
 
         // Block items whose vanilla generator didn't register one (BlockFamilyProvider
         // slab/stairs/wall and createTrapdoor auto-register theirs — bytecode-verified).
@@ -254,6 +259,22 @@ public class ModModelProvider extends ModelProvider {
 
     private static ResourceLocation modBlockTexture(String path) {
         return modBlock(path);
+    }
+
+    /**
+     * A spear as Backported Spears draws one: flat in the inventory, on the ground and in a frame, and its
+     * {@code _in_hand} texture held, picked by the display context as its own spears' definitions do. The held model's
+     * parent is its spear_in_hand copied into this namespace, so nothing is missing without the mod.
+     */
+    private static void spear(ItemModelGenerators img, Item spear) {
+        ResourceLocation flat = ModelTemplates.FLAT_ITEM.create(spear, TextureMapping.layer0(spear), img.modelOutput);
+        ResourceLocation inHand = new ModelTemplate(Optional.of(TheLeadAge.resourceLocation("item/spear_in_hand")),
+                Optional.empty(), TextureSlot.LAYER0)
+                .create(ModelLocationUtils.getModelLocation(spear, "_in_hand"),
+                        TextureMapping.layer0(TextureMapping.getItemTexture(spear, "_in_hand")), img.modelOutput);
+        img.itemModelOutput.accept(spear, ItemModelUtils.select(new DisplayContext(), ItemModelUtils.plainModel(inHand),
+                ItemModelUtils.when(List.of(ItemDisplayContext.GUI, ItemDisplayContext.GROUND, ItemDisplayContext.FIXED),
+                        ItemModelUtils.plainModel(flat))));
     }
 
     private static void flatFromTexture(ItemModelGenerators img, Item item, ResourceLocation texture) {

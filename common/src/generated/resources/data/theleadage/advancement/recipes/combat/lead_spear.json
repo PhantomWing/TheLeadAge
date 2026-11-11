@@ -2,16 +2,20 @@
   "neoforge:conditions": [
     {
       "type": "neoforge:mod_loaded",
-      "modid": "create"
+      "modid": "spears"
+    },
+    {
+      "type": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
     }
   ],
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_crushed_raw_lead": {
+    "has_ingots_lead": {
       "conditions": {
         "items": [
           {
-            "items": "create:crushed_raw_lead"
+            "items": "#c:ingots/lead"
           }
         ]
       },
@@ -19,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "theleadage:lead_ingot_from_crushed_raw_lead_blasting"
+        "recipe": "theleadage:lead_spear"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,19 +32,23 @@
     {
       "condition": "fabric:all_mods_loaded",
       "values": [
-        "create"
+        "spears"
       ]
+    },
+    {
+      "condition": "theleadage:config_boolean",
+      "settingId": "enable_lead_gear"
     }
   ],
   "requirements": [
     [
       "has_the_recipe",
-      "has_crushed_raw_lead"
+      "has_ingots_lead"
     ]
   ],
   "rewards": {
     "recipes": [
-      "theleadage:lead_ingot_from_crushed_raw_lead_blasting"
+      "theleadage:lead_spear"
     ]
   }
 }

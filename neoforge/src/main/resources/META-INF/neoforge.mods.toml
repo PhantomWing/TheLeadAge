@@ -45,6 +45,14 @@ side = "BOTH"
 # publish no 1.21.8 build. FD Refabricated exists on the FABRIC side only.
 # See the port notes in gradle.properties.
 
+# Optional: after Backported Spears, so the Lead Spear goes in the Combat tab after its Iron Spear, which it adds in the
+# same creative tab event (VanillaTabs).
+[[dependencies.theleadage]]
+modId = "spears"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
 
 [[dependencies.theleadage]]
 modId = "jei"
