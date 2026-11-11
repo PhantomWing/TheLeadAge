@@ -14,6 +14,7 @@ def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().con
 // Which optional mods the dev runs load, one switch each (gradle.properties).
 //   ./gradlew :fabric:runClient -Penable_grappling_hooks=false
 def loadHooks = (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
+def loadFarmersDelight = (project.findProperty('enable_farmers_delight') ?: rootProject.enable_farmers_delight).toString().toBoolean()
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -56,10 +57,9 @@ tasks.named('test') {
     failOnNoDiscoveredTests = false
 }
 
-// 26.3: the recipe-viewer plugin is live on JEI. The Lead Knife still compiles against the local
-// FDR stub (no FDR dependency is resolved here). EMI still has nothing past 1.21.1.
-// See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 26.3 branch: JEI compat, FD knife via stub; no EMI. Grappling Hooks: ${loadHooks}")
+// 26.3: the recipe-viewer plugin is live on JEI. The Lead Knife compiles against Farmer's Delight
+// Refabricated. EMI still has nothing past 1.21.1. See the port notes in gradle.properties.
+logger.lifecycle("[TheLeadAge] (fabric) 26.3 branch: JEI compat; no EMI. Farmer's Delight: ${loadFarmersDelight}, Grappling Hooks: ${loadHooks}")
 
 configurations {
     common
@@ -90,10 +90,12 @@ dependencies {
         exclude group: "net.fabricmc.fabric-api"
     }
 
-    // Farmer's Delight Refabricated is NOT a dependency on this line. LeadKnifeItem compiles
-    // against the local stub in vectorwing/farmersdelight/, whose shape was verified with javap
-    // against fdr_version's real jar. Re-verify on any fdr_version bump. At runtime the class
-    // binds to the real FDR jar when the player has it installed.
+    // Farmer's Delight Refabricated, for the Lead Knife: its KnifeItem, which LeadKnifeItem extends, and its
+    // creative tab. Compiled against always; the knife is a plain item where it isn't installed.
+    compileOnly("maven.modrinth:farmers-delight-refabricated:${rootProject.farmers_delight_fabric_version}") { transitive = false }
+    if (loadFarmersDelight && !runningGameTest) {
+        localRuntime("maven.modrinth:farmers-delight-refabricated:${rootProject.farmers_delight_fabric_version}")
+    }
 
     // JEI, dev runtime only, so the plugin can actually be exercised in runClient.
     if (!runningGameTest) {
@@ -139,11 +141,6 @@ shadowJar {
     from(zipTree(jar.archiveFile))
 
     exclude 'architectury.common.json'
-
-    // NOT belt and braces on this line: the KnifeItem STUB under vectorwing/ is real source here, and
-    // shipping it would shadow the genuine FDR class (same FQN) for every player who has FDR
-    // installed. This exclude is what keeps it out of the jar.
-    exclude 'vectorwing/**'
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = null
@@ -192,11 +189,6 @@ sourcesJar {
     def commonSources = project(':common').sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
-
-    // The compile-time KnifeItem stub must not leave this project in ANY artifact. shadowJar's
-    // exclude only covers the mod jar; the sources jar is part of the maven publication, so without
-    // this it hands consumers a same-FQN copy of a third-party class.
-    exclude 'vectorwing/**'
 }
 
 // Redirect the java component's outgoing artifacts to shadowJar (the shippable jar) so

@@ -9,10 +9,7 @@ import vectorwing.farmersdelight.common.item.KnifeItem;
  * constructor as the NeoForge build, so this is the same shape as its NeoForge counterpart.
  *
  * <p>Only classloaded when FDR is installed: {@code KnifePlatformImpl} guards construction behind
- * {@code isModLoaded("farmersdelight")}. At RUNTIME {@code KnifeItem} resolves to the real FDR class.
- * At compile time it resolves to the local stub in {@code vectorwing/farmersdelight/}: FDR cannot be a
- * dependency on this line (its classTweaker v2 file breaks loom 1.14.476), so nothing checks this
- * superclass shape automatically - the stub was javap-verified against the real jar instead.</p>
+ * {@code isModLoaded("farmersdelight")}. Compiled against FDR itself, which the Fabric dev runs load.</p>
  */
 public class LeadKnifeItem extends KnifeItem {
     public LeadKnifeItem(Item.Properties properties) {

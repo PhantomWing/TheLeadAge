@@ -7,7 +7,7 @@
 - Added `enable_lead_gear`: turned off, lead tools, weapons and armor (horse and nautilus armor too) can't be crafted, found or worn by mobs, and are hidden from the creative tabs, for modpacks where another mod's lead gear takes their place
 - Sulfur Cubes can swallow lead blocks, ores and bulbs, like copper's
 - Added compatibility with Better Combat: the Lead Spear swings like a spear
-- Added compatibility with Yori3o's Grappling Hooks on Fabric: the Lead Grappling Hook, with a range of 10 blocks
+- Added compatibility with Yori3o's Grappling Hooks: the Lead Grappling Hook, with a range of 10 blocks
 - Added compatibility with JEI: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
 
 ### Changes

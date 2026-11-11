@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 /**
  * {@code @ExpectPlatform} bridge that adds to an existing creative tab. Architectury's
  * {@code CreativeTabRegistry.modify} listens on Architectury's own mod bus on NeoForge, so it runs before the mods
- * whose items {@code VanillaTabs} inserts after (Backported Spears, Mekanism) have filled the tab, whatever
+ * whose items {@code VanillaTabs} inserts after (Farmer's Delight's knives) have filled their tabs, whatever
  * {@code neoforge.mods.toml} orders. NeoForge's implementation listens on this mod's bus instead.
  */
 public final class CreativeTabPlatform {

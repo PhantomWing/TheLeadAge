@@ -67,14 +67,17 @@ into its `trim_overrides`. A mock player can be made at once on 26.3 (`entitiesL
   armour material is a memoized `Supplier` (`ModArmorMaterials.LEAD_ARMOR_MATERIAL`), since its equip sound's holder
   exists only once the sound is registered (Architectury 21), so `ModSounds` registers before the items. Sulfur Cubes
   swallow lead's blocks as copper's (`#minecraft:sulfur_cube_archetype/slow_flat`), Better Combat swings the spear as a
-  spear (`weapon_attributes`), and Yori3o's Grappling Hooks gets the Lead Grappling Hook on Fabric alone (data in
-  `fabric/src/main/resources`, its `items/` definitions in the `lead_grappling_hook` pack, loaded only with the mod;
-  YACL's 26.3 NeoForge build asks for 26.2). Create, Mekanism, EMI, Backported Spears and Vanilla Backport have nothing
+  spear (`weapon_attributes`), and Yori3o's Grappling Hooks gets the Lead Grappling Hook on both loaders (data in
+  `common/src/main/resources`; its `items/` definitions in each loader's `resourcepacks/lead_grappling_hook`, a pack
+  registered only with the mod, `GrapplingHookPackHandler` on NeoForge). YACL's 26.3 NeoForge build (3.9.7) writes
+  `[26.2,26.3)` in its `neoforge.mods.toml`, but under the quoted key `[["dependencies.yet_another_config_lib_v3"]]`,
+  which TOML reads as one key with a dot in it rather than FML's `dependencies.<modid>` table, so the range is never
+  enforced and it loads on 26.3 with Grappling Hooks 5.4.0, as their authors ship them. Create, Mekanism, EMI, Backported Spears and Vanilla Backport have nothing
   for 26.3, and the spear, nautilus armour, their loot and mob spears and the bars, chains and lanterns tags are
   vanilla's here. The 1.21.1 Create recipes datagen never deletes (`pressing/lead_sheet`, `splashing/crushed_raw_lead`)
   are gone from `common/src/generated`. Each optional dev-run mod has a switch in `gradle.properties`.
 - JEI's plugin (`compat/jei`, JEI 31.10.0.63) shows the leaded glass recipes, info entries and, through `LeadedGlassSubtypes`, each design as its own stack; JEI runs in the dev client but not in the game tests or datagen. EMI has no build past 1.21.1.
-- Fabric's config screen opens from Mod Menu (`TheLeadAgeModMenu`, through Cloth Config's `AutoConfigClient` from 26.1), compiled against Mod Menu 21.0.0, its newest for 26.3. Farmer's Delight Refabricated isn't a dependency here: the Lead Knife compiles against a stub in `fabric/src/main/java/vectorwing`, kept out of every jar.
+- Fabric's config screen opens from Mod Menu (`TheLeadAgeModMenu`, through Cloth Config's `AutoConfigClient` from 26.1), compiled against Mod Menu 21.0.0, its newest for 26.3. The Lead Knife compiles against Farmer's Delight Refabricated (26.3-3.6.30, compile-only), which the Fabric dev runs load but the game tests don't.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.
