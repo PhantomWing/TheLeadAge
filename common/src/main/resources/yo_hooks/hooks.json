@@ -1,0 +1,10 @@
+[
+  {
+    "id": "lead",
+    "durability": 21,
+    "length": 10,
+    "enchantability": 4,
+    "damageOnHit": 2,
+    "repairItemsTag": "yo_hooks:lead_repairable"
+  }
+]

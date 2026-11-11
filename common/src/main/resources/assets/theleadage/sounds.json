@@ -4,5 +4,77 @@
       "minecraft:random/fizz"
     ],
     "subtitle": "subtitles.theleadage.lead_fumes.hiss"
+  },
+  "block.lead_bulb.turn_on": {
+    "sounds": [
+      {
+        "name": "minecraft:block.copper_bulb.turn_on",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.block.lead_bulb.turn_on"
+  },
+  "block.lead_bulb.turn_off": {
+    "sounds": [
+      {
+        "name": "minecraft:block.copper_bulb.turn_off",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.block.lead_bulb.turn_off"
+  },
+  "item.armor.equip_lead": {
+    "sounds": [
+      {
+        "name": "minecraft:item.armor.equip_iron",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.item.armor.equip_lead"
+  },
+  "block.lead_weight.chip": {
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.land",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.block.lead_weight.chip"
+  },
+  "block.lead_weight.break": {
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.destroy",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.block.lead_weight.break"
+  },
+  "block.lead_weight.land": {
+    "sounds": [
+      {
+        "name": "minecraft:item.mace.smash_ground_heavy",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.block.lead_weight.land"
+  },
+  "block.leaded_glass_pane.rotate": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.item_frame.rotate_item",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.block.leaded_glass_pane.rotate"
+  },
+  "block.leaded_glass_pane.fill": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.item_frame.add_item",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.theleadage.block.leaded_glass_pane.fill"
   }
 }

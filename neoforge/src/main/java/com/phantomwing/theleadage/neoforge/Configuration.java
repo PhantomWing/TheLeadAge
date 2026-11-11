@@ -56,6 +56,15 @@ public class Configuration {
     public static final String ENABLE_VILLAGER_TRADES_ID = "enable_villager_trades";
     public static final ModConfigSpec.BooleanValue ENABLE_VILLAGER_TRADES;
 
+    public static final String ENABLE_LEAD_GEAR_ID = "enable_lead_gear";
+    public static final ModConfigSpec.BooleanValue ENABLE_LEAD_GEAR;
+
+    public static final String ENABLE_CREATIVE_TAB_ID = "enable_creative_tab";
+    public static final ModConfigSpec.BooleanValue ENABLE_CREATIVE_TAB;
+
+    public static final String ENABLE_VANILLA_CREATIVE_TABS_ID = "enable_vanilla_creative_tabs";
+    public static final ModConfigSpec.BooleanValue ENABLE_VANILLA_CREATIVE_TABS;
+
     public static boolean getBooleanConfigurationValue(String id) {
         return switch (id) {
             case GENERATE_LEAD_ORE_ID -> GENERATE_LEAD_ORE.get();
@@ -72,6 +81,9 @@ public class Configuration {
             case ENABLE_STRUCTURE_LOOT_ID -> ENABLE_STRUCTURE_LOOT.get();
             case ENABLE_MOB_LEAD_EQUIPMENT_ID -> ENABLE_MOB_LEAD_EQUIPMENT.get();
             case ENABLE_VILLAGER_TRADES_ID -> ENABLE_VILLAGER_TRADES.get();
+            case ENABLE_LEAD_GEAR_ID -> ENABLE_LEAD_GEAR.get();
+            case ENABLE_CREATIVE_TAB_ID -> ENABLE_CREATIVE_TAB.get();
+            case ENABLE_VANILLA_CREATIVE_TABS_ID -> ENABLE_VANILLA_CREATIVE_TABS.get();
             default -> {
                 // A datapack's config_boolean condition can name anything: one that names no setting is false.
                 TheLeadAge.LOGGER.warn("theleadage:config_boolean names no setting: {}", id);
@@ -143,6 +155,18 @@ public class Configuration {
                 .comment("Should villagers offer lead trades?")
                 .translation("text.autoconfig.theleadage.option.enable_villager_trades")
                 .define(ENABLE_VILLAGER_TRADES_ID, true);
+        ENABLE_LEAD_GEAR = builder
+                .comment("Can lead tools, weapons and armor be had? Turning it off stops them from being crafted, found in chests or worn by mobs, and hides them from the creative tabs, for when another mod's lead gear takes their place.")
+                .translation("text.autoconfig.theleadage.option.enable_lead_gear")
+                .define(ENABLE_LEAD_GEAR_ID, true);
+        ENABLE_CREATIVE_TAB = builder
+                .comment("Should The Lead Age have a tab of its own in the creative menu?")
+                .translation("text.autoconfig.theleadage.option.enable_creative_tab")
+                .define(ENABLE_CREATIVE_TAB_ID, true);
+        ENABLE_VANILLA_CREATIVE_TABS = builder
+                .comment("Should lead items also be listed beside their counterparts in the vanilla creative tabs and other mods' tabs?")
+                .translation("text.autoconfig.theleadage.option.enable_vanilla_creative_tabs")
+                .define(ENABLE_VANILLA_CREATIVE_TABS_ID, true);
 
         COMMON_CONFIG = builder.build();
     }

@@ -10,7 +10,13 @@ import com.phantomwing.theleadage.client.LeadedGlassTrapdoorRenderer;
 import com.phantomwing.theleadage.client.ModColorHandlers;
 import com.phantomwing.theleadage.particle.ModParticles;
 import com.phantomwing.theleadage.entity.ModEntities;
+import com.phantomwing.theleadage.TheLeadAge;
+import com.phantomwing.theleadage.compat.ModIds;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
@@ -59,6 +65,16 @@ public final class TheLeadAgeFabricClient implements ClientModInitializer {
             }
             return model;
         }));
+
+        // The Lead Grappling Hook's items/ definition names Grappling Hooks' own condition property, which fails to
+        // parse, with an error in the log, wherever that mod isn't installed; so it is in a pack of its own.
+        if (FabricLoader.getInstance().isModLoaded(ModIds.GRAPPLING_HOOKS)) {
+            FabricLoader.getInstance().getModContainer(TheLeadAge.MOD_ID).ifPresent(container ->
+                    ResourceManagerHelper.registerBuiltinResourcePack(
+                            TheLeadAge.resourceLocation("lead_grappling_hook"), container,
+                            Component.literal("The Lead Age: Lead Grappling Hook"),
+                            ResourcePackActivationType.ALWAYS_ENABLED));
+        }
 
         // Leaded glass door + trapdoor renderers.
         BlockEntityRendererRegistry.register(ModBlockEntities.LEADED_GLASS_DOOR.get(), LeadedGlassDoorRenderer::new);

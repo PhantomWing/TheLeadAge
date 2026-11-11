@@ -129,6 +129,10 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(vanillaItemTag("chains")).add(ModItems.LEAD_CHAIN.get());
         tag(vanillaItemTag("lanterns")).add(ModItems.LEAD_LANTERN.get());
         tag(vanillaItemTag("bars")).add(ModItems.LEAD_BARS.get());
+        // What a Sulfur Cube swallowing it turns into, as vanilla's metal blocks, ores and bulbs do.
+        tag(vanillaItemTag("sulfur_cube_archetype/slow_flat")).add(ModItems.LEAD_ORE.get(), ModItems.DEEPSLATE_LEAD_ORE.get(),
+                ModItems.RAW_LEAD_BLOCK.get(), ModItems.LEAD_BLOCK.get(), ModItems.CUT_LEAD.get(),
+                ModItems.CHISELED_LEAD.get(), ModItems.LEAD_BULB.get());
         // Glass and dye colour, as on the blocks (see ModBlockTagsProvider).
         tag(c("glass_blocks")).addTag(ModTags.Items.LEADED_GLASS_BLOCKS);
         tag(c("glass_blocks/colorless")).add(ModItems.LEADED_GLASS.get());
