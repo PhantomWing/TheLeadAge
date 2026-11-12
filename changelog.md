@@ -5,6 +5,7 @@
 - Fixed the config screen's tooltips not being translated
 - Fixed a typo in a config tooltip
 - Block of Lead now uses the same sounds as the other lead blocks
+- Fixed Lead Doors dropping nothing when broken without a pickaxe
 
 ### Changes
 - Lead Ore is less common
