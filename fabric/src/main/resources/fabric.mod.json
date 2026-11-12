@@ -42,8 +42,11 @@
   "suggests": {
     "farmersdelight": "*",
     "jei": "*",
-    "spears": "*",
+    "spears": ">=1.0.5",
     "yo_hooks": "*"
+  },
+  "breaks": {
+    "spears": "<1.0.5"
   },
   "custom": {
     "lithium:options": {
