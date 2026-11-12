@@ -54,6 +54,14 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
     (a copy of `equipment/nautilus_body/lead.png`). Without them each is a plain item. The two mods crash a client
     holding a spear when both are installed, so NeoForge's game runs take Backported Spears and its datagen Vanilla
     Backport (whose iron nautilus armour and spear the loot modifiers name), and Fabric's runs Vanilla Backport alone.
+  - On Fabric Backported Spears registers the components and sounds a spear is built of in its own initializer, and
+    Fabric Loader starts the mods in no set order, `suggests` or not, so `fabric/.../compat/spears/LeadSpear.register`
+    registers the spear with the other items where Backported Spears has started (its `WOODEN_SPEAR` is set), and
+    otherwise from a `RegistryEntryAddedCallback` on the item registry, with the next item after that is: built before
+    them, it was a plain item (1.3.0). Played on 2026-11-11 with Backported Spears 1.8.0 in `fabric/run/mods`, Fabric
+    Loader 0.18.2 and Vanilla Backport off, started last and then first (`-Dfabric.debug.loadLate=spears`, then
+    `=theleadage`, all only for those runs): the Lead Spear had its attack damage and speed both ways. Both manifests ask
+    for Backported Spears 1.8.0 or newer (`breaks` `<1.8.0` on Fabric), the version it is built and checked against.
   - Vanilla Backport draws only its own spears held as spears, so the Lead Spear's held model is registered with its
     Platform library in each loader's client setup. Its recipe and smelting load with either mod (`neoforge:or`, which
     `FabricConditionsProvider` turns into `fabric:or`). `weapon_attributes/lead_spear.json` gives it Better Combat's

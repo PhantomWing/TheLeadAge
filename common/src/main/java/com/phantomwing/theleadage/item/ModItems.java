@@ -73,8 +73,8 @@ public class ModItems {
     // same pattern as the Create-gated sheet.
     public static final RegistrySupplier<Item> LEAD_KNIFE = registerKnife("lead_knife", ModTiers.LEAD, ModIds.FARMERS_DELIGHT);
     // 1.21.11's Lead Spear, made as Backported Spears or Vanilla Backport makes a spear when one is installed.
-    public static final RegistrySupplier<Item> LEAD_SPEAR = registerWithModCompat("lead_spear",
-            () -> BackportPlatform.createLeadSpear(baseItem().stacksTo(1)), ModIds.BACKPORTED_SPEARS, ModIds.VANILLA_BACKPORT);
+    public static final RegistrySupplier<Item> LEAD_SPEAR = showWithModCompat(BackportPlatform.registerLeadSpear(ITEMS, "lead_spear",
+            () -> BackportPlatform.createLeadSpear(baseItem().stacksTo(1))), ModIds.BACKPORTED_SPEARS, ModIds.VANILLA_BACKPORT);
 
     // Lead armor: diamond/netherite protection, but the trailing number is the durability FACTOR
     // (durability = factor x slot base), and 6 sits between Leather 5 and Gold 7 — so a full set is
@@ -267,7 +267,10 @@ public class ModItems {
 
     /** An item the creative tabs show only where one of {@code modIds} is loaded. */
     private static RegistrySupplier<Item> registerWithModCompat(String name, Supplier<Item> factory, String... modIds) {
-        RegistrySupplier<Item> item = ITEMS.register(name, factory);
+        return showWithModCompat(ITEMS.register(name, factory), modIds);
+    }
+
+    private static RegistrySupplier<Item> showWithModCompat(RegistrySupplier<Item> item, String... modIds) {
         if (Arrays.stream(modIds).anyMatch(Platform::isModLoaded)) {
             CREATIVE_TAB_ITEMS.add(item);
         }

@@ -46,9 +46,12 @@
     "farmersdelight": "*",
     "jei": "*",
     "emi": "*",
-    "spears": "*",
+    "spears": ">=1.8.0",
     "vanillabackport": "*",
     "yo_hooks": "*"
+  },
+  "breaks": {
+    "spears": "<1.8.0"
   },
   "custom": {
     "lithium:options": {

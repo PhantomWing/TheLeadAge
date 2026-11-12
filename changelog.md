@@ -1,3 +1,9 @@
+# 1.3.1
+
+### Fixes
+- Fixed the Lead Spear sometimes being a plain item on Fabric with Backported Spears
+
+
 # 1.3.0
 
 ### Additions
