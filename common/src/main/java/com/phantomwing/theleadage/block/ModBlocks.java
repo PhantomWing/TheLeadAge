@@ -277,7 +277,7 @@ public class ModBlocks {
 
     private static RegistrySupplier<DoorBlock> registerLeadDoor(String name) {
         return register(name, () -> new DoorBlock(ModBlockSetTypes.LEAD,
-                leadProps(copyOf(Blocks.IRON_DOOR))));
+                leadPropsKeepingTool(copyOf(Blocks.IRON_DOOR))));
     }
 
     private static RegistrySupplier<Block> registerStainedLeadedGlass(DyeColor color) {
@@ -322,9 +322,13 @@ public class ModBlocks {
     }
 
     private static BlockBehaviour.Properties leadProps(BlockBehaviour.Properties baseProps) {
+        return leadPropsKeepingTool(baseProps).requiresCorrectToolForDrops();
+    }
+
+    // A door keeps the tool of vanilla's iron door: from 1.21.4 it drops by hand
+    private static BlockBehaviour.Properties leadPropsKeepingTool(BlockBehaviour.Properties baseProps) {
         return baseProps
                 .strength(LEAD_HARDNESS, LEAD_RESISTANCE)
-                .requiresCorrectToolForDrops()
                 .sound(ModSoundTypes.LEAD)
                 .mapColor(MapColor.COLOR_GRAY)
                 .instrument(NoteBlockInstrument.BASEDRUM);
