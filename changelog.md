@@ -13,6 +13,9 @@
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
 
+### Fixes
+- Fixed Lead Doors dropping nothing when broken without a pickaxe
+
 
 # 1.2.1
 
