@@ -58,8 +58,14 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
     `weapon_attributes/lead_spear.json` gives it Better Combat's spear swings. NeoForge's dev runs load Backported Spears
     1.0.1 (`enable_backported_spears`), but for the game tests and datagen. Its Fabric jar is built with Loom 1.17, which
     this rung's Loom 1.14 refuses to remap, and asks for Fabric Loader 0.19.5, so Fabric compiles against a stub of its
-    `Spears` (`fabric/src/main/java/com/notunanancyowen/spears`, left out of the jar) and its dev runs go without it; on
-    Fabric the spear is only a spear where Backported Spears registered its components first (`suggests` orders it).
+    `Spears` (`fabric/src/main/java/com/notunanancyowen/spears`, left out of the jar: `WOODEN_SPEAR` and
+    `registerSpearRaw`, as 1.0.1 declares them) and its dev runs go without it, since the stub would shadow the real
+    class. On Fabric a spear is built of components and sounds Backported Spears registers in its own initializer, and
+    Fabric Loader starts the mods in no set order, `suggests` or not, so `fabric/.../compat/spears/LeadSpear.register`
+    registers the spear with the other items where Backported Spears has started (its `WOODEN_SPEAR` is set), and
+    otherwise from a `RegistryEntryAddedCallback` on the item registry, with the next item after that is: built before
+    them, it was a plain item. Both manifests ask for Backported Spears 1.0.1 or newer (`breaks` `<1.0.1` on Fabric),
+    the version the stub copies; 1.0.0 crashed opening the inventory.
   - Not on this line: Vanilla Backport (the nautilus armour, its chest swaps, zombies' spears, Sulfur Cubes, Parched),
     Mekanism and its resource pack, and EMI have no 1.21.9 or 1.21.10 build; Yori3o's Grappling Hooks' 1.21.9-1.21.10
     builds read no `yo_hooks/hooks.json`, so there is no Lead Grappling Hook; and the bars, chains and lanterns tags

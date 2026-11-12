@@ -42,7 +42,10 @@
   "suggests": {
     "farmersdelight": "*",
     "jei": "*",
-    "spears": "*"
+    "spears": ">=1.0.1"
+  },
+  "breaks": {
+    "spears": "<1.0.1"
   },
   "custom": {
     "lithium:options": {

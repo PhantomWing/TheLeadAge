@@ -1,7 +1,11 @@
 package com.phantomwing.theleadage.platform;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.world.item.Item;
+
+import java.util.function.Supplier;
 
 /**
  * {@code @ExpectPlatform} bridge that builds the Lead Spear, 1.21.11's, which Backported Spears backports to this
@@ -13,6 +17,15 @@ import net.minecraft.world.item.Item;
  */
 public final class BackportPlatform {
     private BackportPlatform() {
+    }
+
+    /**
+     * Registers the spear {@code spear} makes, in {@code items}; on Fabric with Backported Spears, not before that has
+     * made its own spears, which a spear is built from.
+     */
+    @ExpectPlatform
+    public static RegistrySupplier<Item> registerLeadSpear(DeferredRegister<Item> items, String name, Supplier<Item> spear) {
+        throw new AssertionError("@ExpectPlatform stub – replaced per loader at build time");
     }
 
     /** {@code fallback} carries the item's id, as every item's properties must from 1.21.2. */
