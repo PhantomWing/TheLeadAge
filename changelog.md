@@ -11,6 +11,7 @@
 - Added compatibility with Better Combat: the Lead Spear swings like a spear
 - Added compatibility with Yori3o's Grappling Hooks: the Lead Grappling Hook, with a range of 10 blocks
 - Added compatibility with JEI: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
+- Added the Lead Sword and Lead Axe to the `c:tools/melee_weapon` tag and the Lead Pickaxe to `c:tools/mining_tool`, as NeoForge lists vanilla's
 
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
