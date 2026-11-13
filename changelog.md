@@ -12,6 +12,7 @@
 
 ### Fixes
 - Fixed Lead Doors dropping nothing when broken without a pickaxe
+- Fixed Lead Bars and Lead Chain breaking faster than iron's
 
 
 # 1.2.1
