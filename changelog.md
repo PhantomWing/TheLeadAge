@@ -5,6 +5,9 @@
 - Fixed Lead Bars and Lead Chain breaking faster than iron's
 - Fixed furnaces and Create's fans having two recipes for Crushed Raw Lead with Mekanism, Thermal, Oreganized or Immersive Engineering installed
 
+### Additions
+- Added the Lead Sword and Lead Axe to the `c:tools/melee_weapon` tag and the Lead Pickaxe to `c:tools/mining_tool`, as NeoForge lists vanilla's
+
 
 # 1.3.0
 
