@@ -94,5 +94,9 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
 - The Lead Bulb, lead armour, the Lead Weight and leaded glass panes play sound events of their own (`ModSounds`), each
   vanilla's sound under the mod's name, so the subtitles don't name a copper bulb, iron armour, an anvil, a mace or an
   item frame.
+- The Lead Bars and Lead Chain keep vanilla's hardness, 5, as copper's keep iron's though copper's blocks are 3, and
+  lead's blast resistance for open blocks, 10; every other lead block is 3, since lead is soft. A helper's 3 over them
+  had them break faster than iron's until 1.3.1, as The Silver Age's and The Tin Age's did
+  (`lead_fittings_are_as_hard_as_vanillas`).
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

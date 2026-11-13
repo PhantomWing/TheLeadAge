@@ -2,6 +2,7 @@
 
 ### Fixes
 - Fixed the Lead Spear sometimes being a plain item on Fabric with Backported Spears
+- Fixed Lead Bars and Lead Chain breaking faster than iron's
 
 
 # 1.3.0
