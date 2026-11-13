@@ -57,7 +57,7 @@ public class ModBlocks {
     public static final RegistrySupplier<Block> DEEPSLATE_LEAD_ORE = register("deepslate_lead_ore", () ->
             new LeadOreBlock(copyOf(Blocks.DEEPSLATE_IRON_ORE)));
 
-    /** Hardness shared by every lead block: lead is soft, so it mines faster than iron (5.0). */
+    /** Hardness shared by the lead blocks but the bars and chain: lead is soft, so it mines faster than iron (5.0). */
     private static final float LEAD_HARDNESS = 3.0F;
 
     /**
@@ -242,14 +242,15 @@ public class ModBlocks {
         return register(name, () -> new RotatedPillarBlock(solidLeadProps()));
     }
 
+    // The bars and chain keep vanilla's hardness, as copper's keep iron's though copper's blocks are softer.
     private static RegistrySupplier<RotatedPillarBlock> registerLeadChain(String name) {
         return register(name, () -> new ChainBlock(leadProps(copyOf(Blocks.IRON_CHAIN))
-                .sound(SoundType.CHAIN).explosionResistance(OPEN_LEAD_RESISTANCE)));
+                .sound(SoundType.CHAIN).strength(Blocks.IRON_CHAIN.defaultDestroyTime(), OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<IronBarsBlock> registerLeadBars(String name) {
         return register(name, () -> new IronBarsBlock(leadProps(copyOf(Blocks.IRON_BARS))
-                .explosionResistance(OPEN_LEAD_RESISTANCE)));
+                .strength(Blocks.IRON_BARS.defaultDestroyTime(), OPEN_LEAD_RESISTANCE)));
     }
 
     private static RegistrySupplier<SlabBlock> registerLeadSlab(String name) {

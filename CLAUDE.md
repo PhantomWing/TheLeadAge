@@ -80,5 +80,9 @@ into its `trim_overrides`. A mock player can be made at once on 26.3 (`entitiesL
 - JEI's plugin (`compat/jei`, JEI 31.10.0.63) shows the leaded glass recipes, info entries and, through `LeadedGlassSubtypes`, each design as its own stack; JEI runs in the dev client but not in the game tests or datagen. EMI has no build past 1.21.1.
 - Fabric's config screen opens from Mod Menu (`TheLeadAgeModMenu`, through Cloth Config's `AutoConfigClient` from 26.1), compiled against Mod Menu 21.0.0, its newest for 26.3. The Lead Knife compiles against Farmer's Delight Refabricated (26.3-3.6.30, compile-only), which the Fabric dev runs load but the game tests don't.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`.
+- The Lead Bars and Lead Chain keep vanilla's hardness, 5, as copper's keep iron's though copper's blocks are 3, and
+  lead's blast resistance for open blocks, 10; every other lead block is 3, since lead is soft. A helper's 3 over them
+  had them break faster than iron's until 2026-11-13, as The Silver Age's and The Tin Age's did
+  (`lead_fittings_are_as_hard_as_vanillas`).
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.
