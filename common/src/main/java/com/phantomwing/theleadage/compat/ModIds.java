@@ -9,6 +9,10 @@ public final class ModIds {
     public static final String VANILLA_BACKPORT = "vanillabackport";
     /** Mekanism, Forge only here, whose own lead processing takes the mod's ore and raw lead. */
     public static final String MEKANISM = "mekanism";
+    /** Thermal Foundation, Oreganized and Immersive Engineering, for whose lead Create bridges its crushed raw lead itself. */
+    public static final String THERMAL = "thermal";
+    public static final String OREGANIZED = "oreganized";
+    public static final String IMMERSIVE_ENGINEERING = "immersiveengineering";
     /** Yori3o's Grappling Hooks, whose hook tiers are read from every jar's {@code yo_hooks/hooks.json}. */
     public static final String GRAPPLING_HOOKS = "yo_hooks";
 

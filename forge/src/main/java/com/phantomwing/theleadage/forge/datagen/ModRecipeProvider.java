@@ -9,6 +9,7 @@ import com.phantomwing.theleadage.component.LeadedGlassConfig;
 import com.phantomwing.theleadage.component.ModDataComponents;
 import com.phantomwing.theleadage.forge.Configuration;
 import com.phantomwing.theleadage.forge.condition.ConfigBooleanCondition;
+import com.phantomwing.theleadage.forge.compat.create.ModWashingRecipeGen;
 import com.phantomwing.theleadage.item.ModItems;
 import com.phantomwing.theleadage.recipe.ModRecipes;
 import com.phantomwing.theleadage.tags.CommonTags;
@@ -46,6 +47,7 @@ import java.util.function.Consumer;
 
 public class ModRecipeProvider extends RecipeProvider {
     private static final float ORE_XP = 0.7f; // iron-like
+    private static final float CRUSHED_ORE_XP = 0.1f; // Create's for its crushed ores
     // Recipes that use lead take the forge: tags (which take in Fabric's c: twins), so another mod's lead works in them too. The storage
     // block and nugget conversions and the smelting keep this mod's own items: other lead mods have
     // the same recipes for theirs, and two recipes matching one grid clash.
@@ -68,9 +70,10 @@ public class ModRecipeProvider extends RecipeProvider {
         // already turn our ores and raw lead into crushed_raw_lead (its crushing recipes are gated on the
         // forge:ores/lead + forge:raw_materials/lead tags, which we populate), but Create only bridges the crushed
         // ore BACK to an ingot for Immersive Engineering / Mekanism / Oreganized / Thermal — so without
-        // this the crushed lead would be a dead end.
-        oreSmeltAndBlast(output.withConditions(new ModLoadedCondition(ModIds.CREATE)),
-                AllItems.CRUSHED_LEAD.get(), ModItems.LEAD_INGOT.get());
+        // this the crushed lead would be a dead end. Where one of those is loaded this steps aside, since two recipes
+        // for one input give whichever the recipe map lists first. Create's 0.1 experience, since crushing gave some.
+        oreSmeltAndBlast(output.withConditions(new ModLoadedCondition(ModIds.CREATE), ModWashingRecipeGen.withoutCreatesOwnLead()),
+                AllItems.CRUSHED_LEAD.get(), ModItems.LEAD_INGOT.get(), CRUSHED_ORE_XP);
 
         // 9 <-> storage block, 9 nuggets <-> ingot.
         storage(output, ModItems.RAW_LEAD.get(), ModItems.RAW_LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);
@@ -336,8 +339,12 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     private void oreSmeltAndBlast(RecipeOutput output, ItemLike material, ItemLike result) {
-        cook(output, material, result, 200, RecipeSerializer.SMELTING_RECIPE, "smelting");
-        cook(output, material, result, 100, RecipeSerializer.BLASTING_RECIPE, "blasting");
+        oreSmeltAndBlast(output, material, result, ORE_XP);
+    }
+
+    private void oreSmeltAndBlast(RecipeOutput output, ItemLike material, ItemLike result, float xp) {
+        cook(output, material, result, xp, 200, RecipeSerializer.SMELTING_RECIPE, "smelting");
+        cook(output, material, result, xp, 100, RecipeSerializer.BLASTING_RECIPE, "blasting");
     }
 
     /** Vanilla's iron_nugget_from_smelting and _from_blasting: one recipe each, for every piece of gear. */
@@ -359,10 +366,10 @@ public class ModRecipeProvider extends RecipeProvider {
         blasting.save(output, id(name(nugget) + infix + "_blasting"));
     }
 
-    private void cook(RecipeOutput output, ItemLike material, ItemLike result, int time,
+    private void cook(RecipeOutput output, ItemLike material, ItemLike result, float xp, int time,
                       RecipeSerializer<? extends AbstractCookingRecipe> serializer, String suffix) {
         SimpleCookingRecipeBuilder
-                .generic(Ingredient.of(material), RecipeCategory.MISC, result, ORE_XP, time, serializer)
+                .generic(Ingredient.of(material), RecipeCategory.MISC, result, xp, time, serializer)
                 .unlockedBy(getHasName(material), has(material))
                 .save(output, id(name(result) + "_from_" + name(material) + "_" + suffix));
     }

@@ -68,5 +68,9 @@ vanilla armour's.
   lead's blast resistance for open blocks, 10; every other lead block is 3, since lead is soft. A helper's 3 over them
   had them break faster than iron's until 2026-11-13, as The Silver Age's and The Tin Age's did
   (`lead_fittings_are_as_hard_as_vanillas`).
+- Create's crushed raw lead smelts, blasts and washes into this mod's lead only where none of Mekanism, Thermal,
+  Oreganized and Immersive Engineering is loaded (`ModWashingRecipeGen.withoutCreatesOwnLead`): Create 6.0.8 bridges it
+  into each of theirs itself, and two recipes for one input give whichever the recipe map lists first. Smelting it gives
+  Create's 0.1 experience.
 - GitHub Actions: `release.yml`.
 - Hand-authored access widener: `common/src/main/resources/theleadage.accesswidener`, which Forge's build converts. A first suspect when a port fails to load.

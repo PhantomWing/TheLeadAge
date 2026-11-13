@@ -8,7 +8,10 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.api.data.recipe.WashingRecipeGen;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
+import net.minecraftforge.common.crafting.conditions.NotCondition;
+import net.minecraftforge.common.crafting.conditions.OrCondition;
 
 import java.util.function.Consumer;
 
@@ -34,11 +37,24 @@ public class ModWashingRecipeGen extends WashingRecipeGen {
     }
 
     /**
+     * None of the mods Create 6.0.8 smelts, blasts and washes its crushed raw lead into the lead of itself is loaded.
+     * Where one is, this mod's recipes for it step aside: a furnace or fan with two recipes for one input gives
+     * whichever the recipe map lists first, which changes from pack to pack.
+     */
+    public static ICondition withoutCreatesOwnLead() {
+        return new NotCondition(new OrCondition(new ModLoadedCondition(ModIds.MEKANISM),
+                new ModLoadedCondition(ModIds.THERMAL), new ModLoadedCondition(ModIds.OREGANIZED),
+                new ModLoadedCondition(ModIds.IMMERSIVE_ENGINEERING)));
+    }
+
+    /**
      * Gate every recipe on Create being loaded, so without Create the game silently skips them
-     * instead of erroring on the unknown {@code create:splashing} serializer.
+     * instead of erroring on the unknown {@code create:splashing} serializer, and on Create having no washing of its
+     * own for the crushed lead ({@link #withoutCreatesOwnLead()}).
      */
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
-        super.buildRecipes(RecipeOutput.of(consumer).withConditions(new ModLoadedCondition(ModIds.CREATE)));
+        super.buildRecipes(RecipeOutput.of(consumer).withConditions(new ModLoadedCondition(ModIds.CREATE),
+                withoutCreatesOwnLead()));
     }
 }
