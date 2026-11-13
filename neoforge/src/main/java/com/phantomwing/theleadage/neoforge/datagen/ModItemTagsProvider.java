@@ -14,6 +14,7 @@ import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
+import net.neoforged.neoforge.common.Tags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -68,6 +69,9 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         tag(ItemTags.AXES).add(ModItems.LEAD_AXE.get());
         tag(ItemTags.SHOVELS).add(ModItems.LEAD_SHOVEL.get());
         tag(ItemTags.HOES).add(ModItems.LEAD_HOE.get());
+        // NeoForge names iron's sword, axe and pickaxe in these rather than taking vanilla's tags.
+        tag(Tags.Items.MELEE_WEAPON_TOOLS).add(ModItems.LEAD_SWORD.get(), ModItems.LEAD_AXE.get());
+        tag(Tags.Items.MINING_TOOL_TOOLS).add(ModItems.LEAD_PICKAXE.get());
         // Also what lets the spear take Lunge and the melee enchantments.
         tag(ItemTags.SPEARS).add(ModItems.LEAD_SPEAR.get());
 
