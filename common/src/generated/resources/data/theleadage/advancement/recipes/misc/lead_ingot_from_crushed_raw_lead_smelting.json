@@ -3,6 +3,30 @@
     {
       "type": "neoforge:mod_loaded",
       "modid": "create"
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:or",
+        "values": [
+          {
+            "type": "neoforge:mod_loaded",
+            "modid": "mekanism"
+          },
+          {
+            "type": "neoforge:mod_loaded",
+            "modid": "thermal"
+          },
+          {
+            "type": "neoforge:mod_loaded",
+            "modid": "oreganized"
+          },
+          {
+            "type": "neoforge:mod_loaded",
+            "modid": "immersiveengineering"
+          }
+        ]
+      }
     }
   ],
   "parent": "minecraft:recipes/root",
@@ -30,6 +54,38 @@
       "values": [
         "create"
       ]
+    },
+    {
+      "condition": "fabric:not",
+      "value": {
+        "condition": "fabric:or",
+        "values": [
+          {
+            "condition": "fabric:all_mods_loaded",
+            "values": [
+              "mekanism"
+            ]
+          },
+          {
+            "condition": "fabric:all_mods_loaded",
+            "values": [
+              "thermal"
+            ]
+          },
+          {
+            "condition": "fabric:all_mods_loaded",
+            "values": [
+              "oreganized"
+            ]
+          },
+          {
+            "condition": "fabric:all_mods_loaded",
+            "values": [
+              "immersiveengineering"
+            ]
+          }
+        ]
+      }
     }
   ],
   "requirements": [

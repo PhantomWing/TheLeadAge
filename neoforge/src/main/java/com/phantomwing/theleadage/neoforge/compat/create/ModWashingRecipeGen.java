@@ -1,5 +1,6 @@
 package com.phantomwing.theleadage.neoforge.compat.create;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.phantomwing.theleadage.TheLeadAge;
@@ -11,7 +12,10 @@ import com.simibubi.create.api.data.recipe.WashingRecipeGen;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+import net.neoforged.neoforge.common.conditions.NotCondition;
+import net.neoforged.neoforge.common.conditions.OrCondition;
 
 /**
  * Create "splashing" (washing) recipes: bathing Create's {@code crushed_raw_lead} in a fan-blown
@@ -35,11 +39,23 @@ public class ModWashingRecipeGen extends WashingRecipeGen {
     }
 
     /**
+     * None of the mods Create 6.0.9 smelts, blasts and washes its crushed raw lead into the lead of itself is loaded.
+     * Where one is, this mod's recipes for it step aside: a furnace or fan with two recipes for one input gives
+     * whichever the recipe map lists first, which changes from pack to pack.
+     */
+    public static ICondition withoutCreatesOwnLead() {
+        return new NotCondition(new OrCondition(List.of(new ModLoadedCondition(ModIds.MEKANISM),
+                new ModLoadedCondition(ModIds.THERMAL), new ModLoadedCondition(ModIds.OREGANIZED),
+                new ModLoadedCondition(ModIds.IMMERSIVE_ENGINEERING))));
+    }
+
+    /**
      * Gate every recipe on Create being loaded, so without Create the game silently skips them
-     * instead of erroring on the unknown {@code create:splashing} serializer.
+     * instead of erroring on the unknown {@code create:splashing} serializer, and on Create having no washing of its
+     * own for the crushed lead ({@link #withoutCreatesOwnLead()}).
      */
     @Override
     public void buildRecipes(RecipeOutput recipeOutput) {
-        super.buildRecipes(recipeOutput.withConditions(new ModLoadedCondition(ModIds.CREATE)));
+        super.buildRecipes(recipeOutput.withConditions(new ModLoadedCondition(ModIds.CREATE), withoutCreatesOwnLead()));
     }
 }

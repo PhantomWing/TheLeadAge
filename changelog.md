@@ -3,6 +3,7 @@
 ### Fixes
 - Fixed the Lead Spear sometimes being a plain item on Fabric with Backported Spears
 - Fixed Lead Bars and Lead Chain breaking faster than iron's
+- Fixed furnaces and Create's fans having two recipes for Crushed Raw Lead with Mekanism, Thermal, Oreganized or Immersive Engineering installed
 
 
 # 1.3.0

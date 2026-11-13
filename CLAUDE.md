@@ -98,5 +98,9 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
   lead's blast resistance for open blocks, 10; every other lead block is 3, since lead is soft. A helper's 3 over them
   had them break faster than iron's until 1.3.1, as The Silver Age's and The Tin Age's did
   (`lead_fittings_are_as_hard_as_vanillas`).
+- Create's crushed raw lead smelts, blasts and washes into this mod's lead only where none of Mekanism, Thermal,
+  Oreganized and Immersive Engineering is loaded (`ModWashingRecipeGen.withoutCreatesOwnLead`): Create 6.0.9 bridges it
+  into each of theirs itself, and two recipes for one input give whichever the recipe map lists first. Smelting it gives
+  Create's 0.1 experience.
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.
