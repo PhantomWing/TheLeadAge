@@ -80,5 +80,9 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
   Vanilla Backport), the bars, chains, lanterns, spears and Sulfur Cube tags (Vanilla Backport, Copper Age Backport),
   Better Combat's spear (no spear), the Mekanism Lead pack, EMI, Create and Farmer's Delight.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`.
+- The Lead Bars and Lead Chain keep vanilla's hardness, 5, as copper's keep iron's though copper's blocks are 3, and
+  lead's blast resistance for open blocks, 10; every other lead block is 3, since lead is soft. A helper's 3 over them
+  had them break faster than iron's until 2026-11-13, as The Silver Age's and The Tin Age's did
+  (`lead_fittings_are_as_hard_as_vanillas`).
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.

@@ -185,6 +185,29 @@ public final class LeadBlocksGameTest {
         }
     }
 
+    /**
+     * Lead bars, chain and lantern break as vanilla's do, as copper's bars and chain keep iron's hardness though copper is
+     * softer, and stand up to a blast at least as well.
+     */
+    public static void leadFittingsAreAsHardAsVanillas(GameTestHelper helper) {
+        Block[][] pairs = {{ModBlocks.LEAD_BARS.get(), Blocks.IRON_BARS}, {ModBlocks.LEAD_CHAIN.get(), TestCompat.vanillaChain()},
+                {ModBlocks.LEAD_LANTERN.get(), Blocks.LANTERN}};
+        List<String> wrong = new ArrayList<>();
+        for (Block[] pair : pairs) {
+            if (pair[0].defaultDestroyTime() != pair[1].defaultDestroyTime()
+                    || pair[0].getExplosionResistance() < pair[1].getExplosionResistance()) {
+                wrong.add(BuiltInRegistries.BLOCK.getKey(pair[0]) + " (" + pair[0].defaultDestroyTime() + ", "
+                        + pair[0].getExplosionResistance() + ") against " + BuiltInRegistries.BLOCK.getKey(pair[1]) + " ("
+                        + pair[1].defaultDestroyTime() + ", " + pair[1].getExplosionResistance() + ")");
+            }
+        }
+        if (wrong.isEmpty()) {
+            helper.succeed();
+        } else {
+            fail(helper, "Hardness or blast resistance short of vanilla's: " + String.join("; ", wrong));
+        }
+    }
+
     /** A pane in a wall is in a mob's way, as a glass pane is, and turns with a build; one on the floor is walked over. */
     public static void wallPanesBlockPathsAndTurnWithTheBuild(GameTestHelper helper) {
         BlockState wall = ModBlocks.LEADED_GLASS_PANEL.get().defaultBlockState().setValue(LeadedGlassPaneBlock.FACING, Direction.NORTH);
