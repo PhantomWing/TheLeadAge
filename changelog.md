@@ -8,6 +8,9 @@
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles
 
+### Fixes
+- Fixed Lead Bars and Lead Chain breaking faster than iron's
+
 
 # 1.2.1
 

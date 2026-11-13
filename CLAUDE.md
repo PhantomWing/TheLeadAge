@@ -59,5 +59,9 @@ the gametest folder, `TestCompat` aside, diffs clean against every other line's.
   Yori3o's Grappling Hooks' 1.21.2/1.21.3 builds (3.4.0, 3.8.0) register hook tiers in code and read no
   `yo_hooks/hooks.json`, so there is no Lead Grappling Hook either. `VanillaTabs` still names Farmer's Delight's and
   Create's tabs, which add nothing until those mods are here.
+- The Lead Bars and Lead Chain keep vanilla's hardness, 5, as copper's keep iron's though copper's blocks are 3, and
+  lead's blast resistance for open blocks, 10; every other lead block is 3, since lead is soft. A helper's 3 over them
+  had them break faster than iron's until 2026-11-13, as The Silver Age's and The Tin Age's did
+  (`lead_fittings_are_as_hard_as_vanillas`).
 - GitHub Actions: `release.yml`.
 - Hand-authored access wideners and transformers: `common/src/main/resources/theleadage.accesswidener` and `neoforge/src/main/resources/META-INF/accesstransformer.cfg`. A first suspect when a port fails to load.
