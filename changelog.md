@@ -1,3 +1,9 @@
+# 1.3.2
+
+### Fixes
+- Fixed Lead Bars and Lead Chain breaking faster than iron's
+
+
 # 1.3.1
 
 ### Fixes

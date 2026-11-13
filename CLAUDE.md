@@ -64,5 +64,9 @@ vanilla armour's.
   1.20.1's `getArmorLocation` puts whole into a path in Minecraft's namespace; Forge resolves the namespace itself.
 - Three config options for modpacks, as on 1.21.1: `enable_lead_gear`, `enable_creative_tab` and `enable_vanilla_creative_tabs`. There is no config screen on Forge.
 - Published with `publishMods` from `fabric/build.gradle` and `forge/build.gradle`, with the `-PpublishDryRun` flag. Both uploads are tagged from `supported_minecraft_versions`, 1.20.1, and the Forge one lists Forge and NeoForge as its modloaders: NeoForge 1.20.1 runs Forge 47 mods.
+- The Lead Bars and Lead Chain keep vanilla's hardness, 5, as copper's keep iron's though copper's blocks are 3, and
+  lead's blast resistance for open blocks, 10; every other lead block is 3, since lead is soft. A helper's 3 over them
+  had them break faster than iron's until 2026-11-13, as The Silver Age's and The Tin Age's did
+  (`lead_fittings_are_as_hard_as_vanillas`).
 - GitHub Actions: `release.yml`.
 - Hand-authored access widener: `common/src/main/resources/theleadage.accesswidener`, which Forge's build converts. A first suspect when a port fails to load.
