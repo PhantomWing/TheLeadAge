@@ -3,6 +3,7 @@
 ### Fixes
 - Fixed Lead Bars and Lead Chain breaking faster than iron's
 - Fixed furnaces and Create's fans having two recipes for Crushed Raw Lead with Mekanism, Thermal, Oreganized or Immersive Engineering installed
+- Fixed the `c:armors/nautilus` tag having no name in JEI and EMI
 
 
 # 1.3.1
