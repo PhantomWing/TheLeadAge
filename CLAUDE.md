@@ -73,10 +73,19 @@ into its `trim_overrides`. A mock player can be made at once on 26.3 (`entitiesL
   `[26.2,26.3)` in its `neoforge.mods.toml`, but under the quoted key `[["dependencies.yet_another_config_lib_v3"]]`,
   which TOML reads as one key with a dot in it rather than FML's `dependencies.<modid>` table, so the range is never
   enforced and it loads on 26.3 with Grappling Hooks 5.4.0, as their authors ship them. NeoForge's server scenarios leave
-  the pair out: with them the dev client quick-playing into the server never left the title screen. Create, Mekanism, EMI, Backported Spears and Vanilla Backport have nothing
+  the pair out: with them the dev client quick-playing into the server never left the title screen. NeoForge's Create, Mekanism, EMI, Backported Spears and Vanilla Backport have nothing
   for 26.3, and the spear, nautilus armour, their loot and mob spears and the bars, chains and lanterns tags are
   vanilla's here. The 1.21.1 Create recipes datagen never deletes (`pressing/lead_sheet`, `splashing/crushed_raw_lead`)
   are gone from `common/src/generated`. Each optional dev-run mod has a switch in `gradle.properties`.
+- **Create Fly** (Fabric's Create, mod id `create`) gets 1.21.1's Create recipes in its own format, which isn't Create's
+  (one `ingredient`, a `results` list): `neoforge/.../datagen/CreateFlyRecipeProvider` writes them as JSON into
+  `fabric/src/generated/resources`, which only the Fabric jar carries (`fabric/build.gradle`'s `main` resources; the data
+  run passes the folder as `theleadage.datagen.fabricOutput`), each under `fabric:load_conditions` alone: the Press makes
+  Lead Sheets, Crushed Raw Lead (`create:crushed_raw_lead`) is washed into 9 nuggets and smelted or blasted into an
+  ingot, and the ore, raw lead and its block are crushed, which Create Fly leaves out. Their unlock advancements take
+  26.3's `recipes`. The Fabric dev runs load Create Fly 26.3-6.0.9-2, a beta and its first 26.3 build (2026-11-07,
+  `enable_create_fly`), the game tests too, but for the portal's server scenarios (`fabric/build.gradle` knows them by
+  their init scripts). Its own recipes are 26.2's to the byte, and it ships none of lead, so nothing clashes with these.
 - JEI's plugin (`compat/jei`, JEI 31.10.0.63) shows the leaded glass recipes, info entries and, through `LeadedGlassSubtypes`, each design as its own stack; JEI runs in the dev client but not in the game tests or datagen. EMI has no build past 1.21.1.
 - Fabric's config screen opens from Mod Menu (`TheLeadAgeModMenu`, through Cloth Config's `AutoConfigClient` from 26.1), compiled against Mod Menu 21.0.0, its newest for 26.3. The Lead Knife compiles against Farmer's Delight Refabricated (26.3-3.6.30, compile-only), which the Fabric dev runs load but the game tests don't.
 - Published with `publishMods` from `fabric/build.gradle` and `neoforge/build.gradle`, with the `-PpublishDryRun` flag. Uploads are tagged from `supported_minecraft_versions`.
