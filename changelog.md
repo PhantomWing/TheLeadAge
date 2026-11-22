@@ -17,6 +17,7 @@
 ### Fixes
 - Fixed Lead Doors dropping nothing when broken without a pickaxe
 - Fixed Lead Bars and Lead Chain breaking faster than iron's
+- Fixed the `c:armors/nautilus` tag having no name in JEI and EMI
 
 
 # 1.2.1
