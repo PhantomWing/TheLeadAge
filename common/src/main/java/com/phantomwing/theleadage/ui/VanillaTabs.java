@@ -86,8 +86,7 @@ public final class VanillaTabs {
         add(CreativeModeTabs.INGREDIENTS, Items.IRON_NUGGET, List.of("lead_nugget"));
         add(CreativeModeTabs.INGREDIENTS, Items.COPPER_INGOT, List.of("lead_ingot"));
 
-        // Create lists its sheets in its own tab, not vanilla's. Create has no 26.3 build: should it get one, the sheet
-        // shows here, but its pressing recipe (gone from this line's datagen) has to be written again too.
+        // Create lists its sheets in its own tab, not vanilla's (Create Fly's on Fabric).
         add(CREATE_TAB, List.of(create("iron_sheet")), List.of("lead_sheet"));
     }
 

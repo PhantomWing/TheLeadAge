@@ -99,8 +99,8 @@ public class ModRecipeProvider extends RecipeProvider {
         oreSmeltAndBlast(output, ModItems.RAW_LEAD.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
         oreSmeltAndBlast(output, ModItems.DEEPSLATE_LEAD_ORE.get(), ModItems.LEAD_INGOT.get());
-        // Create compat (crushed lead -> ingot) is absent on this branch: Create publishes no
-        // 26.3 build. Re-add with the ModLoadedCondition when it returns.
+        // Create compat (crushed lead -> ingot) is NeoForge's Create's, which publishes no 26.3 build. Fabric's
+        // Create Fly gets its recipes, crushed lead's smelting among them, from CreateFlyRecipeProvider.
 
         // 9 <-> storage block, 9 nuggets <-> ingot.
         storage(output, ModItems.RAW_LEAD.get(), ModItems.RAW_LEAD_BLOCK.get(), RecipeCategory.BUILDING_BLOCKS);

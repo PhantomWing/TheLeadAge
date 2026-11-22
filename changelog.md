@@ -2,7 +2,7 @@
 
 ### Additions
 - Lead items now also show up in the vanilla creative tabs, beside their vanilla counterparts
-  - The Lead Knife shows up in Farmer's Delight's tab
+  - The Lead Knife shows up in Farmer's Delight's tab, and the Lead Sheet in Create's
   - `enable_creative_tab` and `enable_vanilla_creative_tabs` choose which tabs lead items show up in
 - Added `enable_lead_gear`: turned off, lead tools, weapons and armor (horse and nautilus armor too) can't be crafted, found or worn by mobs, and are hidden from the creative tabs, for modpacks where another mod's lead gear takes their place
 - Sulfur Cubes can swallow lead blocks, ores and bulbs, like copper's
@@ -10,6 +10,8 @@
 - Added compatibility with Yori3o's Grappling Hooks: the Lead Grappling Hook, with a range of 10 blocks
 - Added compatibility with JEI: Lead Pressure Plates, Lead Torches and Lead Lanterns have an info page
 - Added the Lead Sword and Lead Axe to the `c:tools/melee_weapon` tag and the Lead Pickaxe to `c:tools/mining_tool`, as NeoForge lists vanilla's
+- Added compatibility with Create Fly on Fabric
+  - Pressing Lead Sheets and crushing and washing Raw Lead work as with Create
 
 ### Changes
 - Lead Bulbs, lead armor, Lead Weights and leaded glass panes now have their own subtitles

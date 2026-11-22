@@ -13,8 +13,17 @@ def runningGameTest = gradle.startParameter.taskNames.any { it.toLowerCase().con
 
 // Which optional mods the dev runs load, one switch each (gradle.properties).
 //   ./gradlew :fabric:runClient -Penable_grappling_hooks=false
-def loadHooks = (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
-def loadFarmersDelight = (project.findProperty('enable_farmers_delight') ?: rootProject.enable_farmers_delight).toString().toBoolean()
+// Create Fly isn't in the portal's server scenarios, its server (an init script named *.server.gradle) or the client
+// that joins it (quick play into a server): with Create Fly a dev server's /reload holds its thread over 30 seconds on a
+// busy machine, and the client times out. The scenarios test the lead water's range, which Create Fly has nothing to do
+// with.
+def playingOnServer = gradle.startParameter.initScripts.any {
+    it.name.endsWith('.server.gradle') || (it.name.endsWith('.gradle') && it.isFile() && it.text.contains('--quickPlayMultiplayer'))
+}
+def enabled = { String name -> (project.findProperty(name) ?: rootProject.property(name)).toString().toBoolean() }
+def loadHooks = enabled('enable_grappling_hooks')
+def loadFarmersDelight = enabled('enable_farmers_delight')
+def loadCreateFly = !playingOnServer && enabled('enable_create_fly')
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -43,6 +52,12 @@ loom {
 // Test-only source set for game tests, kept out of `main` so nothing in it ships. The tests are
 // common/src/gametest, shared with NeoForge; only the registration and TestLoader are Fabric's own.
 sourceSets {
+    // Datagen's Fabric-only output: the Create Fly recipes (neoforge/.../datagen/CreateFlyRecipeProvider), in Create
+    // Fly's own format, which Create on NeoForge can't read. Only this jar carries it: shadowJar is built from this
+    // source set's jar.
+    main {
+        resources.srcDir file('src/generated/resources')
+    }
     test {
         java.srcDir project(':common').file('src/gametest/java')
         resources.srcDir project(':common').file('src/gametest/resources')
@@ -59,7 +74,7 @@ tasks.named('test') {
 
 // 26.3: the recipe-viewer plugin is live on JEI. The Lead Knife compiles against Farmer's Delight
 // Refabricated. EMI still has nothing past 1.21.1. See the port notes in gradle.properties.
-logger.lifecycle("[TheLeadAge] (fabric) 26.3 branch: JEI compat; no EMI. Farmer's Delight: ${loadFarmersDelight}, Grappling Hooks: ${loadHooks}")
+logger.lifecycle("[TheLeadAge] (fabric) 26.3 branch: JEI compat; no EMI. Farmer's Delight: ${loadFarmersDelight}, Grappling Hooks: ${loadHooks}, Create Fly: ${loadCreateFly}")
 
 configurations {
     common
@@ -107,6 +122,12 @@ dependencies {
     if (loadHooks && !runningGameTest) {
         localRuntime("maven.modrinth:yori3os-grappling-hooks:${rootProject.grappling_hooks_fabric_version}")
         localRuntime("maven.modrinth:yacl:${rootProject.yacl_fabric_version}")
+    }
+
+    // Create Fly, the Fabric port of Create: never compiled against. Its recipes are ours, written by NeoForge's datagen
+    // into src/generated/resources (see sourceSets above). The game tests load it too.
+    if (loadCreateFly) {
+        localRuntime("maven.modrinth:create-fly:${rootProject.create_fly_version}")
     }
 
     // NOTE (26.3 branch): no other dev-runtime niceties. AppleSkin stays out; it is dev-only and

@@ -13,6 +13,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.data.event.PackGenerator;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -59,10 +60,21 @@ public class DataGenerators {
         // 1.21.4: block + item models (and the items/ client item definitions) come from a single
         // vanilla-style ModelProvider.
         event.addProvider(new ModModelProvider(output));
+        // Writes its JSON by hand into the Fabric jar's own folder, so it stays a plain provider beside the registries.
+        event.addProvider(new CreateFlyRecipeProvider(fabricOutput()));
 
         // MUST run last: post-processes the generated recipe JSON, adding a
         // translated fabric:load_conditions block beside every neoforge:conditions
         // block so the conditional/fallback recipes gate identically on both loaders.
         event.addProvider(new FabricConditionsProvider(output));
+    }
+
+    /** Where what the Fabric jar alone carries goes, which the data run names: {@code fabric/src/generated/resources}. */
+    private static PackOutput fabricOutput() {
+        String folder = System.getProperty("theleadage.datagen.fabricOutput");
+        if (folder == null) {
+            throw new IllegalStateException("The data run names no theleadage.datagen.fabricOutput (neoforge/build.gradle)");
+        }
+        return new PackOutput(Path.of(folder));
     }
 }

@@ -14,6 +14,8 @@ architectury {
 def datagenModId = rootProject.property('mod_id').toString()
 def datagenOutput = rootProject.file('common/src/generated/resources/').absolutePath
 def datagenExisting = rootProject.file('common/src/main/resources/').absolutePath
+// What only the Fabric jar carries: the Create Fly recipes (datagen/CreateFlyRecipeProvider).
+def datagenFabricOutput = rootProject.file('fabric/src/generated/resources/').absolutePath
 
 // A recipe viewer is useless in the headless game-test and data-generation runs and can hang
 // or crash them, so the dev-runtime JEI below is skipped for those task names.
@@ -30,8 +32,8 @@ def playingOnServer = gradle.startParameter.initScripts.any {
 }
 def loadHooks = !playingOnServer && (project.findProperty('enable_grappling_hooks') ?: rootProject.enable_grappling_hooks).toString().toBoolean()
 
-// 26.3: JEI publishes for both loaders. Create, FD-NeoForge and EMI still have no build.
-// See the port notes in gradle.properties.
+// 26.3: JEI publishes for both loaders. NeoForge's Create, FD-NeoForge and EMI still have no build; Fabric's Create
+// Fly does, and gets its recipes from this loader's datagen. See the port notes in gradle.properties.
 logger.lifecycle("[TheLeadAge] (neoforge) 26.3 branch: JEI kept; no Create/FD-NeoForge/EMI compat")
 
 loom {
@@ -58,6 +60,7 @@ loom {
             clientData()
             name = "Data Generation"
             programArgs('--mod', datagenModId, '--all', '--output', datagenOutput, '--existing', datagenExisting)
+            property('theleadage.datagen.fabricOutput', datagenFabricOutput)
             // The mod without the test source set, which carries the datagen output into dev runs: datagen would
             // otherwise load the output of the run before as the mod's own while it writes the new one.
             mods {
