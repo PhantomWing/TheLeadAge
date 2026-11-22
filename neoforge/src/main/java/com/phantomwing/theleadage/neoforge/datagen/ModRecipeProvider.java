@@ -370,15 +370,21 @@ public class ModRecipeProvider extends RecipeProvider {
         cook(output, SimpleCookingRecipeBuilder.smelting(Ingredient.of(material), RecipeCategory.MISC,
                 CookingBookCategory.MISC, result, ORE_XP, 200), material, result, "smelting");
         cook(output, SimpleCookingRecipeBuilder.blasting(Ingredient.of(material), RecipeCategory.MISC,
-                CookingBookCategory.MISC, result, ORE_XP, 100), material, result, "blasting");
+                CookingBookCategory.MISC, result, ORE_XP, BLASTING_TIME), material, result, "blasting");
     }
+
+    /**
+     * Vanilla's own blasting time from 26.3, where the blast furnace cooks twice as fast as the recipe says
+     * ({@code cooking/speed_default}); the 100 of the versions before blasted in half of iron's time.
+     */
+    static final int BLASTING_TIME = 200;
 
     /** Vanilla's iron_nugget_from_smelting and _from_blasting: one recipe each, for every piece of gear. */
     private void nuggetFromGear(RecipeOutput output, ItemLike nugget, ItemLike... gear) {
         SimpleCookingRecipeBuilder smelting = SimpleCookingRecipeBuilder.smelting(Ingredient.of(gear),
                 RecipeCategory.MISC, CookingBookCategory.MISC, nugget, 0.1f, 200);
         SimpleCookingRecipeBuilder blasting = SimpleCookingRecipeBuilder.blasting(Ingredient.of(gear),
-                RecipeCategory.MISC, CookingBookCategory.MISC, nugget, 0.1f, 100);
+                RecipeCategory.MISC, CookingBookCategory.MISC, nugget, 0.1f, BLASTING_TIME);
         for (ItemLike item : gear) {
             smelting.unlockedBy(getHasName(item), has(item));
             blasting.unlockedBy(getHasName(item), has(item));

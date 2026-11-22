@@ -69,7 +69,7 @@ public class CreateFlyRecipeProvider implements DataProvider {
                 output(CRUSHED_RAW_LEAD, 9, 1), output("create:experience_nugget", 9, 0.75f))));
 
         saved.addAll(cooking(cache, "minecraft:smelting", "smelting", 200));
-        saved.addAll(cooking(cache, "minecraft:blasting", "blasting", 100));
+        saved.addAll(cooking(cache, "minecraft:blasting", "blasting", ModRecipeProvider.BLASTING_TIME));
 
         return CompletableFuture.allOf(saved.toArray(CompletableFuture[]::new));
     }

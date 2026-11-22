@@ -14,7 +14,7 @@
     }
   ],
   "type": "minecraft:blasting",
-  "cookingtime": 100,
+  "cookingtime": 200,
   "experience": 0.1,
   "ingredient": [
     "yo_hooks:lead_grappling_hook",
